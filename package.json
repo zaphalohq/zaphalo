@@ -2,7 +2,9 @@
   "name": "@yaari/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "start": "cross-env FORCE_COLOR=true concurrently -n \"server,front\" -c \"bgBlue.bold,bgGreen.bold\" \"yarn nx start:dev server\" \"yarn nx start front\""
+  },
   "private": true,
   "dependencies": {},
   "devDependencies": {
