@@ -1,0 +1,13 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Greeting {
+  message: String!
+}
+
+type Query {
+  sayHello: String!
+  Hello: String!
+  getGreeting(name: String!): Greeting!
+}
