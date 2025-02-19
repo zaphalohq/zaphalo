@@ -19,6 +19,7 @@ import { TypeORMModule } from './database/typeorm/typeorm.module';
       driver: YogaDriver,
       imports: [GraphQLConfigModule],
       useClass: GraphQLConfigService,
+      
     }),
     CoreModule,
 ],

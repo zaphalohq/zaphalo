@@ -16,7 +16,7 @@ export const typeORMCoreModuleOptions: TypeOrmModuleOptions = {
   //   `${isJest ? '' : 'dist/'}/core/modules/**/*.entity{.ts,.js}`,
   // ],
   entities: [__dirname + '/../../../core/modules/user/*.entity{.ts,.js}'],
-  synchronize: false,
+  synchronize: true,
   migrationsRun: false,
   migrationsTableName: '_typeorm_migrations',
   metadataTableName: '_typeorm_generated_columns_and_materialized_views',

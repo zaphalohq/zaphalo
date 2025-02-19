@@ -33,7 +33,7 @@ export class UserService {
 
   async createUser(CreateUserInput : CreateUserDTO ) : Promise<User | undefined> {
     const user = this.userRepository.create(CreateUserInput)
-    this.userRepository.save(user)
+    await this.userRepository.save(user)
     return user;
     }
 }

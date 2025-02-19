@@ -4,12 +4,12 @@ import { FilterableField, FilterableRelation, KeySet, QueryOptions } from '@ptc-
 
 
 @ObjectType('User')
-@KeySet(['id'])
+// @KeySet(['id'])
 @QueryOptions({ enableTotalCount: true })
 export class userDTO {
 
-  @FilterableField(() => ID)
-  id!: number
+  // @FilterableField(() => ID)
+  // id!: string
 
   @Field()
   @IsString()
@@ -20,6 +20,6 @@ export class userDTO {
   email : string
 
   @Field()
-  @IsStrongPassword()
+  // @IsStrongPassword()
   password : string
 }
