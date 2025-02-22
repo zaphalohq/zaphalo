@@ -14,7 +14,7 @@ export class CreateUserDTO {
   username: string;
 
   @Field()  // Marks this field as a GraphQL field
-  @IsEmail()  // Optional: validates if the email is in the correct format
+  // @IsEmail()  // Optional: validates if the email is in the correct format
   email: string;
 
   @Field()
