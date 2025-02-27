@@ -31,7 +31,9 @@ import {
 import { CreateUserDTO } from './dto/create-user.dto';
 import { promises } from 'fs';
 import { userDTO } from './dto/user.dto';
-  
+
+import { GqlAuthGuard } from '../auth/guards/gql-auth.guard';
+
   const getHMACKey = (email?: string, key?: string | null) => {
     if (!email || !key) return null;
   
@@ -50,7 +52,8 @@ import { userDTO } from './dto/user.dto';
       // private readonly environmentService: EnvironmentService,
       // private readonly fileUploadService: FileUploadService,
     ) {}
-  
+
+    @UseGuards(GqlAuthGuard)
     @Query(() => [User])
     async findAll() : Promise<User[]>{
       return this.userService.findAll();

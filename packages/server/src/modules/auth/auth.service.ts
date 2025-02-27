@@ -40,7 +40,6 @@ export class AuthService {
       return "user already exist"
     }
     const user = await this.userservice.createUser(Register)  
-    console.log("..................", user);
     
     return user;
     }
