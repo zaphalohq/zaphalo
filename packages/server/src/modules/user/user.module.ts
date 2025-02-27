@@ -6,13 +6,14 @@ import { NestjsQueryGraphQLModule } from '@ptc-org/nestjs-query-graphql';
 import { NestjsQueryTypeOrmModule } from '@ptc-org/nestjs-query-typeorm';
 
 import { User } from "./user.entity";
-import { TypeORMModule } from "../../../database/typeorm/typeorm.module";
-import { TypeORMService } from "../../../database/typeorm/typeorm.service";
+// import { TypeORMModule } from "../../../database/typeorm/typeorm.module";
+// import { TypeORMService } from "../../../database/typeorm/typeorm.service";
 import { UserService } from './user.service';
 import { UserResolver } from './user.resolver';
 import { userAutoResolverOpts } from './user.auto-resolver-opts';
 import { userDTO } from './dto/user.dto';
 import { CreateUserDTO } from './dto/create-user.dto';
+import { TypeORMModule } from 'src/database/typeorm/typeorm.module';
 
 
 @Module({

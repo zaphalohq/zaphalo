@@ -11,9 +11,10 @@ import GraphQLJSON from 'graphql-type-json';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 import { GraphQLSchemaWithContext, YogaInitialContext } from 'graphql-yoga';
 import * as Sentry from '@sentry/node';
+import { CoreModule } from 'src/modules/core.module';
+import { instantsModule } from 'src/modules/whatsapp/instants.module';
 
 // import { TokenService } from 'src/constro/modules/auth/services/token.service';
-import { CoreModule } from '../../modules/core.module';
 // import { Workspace } from 'src/engine/core-modules/workspace/workspace.entity';
 // import { WorkspaceSchemaFactory } from 'src/engine/api/graphql/workspace-schema.factory';
 // import { ExceptionHandlerService } from 'src/constro/integrations/exception-handler/exception-handler.service';
@@ -21,7 +22,7 @@ import { CoreModule } from '../../modules/core.module';
 // import { renderApolloPlayground } from 'src/engine/utils/render-apollo-playground.util';
 // import { EnvironmentService } from 'src/constro/integrations/environment/environment.service';
 // import { useExceptionHandler } from 'src/constro/integrations/exception-handler/hooks/use-exception-handler.hook';
-import { User } from '../../../core/modules/user/user.entity';
+
 // import { useThrottler } from 'src/constro/api/graphql/graphql-config/hooks/use-throttler';
 // import { JwtData } from 'src/engine/core-modules/auth/types/jwt-data.type';
 // import { useSentryTracing } from 'src/engine/integrations/exception-handler/hooks/use-sentry-tracing';
@@ -113,7 +114,8 @@ export class GraphQLConfigService
 
     const config: YogaDriverConfig = {
       autoSchemaFile: true,
-      include: [CoreModule],
+      include: [CoreModule, instantsModule],
+  
       // conditionalSchema: async (context) => {
       //   let user: User | undefined;
         // let workspace: Workspace | undefined;

@@ -33,7 +33,12 @@ export class AuthService {
   }
 
 
-  async Register(Register): Promise<any>    {
+  async Register(Register : any): Promise<any>    {
+    const username_validation = await this.userservice.findOneByUsername(Register.username);
+    const email_validation = await this.userservice.findOneByEmail(Register.email);
+    if(username_validation || email_validation){
+      return "user already exist"
+    }
     const user = await this.userservice.createUser(Register)  
     console.log("..................", user);
     

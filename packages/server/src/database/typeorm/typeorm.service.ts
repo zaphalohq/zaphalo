@@ -1,5 +1,7 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { User } from 'src/core/modules/user/user.entity';
+import { User } from 'src/modules/user/user.entity';
+import { WhatsappInstants } from 'src/modules/whatsapp/Instants.entity';
+
 
 
 import { DataSource } from 'typeorm';
@@ -23,7 +25,7 @@ export class TypeORMService implements OnModuleInit, OnModuleDestroy {
 
 //   constructor(private readonly environmentService: EnvironmentService) {
  constructor () {
-    console.log("..............................")
+    // console.log("..............................")
     this.mainDataSource = new DataSource({
       url: process.env.PG_DATABASE_URL,
       type: 'postgres',
@@ -31,6 +33,7 @@ export class TypeORMService implements OnModuleInit, OnModuleDestroy {
       schema: 'core',
       entities: [
         User,
+        WhatsappInstants,
         // Workspace,
         // UserWorkspace,
         // AppToken,

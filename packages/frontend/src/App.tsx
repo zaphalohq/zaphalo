@@ -1,34 +1,45 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import Register from './components/Auth/Register'
+import Login from './components/Auth/Login'
+import { ApolloProvider } from '@apollo/client'
+import client from './components/AppolloClientConnection/apolloClient'
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'
+import Dashboard from './components/pages/Dashboard'
+import DashboardLayout from './components/DashboardLayout/DashboardLayout'
+import Settings from './components/pages/Settings'
+import Invoices from './components/pages/Invoices'
+import Integrations from './components/pages/Integrations'
+import Teams from './components/pages/Teams'
+import WhatsappInstants from './components/pages/WhatsappInstants'
+
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <ApolloProvider client={client}>
+    <BrowserRouter>
+    <Routes>
+    <Route path="/register" element={<Register />} />
+    <Route path='/login' element={<Login />} />
+    {/* <Route path='/dashboard' element={
+      <PrivateRoute>
+        <Dashboard />
+      </PrivateRoute>
+    } /> */}
+     <Route element={<ProtectedRoute />}>
+      {/* Protected Dashboard Layout */}
+      <Route path="/" element={<DashboardLayout />}>
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="settings" element={<Settings />} />
+        <Route path="teams" element={<Teams />} />
+        <Route path="integrations" element={<Integrations />} />
+        <Route path="invoices" element={<Invoices />} />
+        <Route path="whatsappinstants" element={<WhatsappInstants />} />
+      </Route>
+      </Route >
+    </Routes>
+    </BrowserRouter>
+    </ApolloProvider>
   )
 }
 

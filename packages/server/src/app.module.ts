@@ -5,12 +5,13 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 // import { GraphQLModule } from '@nestjs/graphql';
 import { YogaDriver, YogaDriverConfig } from '@graphql-yoga/nestjs';
-import { CoreModule } from './core/modules/core.module';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
-import { GraphQLConfigModule } from './core/api/graphql-config/graphql-config.module';
-import { GraphQLConfigService } from './core/api/graphql-config/graphql-config.service';
 import { TypeORMModule } from './database/typeorm/typeorm.module';
+import { GraphQLConfigModule } from './modules/api/graphql-config/graphql-config.module';
+import { GraphQLConfigService } from './modules/api/graphql-config/graphql-config.service';
+import { CoreModule } from './modules/core.module';
+import { instantsModule } from './modules/whatsapp/instants.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { TypeORMModule } from './database/typeorm/typeorm.module';
       
     }),
     CoreModule,
+    instantsModule,
 ],
   // controllers: [AppController],
   // providers: [AppService],
