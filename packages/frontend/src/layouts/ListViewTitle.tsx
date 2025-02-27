@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { FiEdit2 } from 'react-icons/fi'
 import WhatsappInstants from '../components/pages/WhatsappInstants'
 
-const ListViewTitle = () => {
+const ListViewTitle = ({ HandleFormVisibility } : any) => {
     // const [ isPopUpActive, setIsPopUpActive ] = useState(false)
     // const HandlePopUp = () => {
     //     setIsPopUpActive(!isPopUpActive)
@@ -57,7 +57,7 @@ const ListViewTitle = () => {
                     Laptop PC
                 </td>
                 <td className="px-4 py-2">
-                <button className='text-lg text-violet-500 cursor-pointer hover:bg-stone-200 p-2 rounded'><FiEdit2 /></button>
+                <button onClick={HandleFormVisibility} className='text-lg text-violet-500 cursor-pointer hover:bg-stone-200 p-2 rounded'><FiEdit2 /></button>
                 </td>
             </tr>
         </tbody>

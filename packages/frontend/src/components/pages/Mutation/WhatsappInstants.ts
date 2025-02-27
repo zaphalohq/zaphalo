@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client";
 
-export const WhatsappInstantsData = gql`
+export const WhatsappInstantsCreation = gql`
 mutation CreateInstants(
   $name: String!,
   $appId: String!,
@@ -21,4 +21,19 @@ mutation CreateInstants(
     name
   }
 }
+`;
+
+
+export const findAllInstants = gql`
+  query findAllInstants{
+    findAllInstants {
+      id
+      name
+      appId
+      phoneNumberId
+      businessAccountId
+      accessToken
+      appSecret
+    }
+  }
 `;

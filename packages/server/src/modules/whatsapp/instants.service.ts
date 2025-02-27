@@ -20,6 +20,12 @@ export class instantsService {
         return whatappInstants;
     }
 
+    async findAllInstants(): Promise<WhatsappInstants[]> {
+        console.log("...............");
+        
+        return await this.instantsRepository.find();
+    }
+
 }
 
 

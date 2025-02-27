@@ -6,6 +6,7 @@ import { UserModule } from '../user/user.module';
 // import { JwtStrategy } from './jwt.strategy';
 import { AuthResolver } from './auth.resolver';
 import { JwtAuthGuard } from './guards/jwt-auth-guard';
+import { JwtStrategy } from 'src/core/modules/auth/jwt.strategy';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { JwtAuthGuard } from './guards/jwt-auth-guard';
       signOptions: { expiresIn: '60m' },
     }),
   ],
-  providers: [AuthService, AuthResolver, JwtAuthGuard],
-  exports: [AuthService, JwtAuthGuard],
+  providers: [AuthService, AuthResolver, JwtStrategy, ],
+  exports: [AuthService],
 })
 export class AuthModule {}
