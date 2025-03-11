@@ -2,12 +2,11 @@ import { useMutation } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import { LoginMutation } from './AuthMutations/LoginMutation';
 import { useNavigate } from 'react-router-dom';
+import AuthInputLabel from '../UI/AuthInputLabel';
 
 
 function Login() {
 
-  const [ username, setUsername ] = useState('');
-const [ password, setPassword ] = useState('');
 const [login, { data, loading, error }] = useMutation(LoginMutation);
 const navigate = useNavigate();
 
@@ -19,13 +18,27 @@ useEffect(() => {
 
 }, [navigate])
 
+const [authForm, setAuthForm] = useState({
+  username : '',
+  password : ''
+})  
+const HandleChange = (e : any) => {
+  const { name, value } = e.target
+  setAuthForm({
+    ...authForm,
+     [name] : value
+  })
+}
+
 const handleSubmit = async (event : any) => {
   event.preventDefault();
+  console.log();
+  
   try {
     const response = await login({
       variables: {
-        username,
-        password,
+        username : authForm.username,
+        password : authForm.password,
       },
     });
     console.log('Login Success:', response.data.login.access_token);    
@@ -44,22 +57,10 @@ const handleSubmit = async (event : any) => {
         {error && <p className="text-red-500">Error: {error.message}</p>}
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Username</label>
-            <input
-            onChange={(e) => setUsername(e.target.value)}
-              type="username"
-              className="w-full p-3 border border-gray-300 rounded-lg"
-              placeholder="Enter your username"
-            />
+          <AuthInputLabel title="Username" name="username" placeholder="Enter your username" HandleChange={HandleChange} />
           </div>
           <div className="mb-6">
-            <label className="block text-gray-700 mb-2">Password</label>
-            <input
-            onChange = {(e) => setPassword(e.target.value)}
-              type="password"
-              className="w-full p-3 border border-gray-300 rounded-lg"
-              placeholder="Enter your password"
-            />
+          <AuthInputLabel title="password" name="password" placeholder="Enter your password" HandleChange={HandleChange} />
           </div>
           <button
             type="submit"

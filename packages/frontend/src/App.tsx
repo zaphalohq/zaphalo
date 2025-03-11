@@ -5,13 +5,14 @@ import Login from './components/Auth/Login'
 import { ApolloProvider } from '@apollo/client'
 import client from './components/AppolloClientConnection/apolloClient'
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'
-import Dashboard from './components/pages/Dashboard'
-import DashboardLayout from './components/DashboardLayout/DashboardLayout'
-import Settings from './components/pages/Settings'
-import Invoices from './components/pages/Invoices'
-import Integrations from './components/pages/Integrations'
-import Teams from './components/pages/Teams'
-import WhatsappInstants from './components/pages/WhatsappInstants'
+import Dashboard from './pages/Dashboard'
+import { Settings } from 'lucide-react'
+import Teams from './pages/Teams'
+import Integrations from './pages/Integrations'
+import WhatsappInstants from './pages/WhatsappInstants'
+import Chats from './pages/Chats'
+import MainLayout from './pages/MainLayout'
+
 
 
 function App() {
@@ -28,15 +29,16 @@ function App() {
     } /> */}
      <Route element={<ProtectedRoute />}>
       {/* Protected Dashboard Layout */}
-      <Route path="/" element={<DashboardLayout />}>
+      <Route path="/" element={<MainLayout />}>
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="settings" element={<Settings />} />
         <Route path="teams" element={<Teams />} />
         <Route path="integrations" element={<Integrations />} />
-        <Route path="invoices" element={<Invoices />} />
+        {/* <Route path="chats" element={<Chats />} /> */}
         <Route path="whatsappinstants" element={<WhatsappInstants />} />
       </Route>
       </Route >
+      <Route path="chats" element={<Chats />} />
     </Routes>
     </BrowserRouter>
     </ApolloProvider>

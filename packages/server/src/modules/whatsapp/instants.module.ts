@@ -5,7 +5,6 @@ import { NestjsQueryGraphQLModule } from '@ptc-org/nestjs-query-graphql';
 import { WhatsappInstants } from './Instants.entity';
 import { NestjsQueryTypeOrmModule } from '@ptc-org/nestjs-query-typeorm';
 import { TypeORMModule } from 'src/database/typeorm/typeorm.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { whatappinstanstsAutoResolverOpts } from './instants.auto-resolver-opts';
 
 @Module({
@@ -20,6 +19,6 @@ import { whatappinstanstsAutoResolverOpts } from './instants.auto-resolver-opts'
       resolvers: whatappinstanstsAutoResolverOpts,
     }),],
   providers: [instantsService, instantsResolver, TypeORMModule],
-  exports: [instantsService]
+  exports: [instantsService],
 })
 export class instantsModule {}

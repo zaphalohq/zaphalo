@@ -1,18 +1,3 @@
-// // apolloClient.js
-// import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
-
-// const httpLink = createHttpLink({
-//   uri: 'http://localhost:3000/graphql', // Yoga's GraphQL endpoint
-//   credentials: 'include',  // Include cookies for authentication
-// });
-
-// const client = new ApolloClient({
-//   link: httpLink,
-//   cache: new InMemoryCache(),
-// });
-
-// export default client;
-
 
 import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
@@ -33,7 +18,7 @@ const authLink = setContext((_, { headers }) => {
   return {
     headers: {
       ...headers,
-      authorization: token ? `Bearer${token}` : "",  // Attach JWT in Authorization header
+      authorization: token ? `Bearer ${token}` : "",  // Attach JWT in Authorization header
     }
   };
 });
