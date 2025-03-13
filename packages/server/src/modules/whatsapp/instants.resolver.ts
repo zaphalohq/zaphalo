@@ -20,7 +20,7 @@ export class instantsResolver {
     // @UseGuards(JwtAuthGuard)
     @Mutation(() => WhatsappInstants)
     async CreateInstants(@Args('InstantsData'
-    ) WhatsappInstantsData: CreateFormDataInput): Promise<WhatsappInstants> {        
+    ) WhatsappInstantsData: CreateFormDataInput): Promise<WhatsappInstants | null> {        
        return await this.instantsservice.CreateInstants(WhatsappInstantsData);
     }
 
@@ -32,12 +32,12 @@ export class instantsResolver {
     }
 
     @Mutation(() => WhatsappInstants)
-    async updateInstants(@Args('updateInstants') UpdatedInstants : UpdatedInstantsDTO): Promise<WhatsappInstants>{
+    async updateInstants(@Args('updateInstants') UpdatedInstants : UpdatedInstantsDTO): Promise<WhatsappInstants | null>{
         return this.instantsservice.UpdateInstants(UpdatedInstants.id , UpdatedInstants )
     }
 
     @Mutation(() => WhatsappInstants)
-    async DeleteInstants(@Args('DeleteInstants') DeleteInstants : DeleteInstantsDTO) : Promise<WhatsappInstants> {
+    async DeleteInstants(@Args('DeleteInstants') DeleteInstants : DeleteInstantsDTO) : Promise<WhatsappInstants | null> {
         return this.instantsservice.DeleteInstants(DeleteInstants.id)
     }
 

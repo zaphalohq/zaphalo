@@ -12,11 +12,11 @@ export class Message {
   id: string;
 
   @Column('text')
-  msg: string; 
+  message: string; 
 
   @ManyToOne(() => Channel) // Links message to a channel
   @JoinColumn({ name: 'channelId' })
-  channel: Channel; // References the Channel entity (foreign key)
+  channel_id: Channel; // References the Channel entity (foreign key)
 
   @ManyToOne(() => Contacts, contacts => contacts.messages, { onDelete : 'SET NULL'}) // Many messages belong to one sender
   @JoinColumn({ name: 'senderid' }) // Foreign key column 'senderid'

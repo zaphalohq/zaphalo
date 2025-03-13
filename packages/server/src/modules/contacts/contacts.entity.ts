@@ -1,4 +1,4 @@
-import { Field, ObjectType } from "@nestjs/graphql";
+import { Field, Float, Int, ObjectType } from "@nestjs/graphql";
 import { IDField } from "@ptc-org/nestjs-query-graphql";
 import { GraphQLScalarType, Kind } from "graphql";
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
@@ -18,8 +18,8 @@ export class Contacts {
   contactName: string;
 
   @Column({ type: 'bigint' })
-  @Field(() => String)
-  phoneNo: String;
+  @Field(() => Float)
+  phoneNo: number;
 
   @Column()
   @Field(() => String, { nullable: true })

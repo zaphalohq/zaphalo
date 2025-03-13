@@ -1,3 +1,15 @@
+// {
+//   "extends": "./tsconfig.base.json",
+//   "compileOnSave": false,
+//   "files": [],
+//   "references": [],
+//   "ts-node": {
+//     "compilerOptions": {
+//       "module": "commonjs"
+//     }
+//   }
+// }
+
 {
   "extends": "./tsconfig.base.json",
   "compileOnSave": false,

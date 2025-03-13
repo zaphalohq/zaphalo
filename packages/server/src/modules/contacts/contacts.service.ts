@@ -17,7 +17,7 @@ export class contactsService{
         return createdContacts;
     }
 
-    async findOneContact(senderId : String){
+    async findOneContact(senderId : number){
         return await this.contactsRepository.findOne({ where : { phoneNo : senderId}})
     }
 

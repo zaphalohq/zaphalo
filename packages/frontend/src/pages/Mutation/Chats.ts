@@ -3,7 +3,7 @@ import { gql } from "@apollo/client"
 export const CreateContactMute = gql`
 mutation CreateContacts(
   $contactName: String!,
-  $phoneNo: String!,
+  $phoneNo: Float!,
   $profileImg: String!,
 ) {
   CreateContacts(CreateContacts: {

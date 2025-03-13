@@ -46,20 +46,20 @@ export class channelService {
         return newChannel
     }
 
-    async createMessage( msg: string, channelId : string, senderIdA : String, attachment: string = null) {
-        const  senderId = await this.contactsservice.findOneContact((senderIdA))
+    async createMessage( message: string, channelId : string, senderIdA : number, attachment: string = '') {
+        const senderId = await this.contactsservice.findOneContact((senderIdA))[0];
+
         
 
-        const channel = await this.channelRepository.findOne({ where : { id : channelId}})
-        const message = this.messageRepository.create({
-            msg,
+        const channel_id = await this.channelRepository.findOne({ where : { id : channelId}})[0];
+        const message_rec = this.messageRepository.create({
+            message,
             attachment,
             senderId,
-            channel
-
+            channel_id
         })
-        await this.messageRepository.save(message)
-        console.log(message);
+        await this.messageRepository.save(message_rec)
+        console.log(message_rec);
         
         return message
     }

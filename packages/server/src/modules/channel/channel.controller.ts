@@ -40,27 +40,26 @@ export class channelController {
     async postWhatsappApi(@Request() req: Request): Promise<any> {
         console.log(JSON.stringify(req.body, null, 2));
         const data = JSON.parse(JSON.stringify(req.body, null, 2))
-        
-        if(data && data.entry[0].changes[0].value.messages){
-        const msg = data.entry[0].changes[0].value.messages[0].text.body
-        const senderId = data.entry[0].changes[0].value.messages[0].from;
-        const memberIds = [data.entry[0].changes[0].value.metadata.phone_number_id]
-        console.log(data.entry[0].changes[0].value.messages[0].text.body)
-        const channel = await this.channelservice.findOrCreateChannel([Number(memberIds), Number(senderId)] ,Number(senderId) )
-        const message = await this.channelservice.createMessage(msg, channel.id, senderId)
-        return message
-    }
+
+        if (data && data.entry[0].changes[0].value.messages) {
+            const msg = data.entry[0].changes[0].value.messages[0].text.body
+            const senderId = data.entry[0].changes[0].value.messages[0].from;
+            const memberIds = [data.entry[0].changes[0].value.metadata.phone_number_id]
+            console.log(data.entry[0].changes[0].value.messages[0].text.body)
+            const channel = await this.channelservice.findOrCreateChannel([Number(memberIds), Number(senderId)], Number(senderId))
+            const message = await this.channelservice.createMessage(msg, channel.id, senderId)
+            return message
+        }
     }
 
 
     // @UseGuards(AuthGuard('jwt'))
     @Post('sendMsg')
-    async sendMessage(@Body('senderId') senderId: String,
+    async sendMessage(@Body('senderId') senderId: number,
         @Body('receiverId') receiverId: any,
         @Body('msg') msg: string,
         @Body('channelName') channelName: string,
     ): Promise<any> {
-
         const response = await axios({
             url: 'https://graph.facebook.com/v22.0/565830889949112/messages',
             method: 'POST',
@@ -79,7 +78,7 @@ export class channelController {
         })
         console.log(response);
         const memberIds = [...receiverId, senderId]
-        const channel = await this.channelservice.findOrCreateChannel(memberIds ,senderId,channelName )
+        const channel = await this.channelservice.findOrCreateChannel(memberIds, senderId, channelName)
         const message = await this.channelservice.createMessage(msg, channel.id, senderId)
         return message;
     }

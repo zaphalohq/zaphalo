@@ -28,7 +28,7 @@ const coreTypeORMFactory = async (): Promise<TypeOrmModuleOptions> => ({
     }),
     // EnvironmentModule,
   ],
-  providers: [TypeORMService],
+  providers: [TypeORMService,],
   exports: [TypeORMService],
 })
 export class TypeORMModule {}

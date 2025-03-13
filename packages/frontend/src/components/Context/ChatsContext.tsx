@@ -10,7 +10,7 @@ export const ChatsContext = createContext<ChatsContectProps | undefined>(undefin
 export const ChatsProvider = ({ children } : any) => {
     const [ chatDetails , setChatDetails ] = useState({
         contactName : "",
-        phoneNo : "",
+        phoneNo : 0,
         profileImg : ""
     })
 

@@ -26,6 +26,6 @@ import { instantsModule } from './modules/whatsapp/instants.module';
     instantsModule,
 ],
   // controllers: [AppController],
-  // providers: [AppService],
+  // providers: [],
 })
 export class AppModule {}

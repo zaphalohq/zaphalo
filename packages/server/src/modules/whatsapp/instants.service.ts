@@ -12,7 +12,7 @@ export class instantsService {
             private instantsRepository: Repository<WhatsappInstants>
     ) {}
 
-    async CreateInstants(WhatsappInstantsData : CreateFormDataInput): Promise<WhatsappInstants | undefined>{
+    async CreateInstants(WhatsappInstantsData : CreateFormDataInput): Promise<WhatsappInstants | null>{
         console.log(WhatsappInstantsData);
         
         const whatappInstants =  this.instantsRepository.create(WhatsappInstantsData)
@@ -26,7 +26,7 @@ export class instantsService {
           });
     }
 
-    async UpdateInstants( id : string, updatedInstants : CreateFormDataInput ): Promise<WhatsappInstants | undefined> {
+    async UpdateInstants( id : string, updatedInstants : CreateFormDataInput ): Promise<WhatsappInstants | null> {
         const existingInstants = await this.instantsRepository.findOne({ where : {id} });
         if (!existingInstants) {
             throw new NotFoundException(`Instant with ID ${id} not found`);
@@ -36,9 +36,12 @@ export class instantsService {
           return this.instantsRepository.save(existingInstants); // Save updated instant to the database
     }
 
-    async DeleteInstants(id : string) : Promise<WhatsappInstants | undefined> {
-        const deleteInstants = await this.instantsRepository.findOne({ where : { id }})
-        return  await this.instantsRepository.remove(deleteInstants)
+    async DeleteInstants(id : string) : Promise<WhatsappInstants | null> {
+        const deleteInstants = await this.instantsRepository.findOne({ where : { id }});
+        if (deleteInstants)
+            return  await this.instantsRepository.remove(deleteInstants)
+        else
+            return null
 
     }
 

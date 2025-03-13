@@ -60,12 +60,12 @@ import { GqlAuthGuard } from '../auth/guards/gql-auth.guard';
     }
 
     @Query(() => User)
-    async findOneByUsername(@Args('username') username : string ) : Promise<User>{
+    async findOneByUsername(@Args('username') username : string ) : Promise<User | null>{
       return this.userService.findOneByUsername(username);
     }
 
     @Query(() => User)
-    async findOneByEmail( email : string) : Promise<User> {
+    async findOneByEmail( email : string) : Promise<User | null> {
       return this.userService.findOneByEmail(email)
     }
 

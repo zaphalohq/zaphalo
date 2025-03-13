@@ -8,6 +8,7 @@ import { channelController } from './channel.controller'
 import { Message } from "./message.entity";
 import { Contacts } from "../contacts/contacts.entity";
 import { ContactsModule } from "../contacts/contacts.module";
+import { WebSocketService } from "./chat-socket";
 
 
 @Module({
@@ -15,13 +16,13 @@ import { ContactsModule } from "../contacts/contacts.module";
           imports: [
             NestjsQueryTypeOrmModule.forFeature([Channel, Message], 'core'),
             TypeORMModule,
-            ContactsModule
+            ContactsModule,
           ],
           services: [channelService],
         //   resolvers: whatappinstanstsAutoResolverOpts,
         }),],
     controllers : [channelController],
-    providers : [channelService, channelController , TypeORMModule],
+    providers : [channelService, channelController , TypeORMModule, WebSocketService],
     exports: [channelController ],
 })
 

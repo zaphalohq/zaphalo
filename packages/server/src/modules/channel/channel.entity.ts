@@ -21,7 +21,7 @@ export class Channel {
   writeDate: Date;
 
   @Column({ type: 'bigint' })
-  writeUser: BigInt;  // ID of the user who last updated the channel.
+  writeUser: number;  // ID of the user who last updated the channel.
 
   @Column({ type: 'bigint' })
   createUser: BigInt; 

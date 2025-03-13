@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';                // Marks class as a service
 import { InjectRepository } from '@nestjs/typeorm';        // Injects repository
 import { Repository } from 'typeorm';                      // TypeORM repository type
-import { User } from './user.entity';                      // Our User entity
+import { User } from 'src/modules/user/user.entity';                      // Our User entity
 import { CreateUserDTO } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 // import { userDTO } from './dto/user.dto';
@@ -18,28 +18,29 @@ export class UserService {
     return this.userRepository.find();     // SELECT * FROM user
   }
 
-  async findOneByUsername(username: string): Promise<User | undefined> {
+  async findOneByUsername(username: string): Promise<User | null> {
     return this.userRepository.findOne( {
       where : { username }
     });
   }
 
-  async findOneByPassword(password: string) : Promise<User | undefined> {
+  async findOneByPassword(password: string) : Promise<User | null> {
     return this.userRepository.findOne( {
       where : { password }
     })
   }
   
 
-  async findOneByEmail(email: string ): Promise<User | undefined> {
-    return this.userRepository.findOne( { 
+  async findOneByEmail(email: string ): Promise<User | null> {
+    const user = this.userRepository.findOne( { 
       where : { email } 
-    });
+    })
+    return user;
   }
 
-  async createUser(CreateUserInput : CreateUserDTO ) : Promise<User | undefined> {
+  async createUser(CreateUserInput : CreateUserDTO ) : Promise<User> {
     const user = this.userRepository.create(CreateUserInput)
     await this.userRepository.save(user)
     return user;
-    }
+  }
 }

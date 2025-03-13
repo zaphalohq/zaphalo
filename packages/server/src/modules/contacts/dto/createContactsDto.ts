@@ -1,12 +1,12 @@
-import { InputType, Field } from '@nestjs/graphql';
+import { InputType, Field, Int, Float } from '@nestjs/graphql';
 
 @InputType()
 export class createContactsDto {
   @Field()
   contactName: string;
 
-  @Field()
-  phoneNo: String;
+  @Field(() => Float)
+  phoneNo: number;
 
   @Field(() => String, { nullable: true })
   profileImg?: string;

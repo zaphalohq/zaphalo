@@ -7,9 +7,9 @@ import { CreateContactMute } from '../../pages/Mutation/Chats';
 
 const CreateContacts = ({ HandleCreateContactVis }: any) => {
 
-    const [contactFormData, setContactFormData] = useState({
+    const [contactFormData, setContactFormData] : any = useState({
         contactName: "",
-        phoneNo: "",
+        phoneNo: 0.1,
         profileImg: ""
     })
 
@@ -32,7 +32,7 @@ const CreateContacts = ({ HandleCreateContactVis }: any) => {
             await CreateContact({
                 variables: {
                     contactName: contactFormData.contactName,
-                    phoneNo: contactFormData.phoneNo,
+                    phoneNo: parseFloat(contactFormData.phoneNo),
                     profileImg: contactFormData.profileImg
                 }
             })
