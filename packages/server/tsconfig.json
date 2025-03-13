@@ -4,7 +4,7 @@
     "jsx": "react-jsx",
     "module": "commonjs",
     "declaration": true,
-    "removeComments": true,
+    "removeComments": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
@@ -13,7 +13,8 @@
     "target": "es2017",
     "sourceMap": true,
     "outDir": "./dist",
-    "incremental": true,
+    "rootDir": "./src",
+    "incremental": false,
     "skipLibCheck": true,
     "strictNullChecks": true,
     "alwaysStrict": true,
@@ -31,7 +32,8 @@
     "files": true,
     "require": ["tsconfig-paths/register"]
   },
-  "exclude": ["dist"]
+  "exclude": ["dist"],
+  "include": ["src/**/*"] // Added to ensure src files are compiled
 }
 
 
