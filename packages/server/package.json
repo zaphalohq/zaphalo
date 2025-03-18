@@ -20,7 +20,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@graphql-yoga/nestjs": "^3.11.0",
+    "@apollo/server": "^4.11.3",
+    "@graphql-yoga/nestjs": "^3.13.1",
     "@nestjs/apollo": "^13.0.3",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^4.0.1",
@@ -29,6 +30,7 @@
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/platform-socket.io": "^11.0.11",
     "@nestjs/serve-static": "^5.0.2",
     "@nestjs/typeorm": "^11.0.0",
     "@nestjs/websockets": "^11.0.11",
@@ -49,8 +51,8 @@
     "pg": "^8.13.3",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
-    "typeorm": "^0.3.20",
-    "ws": "^8.18.1"
+    "socket.io": "^4.8.1",
+    "typeorm": "^0.3.20"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

@@ -6,7 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Channel } from './channel.entity';
 import { Message } from './message.entity';
-import { channelService } from './channel.service';
+import { ChannelService } from './channel.service';
 
 const token = 'my-token'
 
@@ -18,7 +18,7 @@ export class channelController {
         @InjectRepository(Message, 'core')
         private readonly messageRepository: Repository<Message>,
 
-        private readonly channelservice: channelService,
+        private readonly channelservice: ChannelService,
     ) { }
 
     @Get()
@@ -52,6 +52,11 @@ export class channelController {
         }
     }
 
+    @Get('sendMsg1')
+    async getMessage(@Query('channelId') channelId: string){
+        console.log(channelId);
+        return this.channelservice.findMsgByChannelId(channelId)
+    }
 
     // @UseGuards(AuthGuard('jwt'))
     @Post('sendMsg')
@@ -60,25 +65,27 @@ export class channelController {
         @Body('msg') msg: string,
         @Body('channelName') channelName: string,
     ): Promise<any> {
-        const response = await axios({
-            url: 'https://graph.facebook.com/v22.0/565830889949112/messages',
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${process.env.Whatsapp_Token}`,
-                'Content-Type': 'application/json'
-            },
-            data: JSON.stringify({
-                "messaging_product": "whatsapp",
-                "to": receiverId[0],
-                "type": "text",
-                "text": {
-                    'body': msg
-                }
-            })
-        })
-        console.log(response);
+        
+        // const response = await axios({
+        //     url: 'https://graph.facebook.com/v22.0/565830889949112/messages',
+        //     method: 'POST',
+        //     headers: {
+        //         'Authorization': `Bearer ${process.env.Whatsapp_Token}`,
+        //         'Content-Type': 'application/json'
+        //     },
+        //     data: JSON.stringify({
+        //         "messaging_product": "whatsapp",
+        //         "to": receiverId[0],
+        //         "type": "text",
+        //         "text": {
+        //             'body': msg
+        //         }
+        //     })
+        // })
+        // console.log(response);
         const memberIds = [...receiverId, senderId]
         const channel = await this.channelservice.findOrCreateChannel(memberIds, senderId, channelName)
+        
         const message = await this.channelservice.createMessage(msg, channel.id, senderId)
         return message;
     }

@@ -3,8 +3,8 @@ import { FiPaperclip } from 'react-icons/fi'
 import { IoSendSharp } from 'react-icons/io5'
 import axios from 'axios';
 import { ChatsContext } from '../Context/ChatsContext'
-const ChatsBottom = () => {
-  const { chatDetails } : any = useContext(ChatsContext)
+const MessageArea = () => {
+  const { chatsDetails } : any = useContext(ChatsContext)
   const [ msgData, setMsgData ] = useState("")
   const SubmitMsg = async () => {    
 
@@ -12,9 +12,9 @@ const ChatsBottom = () => {
       "http://localhost:3000/webhook/sendMsg",
       {
         senderId: 565830889949112,
-        receiverId: [chatDetails.phoneNo],
+        receiverId: chatsDetails.receiverId,
         msg: msgData,
-        channelName: "BanasTech"
+        channelName: chatsDetails.channelName? chatsDetails.channelName : "BanasTech",
       },
       {
         headers: {
@@ -37,4 +37,4 @@ const ChatsBottom = () => {
   )
 }
 
-export default ChatsBottom
+export default MessageArea

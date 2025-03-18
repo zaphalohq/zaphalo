@@ -23,6 +23,21 @@ query findAllContacts {
     id
     phoneNo
     profileImg
+
+    }
+}
+`
+
+export const findAllChannel = gql`
+query findAllChannel {
+  findAllChannel {
+    channelName
+    createUser
+    id
+    createdAt
+    writeDate
+    memberIds
+    writeUser
   }
 }
 `

@@ -6,7 +6,7 @@ config({ path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env' });
 
 const isJest = process.argv.some((arg) => arg.includes('jest'));
 
-console.log(".............process.env.PG_DATABASE_URL...................",__dirname + '/../../../core/modules/user/*.entity{.ts,.js}');
+console.log(".............process.env.PG_DATABASE_URL...................", __dirname + '/../../../core/modules/user/*.entity{.ts,.js}');
 export const typeORMCoreModuleOptions: TypeOrmModuleOptions = {
   url: process.env.PG_DATABASE_URL,
   type: 'postgres',
@@ -26,8 +26,8 @@ export const typeORMCoreModuleOptions: TypeOrmModuleOptions = {
   ssl:
     process.env.PG_SSL_ALLOW_SELF_SIGNED === 'true'
       ? {
-          rejectUnauthorized: false,
-        }
+        rejectUnauthorized: false,
+      }
       : undefined,
 };
 

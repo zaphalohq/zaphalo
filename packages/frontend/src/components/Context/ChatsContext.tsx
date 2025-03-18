@@ -1,25 +1,29 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 
 export interface ChatsContectProps {
-    chatDetails : any,
-    setChatDetails : Function, 
+    chatsDetails: any,
+    setChatsDetails: Function,
 }
 
 export const ChatsContext = createContext<ChatsContectProps | undefined>(undefined)
 
-export const ChatsProvider = ({ children } : any) => {
-    const [ chatDetails , setChatDetails ] = useState({
-        contactName : "",
-        phoneNo : 0,
-        profileImg : ""
+export const ChatsProvider = ({ children }: any) => {
+
+    
+    const [chatsDetails, setChatsDetails] = useState({
+        receiverId: [],
+        profileImg: '',
+        channelName: '',
+        memberIds: '',
     })
 
-    return(
+
+    return (
         <ChatsContext.Provider value={{
-            chatDetails,
-            setChatDetails
+            chatsDetails,
+            setChatsDetails,
         }}>
-        {children}
+            {children}
         </ChatsContext.Provider>
     )
 }

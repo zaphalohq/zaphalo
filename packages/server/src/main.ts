@@ -8,10 +8,11 @@ async function bootstrap() {
     app.use(bodyParser.json({ limit: '5mb' }));
     app.use(bodyParser.urlencoded({ limit: '5mb', extended: true }));
     app.enableCors({
-      origin: 'http://localhost:5173',  // React app origin
+      origin: 'http://localhost:5173', // React app origin
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
       credentials: true,
     });
+    // app.enableCors();
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();

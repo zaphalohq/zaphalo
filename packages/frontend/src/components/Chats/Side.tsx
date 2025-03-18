@@ -1,29 +1,14 @@
 import { FiEdit, FiList, FiPlus, FiUsers } from "react-icons/fi"
 import { SearchWhite } from "../UI/Search"
-import SideMain from "./SideMain"
 import { useEffect, useRef, useState } from "react"
-import ContactList from "./ContactList"
+import ContactList from "./ContactsArea"
 import CreateContacts from "./CreateContacts"
+import { useQuery } from "@apollo/client"
+import { findAllChannel } from "../../pages/Mutation/Chats"
+import ChannelDetails from "./channelDetails"
 
 
 const ChatsSide = () => {
-  const contacts = [
-    {
-      title: "Elon Musk",
-      lastmsg: "this is the Elon Musk",
-      img: "dfd"
-    },
-    {
-      title: "Elon Musk2",
-      lastmsg: "this is the fgd Musk",
-      img: "dfd"
-    },
-  ]
-
-
-
-
-
 
   //-----------------------visiability of contacts----------------------------------
   const [isNewChatOpen, setIsNewChatOpen] = useState(false)
@@ -31,8 +16,28 @@ const ChatsSide = () => {
   const [isCreateContactVis, setIsCreateContactVis] = useState(false);
   const HandleCreateContactVis = () => setIsCreateContactVis(!isCreateContactVis)
 
+  const { data, refetch } = useQuery(findAllChannel)
+  const [ allChannel, setAllChannel ] = useState([{
+    channelName : '',
+    createUser : '',
+    id : '',
+    createdAt : '',
+    writeDate : '',
+    memberIds : '',
+    writeUser : ''
+  }])
+  const FetchAllChannel = async () => {
+    await refetch()
+    if( data && data.findAllChannel )
+       setAllChannel(data.findAllChannel)    
 
+  }
 
+useEffect(() => {
+  FetchAllChannel()
+  console.log(allChannel, 'thisi ');
+
+}, [data])
 
 
 // const modalRef = useRef(null);
@@ -74,7 +79,7 @@ const ChatsSide = () => {
           <SearchWhite />
         </div>
         <div className="overflow-y-scroll h-[calc(100vh-162px)]">
-          {contacts.map((data, index) => <SideMain key={index} title={data.title} lastmsg={data.lastmsg} />)}
+          {allChannel.map((data, index) => <ChannelDetails key={index} channelId={data.id} memberIds={data.memberIds} channelName={data.channelName} lastmsg="" />)}
         </div>
       </div>
     </div>

@@ -13,4 +13,7 @@ export default defineConfig({
       '@components': resolve(__dirname, 'src/components'),  // Setup alias for '@components'
     },
   },
+  define: {
+    "process.env": process.env,
+  },
 })

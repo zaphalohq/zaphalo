@@ -115,7 +115,12 @@ export class GraphQLConfigService
     const config: YogaDriverConfig = {
       autoSchemaFile: true,
       include: [CoreModule, instantsModule],
-  
+      // graphiql: true, // Enable GraphiQL interface
+      // path: '/graphql', // Explicitly set endpoint (optional, default is /graphql)
+      cors: {
+        credentials: false,
+        // origin: true,
+    },
       // conditionalSchema: async (context) => {
       //   let user: User | undefined;
         // let workspace: Workspace | undefined;

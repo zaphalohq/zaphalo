@@ -1,6 +1,6 @@
 import ChatsNav from "./ChatsNav"
-import ChatsBottom from "./ChatsBottom"
-import ChatsHero from "./ChatsMain"
+import MessageArea from "./MessagingArea"
+import MessageDisplay from "./MessageDisplay"
 
 const ChatsMain = () => {
   return (
@@ -9,9 +9,9 @@ const ChatsMain = () => {
           <div className="flex flex-col h-full justify-between">
             <div>
             <ChatsNav />
-              <ChatsHero />
+              <MessageDisplay />
             </div>
-          <ChatsBottom />
+          <MessageArea />
           </div>
         </div>
     </div>

@@ -2,15 +2,18 @@ import { useContext } from 'react'
 import { ChatsContext } from '../Context/ChatsContext'
 
 const ListContacts = ({contactName,phoneNo, HandleNewChatVisiablity, profileImg} : any) => {
-    const { setChatDetails } : any = useContext(ChatsContext)
+    const { chatsDetails,setChatsDetails } : any = useContext(ChatsContext)
+
     return (
         <div onClick={() => {
-            setChatDetails({
-                contactName,
+            setChatsDetails({
+                channelName : contactName,
                 profileImg,
-                phoneNo
+                receiverId : [phoneNo]
             })
             HandleNewChatVisiablity()
+            console.log(chatsDetails);
+            
         }
             } className="bg-gray-100 cursor-pointer hover:bg-stone-300 w-full  flex gap-3 px-4 items-center p-2 border-b border-gray-200">
             <img className='w-11 h-11 object-cover rounded-full' src={profileImg} alt="dfssdf" />

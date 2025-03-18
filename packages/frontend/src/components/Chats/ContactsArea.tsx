@@ -1,34 +1,34 @@
 import { useEffect, useRef, useState } from 'react'
 import { SearchWhite } from '../UI/Search'
-import ListContacts from './ListContacts'
 import { FiPlus, FiUsers } from 'react-icons/fi'
 import { useQuery } from '@apollo/client'
 import { findAllContacts } from '../../pages/Mutation/Chats'
+import ListContacts from './ContactsDisplay'
 
 
 const ContactList = ({ HandleNewChatVisiablity, HandleCreateContactVis }: any) => {
 
     const { data, loading, refetch } = useQuery(findAllContacts)
-    const [ allContacts, setAllContacts ] = useState([{
-        contactName : "",
-        phoneNo : "",
-        profileImg : ""
+    const [allContacts, setAllContacts] = useState([{
+        contactName: "",
+        phoneNo: "",
+        profileImg: ""
     }])
     const HandleFetchContacts = async () => {
         const contactsData = await data
-        if(contactsData && contactsData?.findAllContacts){            
-        setAllContacts(contactsData.findAllContacts)
-        console.log(contactsData.findAllContacts);
-        await refetch()
-    }
-    
+        if (data && data?.findAllContacts) {
+            setAllContacts(contactsData.findAllContacts)
+            console.log(contactsData.findAllContacts);
+            await refetch()
+        }
+
     }
     // setTimeout(() => console.log(allContacts), 5000);
     useEffect(() => {
         HandleFetchContacts()
     }, [data])
-    
-    
+
+
 
     return (
         <div className="absolute rounded top-10 left-4 z-20 bg-white shadow-2xl py-4 w-[40vh]">
@@ -53,7 +53,7 @@ const ContactList = ({ HandleNewChatVisiablity, HandleCreateContactVis }: any) =
                     <span className="font-semibold">New group</span>
                 </div>
                 <div className="px-4 p-2 bg-gray-100 font-medium sticky top-0 ">All contacts</div>
-                {allContacts.map((contactData, index) => <ListContacts key={index} phoneNo={contactData.phoneNo} HandleNewChatVisiablity={HandleNewChatVisiablity} profileImg={contactData.profileImg || "https://via.placeholder.com/150"}  contactName={contactData.contactName} />)}
+                {allContacts.map((contactData, index) => <ListContacts key={index} phoneNo={contactData.phoneNo} HandleNewChatVisiablity={HandleNewChatVisiablity} profileImg={contactData.profileImg || "https://via.placeholder.com/150"} contactName={contactData.contactName} />)}
             </div>
         </div>
     )
