@@ -1,10 +1,72 @@
+// {
+//   "extends": "../../tsconfig.base.json",
+//   "compilerOptions": {
+//     "jsx": "react-jsx",
+//     "module": "commonjs",
+//     "declaration": true,
+//     "removeComments": false,
+//     "emitDecoratorMetadata": true,
+//     "experimentalDecorators": true,
+//     "allowSyntheticDefaultImports": true,
+//     "allowUnreachableCode": false,
+//     "esModuleInterop": true,
+//     "target": "es2017",
+//     "sourceMap": true,
+//     "outDir": "./dist",
+//     "rootDir": "./src",
+//     "incremental": false,
+//     "skipLibCheck": true,
+//     "strictNullChecks": true,
+//     "alwaysStrict": true,
+//     "noImplicitAny": false,
+//     "strictBindCallApply": false,
+//     "forceConsistentCasingInFileNames": false,
+//     "noFallthroughCasesInSwitch": false,
+//     "resolveJsonModule": true,
+//     "types": ["jest", "node"],
+//     "paths": {
+//       "src/*": ["packages/server/src/*"],
+//     }
+//   },
+//   "ts-node": {
+//     "files": true,
+//     "require": ["tsconfig-paths/register"]
+//   },
+//   "exclude": ["dist"],
+//   "include": ["src/**/*"] // Added to ensure src files are compiled
+// }
+// // {
+// //   "compilerOptions": {
+// //     "module": "commonjs",
+// //     "declaration": true,
+// //     "removeComments": true,
+// //     "emitDecoratorMetadata": true,
+// //     "experimentalDecorators": true,
+// //     "allowSyntheticDefaultImports": true,
+// //     "target": "ES2021",
+// //     "sourceMap": true,
+// //     "outDir": "./dist",
+// //     "baseUrl": "./",
+// //     "incremental": true,
+// //     "skipLibCheck": true,
+// //     "strictNullChecks": false,
+// //     "noImplicitAny": false,
+// //     "strictBindCallApply": false,
+// //     "forceConsistentCasingInFileNames": false,
+// //     "noFallthroughCasesInSwitch": false,
+// //     "paths": {
+// //         // "src/*": ["packages/server/src/*"],
+// //         "core/*": ["packages/server/src/core/*"]
+// //     }
+// //   }
+// // }
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "jsx": "react-jsx",
     "module": "commonjs",
     "declaration": true,
-    "removeComments": false,
+    "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
@@ -12,9 +74,9 @@
     "esModuleInterop": true,
     "target": "es2017",
     "sourceMap": true,
+    "inlineSources": true,
     "outDir": "./dist",
-    "rootDir": "./src",
-    "incremental": false,
+    "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
     "alwaysStrict": true,
@@ -23,42 +85,26 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "resolveJsonModule": true,
-    "types": ["jest", "node"],
+    "types": [
+      "jest",
+      "node"
+    ],
     "paths": {
-      "src/*": ["packages/server/src/*"],
+      "src/*": [
+        "packages/server/src/*"
+      ],
+      "core/*": [
+        "packages/server/src/core/*"
+      ]
     }
   },
   "ts-node": {
     "files": true,
-    "require": ["tsconfig-paths/register"]
+    "require": [
+      "tsconfig-paths/register"
+    ]
   },
-  "exclude": ["dist"],
-  "include": ["src/**/*"] // Added to ensure src files are compiled
+  "exclude": [
+    "dist"
+  ]
 }
-
-
-// {
-//   "compilerOptions": {
-//     "module": "commonjs",
-//     "declaration": true,
-//     "removeComments": true,
-//     "emitDecoratorMetadata": true,
-//     "experimentalDecorators": true,
-//     "allowSyntheticDefaultImports": true,
-//     "target": "ES2021",
-//     "sourceMap": true,
-//     "outDir": "./dist",
-//     "baseUrl": "./",
-//     "incremental": true,
-//     "skipLibCheck": true,
-//     "strictNullChecks": false,
-//     "noImplicitAny": false,
-//     "strictBindCallApply": false,
-//     "forceConsistentCasingInFileNames": false,
-//     "noFallthroughCasesInSwitch": false,
-//     "paths": {
-//         // "src/*": ["packages/server/src/*"],
-//         "core/*": ["packages/server/src/core/*"]
-//     }
-//   }
-// }

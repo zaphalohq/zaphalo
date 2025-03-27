@@ -28,9 +28,9 @@ const ChatsSide = () => {
   const FetchAllChannel = async () => {
     await refetch()
     if( data && data.findAllChannel )
-      console.log(data.findAllChannel,'this is findall');
+      setAllChannel(data.findAllChannel)  
       
-       setAllChannel(data.findAllChannel)    
+         
 
   }
 

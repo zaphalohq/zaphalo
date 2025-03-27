@@ -1,6 +1,4 @@
 import { Body, Controller, Get, Post, Query, Request, UseGuards } from '@nestjs/common';
-import { Args } from '@nestjs/graphql';
-import axios from 'axios';
 import { AuthGuard } from '@nestjs/passport';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';

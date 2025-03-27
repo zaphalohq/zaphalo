@@ -1,11 +1,10 @@
 {
-  "name": "@yaari/source",
-  "version": "0.0.0",
-  "license": "MIT",
-  "scripts": {
-    "start": "cross-env FORCE_COLOR=true concurrently -n \"server,front\" -c \"bgBlue.bold,bgGreen.bold\" \"yarn nx start:dev server\" \"yarn nx start front\""
+  "dependencies": {
+    "@nestjs/typeorm": "^11.0.0",
+    "@ptc-org/nestjs-query-typeorm": "4.2.1-alpha.2",
+    "pg": "^8.14.1",
+    "typeorm": "^0.3.21"
   },
-  "private": true,
   "devDependencies": {
     "@nx/js": "20.4.2",
     "@nx/web": "20.4.2",
@@ -24,7 +23,27 @@
     "typescript": "~5.7.2",
     "vite": "^5.0.0"
   },
+  "engines": {
+    "node": "^18.17.1",
+    "npm": "please-use-yarn",
+    "yarn": ">=4.0.2"
+  },
+  "license": "AGPL-3.0",
+  "name": "yaari",
+  "resolutions": {
+    "graphql": "16.8.0",
+    "type-fest": "4.10.1",
+    "typescript": "5.3.3"
+  },
+  "version": "0.2.1",
+  "nx": {},
+  "scripts": {
+    "start": "npx concurrently --kill-others 'npx nx run-many -t start -p twenty-server twenty-front' 'npx wait-on tcp:3000 && npx nx run twenty-server:worker'"
+  },
+  "type": "module",
   "workspaces": [
-    "packages/*"
-  ]
+    "packages/frontend",
+    "packages/server"
+  ],
+  "packageManager": "yarn@4.7.0"
 }

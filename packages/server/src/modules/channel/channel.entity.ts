@@ -1,10 +1,10 @@
 import { Field, Float, Int, ObjectType } from '@nestjs/graphql';
 import { IDField } from '@ptc-org/nestjs-query-graphql';
-import { UUIDScalarType } from 'src/modules/api/scalars/uuid.scalar'; // Ensure this path is correct
 import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn, Relation } from 'typeorm';
 import { Message } from './message.entity';
 import { Contacts } from '../contacts/contacts.entity';
 import { User } from '../user/user.entity';
+import { UUIDScalarType } from '../api/scalars/uuid.scalar';
 
 @Entity({ name: 'channel', schema: 'core' })
 @ObjectType()
