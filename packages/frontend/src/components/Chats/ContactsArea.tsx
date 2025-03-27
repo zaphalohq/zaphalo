@@ -3,7 +3,7 @@ import { SearchWhite } from '../UI/Search'
 import { FiPlus, FiUsers } from 'react-icons/fi'
 import { useQuery } from '@apollo/client'
 import { findAllContacts } from '../../pages/Mutation/Chats'
-import ListContacts from './ContactsDisplay'
+import ListContacts from './ListContacts'
 
 
 const ContactList = ({ HandleNewChatVisiablity, HandleCreateContactVis }: any) => {
@@ -53,7 +53,7 @@ const ContactList = ({ HandleNewChatVisiablity, HandleCreateContactVis }: any) =
                     <span className="font-semibold">New group</span>
                 </div>
                 <div className="px-4 p-2 bg-gray-100 font-medium sticky top-0 ">All contacts</div>
-                {allContacts.map((contactData, index) => <ListContacts key={index} phoneNo={contactData.phoneNo} HandleNewChatVisiablity={HandleNewChatVisiablity} profileImg={contactData.profileImg || "https://via.placeholder.com/150"} contactName={contactData.contactName} />)}
+                {allContacts.map((contactData, index) => <ListContacts key={index} phoneNo={contactData.phoneNo} HandleNewChatVisiablity={HandleNewChatVisiablity} profileImg={contactData.profileImg} contactName={contactData.contactName} />)}
             </div>
         </div>
     )

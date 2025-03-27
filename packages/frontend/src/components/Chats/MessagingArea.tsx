@@ -1,39 +1,49 @@
-import { useContext, useState } from 'react'
+import { FormEvent, useContext, useState } from 'react'
 import { FiPaperclip } from 'react-icons/fi'
 import { IoSendSharp } from 'react-icons/io5'
 import axios from 'axios';
 import { ChatsContext } from '../Context/ChatsContext'
-const MessageArea = () => {
-  const { chatsDetails } : any = useContext(ChatsContext)
-  const [ msgData, setMsgData ] = useState("")
-  const SubmitMsg = async () => {    
 
+const MessageArea = ({ msgData, setMsgData } : any) => {
+  const { chatsDetails } : any = useContext(ChatsContext)
+
+  const [currentMsg, setCurrentMsg] = useState("")
+  const SubmitMsg = async (event : FormEvent) => {    
+    event.preventDefault()
+    console.log(chatsDetails.receiverId, "thosndnd ...........................");
+    setMsgData(currentMsg)
     const response = await axios.post(
       "http://localhost:3000/webhook/sendMsg",
       {
-        senderId: 565830889949112,
+        senderId: import.meta.env.VITE_SENDER_PHONENO,
         receiverId: chatsDetails.receiverId,
-        msg: msgData,
-        channelName: chatsDetails.channelName? chatsDetails.channelName : "BanasTech",
+        msg: currentMsg,
+        channelName: chatsDetails.channelName,
+        channelId: chatsDetails.channelId && chatsDetails.channelId != ''? chatsDetails.channelId : null,
       },
       {
         headers: {
-          Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNoaW50YW4iLCJzdWIiOiI0ODhkZmIzMy01NzU2LTRiYWUtYmYyMy0zNGU4ZjgxZjY4ZWMiLCJpYXQiOjE3NDE1ODAwMTAsImV4cCI6MTc0MTU4MzYxMH0.9HU4uT3msySCVV0eSnD1lis0pTA6LFJ41eqatzvEexI",
+          Authorization: import.meta.env.VITE_TOKEN,
           "Content-Type": "application/json"
         }
       }
     );
 
-    console.log(response.data)
+    if(response.status == 201) { 
+      console.log(response);
+      
+      setCurrentMsg("")
+    }
 
-    
   }
   return (
+    <form onSubmit={SubmitMsg}>
     <div className="flex items-center justify-between bg-stone-200 p-6 px-8">
     <button className="text-2xl p-2 hover:bg-stone-300 cursor-pointer"><FiPaperclip /></button>
-    <input onChange={(e) => setMsgData(e.target.value)} className="bg-white w-full mx-4 p-2 border-none outline-none" type="text" placeholder="type a message here ..." />
-    <button onClick={SubmitMsg} className="text-2xl p-2 hover:bg-stone-300 cursor-pointer"><IoSendSharp /></button>
+    <input required onChange={(e) => setCurrentMsg(e.target.value)} className="bg-white w-full mx-4 p-2 border-none outline-none" value={currentMsg} type="text" placeholder="type a message here ..." />
+    <button className="text-2xl p-2 hover:bg-stone-300 cursor-pointer"><IoSendSharp /></button>
   </div>
+  </form>
   )
 }
 

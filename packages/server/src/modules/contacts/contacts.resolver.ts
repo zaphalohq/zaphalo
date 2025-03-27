@@ -17,7 +17,7 @@ export class contactsResolver {
 
     // @UseGuards(GqlAuthGuard)
     @Mutation(() => Contacts)
-    async CreateContacts (@Args('CreateContacts') CreateContacts: createContactsDto): Promise<Contacts> {
+    async CreateContacts (@Args('CreateContacts') CreateContacts: createContactsDto): Promise<Contacts | undefined> {
         return await this.contactsservice.createContacts(CreateContacts)
     }
 

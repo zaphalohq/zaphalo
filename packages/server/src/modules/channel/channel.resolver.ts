@@ -25,4 +25,9 @@ export class ChannelResolver {
     async findMsgByChannelId(@Args('channelId') channelId : string ) : Promise<Message[] | Message> {
         return await this.channelService.findMsgByChannelId(channelId);
     }
+
+    @Query(() => Channel) 
+    async findExistingChannelByPhoneNo(@Args('memberIds') memberIds : string) : Promise<Channel | undefined> {
+        return await this.channelService.findExistingChannelByPhoneNo(JSON.parse(memberIds))
+    }
 }

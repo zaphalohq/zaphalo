@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';                      // TypeORM repository
 import { User } from 'src/modules/user/user.entity';                      // Our User entity
 import { CreateUserDTO } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
+import { use } from 'react';
 // import { userDTO } from './dto/user.dto';
 
 @Injectable()                              // Makes this service injectable into other classes
@@ -32,7 +33,7 @@ export class UserService {
   
 
   async findOneByEmail(email: string ): Promise<User | null> {
-    const user = this.userRepository.findOne( { 
+    const user = this.userRepository.findOne({ 
       where : { email } 
     })
     return user;
@@ -43,4 +44,11 @@ export class UserService {
     await this.userRepository.save(user)
     return user;
   }
+
+  async findByUserId(userId): Promise<User | null>{
+    return await this.userRepository.findOne({
+      where : { id : userId}
+    })
+  }
+
 }

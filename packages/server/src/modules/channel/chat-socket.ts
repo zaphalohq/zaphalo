@@ -6,6 +6,7 @@ import {
     WebSocketGateway,
     WebSocketServer,
 } from '@nestjs/websockets';
+import { log } from 'console';
 import { Server, Socket } from 'socket.io';
 
 
@@ -25,8 +26,17 @@ export class WebSocketService implements OnGatewayConnection, OnGatewayDisconnec
     @SubscribeMessage("message")
     handleMessage( client : Socket , message  :any) : void {
       console.log(message)
-      client.emit("reply","from xys")
-    this.server.emit("reply", "brodcasting............")
+    //   client.emit("reply","from xys")
+    this.server.emit("message", "brodcasting............")
+    }
+
+    // Reusable method to send messages to a channel
+    sendMessageToChannel(channelId,messages, phoneNo) {
+        console.log(channelId,"..............");
+        const message = JSON.stringify({messages,channelId,phoneNo})
+        console.log(message);
+        
+        this.server.emit('message', message);
     }
 
     handleDisconnect(client: Socket) {

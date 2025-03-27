@@ -31,7 +31,7 @@ export class Contacts {
   @JoinColumn({ name : 'channel'})
   channel : Channel[]
 
-  @Column()
+  @Column({ nullable: true })
   @Field(() => String, { nullable: true })
   profileImg?: string;
 

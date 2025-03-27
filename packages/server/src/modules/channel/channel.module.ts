@@ -10,20 +10,25 @@ import { Contacts } from "../contacts/contacts.entity";
 import { ContactsModule } from "../contacts/contacts.module";
 import { WebSocketService } from "./chat-socket";
 import { ChannelResolver } from "./channel.resolver";
+import { UserService } from "../user/user.service";
+import { UserModule } from "../user/user.module";
+import { User } from "../user/user.entity";
 
 
 @Module({
     imports : [ NestjsQueryGraphQLModule.forFeature({
           imports: [
-            NestjsQueryTypeOrmModule.forFeature([Channel, Message], 'core'),
+            NestjsQueryTypeOrmModule.forFeature([Channel, Message, User], 'core'),
             TypeORMModule,
             ContactsModule,
+            UserModule,
+            
           ],
           services: [ChannelService],
         //   resolvers: whatappinstanstsAutoResolverOpts,
         }),],
     controllers : [channelController],
-    providers : [ChannelService, channelController , TypeORMModule, WebSocketService, ChannelResolver],
+    providers : [ChannelService, channelController, WebSocketService, ChannelResolver, UserService],
     exports: [channelController ],
 })
 

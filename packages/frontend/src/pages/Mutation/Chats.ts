@@ -32,12 +32,24 @@ export const findAllChannel = gql`
 query findAllChannel {
   findAllChannel {
     channelName
-    createUser
     id
-    createdAt
-    writeDate
-    memberIds
-    writeUser
+    contacts {
+      id
+      phoneNo
+    }
   }
 }
 `
+
+export const findChannelByPhoneNo = gql`
+  query MyQuery($memberIds: String!) {
+    findExistingChannelByPhoneNo(memberIds: $memberIds) {
+      channelName
+      id
+      contacts {
+        id
+        phoneNo
+      }
+    }
+  }
+`;

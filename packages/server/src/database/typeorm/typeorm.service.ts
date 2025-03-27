@@ -1,4 +1,8 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Channel } from 'src/modules/channel/channel.entity';
+import { Message } from 'src/modules/channel/message.entity';
+
+import { Contacts } from 'src/modules/contacts/contacts.entity';
 import { User } from 'src/modules/user/user.entity';
 import { WhatsappInstants } from 'src/modules/whatsapp/Instants.entity';
 
@@ -34,6 +38,9 @@ export class TypeORMService implements OnModuleInit, OnModuleDestroy {
       entities: [
         User,
         WhatsappInstants,
+        Contacts,
+        Channel,
+        Message,
         // Workspace,
         // UserWorkspace,
         // AppToken,

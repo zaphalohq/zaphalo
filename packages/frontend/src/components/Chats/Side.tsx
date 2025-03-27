@@ -5,7 +5,7 @@ import ContactList from "./ContactsArea"
 import CreateContacts from "./CreateContacts"
 import { useQuery } from "@apollo/client"
 import { findAllChannel } from "../../pages/Mutation/Chats"
-import ChannelDetails from "./channelDetails"
+import ChannelList from "./ChannelList"
 
 
 const ChatsSide = () => {
@@ -19,26 +19,26 @@ const ChatsSide = () => {
   const { data, refetch } = useQuery(findAllChannel)
   const [ allChannel, setAllChannel ] = useState([{
     channelName : '',
-    createUser : '',
     id : '',
-    createdAt : '',
-    writeDate : '',
-    memberIds : '',
-    writeUser : ''
+    contacts : [{
+      phoneNo : null,
+      id : ''
+    }]
   }])
   const FetchAllChannel = async () => {
     await refetch()
     if( data && data.findAllChannel )
+      console.log(data.findAllChannel,'this is findall');
+      
        setAllChannel(data.findAllChannel)    
 
   }
 
 useEffect(() => {
   FetchAllChannel()
-  console.log(allChannel, 'thisi ');
-
+  console.log(data);
+  
 }, [data])
-
 
 // const modalRef = useRef(null);
 //   useEffect(() => {
@@ -79,7 +79,7 @@ useEffect(() => {
           <SearchWhite />
         </div>
         <div className="overflow-y-scroll h-[calc(100vh-162px)]">
-          {allChannel.map((data, index) => <ChannelDetails key={index} channelId={data.id} memberIds={data.memberIds} channelName={data.channelName} lastmsg="" />)}
+          {allChannel.map((data, index) => <ChannelList key={index} channelId={data.id}  channelName={data.channelName} memberIds={data.contacts} lastmsg="" />)}
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Req, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { Args } from '@nestjs/graphql';
 import axios from 'axios';
 import { AuthGuard } from '@nestjs/passport';
@@ -7,6 +7,8 @@ import { Repository } from 'typeorm';
 import { Channel } from './channel.entity';
 import { Message } from './message.entity';
 import { ChannelService } from './channel.service';
+import { WebSocketService } from './chat-socket';
+import { contactsService } from '../contacts/contacts.service';
 
 const token = 'my-token'
 
@@ -18,7 +20,9 @@ export class channelController {
         @InjectRepository(Message, 'core')
         private readonly messageRepository: Repository<Message>,
 
+        private readonly webSocketService: WebSocketService,
         private readonly channelservice: ChannelService,
+        private readonly contactsservice: contactsService
     ) { }
 
     @Get()
@@ -38,34 +42,42 @@ export class channelController {
 
     @Post()
     async postWhatsappApi(@Request() req: Request): Promise<any> {
-        console.log(JSON.stringify(req.body, null, 2));
+        // console.log(JSON.stringify(req.body, null, 2));
         const data = JSON.parse(JSON.stringify(req.body, null, 2))
 
+        // this.webSocketService.sendMessageToChannel(data.entry[0].changes[0].value.messages[0].text.body)
         if (data && data.entry[0].changes[0].value.messages) {
             const msg = data.entry[0].changes[0].value.messages[0].text.body
-            const senderId = data.entry[0].changes[0].value.messages[0].from;
+            const phoneNo = data.entry[0].changes[0].value.messages[0].from;
             const memberIds = [data.entry[0].changes[0].value.metadata.phone_number_id]
-            console.log(data.entry[0].changes[0].value.messages[0].text.body)
-            const channel = await this.channelservice.findOrCreateChannel([Number(memberIds), Number(senderId)], Number(senderId))
-            const message = await this.channelservice.createMessage(msg, channel.id, senderId)
-            return message
+            const createContactNotExist = await this.contactsservice.createContacts({ contactName: phoneNo, phoneNo: Number(phoneNo) })
+            if (!createContactNotExist) throw new Error('ContactNotExist not found');
+            const channel: any = await this.channelservice.findOrCreateChannel(phoneNo, [Number(memberIds), Number(phoneNo)])
+            if (!channel.id) throw new Error('channel not found');
+            const message = await this.channelservice.createMessage(msg, channel.id, Number(phoneNo))
+
+            //---------------------websocket--------------
+            const channelId = await channel.id
+            this.webSocketService.sendMessageToChannel(channelId, message, Number(phoneNo))
+            //     return message
         }
     }
 
     @Get('sendMsg1')
-    async getMessage(@Query('channelId') channelId: string){
-        console.log(channelId);
+    async getMessage(@Query('channelId') channelId: string) {
         return this.channelservice.findMsgByChannelId(channelId)
     }
 
-    // @UseGuards(AuthGuard('jwt'))
+    @UseGuards(AuthGuard('jwt'))
     @Post('sendMsg')
     async sendMessage(@Body('senderId') senderId: number,
         @Body('receiverId') receiverId: any,
         @Body('msg') msg: string,
         @Body('channelName') channelName: string,
+        @Request() req,
+        @Body('channelId') channelId?: string,
     ): Promise<any> {
-        
+
         // const response = await axios({
         //     url: 'https://graph.facebook.com/v22.0/565830889949112/messages',
         //     method: 'POST',
@@ -83,11 +95,17 @@ export class channelController {
         //     })
         // })
         // console.log(response);
-        const memberIds = [...receiverId, senderId]
-        const channel = await this.channelservice.findOrCreateChannel(memberIds, senderId, channelName)
-        
-        const message = await this.channelservice.createMessage(msg, channel.id, senderId)
-        return message;
+
+        if (!channelId || channelId == null) {
+            const memberIds = [...receiverId, Number(senderId)]
+            const userId = req.user.userId
+            const channel: any = await this.channelservice.findOrCreateChannel(senderId, memberIds, userId, channelName)
+            if (!channel.id) throw new Error('channel not found');
+            const message = await this.channelservice.createMessage(msg, channel.id, senderId)
+            return "message";
+        } else {
+            const message = await this.channelservice.createMessage(msg, channelId, senderId)
+        }
     }
 
 }

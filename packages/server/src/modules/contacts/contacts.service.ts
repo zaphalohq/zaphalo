@@ -11,15 +11,21 @@ export class contactsService {
         private contactsRepository: Repository<Contacts>
 
     ) { }
-    async createContacts(CreateContacts: createContactsDto) {
-        const createdContacts = this.contactsRepository.create(CreateContacts);
-        await this.contactsRepository.save(createdContacts);
-        return createdContacts;
-    }
 
     async findOneContact(senderId: number) {
         return await this.contactsRepository.findOne({ where: { phoneNo: senderId } },)
     }
+
+    async createContacts(CreateContacts: createContactsDto) {
+        const existContact = await this.findOneContact(CreateContacts.phoneNo)
+        if (existContact) 
+            return existContact
+        
+        const createdContacts = this.contactsRepository.create(CreateContacts);        
+        await this.contactsRepository.save(createdContacts);
+        return createdContacts;
+    }
+
 
     async findAllContacts(): Promise<Contacts[]> {
         return await this.contactsRepository.find({
@@ -27,12 +33,12 @@ export class contactsService {
         });
     }
 
-    async findContactsByPhoneNoArr(memberIds : any ) {
-        return await this.contactsRepository.find({ 
-            where : memberIds.map(element => ({phoneNo : element})),
+    async findContactsByPhoneNoArr(memberIds: any) {
+        return await this.contactsRepository.find({
+            where: memberIds.map(element => ({ phoneNo: element })),
             // relations : ['channel']
-        }, 
-        )        
+        },
+        )
 
     }
 }
