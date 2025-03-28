@@ -4,14 +4,14 @@ import { IoSendSharp } from 'react-icons/io5'
 import axios from 'axios';
 import { ChatsContext } from '../Context/ChatsContext'
 
-const MessageArea = ({ msgData, setMsgData } : any) => {
+const MessageArea = ({ setMyMessage } : any) => {
   const { chatsDetails } : any = useContext(ChatsContext)
 
   const [currentMsg, setCurrentMsg] = useState("")
   const SubmitMsg = async (event : FormEvent) => {    
     event.preventDefault()
     console.log(chatsDetails.receiverId, "thosndnd ...........................");
-    setMsgData(currentMsg)
+    setMyMessage(currentMsg)
     const response = await axios.post(
       "http://localhost:3000/webhook/sendMsg",
       {

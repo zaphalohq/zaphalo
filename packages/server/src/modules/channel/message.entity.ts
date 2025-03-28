@@ -18,10 +18,6 @@ import { Contacts } from '../contacts/contacts.entity';
 @ObjectType() // Add this
 export class Message {
   
-  Channel () {
-    return Channel
-  }
-  
   @IDField(() => UUIDScalarType)
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -48,4 +44,8 @@ export class Message {
   @Field()
   @CreateDateColumn()
   createdAt: Date;
+
+  @Field(() => Boolean)
+  @Column({ type: 'boolean', default: false, nullable: false }) // Explicitly define type and default
+  unseen: boolean; // Use proper TypeScript type
 }

@@ -59,7 +59,7 @@ export const typeORMCoreModuleOptions: TypeOrmModuleOptions = {
   migrationsTableName: '_typeorm_migrations',
   metadataTableName: '_typeorm_generated_columns_and_materialized_views',
   migrations: [
-    `${isJest ? '' : 'dist/'}/database/migrations/*{.ts,.js}`,
+    `${isJest ? '' : 'dist/'}/database/typeorm/core/migrations/*{.ts,.js}`,
   ],
   ssl:
     process.env.PG_SSL_ALLOW_SELF_SIGNED === 'true'

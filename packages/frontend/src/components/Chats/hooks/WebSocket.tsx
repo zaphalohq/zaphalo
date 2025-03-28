@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { use, useContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { getItem, setItem } from "../../utils/localStorage";
+import { ChatsContext } from "../../Context/ChatsContext";
 
 interface Message {
     channelId: string;
@@ -11,16 +12,18 @@ interface Message {
 
 export async function useWebSocket() {
     const [socket, setSocket] = useState<Socket | null>(null);
-    
+    const { newMessage, setNewMessage }: any = useContext(ChatsContext)
     const [messages, setMessages] = useState<Message[]>(()  =>  {
         const getMessage = getItem("messages")
         return getMessage || []
     });
 
     useEffect(() => {
+        setNewMessage(messages)
         setItem("messages", messages)
         console.log(messages);
     }, [messages])
+
 
     useEffect(() => {
         const socketIo = io("http://localhost:8080", {
@@ -37,28 +40,6 @@ export async function useWebSocket() {
         });
 
         socketIo.on("message", (messageData) => {
-            //     const newMsg = JSON.parse(messageData);
-            //     console.log("Received message:", messages.length );
-            //     const findChannel = messages.length !== 0 ? messages.filter((message) => {
-            //         return message.channelId === newMsg.channelId
-            //     }) : null
-            //     console.log(findChannel,".......................................................................");
-            //     if(findChannel !== null && findChannel.length !== 0){
-            //      console.log(findChannel,'......');
-            //     }
-            //     else{ 
-            //         setMessages((prev) => [
-            //         ...prev,
-            //         {
-            //             channelId : newMsg.channelId,
-            //             phoneNo : newMsg.phoneNo,
-            //             message : [newMsg.messages],
-            //             unseen : 0
-            //         }
-            //     ])
-            // }
-
-
             try {
                 const newMsg = JSON.parse(messageData);
                 console.log("Parsed message:", newMsg);
@@ -67,7 +48,7 @@ export async function useWebSocket() {
                     console.error("Message payload missing 'messages' field:", newMsg);
                     return;
                 }
-
+                setMessages(getItem("messages"))
                 setMessages((prevMessages) => {
                     // Find if a channel with the same channelId exists
                     const channelIndex = prevMessages.findIndex(

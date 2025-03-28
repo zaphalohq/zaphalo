@@ -11,9 +11,10 @@
     "start:prod": "node dist/src/main",
     "command:prod": "node dist/src/command/command",
     "worker:prod": "node dist/src/queue-worker/queue-worker",
-    "database:init:prod": "npx ts-node ./scripts/setup-db.ts && yarn database:migrate:prod",
-    "database:migrate:prod": "npx -y typeorm migration:run -d dist/src/database/typeorm/metadata/metadata.datasource && npx -y typeorm migration:run -d dist/src/database/typeorm/core/core.datasource",
-    "typeorm": "../../node_modules/typeorm/.bin/typeorm"
+    "database:init:prod": "yarn ts-node ./scripts/setup-db.ts && yarn database:migrate:prod",
+    "database:migrate:prod": "nx run server:typeorm migration:run -d src/database/typeorm/core/core.datasource.ts",
+    "typeorm": "../../node_modules/typeorm/cli.js",
+    "database:migrate_revert:pord": "nx run server:typeorm migration:revert -d src/database/typeorm/core/core.datasource.ts"
   },
   "dependencies": {
     "@apollo/server": "^4.11.3",

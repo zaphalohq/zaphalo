@@ -48,6 +48,7 @@ export class TypeORMService implements OnModuleInit, OnModuleDestroy {
         // BillingSubscription,
         // BillingSubscriptionItem,
       ],
+      // synchronize: true,
       // ssl: environmentService.get('PG_SSL_ALLOW_SELF_SIGNED')
       //   ? {
       //       rejectUnauthorized: false,

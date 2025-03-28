@@ -7,6 +7,7 @@ import { Message } from './message.entity';
 import { ChannelService } from './channel.service';
 import { WebSocketService } from './chat-socket';
 import { contactsService } from '../contacts/contacts.service';
+import { GqlAuthGuard } from '../auth/guards/gql-auth.guard';
 
 const token = 'my-token'
 
@@ -25,11 +26,11 @@ export class channelController {
 
     @Get()
     getWhatsappApi(@Query() query: any): string {
-        console.log(query);
+        // console.log(query);
         const mode = query['hub.mode']
         const challenge = query['hub.challenge']
         const verify_token = query['hub.verify_token']
-        console.log(mode, challenge, verify_token);
+        // console.log(mode, challenge, verify_token);
 
         if (mode && verify_token === token) {
             return challenge
@@ -61,12 +62,15 @@ export class channelController {
         }
     }
 
+    @UseGuards(GqlAuthGuard)
     @Get('sendMsg1')
-    async getMessage(@Query('channelId') channelId: string) {
-        return this.channelservice.findMsgByChannelId(channelId)
+    async getMessage(@Query('channelId') channelId: string) : Promise<Message[]> {
+        const messages = await this.channelservice.findMsgByChannelId(channelId)
+        this.channelservice.makeUnseenSeen(messages)
+        return messages
     }
 
-    @UseGuards(AuthGuard('jwt'))
+     @UseGuards(GqlAuthGuard)
     @Post('sendMsg')
     async sendMessage(@Body('senderId') senderId: number,
         @Body('receiverId') receiverId: any,

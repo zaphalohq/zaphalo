@@ -1,19 +1,19 @@
-import ChatsNav from "./CurrentChannel"
+import ChatsNav from "./CurrentChannelNav"
 import MessageArea from "./MessagingArea"
 import MessageDisplay from "./MessageDisplay"
 import { useState } from "react"
 
 const ChatsMain = () => {
-  const [ msgData, setMsgData ] = useState("")
+  const [ myMessage, setMyMessage ] = useState("")
   return (
     <div>
       <div className='bg-white'>
           <div className="flex flex-col h-full justify-between">
             <div>
             <ChatsNav />
-              <MessageDisplay msgData={msgData} setMsgData={setMsgData} />
+              <MessageDisplay myMessage={myMessage} />
             </div>
-          <MessageArea msgData={msgData} setMsgData={setMsgData} />
+          <MessageArea setMyMessage={setMyMessage} />
           </div>
         </div>
     </div>

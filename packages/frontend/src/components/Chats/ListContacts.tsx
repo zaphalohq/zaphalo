@@ -2,7 +2,7 @@ import { useContext } from 'react'
 import { ChatsContext } from '../Context/ChatsContext'
 import { useQuery } from '@apollo/client'
 import { findChannelByPhoneNo } from '../../pages/Mutation/Chats'
-import { setItem } from '../utils/localstorage'
+import { setItem } from '../utils/localStorage'
 
 const ListContacts = ({ contactName, phoneNo, HandleNewChatVisiablity, profileImg }: any) => {
     const { chatsDetails, setChatsDetails }: any = useContext(ChatsContext)

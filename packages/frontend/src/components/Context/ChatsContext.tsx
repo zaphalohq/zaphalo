@@ -21,12 +21,15 @@ export const ChatsProvider = ({ children }: any) => {
     }
     })
 
-    const [ newMessage, setNewMessage ] = useState([{
+    const [ newMessage, setNewMessage ] = useState(
+        ()  =>  {
+            const getMessage = getItem("messages")
+            return getMessage || [{
         channelId : '',
         phoneNo : '',
         message : {},
         unseen : 0
-    }])
+    }]})
 
     return (
         <ChatsContext.Provider value={{

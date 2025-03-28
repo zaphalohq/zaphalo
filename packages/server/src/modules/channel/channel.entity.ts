@@ -24,7 +24,7 @@ export class Channel {
     joinColumn: { name: 'channelId', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'contactId', referencedColumnName: 'id' },
   })
-  contacts: Contacts[];
+  contacts: Relation<Contacts[]>;
 
   @Field(() => String) // Date as ISO string in GraphQL
   @CreateDateColumn()
@@ -45,7 +45,7 @@ export class Channel {
 
   @Field(() => [Message])
   @OneToMany(() => Message, message => message.channel)
-  messages : Message[]
+  messages : Relation<Message[]>
   
   @Field(() => String)
   @Column({ nullable : true })

@@ -4,6 +4,9 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { ChannelService } from "./channel.service";
 import { Message } from "./message.entity";
+import { UseGuards } from "@nestjs/common";
+import { AuthGuard } from '@nestjs/passport';
+import { GqlAuthGuard } from "../auth/guards/gql-auth.guard";
 
 @Resolver(() => Channel)
 export class ChannelResolver {
@@ -15,19 +18,34 @@ export class ChannelResolver {
         private readonly channelService: ChannelService,
     ) { }
 
+    
     @Query(() => [Channel])
+    @UseGuards(GqlAuthGuard)
     async findAllChannel(): Promise<Channel[]> {
-        console.log("Fetching all channels...");
+        // console.log("Fetching all channels...");
         return await this.channelService.findAllChannel();
     }
 
+    @UseGuards(GqlAuthGuard)
     @Query(() => [Message])
     async findMsgByChannelId(@Args('channelId') channelId : string ) : Promise<Message[] | Message> {
-        return await this.channelService.findMsgByChannelId(channelId);
+        const messages = await this.channelService.findMsgByChannelId(channelId);        
+        return messages
     }
 
+    @UseGuards(GqlAuthGuard)
     @Query(() => Channel) 
     async findExistingChannelByPhoneNo(@Args('memberIds') memberIds : string) : Promise<Channel | undefined> {
         return await this.channelService.findExistingChannelByPhoneNo(JSON.parse(memberIds))
+    }
+
+    // @UseGuards(GqlAuthGuard)
+    @Query(() => [Message])
+    async findAllUnseen(){
+        console.log("this if form unseeen form backend");
+        const unseenMessages = await this.channelService.findAllUnseen()
+        console.log(unseenMessages);
+        
+        return unseenMessages
     }
 }

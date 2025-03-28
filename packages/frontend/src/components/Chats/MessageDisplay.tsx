@@ -1,11 +1,10 @@
 import { useContext, useEffect, useRef, useState } from "react"
 import { ChatsContext } from "../Context/ChatsContext"
 import axios from 'axios'
-import io, { Socket } from 'socket.io-client';
 import { useWebSocket } from "./hooks/WebSocket";
 import { getItem, setItem } from "../utils/localStorage";
 
-const MessageDisplay = ({ msgData } : any) => {
+const MessageDisplay = ({ myMessage } : any) => {
   const senderPhoneNo = import.meta.env.VITE_SENDER_PHONENO;
   const { chatsDetails }: any = useContext(ChatsContext)
   const [allMessages, setAllMessages] = useState([{
@@ -17,7 +16,11 @@ const MessageDisplay = ({ msgData } : any) => {
   }])
   const FetchMessage = async () => {
     if (chatsDetails.channelId !== '') {
-      const response = await axios.get("http://localhost:3000/webhook/sendMsg1", {
+      const response = await axios.get("http://localhost:3000/webhook/sendMsg1",
+         {
+        headers: {
+          Authorization : import.meta.env.VITE_TOKEN
+        },
         params: {
           channelId: chatsDetails.channelId
         },
@@ -46,30 +49,19 @@ const MessageDisplay = ({ msgData } : any) => {
     if(makeScroll.current) makeScroll.current.scrollIntoView({ behavior : 'instant'})
   }, [allMessages]);
 
-  // const [socket, setSocket] = useState<Socket | null>(null); // Explicitly allow Socket or null
-  // useEffect(() => {
-  //   const socketIo = WebSocket()
-  //   setSocket(socketIo);
-  //   // Cleanup on unmount
-  //   return () => {
-  //     socketIo.disconnect();
-  //   };
-  // }, [])
- 
-
   const { messages } : any = useWebSocket()
 
   useEffect(() => {
     setAllMessages((prev) => [
       ...prev,
       {
-      message: msgData,
+      message: myMessage,
       sender: {
         id: '',
         phoneNo: senderPhoneNo
       }
     }])
-  }, [msgData])
+  }, [myMessage])
 
   // useEffect(() => {
   //   const newMessage = getItem("messages")
@@ -95,15 +87,11 @@ const MessageDisplay = ({ msgData } : any) => {
   //   }
     
   // },[getItem("messages")])
+  const { newMessage,setNewMessage }: any = useContext(ChatsContext)
 
   useEffect(() => {
-    const newMessage = getItem("messages");
-    console.log(newMessage, "................this is from useeffect........................");
-
     const currentChannel = newMessage.find((message: any) => message.channelId === chatsDetails.channelId);
     const currentChannelIndex = newMessage.findIndex((message: any) => message.channelId === chatsDetails.channelId);
-    console.log(currentChannel, "this is current channel");
-
     if (currentChannel) { // Check if channel exists
         // Build the new messages array once
         const newMessages = currentChannel.message.map((message: any) => ({
@@ -117,9 +105,12 @@ const MessageDisplay = ({ msgData } : any) => {
 
         // Remove the channel from newMessage and update storage
         newMessage.splice(currentChannelIndex, 1);
+        console.log(newMessage,"t...........................................newmess");
+        
+        setNewMessage(newMessage)
         setItem("messages", newMessage); // Save the updated array
     }
-}, [getItem("messages")]); // Dependency is the channel ID, not getItem result
+}, [newMessage]); 
 
   return (
     <div className="relative h-[76vh]">

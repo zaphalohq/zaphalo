@@ -1,11 +1,9 @@
-import { FiEdit, FiList, FiPlus, FiUsers } from "react-icons/fi"
+import { FiEdit, FiList } from "react-icons/fi"
 import { SearchWhite } from "../UI/Search"
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 import ContactList from "./ContactsArea"
 import CreateContacts from "./CreateContacts"
-import { useQuery } from "@apollo/client"
-import { findAllChannel } from "../../pages/Mutation/Chats"
-import ChannelList from "./ChannelList"
+import ChannelLists from "./ChannelLists"
 
 
 const ChatsSide = () => {
@@ -16,29 +14,7 @@ const ChatsSide = () => {
   const [isCreateContactVis, setIsCreateContactVis] = useState(false);
   const HandleCreateContactVis = () => setIsCreateContactVis(!isCreateContactVis)
 
-  const { data, refetch } = useQuery(findAllChannel)
-  const [ allChannel, setAllChannel ] = useState([{
-    channelName : '',
-    id : '',
-    contacts : [{
-      phoneNo : null,
-      id : ''
-    }]
-  }])
-  const FetchAllChannel = async () => {
-    await refetch()
-    if( data && data.findAllChannel )
-      setAllChannel(data.findAllChannel)  
-      
-         
 
-  }
-
-useEffect(() => {
-  FetchAllChannel()
-  console.log(data);
-  
-}, [data])
 
 // const modalRef = useRef(null);
 //   useEffect(() => {
@@ -78,9 +54,7 @@ useEffect(() => {
         <div className='p-3  border-b border-stone-300'>
           <SearchWhite />
         </div>
-        <div className="overflow-y-scroll h-[calc(100vh-162px)]">
-          {allChannel.map((data, index) => <ChannelList key={index} channelId={data.id}  channelName={data.channelName} memberIds={data.contacts} lastmsg="" />)}
-        </div>
+          <ChannelLists />
       </div>
     </div>
   )

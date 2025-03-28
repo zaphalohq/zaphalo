@@ -7,8 +7,6 @@ import { log } from 'console';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
-    console.log('fdsfsdfsdfsdd');
-    
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), // Extract token from Authorization header
       ignoreExpiration: false,    

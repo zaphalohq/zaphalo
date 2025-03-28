@@ -121,6 +121,7 @@ export class GraphQLConfigService
         credentials: false,
         // origin: true,
     },
+    context: ({ req }) => ({ req }), // Pass the HTTP request to context
       // conditionalSchema: async (context) => {
       //   let user: User | undefined;
         // let workspace: Workspace | undefined;

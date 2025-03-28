@@ -18,6 +18,7 @@ export class Contacts {
   @Field()                                 // GraphQL field
   contactName: string;
 
+
   @Column({ type: 'bigint' })
   @Field(() => Float)
   phoneNo: number;
@@ -29,7 +30,7 @@ export class Contacts {
   @Field(() => [Channel])
   @ManyToMany(() => Channel, channel => channel.contacts)
   @JoinColumn({ name : 'channel'})
-  channel : Channel[]
+  channel : Relation<Channel[]>
 
   @Column({ nullable: true })
   @Field(() => String, { nullable: true })

@@ -53,3 +53,16 @@ export const findChannelByPhoneNo = gql`
     }
   }
 `;
+
+export const findAllUnseen = gql`query MyQuery {
+  findAllUnseen {
+    unseen
+    message
+    channel {
+      id
+    }
+    sender {
+      phoneNo
+    }
+  }
+}`
