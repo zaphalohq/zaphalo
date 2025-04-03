@@ -13,7 +13,8 @@ const ListContacts = ({ contactName, phoneNo, HandleNewChatVisiablity, profileIm
     })
 
     const HandleCurrentContact = () => {
-        if (data && data?.findExistingChannelByPhoneNo) {
+
+        if (data && data.findExistingChannelByPhoneNo) {
             const existChannel = data.findExistingChannelByPhoneNo
             setChatsDetails({
                 channelName: existChannel.channelName,
@@ -24,30 +25,30 @@ const ListContacts = ({ contactName, phoneNo, HandleNewChatVisiablity, profileIm
             })
 
             console.log(chatsDetails);
-            
+
             setItem('chatsDetails', {
                 channelName: existChannel.channelName,
                 profileImg,
                 receiverId: [phoneNo],
                 channelId: existChannel.id,
                 memberIds: memberIds,
-                    })
+            })
         } else {
-        setChatsDetails({
-            channelName: contactName,
-            profileImg,
-            receiverId: [phoneNo],
-            channelId: '',
-            memberIds: memberIds,
-        })
+            setChatsDetails({
+                channelName: contactName,
+                profileImg,
+                receiverId: [phoneNo],
+                channelId: '',
+                memberIds: memberIds,
+            })
 
-        setItem('chatsDetails', {
-            channelName: contactName,
-            profileImg,
-            receiverId: [phoneNo],
-            channelId: '',
-            memberIds: memberIds,
-        })
+            setItem('chatsDetails', {
+                channelName: contactName,
+                profileImg,
+                receiverId: [phoneNo],
+                channelId: '',
+                memberIds: memberIds,
+            })
         }
 
         HandleNewChatVisiablity()

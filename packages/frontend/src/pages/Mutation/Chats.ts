@@ -66,3 +66,22 @@ export const findAllUnseen = gql`query MyQuery {
     }
   }
 }`
+
+export const findMsgByChannelId = gql`query GetMessagesByChannel($channelId: String!) {
+  findMsgByChannelId(channelId: $channelId) {
+    message
+    sender {
+      id
+      phoneNo
+    }
+    createdAt
+  }
+}`
+
+export const SEND_MESSAGE = gql`
+  mutation SendMessage($input: SendMessageInput!) {
+  sendMessage(input: $input) {
+    message
+  }
+}
+`;

@@ -4,16 +4,15 @@ import MessageDisplay from "./MessageDisplay"
 import { useState } from "react"
 
 const ChatsMain = () => {
-  const [ myMessage, setMyMessage ] = useState("")
   return (
     <div>
-      <div className='bg-white'>
-          <div className="flex flex-col h-full justify-between">
+      <div className='bg-white w-[117.5vh]  '>
+          <div className="flex flex-col justify-between">
             <div>
             <ChatsNav />
-              <MessageDisplay myMessage={myMessage} />
+              <MessageDisplay  />
             </div>
-          <MessageArea setMyMessage={setMyMessage} />
+          <MessageArea  />
           </div>
         </div>
     </div>

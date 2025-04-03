@@ -1,6 +1,6 @@
 import { FiEdit, FiList } from "react-icons/fi"
 import { SearchWhite } from "../UI/Search"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import ContactList from "./ContactsArea"
 import CreateContacts from "./CreateContacts"
 import ChannelLists from "./ChannelLists"
@@ -14,37 +14,34 @@ const ChatsSide = () => {
   const [isCreateContactVis, setIsCreateContactVis] = useState(false);
   const HandleCreateContactVis = () => setIsCreateContactVis(!isCreateContactVis)
 
+  const modalRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        setIsNewChatOpen(false);
+      }
+    };
 
+    document.addEventListener("mousedown", handleClickOutside);
 
-// const modalRef = useRef(null);
-//   useEffect(() => {
-//     const handle = (event : any) => {
-//       console.log("...........");
-      
-//       if(modalRef.current && !(modalRef.current as any).contains(event.target as Node)){
-//         setIsNewChatOpen(false)
-//         // HandleNewChatVisiablity()
-//       }
-//     }
-
-//     document.addEventListener("mousedown", handle)
-
-//     return document.removeEventListener("mousedown", handle)
-
-//   },)
-
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div>
-      <div  className='bg-stone-50 stikey  h-[calc(100vh-40px)] inset-shadow-sm '>
+      <div className='bg-stone-50 stikey h-[calc(100vh-48px)] inset-shadow-sm '>
         {/* this is the upper on left side of chats */}
         <div className='flex justify-between p-4.5 bg-stone-200'>
           <h2 className='text-xl font-bold text-stone-950'>Chats</h2>
           <div className='relative flex gap-2 text-lg items-center'>
             {/* -------------this is button on sidebar with new contacts list----------- */}
-            <button onClick={HandleNewChatVisiablity}  className='p-2 hover:bg-stone-300 rounded cursor-pointer'><FiEdit /></button>
-            <div>
-            {isNewChatOpen ? <ContactList  HandleCreateContactVis={HandleCreateContactVis} HandleNewChatVisiablity={HandleNewChatVisiablity} /> : null}
+            <button onClick={HandleNewChatVisiablity} className='p-2 hover:bg-stone-300 rounded cursor-pointer'><FiEdit /></button>
+            <div className="menuref"  ref={modalRef}>
+              {isNewChatOpen ? 
+                <ContactList HandleCreateContactVis={HandleCreateContactVis} HandleNewChatVisiablity={HandleNewChatVisiablity} /> 
+                : null }
             </div>
             {isCreateContactVis ? <CreateContacts HandleCreateContactVis={HandleCreateContactVis} /> : null}
             <button className='p-2 hover:bg-stone-300 rounded cursor-pointer'><FiList /></button>
@@ -54,7 +51,7 @@ const ChatsSide = () => {
         <div className='p-3  border-b border-stone-300'>
           <SearchWhite />
         </div>
-          <ChannelLists />
+        <ChannelLists />
       </div>
     </div>
   )

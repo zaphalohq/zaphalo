@@ -4,7 +4,7 @@ import { getItem, setItem } from "../utils/localStorage"
 import { useQuery } from "@apollo/client"
 import { findAllUnseen } from "../../pages/Mutation/Chats"
 
-const ChannelList = ({ channelName, lastmsg, channelId, memberIds }: any) => {
+const ChannelList = ({ channelName, channelId, memberIds, setIsChannelExist, isChannelExist }: any) => {
   const { chatsDetails, setChatsDetails }: any = useContext(ChatsContext)
   const { newMessage, setNewMessage } : any = useContext(ChatsContext) //all new messages
 
@@ -27,19 +27,6 @@ const ChannelList = ({ channelName, lastmsg, channelId, memberIds }: any) => {
   },[memberIds])
 
 
-// const { data, loading, refetch } = useQuery(findAllUnseen)
-// // const { data, refetch, loading } = useQuery(findAllUnseen)
-// const [ unseenMessages, setUnseenMessages ] = useState('')
-// const fetchData = async() => {
-//   const data1 = await data
-//   console.log( data1,"this si ddatata");
-  
-//   setUnseenMessages(data1)
-//   refetch();	
-// }
-// // useEffect(() => {
-// //   fetchData
-// // },[data])
 
 
 //------------------new message count----------------------------
@@ -47,12 +34,16 @@ const ChannelList = ({ channelName, lastmsg, channelId, memberIds }: any) => {
   // const { newMessage } = useContext(ChatsContext)
   useEffect(() => {
     
+
     const currentChannel = newMessage.find((message: any) => message.channelId === channelId) || null;
-    
+    if(currentChannel == null)
+      setIsChannelExist(isChannelExist + 1)
+      console.log(currentChannel)
     if( currentChannel && currentChannel.unseen)
       setNewMessageCount(currentChannel.unseen)     
-    else
+    else{
       setNewMessageCount(0)
+    }
   },[newMessage,channelId, newMessageCount])
 
 
@@ -97,19 +88,9 @@ useEffect(() => {
     }
   }, []);
 
-  // useEffect(() => {
-  //   refetch()
-  // },[])
-
-
-// Optional: Manual refetch trigger (e.g., via a button)
-// const handleRefetch = async () => {
-//   await refetch();
-// };
 
 //------------------Handle Current Channel-------------------------
 const HandleCurrentChannel =  async () => {   
-  // handleRefetch()
   const currentChannel = {
     channelName,
     channelId,
@@ -126,8 +107,6 @@ const HandleCurrentChannel =  async () => {
   const currentChannelIndex = newMessage.findIndex((message: any) => message.channelId === channelId);
   if(currentChannelIndex !== -1){
     newMessage.splice(currentChannelIndex, 1)
-    console.log(newMessage,".............................this is newmessage.............");
-    
     setNewMessage(newMessage)
     setItem("messages", newMessage);
     setNewMessageCount(0)
@@ -136,7 +115,6 @@ const HandleCurrentChannel =  async () => {
 
   return (
     <div>
-      {/* <button onClick={BUTTON}>BUTTON</button> */}
       {/* this is the main */}
       <div onClick={HandleCurrentChannel} 
            className={`flex cursor-pointer items-center justify-between 
@@ -146,23 +124,22 @@ const HandleCurrentChannel =  async () => {
         <div className='flex gap-4'>
           {/* Profile Picture */}
           {/* <img className='w-11 h-11 object-cover rounded-full' src="https://www.washingtonpost.com/wp-apps/imrs.php?src=https://arc-anglerfish-washpost-prod-washpost.s3.amazonaws.com/public/L73IDX7GKCHAD7EJJS7FQ7A6BU.JPG&w=1200" alt="" /> */}
-          <div className="w-11 h-11 bg-blue-200 rounded-full flex justify-center text-blue-500 font-bold text-lg items-center">{channelName.slice(0, 1).toUpperCase()}</div>
+          <div className="w-11 h-11 bg-blue-200 rounded-full flex justify-center text-blue-500 font-bold text-lg items-center">{(channelName).slice(0, 1).toUpperCase()}</div>
           {/* Message Details */}
           <div className="flex items-center">
             <p className='font-bold truncate w-[9rem]'>{channelName}</p>
-            {/* <div className='truncate w-[9.375rem]'>{lastmsg}</div> */}
           </div>
         </div>
         {/* Message Time and Notification */}
         <span className='flex flex-col items-end text-sm'>
-          <div>12:00</div>
+          {/* <div>12:00</div> */}
           {newMessageCount !== 0 ? 
             <div className='flex items-center w-5 h-5 text-xs justify-center bg-green-500 rounded-full text-white'>
               {newMessageCount} 
             </div> 
           : <></>} 
         </span>
-      </div>
+      </div>     
     </div>
   )
 }

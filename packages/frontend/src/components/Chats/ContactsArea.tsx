@@ -7,11 +7,11 @@ import ListContacts from './ListContacts'
 
 
 const ContactList = ({ HandleNewChatVisiablity, HandleCreateContactVis }: any) => {
-
+//--------------------------findAllContacts-----------------------------
     const { data, loading, refetch } = useQuery(findAllContacts)
     const [allContacts, setAllContacts] = useState([{
         contactName: "",
-        phoneNo: "",
+        phoneNo: null,
         profileImg: ""
     }])
     const HandleFetchContacts = async () => {
@@ -23,7 +23,6 @@ const ContactList = ({ HandleNewChatVisiablity, HandleCreateContactVis }: any) =
         }
 
     }
-    // setTimeout(() => console.log(allContacts), 5000);
     useEffect(() => {
         HandleFetchContacts()
     }, [data])

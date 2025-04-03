@@ -8,6 +8,7 @@ import { ChannelService } from './channel.service';
 import { WebSocketService } from './chat-socket';
 import { contactsService } from '../contacts/contacts.service';
 import { GqlAuthGuard } from '../auth/guards/gql-auth.guard';
+import axios from 'axios'
 
 const token = 'my-token'
 
@@ -62,15 +63,15 @@ export class channelController {
         }
     }
 
-    @UseGuards(GqlAuthGuard)
-    @Get('sendMsg1')
-    async getMessage(@Query('channelId') channelId: string) : Promise<Message[]> {
+    // @UseGuards(GqlAuthGuard)
+    @Get('sendMsg')
+    async getMessage(@Query('channelId') channelId: string)  {
         const messages = await this.channelservice.findMsgByChannelId(channelId)
         this.channelservice.makeUnseenSeen(messages)
-        return messages
+        return "messages"
     }
 
-     @UseGuards(GqlAuthGuard)
+    @UseGuards(GqlAuthGuard)
     @Post('sendMsg')
     async sendMessage(@Body('senderId') senderId: number,
         @Body('receiverId') receiverId: any,
@@ -80,23 +81,23 @@ export class channelController {
         @Body('channelId') channelId?: string,
     ): Promise<any> {
 
-        // const response = await axios({
-        //     url: 'https://graph.facebook.com/v22.0/565830889949112/messages',
-        //     method: 'POST',
-        //     headers: {
-        //         'Authorization': `Bearer ${process.env.Whatsapp_Token}`,
-        //         'Content-Type': 'application/json'
-        //     },
-        //     data: JSON.stringify({
-        //         "messaging_product": "whatsapp",
-        //         "to": receiverId[0],
-        //         "type": "text",
-        //         "text": {
-        //             'body': msg
-        //         }
-        //     })
-        // })
-        // console.log(response);
+        const response = await axios({
+            url: 'https://graph.facebook.com/v22.0/565830889949112/messages',
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${process.env.Whatsapp_Token}`,
+                'Content-Type': 'application/json'
+            },
+            data: JSON.stringify({
+                "messaging_product": "whatsapp",
+                "to": receiverId[0],
+                "type": "text",
+                "text": {
+                    'body': msg
+                }
+            })
+        })
+        console.log(response);
 
         if (!channelId || channelId == null) {
             const memberIds = [...receiverId, Number(senderId)]

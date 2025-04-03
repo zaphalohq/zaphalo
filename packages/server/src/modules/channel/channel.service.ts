@@ -19,7 +19,7 @@ export class ChannelService {
     ) { }
 
 
-    async findOrCreateChannel(phoneNo: any, memberIds: number[], userId?: any, channelName?: string) {
+    async findOrCreateChannel(phoneNo: any, memberIds: number[], channelName?: string, userId?: any, ) {
         const contacts = await this.contactsservice.findContactsByPhoneNoArr(memberIds)
 
         //----finding channel exist or not ------------------------
@@ -88,8 +88,46 @@ export class ChannelService {
     }
 
     async findAllChannel(): Promise<Channel[]> {
-        return await this.channelRepository.find({ relations: ['contacts'] });
+        const allChannel = await this.channelRepository.find({
+             relations: ['contacts'] ,
+            })
+        
+        return await this.channelRepository
+        .createQueryBuilder('channel')
+        .leftJoinAndSelect('channel.contacts', 'contacts')
+        .leftJoinAndSelect('channel.messages', 'messages')
+        .addSelect(
+          (subQuery) =>
+            subQuery
+              .select('MAX(m.createdAt)', 'latest_time')
+              .from(Message, 'm')
+              .where('m.channelId = channel.id'),
+          'latest_message_time'
+        )
+        .orderBy('latest_message_time', 'DESC', 'NULLS LAST')
+        .getMany();
     }
+
+    // async findAllChannel(): Promise<Channel[]> {
+    //     return await this.channelRepository
+    //       .createQueryBuilder('channel')
+    //       .leftJoinAndSelect('channel.contacts', 'contacts')
+    //       .leftJoinAndSelect('channel.messages', 'messages') // Join messages
+    //       .groupBy('channel.id') // Group by channel to avoid duplicates
+    //       .orderBy('MAX(messages.createdAt)', 'DESC', 'NULLS LAST') // Sort by latest message
+    //       .getMany();
+    //   }
+
+    //   async findMsgByChannelId(channelId: string): Promise<Message[]> {
+    
+    //     return await this.messageRepository
+    //       .createQueryBuilder('message')
+    //       .leftJoinAndSelect('message.channel', 'channel')
+    //       .leftJoinAndSelect('message.sender', 'sender')
+    //       .where('channel.id = :channelId', { channelId })
+    //       .orderBy('message.createdAt', 'ASC')
+    //       .getMany();
+    //   }
 
     async findMsgByChannelId(channelId: any): Promise<Message[]> {
 
@@ -117,4 +155,23 @@ export class ChannelService {
             relations : ['channel', 'sender'],
         })
       }
+
+      async deleteChannelById(channelId : string) {
+        const deleteChannel = await this.channelRepository.findOne({ where: { id: channelId}})
+        if(deleteChannel)
+            return this.channelRepository.remove(deleteChannel)
+        else 
+            null
+      }
+
+
+      async updateChannelById(channelId: string, updatedValue : string) {
+        const channel = await this.channelRepository.findOne({ where : { id : channelId }})
+        if (!channel) {
+            throw new Error('Channel not found');
+          }
+        channel.channelName = updatedValue
+        return await this.channelRepository.save(channel)
+      }
+
     }

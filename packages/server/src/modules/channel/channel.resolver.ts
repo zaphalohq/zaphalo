@@ -1,12 +1,13 @@
-import { Args, Query, Resolver } from "@nestjs/graphql";
+import { Args, Field, Mutation, ObjectType, Query, Resolver } from "@nestjs/graphql";
 import { Channel } from "./channel.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { ChannelService } from "./channel.service";
 import { Message } from "./message.entity";
 import { UseGuards } from "@nestjs/common";
-import { AuthGuard } from '@nestjs/passport';
 import { GqlAuthGuard } from "../auth/guards/gql-auth.guard";
+import { SendMessageInput, SendMessageResponse } from "./dto/SendMessageInputDto";
+import axios from 'axios'
 
 @Resolver(() => Channel)
 export class ChannelResolver {
@@ -29,7 +30,10 @@ export class ChannelResolver {
     @UseGuards(GqlAuthGuard)
     @Query(() => [Message])
     async findMsgByChannelId(@Args('channelId') channelId : string ) : Promise<Message[] | Message> {
+        console.log(channelId,"this is channelid");
+        
         const messages = await this.channelService.findMsgByChannelId(channelId);        
+        await this.channelService.makeUnseenSeen(messages); 
         return messages
     }
 
@@ -39,7 +43,7 @@ export class ChannelResolver {
         return await this.channelService.findExistingChannelByPhoneNo(JSON.parse(memberIds))
     }
 
-    // @UseGuards(GqlAuthGuard)
+
     @Query(() => [Message])
     async findAllUnseen(){
         console.log("this if form unseeen form backend");
@@ -48,4 +52,68 @@ export class ChannelResolver {
         
         return unseenMessages
     }
+
+
+    
+    // @UseGuards(GqlAuthGuard)
+  @Mutation(() => SendMessageResponse) 
+  async sendMessage(
+    @Args('input') input: SendMessageInput, 
+  ): Promise<SendMessageResponse> {
+    const { senderId, receiverId, msg, channelName, channelId } = input;
+console.log(input,senderId , 'senterid', receiverId, 'receiverId', msg, 'msg', channelName ,'channelName', channelId,'channelId' ,"...........................input........................");
+
+    // // Send WhatsApp message via Facebook Graph API
+    // const response = await axios({
+    //   url: 'https://graph.facebook.com/v22.0/565830889949112/messages',
+    //   method: 'POST',
+    //   headers: {
+    //     Authorization: `Bearer ${process.env.Whatsapp_Token}`,
+    //     'Content-Type': 'application/json',
+    //   },
+    //   data: JSON.stringify({
+    //     messaging_product: 'whatsapp',
+    //     to: receiverId[0], // Assuming first receiverId is the target
+    //     type: 'text',
+    //     text: {
+    //       body: msg,
+    //     },
+    //   }),
+    // });
+
+    // console.log(response.data); // Log the API response
+
+    // Handle channel and message creation
+    if (channelId === '') {
+      const memberIds = [...receiverId, senderId]; // Combine sender and receivers
+      const channel = await this.channelService.findOrCreateChannel(
+        senderId,
+        memberIds,
+        channelName,
+      );
+
+      if (!channel.id) {
+        throw new Error('Channel not found');
+      }
+      // console.log(channel);
+      
+      await this.channelService.createMessage(msg, channel.id, senderId);
+      return { message: 'Message sent' };
+    } else {
+      if(channelId)
+      await this.channelService.createMessage(msg, channelId, senderId);
+      return { message: 'Message sent' };
+    }
+  }
+
+  @Mutation(() => Channel)
+  async deleteChannelById(@Args('channelId') channelId : string) : Promise<Channel | undefined> {
+    return this.channelService.deleteChannelById(channelId)
+  }
+
+  @Mutation(() => Channel)
+  async updateChannelById(@Args('channelId') channelId : string, @Args('updatedValue') updatedValue : string) : Promise<Channel> {
+    return await this.channelService.updateChannelById(channelId,updatedValue)
+  }
+
 }

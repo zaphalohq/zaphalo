@@ -4,7 +4,9 @@ export interface ChatsContectProps {
     chatsDetails: any,
     setChatsDetails: Function,
     newMessage: any,
-    setNewMessage: Function
+    setNewMessage: Function,
+    myCurrentMessage: any,
+    setMyCurrentMessage: Function,
 }
 
 export const ChatsContext = createContext<ChatsContectProps | undefined>(undefined)
@@ -31,12 +33,18 @@ export const ChatsProvider = ({ children }: any) => {
         unseen : 0
     }]})
 
+
+  const [ myCurrentMessage, setMyCurrentMessage ] = useState("")
+
+
     return (
         <ChatsContext.Provider value={{
             chatsDetails,
             setChatsDetails,
             newMessage, 
-            setNewMessage
+            setNewMessage,
+            myCurrentMessage, 
+            setMyCurrentMessage,
         }}>
             {children}
         </ChatsContext.Provider>

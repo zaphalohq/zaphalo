@@ -34,11 +34,11 @@ function App() {
         <Route path="settings" element={<Settings />} />
         <Route path="teams" element={<Teams />} />
         <Route path="integrations" element={<Integrations />} />
-        {/* <Route path="chats" element={<Chats />} /> */}
+        <Route path="chats" element={<Chats />} /> 
         <Route path="whatsappinstants" element={<WhatsappInstants />} />
       </Route>
       </Route >
-      <Route path="chats" element={<Chats />} />
+      {/*<Route path="chats" element={<Chats />} /> */}
     </Routes>
     </BrowserRouter>
     </ApolloProvider>

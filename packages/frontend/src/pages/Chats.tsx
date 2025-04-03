@@ -6,9 +6,8 @@ import { ChatsProvider } from "../components/Context/ChatsContext"
 
 const Chats = () => {
   return (
-    <div className='bg-[#DDDCD1] '> 
-      <div className='grid grid-cols-[350px_1fr] rounded-lg shadow-2xl sticky'>
-      {/* <Sidebar /> */}
+    <div className='bg-[#DDDCD1] border-stone-50 border-b-2'> 
+      <div className='grid grid-cols-[300px_1fr] w-full  rounded-lg sticky'>
       <ChatsProvider>
         <ChatsSide />
         <ChatsMain />
