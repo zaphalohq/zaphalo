@@ -1,7 +1,7 @@
 import { useQuery } from "@apollo/client"
 import { findAllChannel } from "../../pages/Mutation/Chats"
 import { useContext, useEffect, useState } from "react"
-import ChannelList from "./CurrentChannel"
+import CurrentChannel from "./CurrentChannel"
 import { ChatsContext } from "../Context/ChatsContext"
 
 const ChannelLists = () => {
@@ -15,6 +15,7 @@ const ChannelLists = () => {
       id: ''
     }]
   }])
+
   const FetchAllChannel = async () => {
     await refetch()
     if (data && data.findAllChannel)
@@ -27,9 +28,7 @@ const ChannelLists = () => {
     FetchAllChannel()
   }, [data, isChannelExist])
 
-
-
-
+//------------it put the channel first when new message arrives------------
   const { myCurrentMessage }: any = useContext(ChatsContext)
   const { chatsDetails }: any = useContext(ChatsContext)
   useEffect(() => {
@@ -50,6 +49,11 @@ const ChannelLists = () => {
         id: ''
       }]
     }])
+
+  //   setUpdateChannelBool({
+  //     // isUpdateChannelName : false,
+  //     fetchChannelChannelNameUpdated : false,
+  // })
   }, [myCurrentMessage])
 
 
@@ -57,7 +61,7 @@ const ChannelLists = () => {
   return (
     <div className="overflow-y-scroll h-[calc(100vh-200px)]">
       {/* ---------------------Display AllCurrrentChannel---------------------- */}
-      {allChannel.map((channel, index) => <ChannelList key={index} channelId={channel.id} channelName={channel.channelName} memberIds={channel.contacts} setIsChannelExist={setIsChannelExist} isChannelExist={isChannelExist} />)}
+      {allChannel.map((channel, index) => <CurrentChannel key={index} channelId={channel.id} channelName={channel.channelName} memberIds={channel.contacts} setIsChannelExist={setIsChannelExist} isChannelExist={isChannelExist} />)}
     </div>
   )
 }

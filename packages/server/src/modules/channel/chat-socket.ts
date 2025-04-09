@@ -34,8 +34,7 @@ export class WebSocketService implements OnGatewayConnection, OnGatewayDisconnec
     sendMessageToChannel(channelId,messages, phoneNo) {
         console.log(channelId,"..............");
         const message = JSON.stringify({messages,channelId,phoneNo})
-        console.log(message);
-        
+        console.log(message,"this is from message backend in websocket");
         this.server.emit('message', message);
     }
 

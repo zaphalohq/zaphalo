@@ -17,10 +17,6 @@ const InstantsForm = () => {
     } : any = useContext(InstantsContext)
   return (
     <div className="fixed inset-0 bg-stone-900/30 flex items-center justify-center">
-				{/* <div className="absolute right-60 top-40 p-0.5 "><button onClick={() => {
-					setIsNewInstants(false)
-					HandleFormVisibility()
-				}} className="cursor-pointer hover:bg-stone-200 text-3xl rounded-full p-1 text-center text-violet-500 bg-stone-50"><FiX /></button></div> */}
 				<CloseButton onClick={() => {
 					setIsNewInstants(false)
 					HandleFormVisibility()

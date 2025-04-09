@@ -9,13 +9,16 @@ export class SendMessageInput {
   receiverId: number[];
 
   @Field(() => String)
-  msg: string;
+  message: string;
 
   @Field(() => String)
   channelName: string;
 
   @Field(() => String, { nullable: true })
   channelId?: string;
+
+  @Field(() => String, { nullable : true})
+  attachment: string;
 }
 
 // Define the response type

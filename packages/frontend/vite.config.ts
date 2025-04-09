@@ -8,6 +8,11 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  server:{
+    host : '192.168.1.2',
+    // host: 'localhost',
+    port : 5173,
+  },
   resolve: {
     alias: {
       '@components': resolve(__dirname, 'src/components'),  // Setup alias for '@components'

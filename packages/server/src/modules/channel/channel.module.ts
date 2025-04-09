@@ -13,6 +13,7 @@ import { ChannelResolver } from "./channel.resolver";
 import { UserService } from "../user/user.service";
 import { UserModule } from "../user/user.module";
 import { User } from "../user/user.entity";
+import { fileupload } from "./fileupload.controller";
 
 
 @Module({
@@ -27,8 +28,8 @@ import { User } from "../user/user.entity";
           services: [ChannelService],
         //   resolvers: whatappinstanstsAutoResolverOpts,
         }),],
-    controllers : [channelController],
-    providers : [ChannelService, channelController, WebSocketService, ChannelResolver, UserService],
+    controllers : [fileupload,channelController],
+    providers : [fileupload, ChannelService, channelController, WebSocketService, ChannelResolver, UserService],
     exports: [channelController ],
 })
 

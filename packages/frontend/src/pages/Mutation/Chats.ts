@@ -74,8 +74,9 @@ export const findMsgByChannelId = gql`query GetMessagesByChannel($channelId: Str
       id
       phoneNo
     }
-    createdAt
-  }
+    createdAt,
+    attachment
+  },
 }`
 
 export const SEND_MESSAGE = gql`
@@ -85,3 +86,11 @@ export const SEND_MESSAGE = gql`
   }
 }
 `;
+
+export const updateChannelNameById = gql`
+  mutation updateChannelNameById($channelId: String!, $updatedValue: String!) {
+    updateChannelNameById(channelId: $channelId, updatedValue: $updatedValue) {
+      channelName
+    }
+  }
+`

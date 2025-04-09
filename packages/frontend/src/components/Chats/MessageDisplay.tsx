@@ -1,14 +1,13 @@
 import { useContext, useEffect, useRef, useState } from "react"
 import { ChatsContext } from "../Context/ChatsContext"
-import axios from 'axios'
-import { useWebSocket } from "./hooks/WebSocket";
 import { getItem, setItem } from "../utils/localStorage";
 import { useQuery } from "@apollo/client";
 import { findMsgByChannelId } from "../../pages/Mutation/Chats";
+import { useWebSocket } from "./hooks/WebSocket";
 
 const MessageDisplay = () => {
   const senderPhoneNo = import.meta.env.VITE_SENDER_PHONENO;
-  const { myCurrentMessage } : any = useContext(ChatsContext)
+  const { myCurrentMessage }: any = useContext(ChatsContext)
   const { chatsDetails }: any = useContext(ChatsContext)
   const [allMessages, setAllMessages] = useState([{
     message: '',
@@ -16,44 +15,18 @@ const MessageDisplay = () => {
       id: '',
       phoneNo: ''
     },
-    createdAt: ''
+    createdAt: '',
+    attachment: '',
   }])
 
+  //-----------------Mutation of finding all messages of current channel-------------
   const { data, loading, error, refetch } = useQuery(findMsgByChannelId, {
     variables: { channelId: chatsDetails?.channelId },
-    skip: chatsDetails.channelId == null,
+    skip: chatsDetails.channelId == '',
   })
 
 
-  // const FetchMessage = async () => {
-  //   if (chatsDetails.channelId !== '') {
-  //   //   const response = await axios.get("http://localhost:3000/webhook/sendMsg1",
-  //   //     {
-  //   //       headers: {
-  //   //         Authorization: import.meta.env.VITE_TOKEN
-  //   //       },
-  //   //       params: {
-  //   //         channelId: chatsDetails.channelId
-  //   //       },
-  //   //     })
-
-  //   console.log(data.findMsgByChannelId,'this is messages');
-
-  //     setAllMessages(data.findMsgByChannelId)
-  //     // if (makeScroll.current) makeScroll.current.scrollIntoView({ behavior: 'smooth' })
-  //   } else {
-  //     setAllMessages([{
-  //       message: '',
-  //       sender: {
-  //         id: '',
-  //         phoneNo: ''
-  //       },
-  //       createdAt : ''
-  //     }])
-  //   }
-  // }
-
-
+  //--------------------Fetch messages-------------------------------
   const FetchMessage = async () => {
     if (chatsDetails.channelId !== '') {
       await refetch(); // Ensure latest data is fetched
@@ -75,17 +48,20 @@ const MessageDisplay = () => {
           id: '',
           phoneNo: ''
         },
-        createdAt: ''
+        createdAt: '',
+        attachment: '',
       }])
     }
   };
 
-  // Trigger fetching messages when data is updated
+  //----------Trigger fetching messages when data is updated---------------------
   useEffect(() => {
+    console.log(chatsDetails,"thisis form messages ..........................");
+    
     if (!loading && data) {
       FetchMessage();
     }
-  }, [data, loading]);
+  }, [data, loading, chatsDetails]);
 
   useEffect(() => {
     if (chatsDetails.channelId == '')
@@ -95,81 +71,64 @@ const MessageDisplay = () => {
           id: '',
           phoneNo: ''
         },
-        createdAt: ''
+        createdAt: '',
+        attachment: '',
       }])
   }, [chatsDetails.channelId])
 
+  //-------------------Make a scroll after all messages are displayed------------
   const makeScroll = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (makeScroll.current) makeScroll.current.scrollIntoView({ behavior: 'instant' })
   }, [allMessages]);
 
   const { messages }: any = useWebSocket()
 
+  //---------------when i messages it push my message to array and display---------
   useEffect(() => {
     setAllMessages((prev) => [
       ...prev,
       {
-        message: myCurrentMessage,
+        message: myCurrentMessage.message,
         sender: {
           id: '',
           phoneNo: senderPhoneNo
         },
-        createdAt: ''
+        createdAt: '',
+        attachment: myCurrentMessage.attachmentUrl,
       }])
   }, [myCurrentMessage])
 
-  // useEffect(() => {
-  //   const newMessage = getItem("messages")
-  //   console.log(newMessage,"................this is from useeffect........................");
-  //   const currentChannel = newMessage.find((message : any) => message.channelId == chatsDetails.channelId)
-  //   const currentChannelIndex = newMessage.findIndex((message : any) => message.channelId == chatsDetails.channelId)
-  //   console.log(currentChannel,"this is currene channel");
-  //   if(currentChannel.channelId === chatsDetails.channelId){
-  //     currentChannel.message.forEach((message : any) => {
-  //       setAllMessages((prev) =>  [
-  //         ...prev,
-  //         {
-  //           message: message,
-  //           sender: {
-  //             id: '',
-  //             phoneNo: currentChannel.phoneNo
-  //           }
-  //         }
-  //       ]) 
-  //     }); 
-  //     const removeCurrentChannel = newMessage.splice(currentChannelIndex,1)
-  //     setItem("messages", removeCurrentChannel)
-  //   }
-
-  // },[getItem("messages")])
+  //---------------When new message comes from websocket it handles it------------------- 
   const { newMessage, setNewMessage }: any = useContext(ChatsContext)
+  useEffect(() => {    
+    // if (newMessage[0].channelId != "") {
+      const currentChannel = newMessage.find((message: any) => message.channelId === chatsDetails.channelId) || null;
+      const currentChannelIndex = newMessage.findIndex((message: any) => message.channelId === chatsDetails.channelId);
+      console.log(currentChannel,JSON.parse(JSON.stringify(currentChannel)),"........fsdfsd......");
 
-  useEffect(() => {
-    const currentChannel = newMessage.find((message: any) => message.channelId === chatsDetails.channelId);
-    const currentChannelIndex = newMessage.findIndex((message: any) => message.channelId === chatsDetails.channelId);
-    if (currentChannel) { // Check if channel exists
-      // Build the new messages array once
-      const newMessages = currentChannel.message.map((message: any) => ({
-        message: message,
-        sender: {
-          id: "",
-          phoneNo: currentChannel.phoneNo,
-        },
-      }));
-      setAllMessages((prev) => [...prev, ...newMessages]); // Add all at once
+ 
+      if (currentChannel && JSON.parse(JSON.stringify(currentChannel)).channelId != "") { // Check if channel exists
+        // Build the new messages array once
+        const newMessages = currentChannel.message.map((message: any) => ({
+          message: message,
+          sender: {
+            id: "",
+            phoneNo: currentChannel.phoneNo,
+          },
+        }));
+        setAllMessages((prev) => [...prev, ...newMessages]); // Add all at once
 
-      // Remove the channel from newMessage and update storage
-      newMessage.splice(currentChannelIndex, 1);
-      console.log(newMessage, "t...........................................newmess");
+        // Remove the channel from newMessage and update storage
+        newMessage.splice(currentChannelIndex, 1);
 
-      setNewMessage(newMessage)
-      setItem("messages", newMessage); // Save the updated array
-    }
+        setNewMessage(newMessage)
+        setItem("messages", newMessage); // Save the updated array
+      }
+    // }
   }, [newMessage]);
 
-
+  //-----------------It handle the the date displayed with message---------
   const HandleCurrentDate = (createdAt: any) => {
     const currentDate = new Date(createdAt ? createdAt : Date.now()).toLocaleString('en-US', {
       hour: '2-digit',
@@ -178,6 +137,8 @@ const MessageDisplay = () => {
     })
     return currentDate
   }
+
+
   return (
     <div className="relative h-[75vh]">
       {/* opacity of image */}
@@ -200,6 +161,18 @@ const MessageDisplay = () => {
             ) : (
               <div className="flex justify-end rounded text-lg">
                 <div className=" bg-[#dbf8c6] p-2 rounded-lg flex flex-col gap-1 max-w-[40%]">
+                  {message.attachment ? <div>
+                    <iframe
+                      src={message.attachment}
+                      width="200"
+                      height="200"
+                      className="border-none"
+                    />
+                    <div onClick={() => window.open(message.attachment)}
+                      className="hover:cursor-pointer text-blue-700" >{message.attachment.split('-').pop()}
+                    </div>
+                  </div>
+                    : <></>}
                   <div className="break-words">{message.message}</div>
                   {message.message ? (
                     <div className="text-xs text-gray-500 self-end">
@@ -212,7 +185,6 @@ const MessageDisplay = () => {
           </div>
         )}
         {/* makeing is autoscrollable */}
-        {JSON.stringify(messages)}
         <div ref={makeScroll}></div>
       </div>
     </div>

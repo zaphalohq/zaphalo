@@ -28,7 +28,7 @@ export class Message {
 
 
   @Field(() => Channel)
-  @ManyToOne(() => Channel , channel => channel.messages, { onDelete: 'SET NULL' })
+  @ManyToOne(() => Channel , channel => channel.messages, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'channelId' })
   channel: Relation<Channel>;
 

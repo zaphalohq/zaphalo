@@ -1,11 +1,13 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { In, Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Channel } from "./channel.entity";
 import { Message } from "./message.entity";
 import { contactsService } from "../contacts/contacts.service";
 import { UserService } from "../user/user.service";
-import { channel } from "diagnostics_channel";
+import { join } from "path";
+import { existsSync, unlinkSync } from "fs";
+
 
 @Injectable()
 export class ChannelService {
@@ -15,7 +17,9 @@ export class ChannelService {
         @InjectRepository(Message, 'core')
         private messageRepository: Repository<Message>,
         private readonly contactsservice: contactsService,
-        private readonly userService: UserService
+        private readonly userService: UserService,
+        // Use an absolute path relative to the module's location
+    // private readonly uploadDir = './uploads'
     ) { }
 
 
@@ -48,12 +52,12 @@ export class ChannelService {
         })
         // console.log(channelExist, "this is the one channelExistst ");
         //------------this is for messaging to own number------------
-        // if(memberIds.length === 2 && memberIds[0] === memberIds[1]){
-        //     const defaultChannel = await this.channelRepository.findOne({
-        //         where : { channelName : 'default No'}
-        //     })
-        //     return defaultChannel || undefined
-        // } else { }
+        if(memberIds.length === 2 && memberIds[0] === memberIds[1]){
+            const defaultChannel = await this.channelRepository.findOne({
+                where : { channelName : 'default No'}
+            })
+            return defaultChannel || undefined
+        } else { }
         const membersIdsStr = memberIds.sort((a, b) => a - b).join(',')
         const stillChannelExist = channelExist.find(channel => {
             const channelPhoneNoStr = channel.contacts
@@ -69,7 +73,7 @@ export class ChannelService {
         return stillChannelExist
     }
 
-    async createMessage(message: string, channelId: string, senderIdA: number, attachment: string = '') {
+    async createMessage(message: string, channelId: string, senderIdA: number, attachment?: string) {
         const sender = await this.contactsservice.findOneContact(senderIdA);
         if (!sender) throw new Error('Sender not found');
         const channel = await this.channelRepository.findOne({ where: { id: channelId } });
@@ -165,7 +169,7 @@ export class ChannelService {
       }
 
 
-      async updateChannelById(channelId: string, updatedValue : string) {
+      async updateChannelNameById(channelId: string, updatedValue : string) {
         const channel = await this.channelRepository.findOne({ where : { id : channelId }})
         if (!channel) {
             throw new Error('Channel not found');
@@ -174,4 +178,39 @@ export class ChannelService {
         return await this.channelRepository.save(channel)
       }
 
+
+
+    async handleFileUpload(file: Express.Multer.File): Promise<string> {
+        if (!file) {
+            throw new Error('No file provided');
+        }
+
+        // Generate the URL
+        const baseUrl = 'http://localhost:3000'; 
+        const fileUrl = `${baseUrl}/${file.filename}`;
+
+        // Here you could add additional logic, like saving file metadata to a database
+        console.log(`File saved: ${file.path}, URL: ${fileUrl}`);
+
+        return fileUrl;
     }
+
+
+
+    async deleteFile(filename: string): Promise<void> {
+        // const filePath = join(this.uploadDir, filename);
+
+        // if (!existsSync(filePath)) {
+        //     throw new NotFoundException(`File ${filename} not found`);
+        // }
+        
+        try {
+            unlinkSync(`uploads\\${filename}`);
+            console.log('File deleted: ${filePath}');
+        } catch (error) {
+            throw new Error("Failed to delete file: ${error.message}");
+        }
+    }
+
+
+}

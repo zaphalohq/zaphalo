@@ -14,6 +14,7 @@ const ChatsSide = () => {
   const [isCreateContactVis, setIsCreateContactVis] = useState(false);
   const HandleCreateContactVis = () => setIsCreateContactVis(!isCreateContactVis)
 
+  //----------Handle the vidiability of contacts when user click out side of the component---------
   const modalRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

@@ -44,6 +44,7 @@ export class ChannelResolver {
     }
 
 
+    @UseGuards(GqlAuthGuard)
     @Query(() => [Message])
     async findAllUnseen(){
         console.log("this if form unseeen form backend");
@@ -55,13 +56,13 @@ export class ChannelResolver {
 
 
     
-    // @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard)
   @Mutation(() => SendMessageResponse) 
   async sendMessage(
     @Args('input') input: SendMessageInput, 
   ): Promise<SendMessageResponse> {
-    const { senderId, receiverId, msg, channelName, channelId } = input;
-console.log(input,senderId , 'senterid', receiverId, 'receiverId', msg, 'msg', channelName ,'channelName', channelId,'channelId' ,"...........................input........................");
+    const { senderId, receiverId, message, channelName, channelId, attachment } = input;
+// console.log(input,senderId , 'senterid', receiverId, 'receiverId', message, 'msg', channelName ,'channelName', channelId,'channelId' ,"...........................input........................");
 
     // // Send WhatsApp message via Facebook Graph API
     // const response = await axios({
@@ -97,23 +98,25 @@ console.log(input,senderId , 'senterid', receiverId, 'receiverId', msg, 'msg', c
       }
       // console.log(channel);
       
-      await this.channelService.createMessage(msg, channel.id, senderId);
+      await this.channelService.createMessage(message, channel.id, senderId, attachment);
       return { message: 'Message sent' };
     } else {
       if(channelId)
-      await this.channelService.createMessage(msg, channelId, senderId);
+      await this.channelService.createMessage(message, channelId, senderId, attachment);
       return { message: 'Message sent' };
     }
   }
 
+  // @UseGuards(GqlAuthGuard)
   @Mutation(() => Channel)
   async deleteChannelById(@Args('channelId') channelId : string) : Promise<Channel | undefined> {
     return this.channelService.deleteChannelById(channelId)
   }
 
+  @UseGuards(GqlAuthGuard)
   @Mutation(() => Channel)
-  async updateChannelById(@Args('channelId') channelId : string, @Args('updatedValue') updatedValue : string) : Promise<Channel> {
-    return await this.channelService.updateChannelById(channelId,updatedValue)
+  async updateChannelNameById(@Args('channelId') channelId : string, @Args('updatedValue') updatedValue : string) : Promise<Channel> {
+    return await this.channelService.updateChannelNameById(channelId,updatedValue)
   }
 
 }

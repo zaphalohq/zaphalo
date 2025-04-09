@@ -34,7 +34,7 @@
         "cwd": "packages/server",
         "command": "ts-node"
       }
-    },
+    }
     
   }
 }

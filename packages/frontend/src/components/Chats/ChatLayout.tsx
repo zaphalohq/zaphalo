@@ -1,7 +1,6 @@
 import ChatsNav from "./CurrentChannelNav"
-import MessageArea from "./MessagingArea"
+import MessageArea from "./Messagingbot"
 import MessageDisplay from "./MessageDisplay"
-import { useState } from "react"
 
 const ChatsMain = () => {
   return (
@@ -14,7 +13,9 @@ const ChatsMain = () => {
             </div>
           <MessageArea  />
           </div>
+
         </div>
+
     </div>
   )
 }

@@ -5,7 +5,8 @@ import { setContext } from '@apollo/client/link/context';
 
 // Define the link to your GraphQL server
 const httpLink = createHttpLink({
-  uri: 'http://localhost:3000/graphql',  // Replace with your NestJS GraphQL endpoint
+  uri: `${import.meta.env.VITE_BACKEND_URL}/graphql`,  // Replace with your NestJS GraphQL endpoint
+  // uri: 'http://192.168.1.2:3000/graphql'
 });
 
 // Use setContext to attach the JWT token to headers
