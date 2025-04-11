@@ -21,7 +21,7 @@ export class ChannelResolver {
 
     
     @Query(() => [Channel])
-    @UseGuards(GqlAuthGuard)
+    // @UseGuards(GqlAuthGuard)
     async findAllChannel(): Promise<Channel[]> {
         // console.log("Fetching all channels...");
         return await this.channelService.findAllChannel();
@@ -87,22 +87,22 @@ export class ChannelResolver {
     // Handle channel and message creation
     if (channelId === '') {
       const memberIds = [...receiverId, senderId]; // Combine sender and receivers
-      const channel = await this.channelService.findOrCreateChannel(
+      const channel : any = await this.channelService.findOrCreateChannel(
         senderId,
         memberIds,
         channelName,
       );
 
-      if (!channel.id) {
+      if (!channel.channel.id) {
         throw new Error('Channel not found');
       }
       // console.log(channel);
       
-      await this.channelService.createMessage(message, channel.id, senderId, attachment);
+      await this.channelService.createMessage(message, channel.id, senderId, true, attachment);
       return { message: 'Message sent' };
     } else {
       if(channelId)
-      await this.channelService.createMessage(message, channelId, senderId, attachment);
+      await this.channelService.createMessage(message, channelId, senderId, true, attachment);
       return { message: 'Message sent' };
     }
   }

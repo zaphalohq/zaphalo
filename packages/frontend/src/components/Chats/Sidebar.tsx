@@ -30,6 +30,13 @@ const ChatsSide = () => {
     };
   }, []);
 
+  const [ searchChannel, setSearchChannel ] = useState("")
+  const HandleSearch = (event : any) => {
+    console.log(event.target.value);
+    setSearchChannel(event.target.value)
+
+  }
+
   return (
     <div>
       <div className='bg-stone-50 stikey h-[calc(100vh-48px)] inset-shadow-sm '>
@@ -50,9 +57,9 @@ const ChatsSide = () => {
         </div>
         {/* this is the search of left side of chats */}
         <div className='p-3  border-b border-stone-300'>
-          <SearchWhite />
+          <SearchWhite HandleSearch={HandleSearch} />
         </div>
-        <ChannelLists />
+        <ChannelLists searchChannel={searchChannel} />
       </div>
     </div>
   )

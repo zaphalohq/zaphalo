@@ -9,7 +9,10 @@ export interface ChatsContectProps {
     setMyCurrentMessage: Function,
     isUpdateChannelName : any,
     setIsUpdateChannelName : Function,
+    isNewChannelCreated : any, 
+    setIsNewChannelCreated : Function,   
 }
+
 
 export const ChatsContext = createContext<ChatsContectProps | undefined>(undefined)
 
@@ -23,18 +26,26 @@ export const ChatsProvider = ({ children }: any) => {
             channelName: '',
             memberIds: '',
             channelId: '',
+            phoneNo: '',
         }
     })
 
-    const [newMessage, setNewMessage] = useState(() => {
-        const getMessage = getItem("messages")
-        return getMessage || [{
+    const [newMessage, setNewMessage] = useState([{
             channelId: '',
             phoneNo: '',
-            message: {},
-            unseen: 0
-        }]
-    })
+            message: [], // Array of messages
+            unseen: 0,
+        }])
+
+    // const [ newMessage, setNewMessage ] = useState([{
+    //     channelId: '',
+    //     phoneNo: '',
+    //     message: {},
+    //     unseen: 0
+    // }])
+
+    //---------------it handles boolean when new channel is created wite websocket--------------
+    const [ isNewChannelCreated, setIsNewChannelCreated ] = useState(false);
 
 
     const [myCurrentMessage, setMyCurrentMessage] = useState({
@@ -54,6 +65,8 @@ export const ChatsProvider = ({ children }: any) => {
             setMyCurrentMessage,
             isUpdateChannelName, 
             setIsUpdateChannelName,
+            isNewChannelCreated, 
+            setIsNewChannelCreated, 
         }}>
             {children}
         </ChatsContext.Provider>

@@ -52,13 +52,13 @@ export class channelController {
             const memberIds = [data.entry[0].changes[0].value.metadata.phone_number_id]
             const createContactNotExist = await this.contactsservice.createContacts({ contactName: phoneNo, phoneNo: Number(phoneNo) })
             if (!createContactNotExist) throw new Error('ContactNotExist not found');
-            const channel: any = await this.channelservice.findOrCreateChannel(phoneNo, [Number(memberIds), Number(phoneNo)])
+            const {channel , newChannelCreated }: any = await this.channelservice.findOrCreateChannel(phoneNo, [Number(memberIds), Number(phoneNo)])
             if (!channel.id) throw new Error('channel not found');
             const message = await this.channelservice.createMessage(msg, channel.id, Number(phoneNo))
 
             //---------------------websocket--------------
             const channelId = await channel.id
-            this.webSocketService.sendMessageToChannel(channelId, message, Number(phoneNo))
+            this.webSocketService.sendMessageToChannel(channelId, message, Number(phoneNo), newChannelCreated)
             // return message
         }
     }

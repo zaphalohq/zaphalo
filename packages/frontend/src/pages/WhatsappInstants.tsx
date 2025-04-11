@@ -1,9 +1,9 @@
 import { useContext, useEffect } from "react"
 import { FaPlus } from "react-icons/fa"
 import SubmitButton from "../components/UI/SubmitButton"
-import TableListView from "../components/UI/TableListView"
 import { InstantsContext, InstantsProvider } from "../components/Context/InstantsContext"
 import InstantsForm from "../components/WhatsappInstants/InstantsForm"
+import TableListView from "../components/WhatsappInstants/TableListView"
 
 const WhatsappInstantsContent = () => {
 	const { 

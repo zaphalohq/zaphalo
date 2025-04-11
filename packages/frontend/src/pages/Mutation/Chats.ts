@@ -37,6 +37,9 @@ query findAllChannel {
       id
       phoneNo
     }
+    messages {
+      unseen
+    }
   }
 }
 `

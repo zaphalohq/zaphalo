@@ -12,18 +12,20 @@ interface Message {
 
 export async function useWebSocket() {
     const [socket, setSocket] = useState<Socket | null>(null);
-    const { newMessage, setNewMessage }: any = useContext(ChatsContext)
-    const [messages, setMessages] = useState<Message[]>(()  =>  {
-        const getMessage = getItem("messages")
-        return getMessage || []
-    });
+    const { newMessage, setNewMessage, setIsNewChannelCreated }: any = useContext(ChatsContext)
+
+    const [newUnseenMessage, setNewUnseenMessage] = useState<Message[]>(
+        [{
+            channelId: '',
+            phoneNo: '',
+            message: [], // Array of messages
+            unseen: 0,
+        }])
 
     useEffect(() => {
-        setNewMessage(messages)
-        setItem("messages", messages)
-        console.log(messages);
-    }, [messages])
-
+        console.log(newUnseenMessage, "yeaaaaaaaaaaaaaaaaaaa");
+        setNewMessage(newUnseenMessage)
+    }, [newUnseenMessage])
 
     useEffect(() => {
         const socketIo = io("http://localhost:8080", {
@@ -43,19 +45,23 @@ export async function useWebSocket() {
             try {
                 const newMsg = JSON.parse(messageData);
                 console.log("Parsed message:", newMsg);
-
+                console.log(newMsg.newChannelCreated);
+                
+                setIsNewChannelCreated(newMsg.newChannelCreated)
                 if (!newMsg.messages) {
                     console.error("Message payload missing 'messages' field:", newMsg);
                     return;
                 }
-                setMessages(getItem("messages"))
-                setMessages((prevMessages) => {
+
+
+                setNewUnseenMessage((prevMessages) => {
                     // Find if a channel with the same channelId exists
                     const channelIndex = prevMessages.findIndex(
                         (message) => message.channelId === newMsg.channelId
                     );
+                    console.log(prevMessages, "this is newessa",);
                     console.log('this is current channelindex', channelIndex);
-                    
+
                     if (channelIndex !== -1) {
                         // Channel exists, append the new message to its message array
                         const updatedMessages = [...prevMessages];
@@ -103,5 +109,5 @@ export async function useWebSocket() {
         };
     }, []); // Re-run when channelId changes
 
-    return { socket, messages };
+    return { socket, newUnseenMessage };
 }

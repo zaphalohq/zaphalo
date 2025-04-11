@@ -56,7 +56,7 @@ const MessageDisplay = () => {
 
   //----------Trigger fetching messages when data is updated---------------------
   useEffect(() => {
-    console.log(chatsDetails,"thisis form messages ..........................");
+    // console.log(chatsDetails,"thisis form messages ..........................");
     
     if (!loading && data) {
       FetchMessage();
@@ -102,10 +102,11 @@ const MessageDisplay = () => {
   //---------------When new message comes from websocket it handles it------------------- 
   const { newMessage, setNewMessage }: any = useContext(ChatsContext)
   useEffect(() => {    
-    // if (newMessage[0].channelId != "") {
+    console.log(JSON.stringify(newMessage),".........................new mdmdmd..............");
+    if(!newMessage) return
+    if ( newMessage != undefined) {
       const currentChannel = newMessage.find((message: any) => message.channelId === chatsDetails.channelId) || null;
       const currentChannelIndex = newMessage.findIndex((message: any) => message.channelId === chatsDetails.channelId);
-      console.log(currentChannel,JSON.parse(JSON.stringify(currentChannel)),"........fsdfsd......");
 
  
       if (currentChannel && JSON.parse(JSON.stringify(currentChannel)).channelId != "") { // Check if channel exists
@@ -125,7 +126,7 @@ const MessageDisplay = () => {
         setNewMessage(newMessage)
         setItem("messages", newMessage); // Save the updated array
       }
-    // }
+    }
   }, [newMessage]);
 
   //-----------------It handle the the date displayed with message---------

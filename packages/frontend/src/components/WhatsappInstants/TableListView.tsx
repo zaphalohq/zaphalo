@@ -69,7 +69,8 @@ const TableListView = () => {
                   className="px-6 py-4 text-center truncate max-w-[150px]"
                   title={instantsdata.appSecret}
                 >
-                  {instantsdata.appSecret}
+                  {/* {instantsdata.appSecret} */}
+                  {'*'.repeat(instantsdata.appSecret.length)}
                 </td>
                 <td className="px-4 py-2 text-center">
                   <button 

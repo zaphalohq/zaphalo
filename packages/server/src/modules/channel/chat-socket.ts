@@ -31,9 +31,9 @@ export class WebSocketService implements OnGatewayConnection, OnGatewayDisconnec
     }
 
     // Reusable method to send messages to a channel
-    sendMessageToChannel(channelId,messages, phoneNo) {
+    sendMessageToChannel(channelId,messages, phoneNo, newChannelCreated) {
         console.log(channelId,"..............");
-        const message = JSON.stringify({messages,channelId,phoneNo})
+        const message = JSON.stringify({messages,channelId,phoneNo, newChannelCreated})
         console.log(message,"this is from message backend in websocket");
         this.server.emit('message', message);
     }
