@@ -5,6 +5,8 @@ import { Message } from 'src/modules/channel/message.entity';
 import { Contacts } from 'src/modules/contacts/contacts.entity';
 import { User } from 'src/modules/user/user.entity';
 import { WhatsappInstants } from 'src/modules/whatsapp/Instants.entity';
+import { Workspace } from 'src/modules/workspace/workspace.entity';
+import { WorkspaceMember } from 'src/modules/workspace/workspaceMember.entity';
 
 
 
@@ -41,6 +43,8 @@ export class TypeORMService implements OnModuleInit, OnModuleDestroy {
         Contacts,
         Channel,
         Message,
+        Workspace,
+        WorkspaceMember
         // Workspace,
         // UserWorkspace,
         // AppToken,

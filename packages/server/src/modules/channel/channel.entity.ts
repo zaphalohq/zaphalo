@@ -5,6 +5,7 @@ import { Message } from './message.entity';
 import { Contacts } from '../contacts/contacts.entity';
 import { User } from '../user/user.entity';
 import { UUIDScalarType } from '../api/scalars/uuid.scalar';
+import { Workspace } from '../workspace/workspace.entity';
 
 @Entity({ name: 'channel', schema: 'core' })
 @ObjectType()
@@ -50,4 +51,8 @@ export class Channel {
   @Field(() => String)
   @Column({ nullable : true })
   membersidsss : string
+
+  @Field(() => Workspace)
+  @ManyToOne(() => Workspace, workspace => workspace.channels)
+  workspace : Relation<Workspace>
 }

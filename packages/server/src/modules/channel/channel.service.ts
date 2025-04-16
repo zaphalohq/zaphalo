@@ -9,6 +9,7 @@ import { join } from "path";
 import { existsSync, unlinkSync } from "fs";
 import axios from "axios"
 import fs from "fs"
+import { workspaceService } from "../workspace/workspace.service";
 
 @Injectable()
 export class ChannelService {
@@ -19,12 +20,13 @@ export class ChannelService {
         private messageRepository: Repository<Message>,
         private readonly contactsservice: contactsService,
         private readonly userService: UserService,
+        private readonly workspaceService: workspaceService,
         // Use an absolute path relative to the module's location
     // private readonly uploadDir = './uploads'
     ) { }
 
 
-    async findOrCreateChannel(phoneNo: any, memberIds: number[], channelName?: string, userId?: any, ) {
+    async findOrCreateChannel(phoneNo: any, memberIds: number[],workspaceIds : string, channelName?: string, userId?: any, ) {
         const contacts = await this.contactsservice.findContactsByPhoneNoArr(memberIds)
 
         //----finding channel exist or not ------------------------
@@ -33,12 +35,15 @@ export class ChannelService {
             return {channel : isChannelExist , newChannelCreated : false }
         const user = await this.userService.findByUserId(userId ? userId : 'cf8e3529-674a-49d5-95da-8e81a816adbb')
         if (!user) throw new Error("user doesnt found")
+        const workspace = await this.workspaceService.findWorkspaceById(workspaceIds)
+            if(!workspace) throw new Error("workspace doesnt found")
         const newChannel = this.channelRepository.create({
             channelName: channelName || phoneNo, // Default name as phoneNo
             contacts: contacts,
             writeUser: user,
             createUser: user,
             membersidsss: JSON.stringify(memberIds),
+            workspace : workspace,
         })
         await this.channelRepository.save(newChannel)
         // console.log('thi siis memebrs ids', memberIds);
@@ -93,29 +98,47 @@ export class ChannelService {
         return message
     }
 
-    async findAllChannel(): Promise<Channel[]> {
+    async findAllChannel(workspaceId : string): Promise<Channel[]> {
         const allChannel = await this.channelRepository.find({
              relations: ['contacts'] ,
             })
+
+
+            return await this.channelRepository
+            .createQueryBuilder('channel')
+            .leftJoinAndSelect('channel.contacts', 'contacts')
+            .leftJoinAndSelect('channel.messages', 'messages', 'messages.unseen = :unseen', { unseen: false })
+            .leftJoinAndSelect('channel.workspace', 'workspace') // Ensure workspace relation is loaded
+            .where('workspace.id = :workspaceId', { workspaceId }) // Filter by workspaceId
+            .addSelect(
+              (subQuery) =>
+                subQuery
+                  .select('MAX(m.createdAt)', 'latest_time')
+                  .from(Message, 'm')
+                  .where('m.channelId = channel.id'),
+              'latest_message_time'
+            )
+            .orderBy('latest_message_time', 'DESC', 'NULLS LAST')
+            .getMany();
         
-        return await this.channelRepository
-        .createQueryBuilder('channel')
-        .leftJoinAndSelect('channel.contacts', 'contacts')
-        .leftJoinAndSelect('channel.messages',
-                           'messages',
-                           "messages.unseen = :unseen", // Filter messages where unseen is false
-                            { unseen: false }
-                        )
-        .addSelect(
-          (subQuery) =>
-            subQuery
-              .select('MAX(m.createdAt)', 'latest_time')
-              .from(Message, 'm')
-              .where('m.channelId = channel.id'),
-          'latest_message_time'
-        )
-        .orderBy('latest_message_time', 'DESC', 'NULLS LAST')
-        .getMany();
+        // return await this.channelRepository
+        // .createQueryBuilder('channel')
+        // .leftJoinAndSelect('channel.contacts', 'contacts')
+        // .leftJoinAndSelect('channel.messages',
+        //                    'messages',
+        //                    "messages.unseen = :unseen", // Filter messages where unseen is false
+        //                     { unseen: false }
+        //                 )
+        // .addSelect(
+        //   (subQuery) =>
+        //     subQuery
+        //       .select('MAX(m.createdAt)', 'latest_time')
+        //       .from(Message, 'm')
+        //       .where('m.channelId = channel.id'),
+        //   'latest_message_time'
+        // )
+        // .orderBy('latest_message_time', 'DESC', 'NULLS LAST')
+        // .getMany();
     }
 
     // async findAllChannel(): Promise<Channel[]> {

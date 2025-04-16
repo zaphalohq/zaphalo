@@ -53,7 +53,7 @@ export class channelController {
             const memberIds = [data.entry[0].changes[0].value.metadata.phone_number_id]
             const createContactNotExist = await this.contactsservice.createContacts({ contactName: phoneNo, phoneNo: Number(phoneNo) })
             if (!createContactNotExist) throw new Error('ContactNotExist not found');
-            const {channel , newChannelCreated }: any = await this.channelservice.findOrCreateChannel(phoneNo, [Number(memberIds), Number(phoneNo)])
+            const {channel , newChannelCreated }: any = await this.channelservice.findOrCreateChannel(phoneNo, [Number(memberIds), Number(phoneNo)], "f751daf2-8241-44dd-babb-f86a3069b17e")
             if (!channel.id) throw new Error('channel not found');
             const message = await this.channelservice.createMessage(msg, channel.id, Number(phoneNo))
 

@@ -21,10 +21,11 @@ export class ChannelResolver {
 
     
     @Query(() => [Channel])
-    // @UseGuards(GqlAuthGuard)
-    async findAllChannel(): Promise<Channel[]> {
+    @UseGuards(GqlAuthGuard)
+    async findAllChannel(@Context('req') req): Promise<Channel[]> {
         // console.log("Fetching all channels...");
-        return await this.channelService.findAllChannel();
+        const workspaceIds = req.user.workspaceIds[0];
+        return await this.channelService.findAllChannel(workspaceIds);
     }
 
     @UseGuards(GqlAuthGuard)
@@ -87,15 +88,17 @@ export class ChannelResolver {
 
     // Handle channel and message creation
     const userId = req.user.userId;
-    console.log(req.user.userId,"........................................................................");
+    const workspaceIds = req.user.workspaceIds[0];
+    console.log(req.user,"........................................................................");
     
     if (channelId === '') {
       const memberIds = [...receiverId, senderId]; // Combine sender and receivers
       const channel : any = await this.channelService.findOrCreateChannel(
         senderId,
         memberIds,
+        workspaceIds,
         channelName,
-        userId ,
+        userId
       );
 
       if (!channel.channel.id) {
