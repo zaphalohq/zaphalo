@@ -9,8 +9,8 @@ export default defineConfig({
     tailwindcss(),
   ],
   server:{
-    host : '192.168.1.2',
-    // host: 'localhost',
+    // host : '192.168.1.2',
+    host: 'localhost',
     port : 5173,
   },
   resolve: {

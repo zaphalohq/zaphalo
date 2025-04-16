@@ -76,7 +76,6 @@ const ChannelLists = ({ searchChannel }: any) => {
       setFilteredChannels(allChannel); // Reset to all channels if search is empty
       return;
     }
-
     const searchedChannels = allChannel.filter((channel: any) =>
       channel.channelName
         .toLowerCase()
@@ -89,9 +88,8 @@ const ChannelLists = ({ searchChannel }: any) => {
 
 
   return (
-    <div className="overflow-y-scroll h-[calc(100vh-200px)]">
-      {/* ---------------------Display AllCurrrentChannel---------------------- */}
-      {/* {JSON.stringify(filteredChannels)} */}
+    <div>
+      {/* ---------------------Display AllCurrrentChannel-----h-[calc(100vh-200px)]----------------- */}
       {filteredChannels
         .map((channel, index) =>
           <CurrentChannel key={index}

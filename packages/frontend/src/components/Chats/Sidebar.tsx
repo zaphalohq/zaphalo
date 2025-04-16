@@ -6,7 +6,7 @@ import CreateContacts from "./CreateContacts"
 import ChannelLists from "./ChannelLists"
 
 
-const ChatsSide = () => {
+const ChatsSide = ({ setIsChatOpen }: any) => {
 
   //-----------------------visiability of contacts----------------------------------
   const [isNewChatOpen, setIsNewChatOpen] = useState(false)
@@ -30,26 +30,21 @@ const ChatsSide = () => {
     };
   }, []);
 
-  const [ searchChannel, setSearchChannel ] = useState("")
-  const HandleSearch = (event : any) => {
-    console.log(event.target.value);
-    setSearchChannel(event.target.value)
-
-  }
-
+  const [searchChannel, setSearchChannel] = useState("")
+  // min-h-full
   return (
     <div>
-      <div className='bg-stone-50 stikey h-[calc(100vh-48px)] inset-shadow-sm '>
+      <div className='sticky inset-shadow-sm z-11'>
         {/* this is the upper on left side of chats */}
         <div className='flex justify-between p-4.5 bg-stone-200'>
           <h2 className='text-xl font-bold text-stone-950'>Chats</h2>
           <div className='relative flex gap-2 text-lg items-center'>
             {/* -------------this is button on sidebar with new contacts list----------- */}
             <button onClick={HandleNewChatVisiablity} className='p-2 hover:bg-stone-300 rounded cursor-pointer'><FiEdit /></button>
-            <div className="menuref"  ref={modalRef}>
-              {isNewChatOpen ? 
+            <div className="menuref" ref={modalRef}>
+              {isNewChatOpen ?
                 <ContactList HandleCreateContactVis={HandleCreateContactVis} HandleNewChatVisiablity={HandleNewChatVisiablity} /> 
-                : null }
+                 : null} 
             </div>
             {isCreateContactVis ? <CreateContacts HandleCreateContactVis={HandleCreateContactVis} /> : null}
             <button className='p-2 hover:bg-stone-300 rounded cursor-pointer'><FiList /></button>
@@ -57,9 +52,11 @@ const ChatsSide = () => {
         </div>
         {/* this is the search of left side of chats */}
         <div className='p-3  border-b border-stone-300'>
-          <SearchWhite HandleSearch={HandleSearch} />
+          <SearchWhite HandleSearch={(event: any) => setSearchChannel(event.target.value)} />
         </div>
-        <ChannelLists searchChannel={searchChannel} />
+        <div className=" max-h-[79vh] min-h-[79vh] bg-gray-50 overflow-y-scroll">
+          <ChannelLists searchChannel={searchChannel} />
+        </div>
       </div>
     </div>
   )

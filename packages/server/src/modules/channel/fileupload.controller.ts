@@ -8,6 +8,7 @@ import { ChannelService } from './channel.service';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { log } from 'console';
+import axios from 'axios';
 
 @Controller('fileupload')
 export class fileupload {
@@ -36,7 +37,32 @@ export class fileupload {
     // @UseGuards(AuthGuard("jwt"))
     async FileUpload(@UploadedFile() file: Express.Multer.File): Promise<string>{
         console.log(file);
-        
+
+        //     const response = await axios({
+        //     url: 'https://graph.facebook.com/v22.0/565830889949112/messages',
+        //     method: 'POST',
+        //     headers: {
+        //         'Authorization': `Bearer ${process.env.Whatsapp_Token}`,
+        //         'Content-Type': 'application/json'
+        //     },
+        //     data: JSON.stringify({
+        //         "messaging_product": "whatsapp",
+        //         "to": "917202031718",
+        //         "type": "image",
+        //         "image": {
+        //             "link" : file,
+        //             "caption" : "this is image"
+        //         }
+        //     })
+        // })
+    //  console.log(file);
+    //  const reader = new FileReader();
+    //  reader.onloadend = () => {
+    //      console.log(reader.result);
+         // Logs data:<type>;base64,wL2dvYWwgbW9yZ...
+    //  };
+    //  reader.readAsDataURL(file);
+
         return this.channelservice.handleFileUpload(file);
       }
 

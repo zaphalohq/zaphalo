@@ -25,7 +25,7 @@ const WhatsappInstantsContent = () => {
 	return (
 		<div className="h-screen">
 			<div className="grid grid-cols-5 pt-4 px-4">
-				<div className="col-start-5">
+				<div className="md:col-start-5 md:pb-0 col-start-1 col-end-5 pb-4">
 					<SubmitButton onClick={() => {
 						setFormData({
 							id: "",

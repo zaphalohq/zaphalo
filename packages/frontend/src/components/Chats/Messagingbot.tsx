@@ -53,12 +53,13 @@ const MessageArea = () => {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     const files = e.target.files;
-    console.log(files,".................");
+    
     
     if (!files || files.length === 0) {
       console.log('No files selected or FileList is empty');
       return;
     }
+    console.log(files[0],".................");
     setIsFileUploaded(true);
     const fileNames = Array.from(files, (file: File) => file.name);
     setFileName(fileNames);

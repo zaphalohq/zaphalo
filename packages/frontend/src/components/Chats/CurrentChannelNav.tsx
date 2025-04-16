@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from 'react'
 import { ChatsContext } from '../Context/ChatsContext'
-import { FiEdit2 } from 'react-icons/fi'
+import { FiArrowLeft, FiEdit2 } from 'react-icons/fi'
 
 const CurrentChannelNav = () => {
     const { chatsDetails }: any = useContext(ChatsContext)
@@ -21,9 +21,12 @@ const CurrentChannelNav = () => {
         };
       }, []);
 
+      const { setIsChatOpen } : any = useContext(ChatsContext)
+
     return (
         <div className="px-4 py-1 pr-4 bg-stone-200 flex items-center justify-between">
             <div onClick={() => setIsChannelDetails(!isChannelDetails)} className="flex items-center hover:cursor-pointer gap-4 p-[7px]">
+            <div onClick={() => setIsChatOpen(false)} className='text-2xl md:hidden'><FiArrowLeft /></div>
                 {chatsDetails.profileImg ?
                     <img className="w-12 h-12 p-0.5 object-cover rounded-full" src={chatsDetails.profileImg} alt="cdsdcsd" />
                     : <div className='w-12 h-12 p-0.5 rounded-full bg-blue-200 flex items-center justify-center text-lg font-bold text-blue-500'>{chatsDetails.channelName.slice(0, 1).toUpperCase()}</div>

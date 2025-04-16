@@ -3,6 +3,7 @@ import { Repository } from "typeorm";
 import { Contacts } from "./contacts.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { createContactsDto } from "./dto/createContactsDto";
+import { log } from "console";
 
 @Injectable()
 export class contactsService {
@@ -21,7 +22,11 @@ export class contactsService {
         if (existContact) 
             return existContact
         
-        const createdContacts = this.contactsRepository.create(CreateContacts);        
+        const createdContacts = this.contactsRepository.create({
+            contactName : CreateContacts.contactName,
+            phoneNo : CreateContacts.phoneNo,
+            profileImg : CreateContacts.profileImg,
+        });        
         await this.contactsRepository.save(createdContacts);
         return createdContacts;
     }
@@ -41,4 +46,8 @@ export class contactsService {
         )
 
     }
+
+
+
+
 }

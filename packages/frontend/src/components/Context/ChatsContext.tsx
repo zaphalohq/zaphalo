@@ -11,6 +11,8 @@ export interface ChatsContectProps {
     setIsUpdateChannelName : Function,
     isNewChannelCreated : any, 
     setIsNewChannelCreated : Function,   
+    isChatOpen : any, 
+    setIsChatOpen : Function,
 }
 
 
@@ -55,6 +57,10 @@ export const ChatsProvider = ({ children }: any) => {
     })
 
     const [ isUpdateChannelName, setIsUpdateChannelName] = useState(false)
+
+    //---------Handle responsiveness of chat----------------
+    const [ isChatOpen, setIsChatOpen ] = useState(false)
+
     return (
         <ChatsContext.Provider value={{
             chatsDetails,
@@ -67,6 +73,8 @@ export const ChatsProvider = ({ children }: any) => {
             setIsUpdateChannelName,
             isNewChannelCreated, 
             setIsNewChannelCreated, 
+            isChatOpen, 
+            setIsChatOpen, 
         }}>
             {children}
         </ChatsContext.Provider>

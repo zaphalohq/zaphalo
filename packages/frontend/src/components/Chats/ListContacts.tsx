@@ -56,6 +56,8 @@ const ListContacts = ({ contactName, phoneNo, HandleNewChatVisiablity, profileIm
 
     }
 
+    const { setIsChatOpen } : any = useContext(ChatsContext);
+
     return (
         <div>
             { import.meta.env.VITE_SENDER_PHONENO == phoneNo ? 
@@ -75,7 +77,10 @@ const ListContacts = ({ contactName, phoneNo, HandleNewChatVisiablity, profileIm
             </div>
         </div> 
         :
-        <div onClick={HandleCurrentContact} className="bg-gray-100 cursor-pointer hover:bg-stone-300 w-full  flex gap-3 px-4 items-center p-2.5 border-b border-gray-200">
+        <div onClick={ () => {
+        HandleCurrentContact();
+        setIsChatOpen(true);
+        }} className="bg-gray-100 cursor-pointer hover:bg-stone-300 w-full  flex gap-3 px-4 items-center p-2.5 border-b border-gray-200">
             {profileImg ?
                 <img className='w-11 h-11 object-cover rounded-full'
                     src={profileImg} alt="dfssdf" />

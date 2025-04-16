@@ -9,6 +9,7 @@ import { WebSocketService } from './chat-socket';
 import { contactsService } from '../contacts/contacts.service';
 import { GqlAuthGuard } from '../auth/guards/gql-auth.guard';
 import axios from 'axios'
+import { Context } from '@nestjs/graphql';
 
 const token = 'my-token'
 
@@ -42,9 +43,9 @@ export class channelController {
 
     @Post()
     async postWhatsappApi(@Request() req: Request): Promise<any> {
-        // console.log(JSON.stringify(req.body, null, 2));
         const data = JSON.parse(JSON.stringify(req.body, null, 2))
-
+        // console.log(data.entry[0].changes[0]);
+        
         // this.webSocketService.sendMessageToChannel(data.entry[0].changes[0].value.messages[0].text.body)
         if (data && data.entry[0].changes[0].value.messages) {
             const msg = data.entry[0].changes[0].value.messages[0].text.body
@@ -59,56 +60,56 @@ export class channelController {
             //---------------------websocket--------------
             const channelId = await channel.id
             this.webSocketService.sendMessageToChannel(channelId, message, Number(phoneNo), newChannelCreated)
-            // return message
+            return message
         }
     }
+
+    // // @UseGuards(GqlAuthGuard)
+    // @Get('sendMsg')
+    // async getMessage(@Query('channelId') channelId: string)  {
+    //     const messages = await this.channelservice.findMsgByChannelId(channelId)
+    //     this.channelservice.makeUnseenSeen(messages)
+    //     return "messages"
+    // }
 
     // @UseGuards(GqlAuthGuard)
-    @Get('sendMsg')
-    async getMessage(@Query('channelId') channelId: string)  {
-        const messages = await this.channelservice.findMsgByChannelId(channelId)
-        this.channelservice.makeUnseenSeen(messages)
-        return "messages"
-    }
+    // @Post('sendMsg')
+    // async sendMessage(@Body('senderId') senderId: number,
+    //     @Body('receiverId') receiverId: any,
+    //     @Body('msg') msg: string,
+    //     @Body('channelName') channelName: string,
+    //     @Request() req,
+    //     @Body('channelId') channelId?: string,
+    // ): Promise<any> {
 
-    @UseGuards(GqlAuthGuard)
-    @Post('sendMsg')
-    async sendMessage(@Body('senderId') senderId: number,
-        @Body('receiverId') receiverId: any,
-        @Body('msg') msg: string,
-        @Body('channelName') channelName: string,
-        @Request() req,
-        @Body('channelId') channelId?: string,
-    ): Promise<any> {
+    //     const response = await axios({
+    //         url: 'https://graph.facebook.com/v22.0/565830889949112/messages',
+    //         method: 'POST',
+    //         headers: {
+    //             'Authorization': `Bearer ${process.env.Whatsapp_Token}`,
+    //             'Content-Type': 'application/json'
+    //         },
+    //         data: JSON.stringify({
+    //             "messaging_product": "whatsapp",
+    //             "to": receiverId[0],
+    //             "type": "text",
+    //             "text": {
+    //                 'body': msg
+    //             }
+    //         })
+    //     })
+    //     console.log(response);
 
-        const response = await axios({
-            url: 'https://graph.facebook.com/v22.0/565830889949112/messages',
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${process.env.Whatsapp_Token}`,
-                'Content-Type': 'application/json'
-            },
-            data: JSON.stringify({
-                "messaging_product": "whatsapp",
-                "to": receiverId[0],
-                "type": "text",
-                "text": {
-                    'body': msg
-                }
-            })
-        })
-        console.log(response);
-
-        if (!channelId || channelId == null) {
-            const memberIds = [...receiverId, Number(senderId)]
-            const userId = req.user.userId
-            const channel: any = await this.channelservice.findOrCreateChannel(senderId, memberIds, userId, channelName)
-            if (!channel.id) throw new Error('channel not found');
-            const message = await this.channelservice.createMessage(msg, channel.id, senderId)
-            return "message";
-        } else {
-            const message = await this.channelservice.createMessage(msg, channelId, senderId)
-        }
-    }
+    //     if (!channelId || channelId == null) {
+    //         const memberIds = [...receiverId, Number(senderId)]
+    //         const userId = req.user.userId
+    //         const channel: any = await this.channelservice.findOrCreateChannel(senderId, memberIds, userId, channelName)
+    //         if (!channel.id) throw new Error('channel not found');
+    //         const message = await this.channelservice.createMessage(msg, channel.id, senderId)
+    //         return "message";
+    //     } else {
+    //         const message = await this.channelservice.createMessage(msg, channelId, senderId)
+    //     }
+    // }
 
 }

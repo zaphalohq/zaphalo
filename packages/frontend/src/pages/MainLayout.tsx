@@ -3,6 +3,7 @@ import { Outlet, useLocation } from "react-router-dom"
 import { useState } from "react"
 import Sidebar from "../components/MainLayout/Sidebar/Sidebar"
 import Navbar from "../components/MainLayout/Navbar/Navbar"
+import { useWebSocket } from "../components/Chats/hooks/WebSocket"
 
 // const MainLayout = () => {
 //   const [isToggleActivated, setIsToggleActivated] = useState(false)
@@ -31,7 +32,6 @@ const MainLayout = () => {
     setIsToggleActivated(!isToggleActivated)
   }
   const location = useLocation();
-
   return (
     <div className="grid gap-4 md:grid-cols-[220px_1fr] p-4 min-h-screen w-full overflow-hidden">
       {/* Sidebar */}
@@ -39,8 +39,11 @@ const MainLayout = () => {
 
       {/* Main Content */}
       <div className="w-full overflow-hidden">
-        <div className={`${isToggleActivated ? 'hidden md:block' : ''} w-full h-full`}>
-          {location.pathname !== '/chats' && <Navbar HandleToggleButton={HandleToggleButton} location={location} />}
+        <div className={`${isToggleActivated ? 'hidden md:block' : 'md:block'} md:block w-full h-full`}>
+        {/* <Navbar HandleToggleButton={HandleToggleButton} location={location} /> */}
+          {location.pathname !== '/chats' ? <Navbar HandleToggleButton={HandleToggleButton} location={location} />
+           : <div className="md:hidden"><Navbar HandleToggleButton={HandleToggleButton} location={location} /></div>
+           }
           
           {/* Outlet takes full width and prevents overflow */}
           <div className="w-full h-full overflow-hidden">

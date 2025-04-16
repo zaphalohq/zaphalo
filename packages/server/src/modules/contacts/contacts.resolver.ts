@@ -1,4 +1,4 @@
-import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { Args, Context, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { Contacts } from "./contacts.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { contactsService } from "./contacts.service";
@@ -15,9 +15,12 @@ export class contactsResolver {
             private readonly contactsservice: contactsService,
         ) { }
 
-    // @UseGuards(GqlAuthGuard)
+    @UseGuards(GqlAuthGuard)
     @Mutation(() => Contacts)
-    async CreateContacts (@Args('CreateContacts') CreateContacts: createContactsDto): Promise<Contacts | undefined> {
+    async CreateContacts (@Context('req') req,@Args('CreateContacts') CreateContacts: createContactsDto): Promise<Contacts | undefined> {
+        const userId = req.user.userId
+        // console.log();
+        
         return await this.contactsservice.createContacts(CreateContacts)
     }
 

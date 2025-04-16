@@ -7,7 +7,8 @@ import { contactsService } from "../contacts/contacts.service";
 import { UserService } from "../user/user.service";
 import { join } from "path";
 import { existsSync, unlinkSync } from "fs";
-
+import axios from "axios"
+import fs from "fs"
 
 @Injectable()
 export class ChannelService {
@@ -196,6 +197,28 @@ export class ChannelService {
 
         // Here you could add additional logic, like saving file metadata to a database
         console.log(`File saved: ${file.path}, URL: ${fileUrl}`);
+// // Convert to Base64 (for logging or other purposes)
+// const fileBuffer = fs.readFileSync(file.path);
+// const base64String = fileBuffer.toString('base64');
+// console.log(base64String);
+
+//              const response = await axios({
+//             url: 'https://graph.facebook.com/v22.0/565830889949112/messages',
+//             method: 'POST',
+//             headers: {
+//                 'Authorization': `Bearer ${process.env.Whatsapp_Token}`,
+//                 'Content-Type': 'application/json'
+//             },
+//             data: JSON.stringify({
+//                 "messaging_product": "whatsapp",
+//                 "to": "917202031718",
+//                 "type": "image",
+//                 "image": {
+//                     "link" : base64String,
+//                     "caption" : "this is image"
+//                 }
+//             })
+//         })
 
         return fileUrl;
     }

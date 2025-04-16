@@ -15,7 +15,7 @@ const Navbar = ({HandleToggleButton, location} : any) => {
       }
         <div className="font-bold">{location.pathname.split('/').filter(Boolean).map((word:any) => word.charAt(0).toUpperCase() + word.slice(1)).join('')}</div>
         <div className="flex  items-center pl-2">
-        <Search />
+        {/* <Search /> */}
         </div>
         
       </div>

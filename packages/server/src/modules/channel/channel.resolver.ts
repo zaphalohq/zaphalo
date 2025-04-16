@@ -1,10 +1,10 @@
-import { Args, Field, Mutation, ObjectType, Query, Resolver } from "@nestjs/graphql";
+import { Args, Context, Field, Mutation, ObjectType, Query, Resolver } from "@nestjs/graphql";
 import { Channel } from "./channel.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { ChannelService } from "./channel.service";
 import { Message } from "./message.entity";
-import { UseGuards } from "@nestjs/common";
+import { Request, UseGuards } from "@nestjs/common";
 import { GqlAuthGuard } from "../auth/guards/gql-auth.guard";
 import { SendMessageInput, SendMessageResponse } from "./dto/SendMessageInputDto";
 import axios from 'axios'
@@ -59,6 +59,7 @@ export class ChannelResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => SendMessageResponse) 
   async sendMessage(
+    @Context('req') req,
     @Args('input') input: SendMessageInput, 
   ): Promise<SendMessageResponse> {
     const { senderId, receiverId, message, channelName, channelId, attachment } = input;
@@ -85,12 +86,16 @@ export class ChannelResolver {
     // console.log(response.data); // Log the API response
 
     // Handle channel and message creation
+    const userId = req.user.userId;
+    console.log(req.user.userId,"........................................................................");
+    
     if (channelId === '') {
       const memberIds = [...receiverId, senderId]; // Combine sender and receivers
       const channel : any = await this.channelService.findOrCreateChannel(
         senderId,
         memberIds,
         channelName,
+        userId ,
       );
 
       if (!channel.channel.id) {

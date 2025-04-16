@@ -1,6 +1,11 @@
 import { FiCommand, FiSearch } from 'react-icons/fi'
 
+const HandleSerach = (searchArr : any) => {
+
+} 
+
 export const Search = () => {
+
   return (
     <div className='flex bg-stone-50 text-sm items-center rounded relative px-2 py-1.5'>
       <FiSearch className='mr-2'/>
@@ -15,6 +20,7 @@ export const Search = () => {
 
 
 export const SearchWhite = ({ HandleSearch } : any) => {
+  
   return (
     <div className='flex bg-stone-200 text-sm items-center rounded relative px-2 py-1.5'>
       <FiSearch className='mr-2'/>

@@ -61,11 +61,15 @@ const CurrentChannel = ({ channelName, channelId, memberIds, unseen, setIsChanne
     setIsUnseen(false)
   }
 
-
+const { setIsChatOpen }: any = useContext(ChatsContext);
   return (
     <div>
       {/* this is the main */}
-      <div onClick={HandleCurrentChannel}
+      <div onClick={ () =>{ 
+        HandleCurrentChannel()
+        setIsChatOpen(true)
+      }
+      }
         className={`flex cursor-pointer items-center justify-between 
                        px-6 py-3  border-stone-300
                        ${channelId === chatsDetails.channelId ? 'bg-stone-300' : 'hover:bg-stone-100 border-b'}

@@ -27,13 +27,31 @@ const ContactList = ({ HandleNewChatVisiablity, HandleCreateContactVis }: any) =
         HandleFetchContacts()
     }, [data])
 
+  const [ searchedContactsChar, setSearchContactsChar ] = useState("")
+  const [ filteredContacts, setFilteredContacts ] = useState(allContacts); // New state for filtered results
+  useEffect(() => {
+    
+    if (!searchedContactsChar) {
+        setFilteredContacts(allContacts); // Reset to all channels if search is empty
+      return;
+    }
+    const searchedContacts = allContacts.filter((contacts: any) =>
+        contacts.contactName
+          .toLowerCase()
+          .startsWith(searchedContactsChar.toLowerCase() || "") // Search by first character
+      );
+    setFilteredContacts(searchedContacts);
+    console.log(HandleCreateContactVis,);
+    
+  }, [searchedContactsChar, allContacts])
+
 
 
     return (
-        <div className="absolute rounded top-10 left-4 z-20 bg-white shadow-2xl py-4 w-[40vh]">
-            <div className="text-lg font-semibold px-4 p-">New chat</div>
+        <div className="absolute rounded top-10 md:left-4 z-20 right-[0] bg-white shadow-2xl py-4 w-[40vh]">
+            <div className="text-lg font-semibold px-4 ">New chat</div>
             <div className="px-4 py-3 ">
-                <SearchWhite />
+                <SearchWhite HandleSearch={(event : any) => setSearchContactsChar(event.target.value) } />
             </div>
             <div className="overflow-y-scroll h-[50vh]">
                 {/* --------------------------CreateContact------------------------ */}
@@ -52,10 +70,11 @@ const ContactList = ({ HandleNewChatVisiablity, HandleCreateContactVis }: any) =
                     <span className="font-semibold">New group</span>
                 </div>
                 <div className="px-4 p-2 bg-gray-100 font-medium sticky top-0 ">All contacts</div>
-                {allContacts.map((contactData, index) => <ListContacts key={index} phoneNo={contactData.phoneNo} HandleNewChatVisiablity={HandleNewChatVisiablity} profileImg={contactData.profileImg} contactName={contactData.contactName} />)}
+                {filteredContacts.map((contactData, index) => <ListContacts key={index} phoneNo={contactData.phoneNo} HandleNewChatVisiablity={HandleNewChatVisiablity} profileImg={contactData.profileImg} contactName={contactData.contactName} />)}
             </div>
         </div>
     )
 }
 
 export default ContactList
+
