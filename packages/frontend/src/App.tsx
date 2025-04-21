@@ -7,7 +7,7 @@ import client from './components/AppolloClientConnection/apolloClient'
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'
 import Dashboard from './pages/Dashboard'
 import { Settings } from 'lucide-react'
-import Teams from './pages/Teams'
+import Workspace from './pages/Workspace'
 import Integrations from './pages/Integrations'
 import WhatsappInstants from './pages/WhatsappInstants'
 import Chats from './pages/Chats'
@@ -21,7 +21,7 @@ function App() {
     <ApolloProvider client={client}>
     <BrowserRouter>
     <Routes>
-    <Route path="/register" element={<Register />} />
+    <Route path="/register/:token?" element={<Register />} />
     <Route path='/login' element={<Login />} />
     {/* <Route path='/dashboard' element={
       <PrivateRoute>
@@ -33,7 +33,7 @@ function App() {
       <Route path="/" element={<MainLayout />}>
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="settings" element={<Settings />} />
-        <Route path="teams" element={<Teams />} />
+        <Route path="workspace" element={<Workspace />} />
         <Route path="integrations" element={<Integrations />} />
         <Route path="chats" element={<Chats />} /> 
         <Route path="whatsappinstants" element={<WhatsappInstants />} />

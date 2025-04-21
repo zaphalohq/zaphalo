@@ -17,14 +17,15 @@ export class contactsResolver {
 
     @UseGuards(GqlAuthGuard)
     @Mutation(() => Contacts)
-    async CreateContacts (@Args('CreateContacts') CreateContacts: createContactsDto): Promise<Contacts | undefined> {
-        // console.log();
-        
-        return await this.contactsservice.createContacts(CreateContacts)
+    async CreateContacts (@Context('req') req,@Args('CreateContacts') CreateContacts: createContactsDto): Promise<Contacts | undefined> {
+        const workspaceId = req.user.workspaceIds[0];
+        return await this.contactsservice.createContacts(CreateContacts, workspaceId)
     }
 
+    @UseGuards(GqlAuthGuard)
     @Query(() => [Contacts])
-    async findAllContacts(){
-        return await this.contactsservice.findAllContacts()
+    async findAllContacts(@Context('req') req){
+        const workspaceId = req.user.workspaceIds[0];
+        return await this.contactsservice.findAllContacts(workspaceId)
     }
 }

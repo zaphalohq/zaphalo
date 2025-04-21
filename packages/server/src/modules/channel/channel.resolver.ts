@@ -23,16 +23,15 @@ export class ChannelResolver {
     @Query(() => [Channel])
     @UseGuards(GqlAuthGuard)
     async findAllChannel(@Context('req') req): Promise<Channel[]> {
-        // console.log("Fetching all channels...");
         const workspaceIds = req.user.workspaceIds[0];
         return await this.channelService.findAllChannel(workspaceIds);
     }
 
     @UseGuards(GqlAuthGuard)
     @Query(() => [Message])
-    async findMsgByChannelId(@Args('channelId') channelId : string ) : Promise<Message[] | Message> {
+    async findMsgByChannelId(@Context('req') req,@Args('channelId') channelId : string ) : Promise<Message[] | Message> {
         console.log(channelId,"this is channelid");
-        
+        const workspaceId = req.user.workspaceIds[0];
         const messages = await this.channelService.findMsgByChannelId(channelId);        
         await this.channelService.makeUnseenSeen(messages); 
         return messages
@@ -40,8 +39,11 @@ export class ChannelResolver {
 
     @UseGuards(GqlAuthGuard)
     @Query(() => Channel) 
-    async findExistingChannelByPhoneNo(@Args('memberIds') memberIds : string) : Promise<Channel | undefined> {
-        return await this.channelService.findExistingChannelByPhoneNo(JSON.parse(memberIds))
+    async findExistingChannelByPhoneNo(@Context('req') req, @Args('memberIds') memberIds : string) : Promise<Channel | undefined> {
+      const workspaceId = req.user.workspaceIds[0];
+      console.log(workspaceId,"workspaceId.........................workspaceId");
+      
+        return await this.channelService.findExistingChannelByPhoneNo(JSON.parse(memberIds), workspaceId)
     }
 
 
@@ -88,17 +90,17 @@ export class ChannelResolver {
 
     // Handle channel and message creation
     const userId = req.user.userId;
-    const workspaceIds = req.user.workspaceIds[0];
-    console.log(req.user,"........................................................................");
+    const workspaceId = req.user.workspaceIds[0];
+    console.log(workspaceId,"........................................................................");
     
-    if (channelId === '') {
+    if (channelId == '') {
       const memberIds = [...receiverId, senderId]; // Combine sender and receivers
       const channel : any = await this.channelService.findOrCreateChannel(
         senderId,
         memberIds,
-        workspaceIds,
+        workspaceId,
         channelName,
-        userId
+        userId,
       );
 
       if (!channel.channel.id) {
@@ -106,11 +108,11 @@ export class ChannelResolver {
       }
       // console.log(channel);
       
-      await this.channelService.createMessage(message, channel.id, senderId, true, attachment);
+      await this.channelService.createMessage(message, channel.id, senderId, workspaceId, true, attachment);
       return { message: 'Message sent' };
     } else {
       if(channelId)
-      await this.channelService.createMessage(message, channelId, senderId, true, attachment);
+        await this.channelService.createMessage(message, channelId, senderId, workspaceId, true, attachment);
       return { message: 'Message sent' };
     }
   }

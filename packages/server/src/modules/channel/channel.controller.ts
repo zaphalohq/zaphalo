@@ -49,17 +49,20 @@ export class channelController {
         // this.webSocketService.sendMessageToChannel(data.entry[0].changes[0].value.messages[0].text.body)
         if (data && data.entry[0].changes[0].value.messages) {
             const msg = data.entry[0].changes[0].value.messages[0].text.body
-            const phoneNo = data.entry[0].changes[0].value.messages[0].from;
+            const userPhoneNo = data.entry[0].changes[0].value.messages[0].from;
             const memberIds = [data.entry[0].changes[0].value.metadata.phone_number_id]
-            const createContactNotExist = await this.contactsservice.createContacts({ contactName: phoneNo, phoneNo: Number(phoneNo) })
+            const myPhoneNo = Number(data.entry[0].changes[0].value.metadata.phone_number_id)
+            const workspace = await this.contactsservice.findOneContact(myPhoneNo)
+            const workspaceId = workspace?.workspace.id
+            const createContactNotExist = await this.contactsservice.createContacts({ contactName: userPhoneNo, phoneNo: Number(userPhoneNo)}, workspaceId)
             if (!createContactNotExist) throw new Error('ContactNotExist not found');
-            const {channel , newChannelCreated }: any = await this.channelservice.findOrCreateChannel(phoneNo, [Number(memberIds), Number(phoneNo)], "f751daf2-8241-44dd-babb-f86a3069b17e")
+            const {channel , newChannelCreated }: any = await this.channelservice.findOrCreateChannel(userPhoneNo, [Number(memberIds), Number(userPhoneNo)], "f751daf2-8241-44dd-babb-f86a3069b17e")
             if (!channel.id) throw new Error('channel not found');
-            const message = await this.channelservice.createMessage(msg, channel.id, Number(phoneNo))
+            const message = await this.channelservice.createMessage(msg, channel.id, Number(userPhoneNo), workspaceId)
 
             //---------------------websocket--------------
             const channelId = await channel.id
-            this.webSocketService.sendMessageToChannel(channelId, message, Number(phoneNo), newChannelCreated)
+            this.webSocketService.sendMessageToChannel(channelId, message, Number(userPhoneNo), newChannelCreated)
             return message
         }
     }

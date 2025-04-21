@@ -1,4 +1,4 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { instantsService } from './instants.service';
 import { WhatsappInstants } from './Instants.entity';
 import { CreateFormDataInput } from './DTO/create-form-data.input';
@@ -7,7 +7,7 @@ import { Repository } from 'typeorm';
 import { UseGuards } from '@nestjs/common';
 import { UpdatedInstantsDTO } from './DTO/updated-instants';
 import { DeleteInstantsDTO } from './DTO/Delete-instants';
-import { Message } from '../channel/message.entity';
+import { GqlAuthGuard } from "../auth/guards/gql-auth.guard";
 
 @Resolver(() => WhatsappInstants)
 export class instantsResolver {
@@ -17,30 +17,34 @@ export class instantsResolver {
         private readonly instantsservice: instantsService,
     ) { }
 
-    // @UseGuards(JwtAuthGuard)
+    @UseGuards(GqlAuthGuard)
     @Mutation(() => WhatsappInstants)
-    async CreateInstants(@Args('InstantsData'
-    ) WhatsappInstantsData: CreateFormDataInput): Promise<WhatsappInstants | null> {        
-       return await this.instantsservice.CreateInstants(WhatsappInstantsData);
+    async CreateInstants(@Context('req') req , @Args('InstantsData'
+    ) WhatsappInstantsData: CreateFormDataInput): Promise<WhatsappInstants | null> {   
+        const workspaceId = req.user.workspaceIds[0];      
+       return await this.instantsservice.CreateInstants(WhatsappInstantsData, workspaceId);
     }
 
+    @UseGuards(GqlAuthGuard)
     @Query(() => [WhatsappInstants])
-    async findAllInstants() : Promise<WhatsappInstants[]> {
-        console.log("..................");
-        
-        return await this.instantsservice.findAllInstants();
+    async findAllInstants(@Context('req') req) : Promise<WhatsappInstants[]> {   
+        const workspaceId = req.user.workspaceIds[0];     
+        return await this.instantsservice.findAllInstants(workspaceId);
     }
 
+    @UseGuards(GqlAuthGuard)
     @Mutation(() => WhatsappInstants)
     async updateInstants(@Args('updateInstants') UpdatedInstants : UpdatedInstantsDTO): Promise<WhatsappInstants | null>{
         return this.instantsservice.UpdateInstants(UpdatedInstants.id , UpdatedInstants )
     }
 
+    @UseGuards(GqlAuthGuard)
     @Mutation(() => WhatsappInstants)
     async DeleteInstants(@Args('DeleteInstants') DeleteInstants : DeleteInstantsDTO) : Promise<WhatsappInstants | null> {
         return this.instantsservice.DeleteInstants(DeleteInstants.id)
     }
 
+    
     @Query(() => String)
     async sendTemplateMessage () {
         return this.instantsservice.sendTemplateMessage();

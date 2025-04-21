@@ -436,7 +436,7 @@ const MessageDisplay = () => {
   //--------------------Fetch messages-------------------------------
   const FetchMessage = async () => {
     if (chatsDetails.channelId !== '') {
-      await refetch(); // Ensure latest data is fetched
+      // await ref  etch(); // Ensure latest data is fetched
 
       if (data?.findMsgByChannelId) {
         setAllMessages(data.findMsgByChannelId);

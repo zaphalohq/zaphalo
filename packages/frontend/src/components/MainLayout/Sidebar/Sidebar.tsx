@@ -12,7 +12,7 @@ const Sidebar = ({isToggleActivated , HandleToggleButton} : any) => {
     <AccountToggle />     
     <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiGrid}  to='/dashboard' title={"Dashboard"}/>
     <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiSettings}  to='/settings' title={"Settings"}/>
-    <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiUsers}  to='/teams' title={"Teams"}/>
+    <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiUsers}  to='/workspace' title={"Workspace"}/>
     <SidebarElement HandleToggleButton={HandleToggleButton} Icon={IoChatbubbleEllipsesOutline}  to='/chats' title={"Chats"}/>
     <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiLink}  to='/integrations' title={"Integrations"}/>
     <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiLink}  to='/whatsappinstants' title={"WhatsappInstants"}/>

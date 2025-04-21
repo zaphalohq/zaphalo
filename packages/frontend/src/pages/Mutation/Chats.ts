@@ -23,7 +23,6 @@ query findAllContacts {
     id
     phoneNo
     profileImg
-
     }
 }
 `
@@ -97,3 +96,9 @@ export const updateChannelNameById = gql`
     }
   }
 `
+
+export const GenerateInviteLink =  gql`
+  mutation GenerateInviteLink($workspaceId: String!) {
+    generateWorkspaceInvitation(workspaceId: $workspaceId)
+  }
+`;

@@ -12,7 +12,7 @@ export class instantsService {
             private instantsRepository: Repository<WhatsappInstants>
     ) {}
 
-    async CreateInstants(WhatsappInstantsData : CreateFormDataInput): Promise<WhatsappInstants | null>{
+    async CreateInstants(WhatsappInstantsData : CreateFormDataInput, workspaceId: string): Promise<WhatsappInstants | null>{
         console.log(WhatsappInstantsData);
         
         const whatappInstants =  this.instantsRepository.create(WhatsappInstantsData)
@@ -20,8 +20,9 @@ export class instantsService {
         return whatappInstants;
     }
 
-    async findAllInstants(): Promise<WhatsappInstants[]> {
+    async findAllInstants(workspaceId : string): Promise<WhatsappInstants[]> {
         return await this.instantsRepository.find({
+            where: { workspace : { id: workspaceId}},
             order: { createdAt: 'ASC' }, // Sort by creation time
           });
     }

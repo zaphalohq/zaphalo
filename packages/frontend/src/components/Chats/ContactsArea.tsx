@@ -41,7 +41,7 @@ const ContactList = ({ HandleNewChatVisiablity, HandleCreateContactVis }: any) =
           .startsWith(searchedContactsChar.toLowerCase() || "") // Search by first character
       );
     setFilteredContacts(searchedContacts);
-    console.log(HandleCreateContactVis,);
+    console.log(HandleCreateContactVis);
     
   }, [searchedContactsChar, allContacts])
 

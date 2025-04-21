@@ -22,7 +22,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   // const isBlacklisted = await this.tokenBlacklistService.isTokenBlacklisted(token);
   // if (isBlacklisted) {
   //   throw new UnauthorizedException('Token is blacklisted');
-  console.log(payload,"....................payload.............");
+  // console.log(payload,"....................payload.............");
   
    return { userId: payload.sub, username: payload.username , workspaceIds: payload.workspaceIds};
  }

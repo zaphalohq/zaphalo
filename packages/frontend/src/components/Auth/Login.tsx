@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { LoginMutation } from './AuthMutations/LoginMutation';
 import { useNavigate } from 'react-router-dom';
 import AuthInputLabel from '../UI/AuthInputLabel';
+import { setItem } from '../utils/localStorage';
 
 
 function Login() {
@@ -41,9 +42,10 @@ const handleSubmit = async (event : any) => {
         password : authForm.password,
       },
     });
-    console.log('Login Success:', response.data.login.access_token);    
+    console.log('Login Success:', response.data);    
     // Save accessToken in localStorage or cookies
-    localStorage.setItem('access_token', response.data.login.access_token);  
+    setItem('access_token', response.data.login.access_token);  
+    setItem("workspaceIds", JSON.parse(response.data.login.workspaceIds))
     navigate('/dashboard')
   } catch (err) {
     console.error('Error logging in:', err);
