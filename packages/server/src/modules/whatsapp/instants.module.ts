@@ -6,7 +6,7 @@ import { WhatsappInstants } from './Instants.entity';
 import { NestjsQueryTypeOrmModule } from '@ptc-org/nestjs-query-typeorm';
 import { TypeORMModule } from 'src/database/typeorm/typeorm.module';
 import { whatappinstanstsAutoResolverOpts } from './instants.auto-resolver-opts';
-import { workspaceModule } from '../workspace/workspace.module';
+import { WorkspaceModule } from '../workspace/workspace.module';
 
 @Module({
   imports: [
@@ -15,7 +15,7 @@ import { workspaceModule } from '../workspace/workspace.module';
         NestjsQueryTypeOrmModule.forFeature([WhatsappInstants], 'core'),
         TypeORMModule,
         // TypeOrmModule.forFeature([WhatsappInstants]),
-        workspaceModule
+        WorkspaceModule
       ],
       services: [instantsService],
       resolvers: whatappinstanstsAutoResolverOpts,

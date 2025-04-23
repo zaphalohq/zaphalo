@@ -1,40 +1,42 @@
-import { Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { Contacts } from "./contacts.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { createContactsDto } from "./dto/createContactsDto";
 import { log } from "console";
-import { workspaceService } from "../workspace/workspace.service";
+import { WorkspaceService } from "../workspace/workspace.service";
+
 
 @Injectable()
-export class contactsService {
+export class ContactsService {
     constructor(
         @InjectRepository(Contacts, 'core')
         private contactsRepository: Repository<Contacts>,
-        private readonly workspaceService: workspaceService,
-
+        private workspaceService: WorkspaceService,
     ) { }
 
-    async findOneContact(senderId: number, workspaceId?) {
+    async findOneContact(senderId: number, workspaceId? : string) {
+        
         return await this.contactsRepository.findOne({ where: { phoneNo: senderId, workspace : { id : workspaceId} } },)
     }
 
     async createContacts(CreateContacts: createContactsDto, workspaceId : string | undefined) {
-        const existContact = await this.findOneContact(CreateContacts.phoneNo, workspaceId)
-        if (existContact) 
-            return existContact
+        // const existContact = await this.findOneContact(CreateContacts.phoneNo, workspaceId)
+        // if (existContact) 
+        //     return existContact
 
-        const workspace = await this.workspaceService.findWorkspaceById(workspaceId)
-        if (!workspace) throw new Error("workspace doesnt found")
+        // const workspace = await this.workspaceService.findWorkspaceById(workspaceId)
+        // if (!workspace) throw new Error("workspace doesnt found")
 
-        const createdContacts = this.contactsRepository.create({
-            contactName : CreateContacts.contactName,
-            phoneNo : CreateContacts.phoneNo,
-            profileImg : CreateContacts.profileImg,
-            workspace
-        });        
-        await this.contactsRepository.save(createdContacts);
-        return createdContacts;
+        // const createdContacts = this.contactsRepository.create({
+        //     contactName : CreateContacts.contactName,
+        //     phoneNo : CreateContacts.phoneNo,
+        //     profileImg : CreateContacts.profileImg,
+        //     workspace
+        // });        
+        // await this.contactsRepository.save(createdContacts);
+        const createdContacts = await this.contactsRepository.find();
+        return createdContacts[0];
     }
 
 

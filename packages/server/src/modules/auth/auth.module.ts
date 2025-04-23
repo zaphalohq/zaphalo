@@ -5,7 +5,7 @@ import { AuthService } from './auth.service';
 import { UserModule } from '../user/user.module';
 import { AuthResolver } from './auth.resolver';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { workspaceModule } from '../workspace/workspace.module';
+import { WorkspaceModule } from '../workspace/workspace.module';
 import { NestjsQueryGraphQLModule } from '@ptc-org/nestjs-query-graphql';
 import { NestjsQueryTypeOrmModule } from '@ptc-org/nestjs-query-typeorm';
 import { User } from '../user/user.entity';
@@ -20,13 +20,13 @@ import { userAutoResolverOpts } from '../user/user.auto-resolver-opts';
           NestjsQueryTypeOrmModule.forFeature([User,], 'core'),
           TypeORMModule,
           UserModule,
-          workspaceModule,
+          WorkspaceModule,
           PassportModule,
           JwtModule.register({
             secret: 'secretKey',
             signOptions: { expiresIn: '7d' },
           }),
-          workspaceModule,
+          WorkspaceModule,
         ],
         services: [UserService],
         // resolvers: [

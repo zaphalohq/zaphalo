@@ -15,18 +15,22 @@ export class WorkspaceMember {
 
   @Field(() => User)
   @ManyToOne(() => User, { nullable: false })
-  user: Relation<User>;
+  user: Relation<User>
 
-  @Field(() => [Workspace])
-  @ManyToMany(() => Workspace, (workspace) => workspace.members, {
-    nullable: false,
-  })
-  @JoinTable({
-    name: 'workspace_member_workspace',
-    joinColumn: { name: 'workspaceMemberId', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'workspaceId', referencedColumnName: 'id' },
-  })
-  workspace: Relation<Workspace[]>;
+  // @Field(() => [Workspace])
+  // @ManyToMany(() => Workspace, (workspace) => workspace.members, {
+  //   nullable: false,
+  // })
+  // @JoinTable({
+  //   name: 'workspace_member_workspace',
+  //   joinColumn: { name: 'workspaceMemberId', referencedColumnName: 'id' },
+  //   inverseJoinColumn: { name: 'workspaceId', referencedColumnName: 'id' },
+  // })
+  // workspace: Relation<Workspace[]>;
+  
+  @Field(() => Workspace, { nullable: true })
+  @ManyToOne(() => Workspace, (workspace) => workspace.members, { nullable: true })
+  workspace: Relation<Workspace>;
 
   @Field()
   @Column({ type: 'varchar', length: 50, default: 'member' })

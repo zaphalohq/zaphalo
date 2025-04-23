@@ -14,7 +14,7 @@ import { UserService } from "../user/user.service";
 import { UserModule } from "../user/user.module";
 import { User } from "../user/user.entity";
 import { fileupload } from "./fileupload.controller";
-import { workspaceModule } from "../workspace/workspace.module";
+import { WorkspaceModule } from "../workspace/workspace.module";
 
 
 @Module({
@@ -24,7 +24,7 @@ import { workspaceModule } from "../workspace/workspace.module";
             TypeORMModule,
             ContactsModule,
             UserModule,
-            workspaceModule
+            WorkspaceModule
           ],
           services: [ChannelService],
         //   resolvers: whatappinstanstsAutoResolverOpts,

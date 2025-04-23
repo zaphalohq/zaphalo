@@ -1,7 +1,7 @@
 import { Args, Context, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { Contacts } from "./contacts.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import { contactsService } from "./contacts.service";
+import { ContactsService } from "./contacts.service";
 import { createContactsDto } from "./dto/createContactsDto";
 import { Repository } from "typeorm";
 import { UseGuards } from "@nestjs/common";
@@ -12,7 +12,7 @@ export class contactsResolver {
     constructor(
             @InjectRepository(Contacts, 'core')
             private readonly contactsRepository: Repository<Contacts>,
-            private readonly contactsservice: contactsService,
+            private readonly contactsservice: ContactsService,
         ) { }
 
     @UseGuards(GqlAuthGuard)

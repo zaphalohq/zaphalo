@@ -8,7 +8,7 @@ const ChannelLists = ({ searchChannel }: any) => {
   //---------------FindALLChannel---------------------------------------
   const { data, refetch, loading } = useQuery(findAllChannel)
   const [allChannel, setAllChannel] = useState([{
-    channelName: '',
+    channelName: 'refresh it',
     id: '',
     contacts: [{
       phoneNo: null,
@@ -89,7 +89,7 @@ const ChannelLists = ({ searchChannel }: any) => {
 
   return (
     <div>
-      {/* ---------------------Display AllCurrrentChannel-----h-[calc(100vh-200px)]----------------- */}
+      {/* ---------------------Display AllCurrrentChannel---------------------- */}
       {filteredChannels
         .map((channel, index) =>
           <CurrentChannel key={index}

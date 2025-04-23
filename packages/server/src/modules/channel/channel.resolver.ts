@@ -93,7 +93,7 @@ export class ChannelResolver {
     const workspaceId = req.user.workspaceIds[0];
     console.log(workspaceId,"........................................................................");
     
-    if (channelId == '') {
+    if (channelId == "") {
       const memberIds = [...receiverId, senderId]; // Combine sender and receivers
       const channel : any = await this.channelService.findOrCreateChannel(
         senderId,
@@ -106,18 +106,18 @@ export class ChannelResolver {
       if (!channel.channel.id) {
         throw new Error('Channel not found');
       }
-      // console.log(channel);
+      console.log(channel.channel.id,"channelIdchannelIdchannelIdchannelIdchannelIdchannelIdchannelIdchannelId..........................");
       
-      await this.channelService.createMessage(message, channel.id, senderId, workspaceId, true, attachment);
+      await this.channelService.createMessage(message, channel.channel.id, senderId, workspaceId, true, attachment);
       return { message: 'Message sent' };
     } else {
-      if(channelId)
+      if(channelId && channelId !== "")
         await this.channelService.createMessage(message, channelId, senderId, workspaceId, true, attachment);
       return { message: 'Message sent' };
     }
   }
 
-  // @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard)
   @Mutation(() => Channel)
   async deleteChannelById(@Args('channelId') channelId : string) : Promise<Channel | undefined> {
     return this.channelService.deleteChannelById(channelId)

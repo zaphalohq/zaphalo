@@ -13,7 +13,7 @@
     "worker:prod": "node dist/src/queue-worker/queue-worker",
     "database:init:prod": "yarn ts-node ./scripts/setup-db.ts && yarn database:migrate:prod",
     "database:migrate:prod": "nx run server:typeorm migration:generate src/database/typeorm/core/migrations/new -d src/database/typeorm/core/core.datasource.ts",
-    "database:migrate:run" : "nx run server:typeorm migration:run -d src/database/typeorm/core/core.datasource.ts",
+    "database:migrate:run": "nx run server:typeorm migration:run -d src/database/typeorm/core/core.datasource.ts",
     "typeorm": "../../node_modules/typeorm/cli.js",
     "database:migrate_revert:pord": "nx run server:typeorm migration:revert -d src/database/typeorm/core/core.datasource.ts"
   },

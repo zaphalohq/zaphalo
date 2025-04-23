@@ -1,5 +1,8 @@
+import { getItem } from "../utils/localStorage"
 
 const AccountToggle = () => {
+    const workspaceId = getItem('workspaceIds')
+    
     return (
         <div className="border-b mt-2 mb-4 pb-4 border-stone-300 ">
             <button className="flex p-0.5 hover:bg-stone-200 rounded w-full  items-start gap-2 transition-colors relative">

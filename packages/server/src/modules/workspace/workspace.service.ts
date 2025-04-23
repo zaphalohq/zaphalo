@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { log } from "console";
@@ -7,114 +7,35 @@ import { WorkspaceMember } from "./workspaceMember.entity";
 import { UserService } from "../user/user.service";
 import { WorkspaceInvitation } from "./workspaceInvitation.entity";
 import { v4 as uuidv4 } from 'uuid';
+import { ContactsService } from "../contacts/contacts.service";
+import { Contacts } from "../contacts/contacts.entity";
+
 
 @Injectable()
-export class workspaceService {
-    constructor(
-        @InjectRepository(Workspace, 'core')
-        private workspaceRepository: Repository<Workspace>,
-        @InjectRepository(WorkspaceMember, 'core')
-        private workspaceMemberRepository: Repository<WorkspaceMember>,
-        @InjectRepository(WorkspaceInvitation, 'core')
-        private invitationRepository: Repository<WorkspaceInvitation>,
-        private readonly userService: UserService,
-
-    ) { }
-
-
-
-
-    // src/workspace/workspace.service.ts
-// async getOrCreateWorkspaceForUser(userId: string): Promise<Workspace[]> {
-    // // Find existing workspace memberships for the user
-    // const memberships = await this.workspaceMemberRepository.find({
-    //   where: { user: { id: userId } },
-    //   relations: ['workspace'],
-    // });
-  
-    // // Return workspaces if any exist
-    // const workspaces = memberships.map((membership) => membership.workspace).flat();
-    // if (workspaces.length > 0) {
-    //   return workspaces;
-    // }
-  
-  //  // If no workspaces exist, create a default one
-  //  const user = await this.userService.findByUserId(userId);
-  //  if (!user) {
-  //      throw new Error('User not found');
-  //  }
-  
-    // // Create a new workspace with the owner set
-    // const workspace = this.workspaceRepository.create({
-    //   name: `${user.username}'s Workspace`,
-    //   description: 'Default workspace created on login',
-    //   owner: user, // Set the owner field to the User entity
-    // });
-    // await this.workspaceRepository.save(workspace);
-  
-    // // Create a workspace membership
-    // const membership = this.workspaceMemberRepository.create({
-    //   user,
-    //   workspace: [workspace],
-    //   role: 'admin',
-    // });
-    // await this.workspaceMemberRepository.save(membership);
-  
-    // return [workspace];
-
-
-  //   const user = await this.userService.findByUserId(userId);
-  //  if (!user) {
-  //      throw new Error('User not found');
-  //  }
-   
-  // }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export class WorkspaceService {
+  constructor(
+    @InjectRepository(Workspace, 'core')
+    private workspaceRepository: Repository<Workspace>,
+    @InjectRepository(WorkspaceMember, 'core')
+    private workspaceMemberRepository: Repository<WorkspaceMember>,
+    @InjectRepository(WorkspaceInvitation, 'core')
+    private invitationRepository: Repository<WorkspaceInvitation>,
+    @InjectRepository(Contacts, 'core')
+    private contactsRepository: Repository<Contacts>,
+    private readonly userService: UserService,
+  ) { }
 
 
   async generateInvitationLink(workspaceId: string, userId: string): Promise<string> {
     const workspace = await this.workspaceRepository.findOne({ where: { id: workspaceId } });
     if (!workspace) {
       throw new Error('Workspace not found');
+
     }
 
     const user = await this.userService.findByUserId(userId);
     if (!user) {
-        throw new Error('User not found');
+      throw new Error('User not found');
     }
 
     const token = uuidv4();
@@ -139,7 +60,7 @@ export class workspaceService {
 
     const user = await this.userService.findByUserId(userId);
     if (!user) {
-        throw new Error('User not found');
+      throw new Error('User not found');
     }
 
     // Check if user is already a member
@@ -153,7 +74,7 @@ export class workspaceService {
     // Create membership
     const membership = this.workspaceMemberRepository.create({
       user,
-      workspace: [invitation.workspace],
+      workspace: invitation.workspace,
       role: 'member',
     });
     await this.workspaceMemberRepository.save(membership);
@@ -191,19 +112,18 @@ export class workspaceService {
     // Create a new workspace if none exist
     const user = await this.userService.findByUserId(userId);
     if (!user) {
-        throw new Error('User not found');
+      throw new Error('User not found');
     }
 
     const workspace = this.workspaceRepository.create({
       name: `${user.username}'s Workspace`,
-      description: 'Default workspace created on login',
       owner: user,
     });
     await this.workspaceRepository.save(workspace);
 
     const membership = this.workspaceMemberRepository.create({
       user,
-      workspace: [workspace],
+      workspace: workspace,
       role: 'admin',
     });
     await this.workspaceMemberRepository.save(membership);
@@ -213,10 +133,23 @@ export class workspaceService {
 
 
 
-  async findWorkspaceById (workspaceId) {
-    return await this.workspaceRepository.findOne({ where : { id : workspaceId}});
+  async findWorkspaceById(workspaceId) {
+    return await this.workspaceRepository.findOne({ where: { id: workspaceId } });
   }
 
+  async findWorkspaceByIdForDash(workspaceId) {
+    const workspace = await this.workspaceRepository.findOne({
+      where: { id: workspaceId, channels: { workspace: { id: workspaceId } } },
+      relations: ['channels', 'channels.contacts', 'channels.messages']
+    });
+
+    const contacts = this.contactsRepository.find({ where : { workspace : { id : workspaceId}}})
+    return {
+      workspace, 
+      contacts
+    }
+
+  }
 
 }
 

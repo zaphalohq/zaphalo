@@ -7,7 +7,7 @@ import { ContactsModule } from "../contacts/contacts.module";
 import { UserService } from "../user/user.service";
 import { UserModule } from "../user/user.module";
 import { User } from "../user/user.entity";
-import { workspaceService } from "./workspace.service";
+import { WorkspaceService } from "./workspace.service";
 import { Workspace } from "./workspace.entity";
 import { WorkspaceMember } from "./workspaceMember.entity";
 import { workspaceResolver } from "./workspace.resolver";
@@ -18,16 +18,15 @@ import { WorkspaceInvitation } from "./workspaceInvitation.entity";
   imports: [
     NestjsQueryGraphQLModule.forFeature({
       imports: [
-        NestjsQueryTypeOrmModule.forFeature([User, Workspace, WorkspaceMember, WorkspaceInvitation], 'core'),
+        NestjsQueryTypeOrmModule.forFeature([User, Workspace, WorkspaceMember, WorkspaceInvitation, Contacts], 'core'),
         TypeORMModule,
-        forwardRef(() => ContactsModule),
         UserModule, // UserService is exported from here
       ],
-      services: [workspaceService],
+      services: [WorkspaceService],
       
     }),
   ],
-  providers: [workspaceService, workspaceResolver],
-  exports: [workspaceService],
+  providers: [WorkspaceService, workspaceResolver],
+  exports: [WorkspaceService],
 })
-export class workspaceModule {}
+export class WorkspaceModule {}

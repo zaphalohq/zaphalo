@@ -3,13 +3,13 @@ import { In, Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Channel } from "./channel.entity";
 import { Message } from "./message.entity";
-import { contactsService } from "../contacts/contacts.service";
+import { ContactsService } from "../contacts/contacts.service";
 import { UserService } from "../user/user.service";
 import { join } from "path";
 import { existsSync, unlinkSync } from "fs";
 import axios from "axios"
 import fs from "fs"
-import { workspaceService } from "../workspace/workspace.service";
+import { WorkspaceService } from "../workspace/workspace.service";
 
 @Injectable()
 export class ChannelService {
@@ -18,9 +18,9 @@ export class ChannelService {
         private channelRepository: Repository<Channel>,
         @InjectRepository(Message, 'core')
         private messageRepository: Repository<Message>,
-        private readonly contactsservice: contactsService,
+        private readonly contactsservice: ContactsService,
         private readonly userService: UserService,
-        private readonly workspaceService: workspaceService,
+        private readonly workspaceService: WorkspaceService,
         // Use an absolute path relative to the module's location
     // private readonly uploadDir = './uploads'
     ) { }
@@ -88,6 +88,8 @@ export class ChannelService {
 
     async createMessage(message: string, channelId: string, senderIdA: number, workspaceId :string | undefined ,unseen?: boolean, attachment?: string) {
         const sender = await this.contactsservice.findOneContact(senderIdA, workspaceId);
+        console.log(sender,"sendersendersendersendersendersendersendersender");
+        
         if (!sender) throw new Error('Sender not found');
         const channel = await this.channelRepository.findOne({ where: { id: channelId, workspace : { id : workspaceId }}});
         if (!channel) throw new Error('Channel not found');

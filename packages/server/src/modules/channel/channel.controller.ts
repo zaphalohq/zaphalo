@@ -6,7 +6,7 @@ import { Channel } from './channel.entity';
 import { Message } from './message.entity';
 import { ChannelService } from './channel.service';
 import { WebSocketService } from './chat-socket';
-import { contactsService } from '../contacts/contacts.service';
+import { ContactsService } from '../contacts/contacts.service';
 import { GqlAuthGuard } from '../auth/guards/gql-auth.guard';
 import axios from 'axios'
 import { Context } from '@nestjs/graphql';
@@ -23,7 +23,7 @@ export class channelController {
 
         private readonly webSocketService: WebSocketService,
         private readonly channelservice: ChannelService,
-        private readonly contactsservice: contactsService
+        private readonly contactsservice: ContactsService
     ) { }
 
     @Get()

@@ -7,14 +7,14 @@ import { CreateUserDTO } from "../user/dto/create-user.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { User } from "../user/user.entity";
-import { workspaceService } from "../workspace/workspace.service";
+import { WorkspaceService } from "../workspace/workspace.service";
 
 @Injectable()
 export class AuthService {
   constructor(
     private userservice: UserService,
     private jwtservice: JwtService,
-    private readonly workspaceService : workspaceService,
+    private readonly workspaceService : WorkspaceService,
   ) { }
 
   async validateUser(username: string, password: string): Promise<any> {
@@ -34,7 +34,7 @@ export class AuthService {
     const payload = { username: user.username, sub: user.id , workspaceIds : WorkspaceIds};
     return {
       access_token: this.jwtservice.sign(payload),
-      // workspaceIds : JSON.stringify(WorkspaceIds)
+      workspaceIds : JSON.stringify(WorkspaceIds)
     };
   }
 

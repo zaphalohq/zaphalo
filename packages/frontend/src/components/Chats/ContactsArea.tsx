@@ -10,7 +10,7 @@ const ContactList = ({ HandleNewChatVisiablity, HandleCreateContactVis }: any) =
 //--------------------------findAllContacts-----------------------------
     const { data, loading, refetch } = useQuery(findAllContacts)
     const [allContacts, setAllContacts] = useState([{
-        contactName: "",
+        contactName: "refresh it",
         phoneNo: null,
         profileImg: ""
     }])

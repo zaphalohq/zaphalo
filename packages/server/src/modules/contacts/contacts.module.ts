@@ -3,23 +3,24 @@ import { NestjsQueryGraphQLModule } from "@ptc-org/nestjs-query-graphql";
 import { NestjsQueryTypeOrmModule } from "@ptc-org/nestjs-query-typeorm";
 import { TypeORMModule } from "src/database/typeorm/typeorm.module";
 import { Contacts } from "./contacts.entity";
-import { contactsService } from "./contacts.service";
+import { ContactsService } from "./contacts.service";
 import { contactsResolver } from "./contacts.resolver";
-import { workspaceModule } from "../workspace/workspace.module";
+import { WorkspaceModule } from "../workspace/workspace.module";
+import { WorkspaceService } from "../workspace/workspace.service";
 
 @Module({
-    imports : [ NestjsQueryGraphQLModule.forFeature({
+    imports : [ 
+      NestjsQueryGraphQLModule.forFeature({
           imports: [
             NestjsQueryTypeOrmModule.forFeature([Contacts], 'core'),
             TypeORMModule,
-            forwardRef(() => workspaceModule)
-            
+            WorkspaceModule,
           ],
-          services: [contactsService],
+          services: [ContactsService],
         //   resolvers: whatappinstanstsAutoResolverOpts,
         }),],
-    providers : [contactsService, contactsResolver],
-    exports: [contactsService,],
+    providers : [ContactsService, contactsResolver],
+    exports: [ContactsService],
 })
 
 export class ContactsModule {}

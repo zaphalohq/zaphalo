@@ -4,18 +4,31 @@ import { WhatsappInstants } from './Instants.entity';
 import { Repository } from 'typeorm';
 import { CreateFormDataInput } from './DTO/create-form-data.input';
 import axios from 'axios';
+import { WorkspaceService } from '../workspace/workspace.service';
 
 @Injectable()
 export class instantsService {
     constructor (
-         @InjectRepository(WhatsappInstants, 'core')                // Inject User repository
-            private instantsRepository: Repository<WhatsappInstants>
+        @InjectRepository(WhatsappInstants, 'core')                // Inject User repository
+        private instantsRepository: Repository<WhatsappInstants>,
+        private readonly workspaceService: WorkspaceService,
     ) {}
 
     async CreateInstants(WhatsappInstantsData : CreateFormDataInput, workspaceId: string): Promise<WhatsappInstants | null>{
         console.log(WhatsappInstantsData);
         
-        const whatappInstants =  this.instantsRepository.create(WhatsappInstantsData)
+        const workspace = await this.workspaceService.findWorkspaceById(workspaceId)
+        if (!workspace) throw new Error("workspace doesnt found")
+
+        const whatappInstants =  this.instantsRepository.create({
+            name : WhatsappInstantsData.name,
+            appId : WhatsappInstantsData.appId,
+            phoneNumberId : WhatsappInstantsData.phoneNumberId,
+            businessAccountId : WhatsappInstantsData.businessAccountId,
+            accessToken : WhatsappInstantsData.accessToken,
+            appSecret : WhatsappInstantsData.appSecret,
+            workspace,
+        })
         await this.instantsRepository.save(whatappInstants)
         return whatappInstants;
     }

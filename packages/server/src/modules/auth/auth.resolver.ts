@@ -7,14 +7,14 @@ import { RegisterResponse } from './dto/register.response';
 import { log } from 'console';
 import { User } from '../user/user.entity';
 import { Controller, Request, Post, UseGuards } from '@nestjs/common';
-import { workspaceService } from '../workspace/workspace.service';
+import { WorkspaceService } from '../workspace/workspace.service';
 
 
 @Resolver()
 export class AuthResolver {
   constructor(
     private readonly authService: AuthService,
-    private readonly workspaceService: workspaceService,
+    private readonly workspaceService: WorkspaceService,
   ) { }
 
   @Mutation(() => AuthResponse)

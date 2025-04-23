@@ -45,7 +45,7 @@ const handleSubmit = async (event : any) => {
     console.log('Login Success:', response.data);    
     // Save accessToken in localStorage or cookies
     setItem('access_token', response.data.login.access_token);  
-    setItem("workspaceIds", JSON.parse(response.data.login.workspaceIds))
+    setItem('workspaceIds', JSON.parse(response.data.login.workspaceIds))
     navigate('/dashboard')
   } catch (err) {
     console.error('Error logging in:', err);

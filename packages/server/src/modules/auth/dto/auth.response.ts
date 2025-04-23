@@ -5,6 +5,6 @@ export class AuthResponse {
   @Field()
   access_token: string;
 
-  // @Field()
-  // workspaceIds: string;
+  @Field()
+  workspaceIds: string;
 }

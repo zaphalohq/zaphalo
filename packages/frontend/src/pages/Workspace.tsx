@@ -7,7 +7,7 @@ import { getItem } from '../components/utils/localStorage';
 
 const Workspace = () => {
   const [copied, setCopied] = useState(false);
-  const [InviteLink] = useMutation(GenerateInviteLink);
+  const [InviteLink,{ data }] = useMutation(GenerateInviteLink);
   const [ inviteLink, setInviteLink ] = useState("")
 
 
@@ -30,7 +30,7 @@ const Workspace = () => {
         variables : { 
           workspaceId : "f751daf2-8241-44dd-babb-f86a3069b17e"
         } })
-
+        await data
        console.log(inviteLinkRes.data.generateWorkspaceInvitation);
        setInviteLink(inviteLinkRes.data.generateWorkspaceInvitation);
     } catch (err) {
@@ -39,9 +39,9 @@ const Workspace = () => {
   }
 
   return (
-    <div className='bg-white flex p-4 mt-2 rounded items-center gap-4'>
+    <div className='bg-white flex md:flex-row p-4 mt-2 rounded items-center gap-4  flex-col'>
       <div className='w-full flex rounded-2xl'>
-        <input className='p-4 border-none focus:outline-none focus:ring-0 focus:border-none w-full bg-gray-200 text-blue-700' type="text" name="" id="" value={inviteLink} />
+        <input className='p-4 border-none focus:outline-none focus:ring-0 focus:border-none w-full bg-gray-200 text-blue-700' type="text" name="" id="" defaultValue={inviteLink} />
         <button onClick={HandleCopy} className='p-4 bg-gray-300 hover:bg-gray-400 cursor-pointer text-stone-900 font-medium'>{copied ? 'Copied!' : 'Copy'}</button>
       </div>
       <div>
