@@ -15,6 +15,7 @@ import { UserModule } from "../user/user.module";
 import { User } from "../user/user.entity";
 import { fileupload } from "./fileupload.controller";
 import { WorkspaceModule } from "../workspace/workspace.module";
+import { instantsModule } from "../whatsapp/instants.module";
 
 
 @Module({
@@ -24,7 +25,8 @@ import { WorkspaceModule } from "../workspace/workspace.module";
             TypeORMModule,
             ContactsModule,
             UserModule,
-            WorkspaceModule
+            WorkspaceModule,
+            instantsModule
           ],
           services: [ChannelService],
         //   resolvers: whatappinstanstsAutoResolverOpts,

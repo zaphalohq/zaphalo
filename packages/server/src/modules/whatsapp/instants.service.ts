@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { CreateFormDataInput } from './DTO/create-form-data.input';
 import axios from 'axios';
 import { WorkspaceService } from '../workspace/workspace.service';
+import { ContactsService } from '../contacts/contacts.service';
 
 @Injectable()
 export class instantsService {
@@ -12,14 +13,19 @@ export class instantsService {
         @InjectRepository(WhatsappInstants, 'core')                // Inject User repository
         private instantsRepository: Repository<WhatsappInstants>,
         private readonly workspaceService: WorkspaceService,
+        private readonly contactsService: ContactsService,
     ) {}
 
     async CreateInstants(WhatsappInstantsData : CreateFormDataInput, workspaceId: string): Promise<WhatsappInstants | null>{
         console.log(WhatsappInstantsData);
-        
         const workspace = await this.workspaceService.findWorkspaceById(workspaceId)
         if (!workspace) throw new Error("workspace doesnt found")
 
+        const instants = await this.instantsRepository.find();
+        let defaultSelected = false
+        if(instants.length < 1){
+            defaultSelected = true
+        }
         const whatappInstants =  this.instantsRepository.create({
             name : WhatsappInstantsData.name,
             appId : WhatsappInstantsData.appId,
@@ -28,7 +34,13 @@ export class instantsService {
             accessToken : WhatsappInstantsData.accessToken,
             appSecret : WhatsappInstantsData.appSecret,
             workspace,
+            defaultSelected : defaultSelected
         })
+        await this.contactsService.createContacts({
+          contactName : WhatsappInstantsData.name,
+          phoneNo : Number(WhatsappInstantsData.phoneNumberId),
+          defaultContact : true,
+        }, workspaceId )
         await this.instantsRepository.save(whatappInstants)
         return whatappInstants;
     }
@@ -57,6 +69,28 @@ export class instantsService {
         else
             return null
 
+    }
+
+    async InstantsSelection(instantsId : string, workspaceId : string){
+        const findSelectedInstants = await this.FindSelectedInstants(workspaceId)
+
+        await this.instantsRepository.update(
+            { id : findSelectedInstants?.id },
+            { defaultSelected : false }
+        )
+        await this.instantsRepository.update(
+            { id : instantsId },
+            { defaultSelected : true }
+        )
+        return await this.findAllInstants(workspaceId)
+    }
+
+    
+    async FindSelectedInstants(workspaceId) {
+        return this.instantsRepository.findOne({
+            where : { defaultSelected : true,
+                      workspace : { id : workspaceId }
+                }});
     }
 
     async whatsappApiPost(data){

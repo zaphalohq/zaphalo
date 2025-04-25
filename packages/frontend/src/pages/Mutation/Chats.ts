@@ -4,12 +4,14 @@ export const CreateContactMute = gql`
 mutation CreateContacts(
   $contactName: String!,
   $phoneNo: Float!,
-  $profileImg: String!,
+  $profileImg: String,
+  $defaultContact: Boolean,
 ) {
   CreateContacts(CreateContacts: {
   contactName: $contactName, 
   phoneNo: $phoneNo, 
   profileImg: $profileImg,
+  defaultContact: $defaultContact
   }) {
     id
   }
@@ -102,3 +104,27 @@ export const GenerateInviteLink =  gql`
     generateWorkspaceInvitation(workspaceId: $workspaceId)
   }
 `;
+
+export const InstantsSelection = gql`mutation InstantsSelection($instantsId: String!) {
+  InstantsSelection(instantsId: $instantsId) {
+        id
+        name
+        phoneNumberId
+        businessAccountId
+        select
+    }
+}`
+
+
+export const DeleteContact = gql`
+mutation DeleteContact(
+  $contactId : String!,
+  ){
+    DeleteContact(contactId: $contactId) {
+    contactName
+    createdAt
+    phoneNo
+    profileImg
+    }
+  }
+`

@@ -100,9 +100,7 @@ export const InstantsProvider = ({children} : { children: ReactNode }) => {
 
 	//-------------------------------Handle Featch and refeatch----------------
     const { data, loading, refetch } = useQuery(findAllInstants);
-	 const HandaleFeatchData = async ()  => {
-        console.log(".......................");
-        
+	 const HandaleFeatchData = async ()  => {        
 		try {
 			const data1 = await data
 			setInstantsData(data1?.findAllInstants)

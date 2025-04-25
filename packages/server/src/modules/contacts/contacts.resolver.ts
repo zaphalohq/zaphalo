@@ -10,22 +10,28 @@ import { GqlAuthGuard } from "../auth/guards/gql-auth.guard";
 @Resolver(() => Contacts)
 export class contactsResolver {
     constructor(
-            @InjectRepository(Contacts, 'core')
-            private readonly contactsRepository: Repository<Contacts>,
-            private readonly contactsservice: ContactsService,
-        ) { }
+        @InjectRepository(Contacts, 'core')
+        private readonly contactsRepository: Repository<Contacts>,
+        private readonly contactsservice: ContactsService,
+    ) { }
 
     @UseGuards(GqlAuthGuard)
     @Mutation(() => Contacts)
-    async CreateContacts (@Context('req') req,@Args('CreateContacts') CreateContacts: createContactsDto): Promise<Contacts | undefined> {
+    async CreateContacts(@Context('req') req, @Args('CreateContacts') CreateContacts: createContactsDto): Promise<Contacts | undefined> {
         const workspaceId = req.user.workspaceIds[0];
         return await this.contactsservice.createContacts(CreateContacts, workspaceId)
     }
 
     @UseGuards(GqlAuthGuard)
     @Query(() => [Contacts])
-    async findAllContacts(@Context('req') req){
+    async findAllContacts(@Context('req') req) {
         const workspaceId = req.user.workspaceIds[0];
         return await this.contactsservice.findAllContacts(workspaceId)
+    }
+
+    @UseGuards(GqlAuthGuard)
+    @Mutation(() => Contacts)
+    async DeleteContact(@Args('contactId') contactId: string) {
+        return this.contactsservice.DeleteContact(contactId)
     }
 }

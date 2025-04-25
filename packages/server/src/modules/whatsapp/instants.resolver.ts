@@ -44,6 +44,13 @@ export class instantsResolver {
         return this.instantsservice.DeleteInstants(DeleteInstants.id)
     }
 
+    @UseGuards(GqlAuthGuard)
+    @Mutation(() => [WhatsappInstants])
+    async InstantsSelection(@Context('req') req, @Args('instantsId') instantsId : string ) : Promise<WhatsappInstants[]> {   
+        const workspaceId = req.user.workspaceIds[0];     
+        return await this.instantsservice.InstantsSelection(instantsId, workspaceId);
+    }
+
     
     @Query(() => String)
     async sendTemplateMessage () {

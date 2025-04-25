@@ -1,7 +1,7 @@
 import { useContext } from 'react'
 import { ChatsContext } from '../Context/ChatsContext'
-import { useQuery } from '@apollo/client'
-import { findChannelByPhoneNo } from '../../pages/Mutation/Chats'
+import { useMutation, useQuery } from '@apollo/client'
+import { findChannelByPhoneNo, DeleteContact } from '../../pages/Mutation/Chats'
 import { setItem } from '../utils/localStorage'
 import { Divide } from 'lucide-react'
 
@@ -58,25 +58,23 @@ const ListContacts = ({ contactName, phoneNo, HandleNewChatVisiablity, profileIm
 
     const { setIsChatOpen } : any = useContext(ChatsContext);
 
+    const [deleteContact] = useMutation(DeleteContact)
+    const HandleDeleteContact = async () => {
+        try {
+            await deleteContact({
+                variables: {
+                    // id: id
+                }
+            })
+            // HandaleFeatchData()
+        } catch (err) {
+            console.error("error from HandleDeleteInstants", err)
+        }
+    }
+
     return (
         <div>
-            { import.meta.env.VITE_SENDER_PHONENO == phoneNo ? 
-            <div className="bg-stone-300 w-full  flex gap-3 px-4 items-center p-2.5 border-b border-gray-200">
-            {profileImg ?
-                <img className='w-11 h-11 object-cover rounded-full'
-                    src={profileImg} alt="dfssdf" />
-                : <div className="w-11 h-11 bg-blue-200 rounded-full 
-                       flex justify-center text-blue-500 font-bold text-lg 
-                       items-center">
-                    {contactName.slice(0, 1).toUpperCase()}
-                </div> 
-            }
-            <div className='flex flex-col'>
-            <span className="font-semibold text-lg">{contactName}</span>
-            <div className='text-sm font-semibold text-gray-700'>{phoneNo}</div>
-            </div>
-        </div> 
-        :
+
         <div onClick={ () => {
         HandleCurrentContact();
         setIsChatOpen(true);
@@ -95,7 +93,7 @@ const ListContacts = ({ contactName, phoneNo, HandleNewChatVisiablity, profileIm
             <div className='text-sm font-medium text-gray-700'>{phoneNo}</div>
             </div>
         </div>
-        }
+    
         </div>
     )
 }

@@ -26,9 +26,7 @@ export class ChannelService {
     ) { }
 
 
-    async findOrCreateChannel(phoneNo: any, memberIds: number[],workspaceId : string, channelName?: string, userId?: any, ) {
-        console.log(workspaceId,"....................................");
-        
+    async findOrCreateChannel(phoneNo: any, memberIds: number[],workspaceId : string, channelName?: string, userId?: any, ) {        
         const contacts = await this.contactsservice.findContactsByPhoneNoArr(memberIds, workspaceId)
 
         //----finding channel exist or not ------------------------
@@ -86,8 +84,8 @@ export class ChannelService {
         return stillChannelExist
     }
 
-    async createMessage(message: string, channelId: string, senderIdA: number, workspaceId :string | undefined ,unseen?: boolean, attachment?: string) {
-        const sender = await this.contactsservice.findOneContact(senderIdA, workspaceId);
+    async createMessage(message: string, channelId: string, senderId1: number, workspaceId :string | undefined ,unseen?: boolean, attachment?: string) {
+        const sender = await this.contactsservice.findOneContact(senderId1, workspaceId);
         console.log(sender,"sendersendersendersendersendersendersendersender");
         
         if (!sender) throw new Error('Sender not found');

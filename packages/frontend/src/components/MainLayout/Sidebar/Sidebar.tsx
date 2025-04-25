@@ -28,7 +28,7 @@
 
 
 import SidebarElement from './SidebarElements'
-import { FiGrid, FiSettings, FiUsers, FiLink, FiMenu } from 'react-icons/fi'
+import { FiGrid, FiSettings, FiUsers, FiLink, FiMenu, FiLayers } from 'react-icons/fi'
 import { IoChatbubbleEllipsesOutline } from 'react-icons/io5'
 import AccountToggle from '../../UI/AccountToggle'
 import Logout from '../../Auth/Logout'
@@ -39,8 +39,9 @@ const Sidebar = ({ isToggleActivated, HandleToggleButton }: any) => {
       <div className={`${isToggleActivated ? '' : 'hidden md:block'} overflow-y-scroll sticky top-4 h-[calc(100vh-32px-40px)]`}>
         <AccountToggle />
         <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiGrid} to='/dashboard' title={"Dashboard"} />
-        <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiUsers} to='/workspace' title={"Workspace"} />
+        <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiLayers} to='/workspace' title={"Workspace"} />
         <SidebarElement HandleToggleButton={HandleToggleButton} Icon={IoChatbubbleEllipsesOutline} to='/chats' title={"Chats"} />
+        <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiUsers} to='/contacts' title={"Contacts"} />
         <SidebarElement 
           HandleToggleButton={HandleToggleButton} 
           Icon={FiSettings} 

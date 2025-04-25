@@ -45,4 +45,8 @@ export class Contacts {
     @ManyToOne(() => Workspace, workspace => workspace.channels)
     workspace : Relation<Workspace>
 
+    @Column({ type: 'boolean', default: false, nullable : true })
+    @Field(() => Boolean)
+    defaultContact: boolean;
+
 }

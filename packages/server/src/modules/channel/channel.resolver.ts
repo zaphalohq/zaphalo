@@ -8,6 +8,9 @@ import { Request, UseGuards } from "@nestjs/common";
 import { GqlAuthGuard } from "../auth/guards/gql-auth.guard";
 import { SendMessageInput, SendMessageResponse } from "./dto/SendMessageInputDto";
 import axios from 'axios'
+import { instantsService } from "../whatsapp/instants.service";
+import { throwError } from "rxjs";
+import { log } from "console";
 
 @Resolver(() => Channel)
 export class ChannelResolver {
@@ -17,6 +20,7 @@ export class ChannelResolver {
         @InjectRepository(Message, 'core')
         private readonly messageRepository: Repository<Message>,
         private readonly channelService: ChannelService,
+        private readonly instantsService: instantsService,
     ) { }
 
     
@@ -67,36 +71,37 @@ export class ChannelResolver {
   ): Promise<SendMessageResponse> {
     const { senderId, receiverId, message, channelName, channelId, attachment } = input;
 // console.log(input,senderId , 'senterid', receiverId, 'receiverId', message, 'msg', channelName ,'channelName', channelId,'channelId' ,"...........................input........................");
-
-    // // Send WhatsApp message via Facebook Graph API
-    // const response = await axios({
-    //   url: 'https://graph.facebook.com/v22.0/565830889949112/messages',
-    //   method: 'POST',
-    //   headers: {
-    //     Authorization: `Bearer ${process.env.Whatsapp_Token}`,
-    //     'Content-Type': 'application/json',
-    //   },
-    //   data: JSON.stringify({
-    //     messaging_product: 'whatsapp',
-    //     to: receiverId[0], // Assuming first receiverId is the target
-    //     type: 'text',
-    //     text: {
-    //       body: msg,
-    //     },
-    //   }),
-    // });
-
-    // console.log(response.data); // Log the API response
-
-    // Handle channel and message creation
     const userId = req.user.userId;
     const workspaceId = req.user.workspaceIds[0];
-    console.log(workspaceId,"........................................................................");
+    const findTrueInstants = await this.instantsService.FindSelectedInstants(workspaceId)
+    if(!findTrueInstants) throw new Error('findTrueInstants not found'); 
+    const senderId1 = Number(findTrueInstants?.phoneNumberId)
+    // // Send WhatsApp message via Facebook Graph API
+    const response = await axios({
+      url: `https://graph.facebook.com/v22.0/${senderId1}/messages`,
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${findTrueInstants?.accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      data: JSON.stringify({
+        messaging_product: 'whatsapp',
+        to: receiverId[0], // Assuming first receiverId is the target
+        type: 'text',
+        text: {
+          body: message,
+        },
+      }),
+    });
+
+// console.log(response);
+
+    
     
     if (channelId == "") {
-      const memberIds = [...receiverId, senderId]; // Combine sender and receivers
+      const memberIds = [...receiverId, senderId1]; // Combine sender and receivers
       const channel : any = await this.channelService.findOrCreateChannel(
-        senderId,
+        senderId1,
         memberIds,
         workspaceId,
         channelName,
@@ -108,13 +113,14 @@ export class ChannelResolver {
       }
       console.log(channel.channel.id,"channelIdchannelIdchannelIdchannelIdchannelIdchannelIdchannelIdchannelId..........................");
       
-      await this.channelService.createMessage(message, channel.channel.id, senderId, workspaceId, true, attachment);
+      await this.channelService.createMessage(message, channel.channel.id, senderId1, workspaceId, true, attachment);
       return { message: 'Message sent' };
     } else {
       if(channelId && channelId !== "")
-        await this.channelService.createMessage(message, channelId, senderId, workspaceId, true, attachment);
+        await this.channelService.createMessage(message, channelId, senderId1, workspaceId, true, attachment);
       return { message: 'Message sent' };
     }
+
   }
 
   @UseGuards(GqlAuthGuard)

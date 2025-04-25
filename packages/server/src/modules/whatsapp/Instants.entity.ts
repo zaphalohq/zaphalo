@@ -44,4 +44,8 @@ export class WhatsappInstants {
     @Field(() => Workspace)
     @ManyToOne(() => Workspace)
     workspace : Relation<Workspace>
+
+    @Column({ nullable : true })
+    @Field({ nullable : true })
+    defaultSelected: boolean;
 }

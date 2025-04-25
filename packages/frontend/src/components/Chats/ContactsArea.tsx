@@ -12,7 +12,7 @@ const ContactList = ({ HandleNewChatVisiablity, HandleCreateContactVis }: any) =
     const [allContacts, setAllContacts] = useState([{
         contactName: "refresh it",
         phoneNo: null,
-        profileImg: ""
+        profileImg: "",
     }])
     const HandleFetchContacts = async () => {
         const contactsData = await data

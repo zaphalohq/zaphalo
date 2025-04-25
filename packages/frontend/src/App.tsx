@@ -12,6 +12,7 @@ import Integrations from './pages/Integrations'
 import WhatsappInstants from './pages/WhatsappInstants'
 import Chats from './pages/Chats'
 import MainLayout from './pages/MainLayout'
+import Contacts from './pages/Contacts'
 
 
 
@@ -37,6 +38,7 @@ function App() {
         <Route path="integrations" element={<Integrations />} />
         <Route path="chats" element={<Chats />} /> 
         <Route path="whatsappinstants" element={<WhatsappInstants />} />
+        <Route path="contacts" element={<Contacts />} />
       </Route>
       </Route >
       {/*<Route path="chats" element={<Chats />} /> */}

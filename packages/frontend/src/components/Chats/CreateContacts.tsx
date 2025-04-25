@@ -26,9 +26,8 @@ const CreateContacts = ({ HandleCreateContactVis }: any) => {
     //---------------Mutation create contact------------------------
     const [CreateContact] = useMutation(CreateContactMute);
     //-----------------Handle create contact ------------------------
-    const HandleSubmitContact = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        console.log(contactFormData.profileImg);
+    const HandleSubmitContact = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault()
 
         try {
             await CreateContact({

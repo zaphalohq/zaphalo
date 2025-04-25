@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import ContactList from "./ContactsArea"
 import CreateContacts from "./CreateContacts"
 import ChannelLists from "./ChannelLists"
+import AllInstants from "./AllInstants"
 
 
 const ChatsSide = ({ setIsChatOpen }: any) => {
@@ -13,13 +14,19 @@ const ChatsSide = ({ setIsChatOpen }: any) => {
   const HandleNewChatVisiablity = () => setIsNewChatOpen(!isNewChatOpen)
   const [isCreateContactVis, setIsCreateContactVis] = useState(false);
   const HandleCreateContactVis = () => setIsCreateContactVis(!isCreateContactVis)
+  const [isInstantsVis, setIsInstantsVis] = useState(false)
 
   //----------Handle the vidiability of contacts when user click out side of the component---------
   const modalRef = useRef<HTMLDivElement | null>(null);
+  const modalRef1 = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
         setIsNewChatOpen(false);
+      }
+
+      if (modalRef1.current && !modalRef1.current.contains(event.target as Node)) {
+        setIsInstantsVis(false)
       }
     };
 
@@ -47,7 +54,12 @@ const ChatsSide = ({ setIsChatOpen }: any) => {
                  : null} 
             </div>
             {isCreateContactVis ? <CreateContacts HandleCreateContactVis={HandleCreateContactVis} /> : null}
-            <button className='p-2 hover:bg-stone-300 rounded cursor-pointer'><FiList /></button>
+            <button onClick={() => setIsInstantsVis(!isInstantsVis)} className='p-2 hover:bg-stone-300 rounded cursor-pointer'><FiList /></button>
+            <div className="menuref1" ref={modalRef1}>
+              {isInstantsVis ?
+                <AllInstants HandleCreateContactVis={HandleCreateContactVis} HandleNewChatVisiablity={HandleNewChatVisiablity} /> 
+                 : null} 
+            </div>
           </div>
         </div>
         {/* this is the search of left side of chats */}
