@@ -21,8 +21,10 @@ export class instantsService {
         const workspace = await this.workspaceService.findWorkspaceById(workspaceId)
         if (!workspace) throw new Error("workspace doesnt found")
 
-        const instants = await this.instantsRepository.find();
-        let defaultSelected = false
+        const instants = await this.instantsRepository.find({ where : { id : workspaceId}});
+        console.log(instants.length,"...............................");
+        
+        let defaultSelected = false;
         if(instants.length < 1){
             defaultSelected = true
         }

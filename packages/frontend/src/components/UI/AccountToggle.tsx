@@ -1,7 +1,7 @@
 import { getItem } from "../utils/localStorage"
 
 const AccountToggle = () => {
-    const workspaceId = getItem('workspaceIds')
+    const user = getItem('userDetails')
     
     return (
         <div className="border-b mt-2 mb-4 pb-4 border-stone-300 ">
@@ -11,8 +11,8 @@ const AccountToggle = () => {
                     src="https://api.dicebear.com/9.x/icons/svg?seed=Leo"
                     alt="avatar" />
                 <div className="text-start">
-                    <span className="font-bold text-sm block">Chintan</span>
-                    <span className="block text-xs text-stone-500">chinta@gmail.com</span>
+                    <span className="font-bold text-sm block">{user.name}</span>
+                    <span className="block text-xs text-stone-500">{user.email}</span>
                 </div>
                 {/* { <FiChevronLeft className="absolute top-3 right-2" />
                 : <FiChevronRight className="absolute top-3 right-2"/>} */}

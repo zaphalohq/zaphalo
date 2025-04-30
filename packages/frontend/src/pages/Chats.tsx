@@ -38,13 +38,21 @@ import ChatsMain from "../components/Chats/ChatLayout";
 import ChatsSide from "../components/Chats/Sidebar";
 import { ChatsContext, ChatsProvider } from "../components/Context/ChatsContext";
 import UpdateChannelName from "../components/Chats/UpdateChannelName";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { Bold } from "lucide-react";
 import ChannelDetails from "../components/Chats/ChannelDetails"
+import { useLocation, useNavigate } from "react-router-dom";
 // import Sidebar from "components/MainLayout/Sidebar/Sidebar"
 
 const Chats = () => {
   const { isChatOpen }: any = useContext(ChatsContext);
+  const location = useLocation();
+  const navigate = useNavigate();
+  useEffect(() => {
+console.log(location.pathname,"..........................................................................................");
+if(location.pathname == './chats') navigate(0)
+
+  },[]) 
   return (
     <div className="bg-[#DDDCD1] border-stone-50 border-b-2 md:mt-0 mt-4 flex flex-col">
       <div className="grid md:grid-cols-[300px_1fr] w-full h-full mx-auto rounded-lg flex-1">

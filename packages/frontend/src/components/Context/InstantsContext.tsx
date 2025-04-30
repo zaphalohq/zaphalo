@@ -52,7 +52,7 @@ export const InstantsProvider = ({children} : { children: ReactNode }) => {
                     ...formData
                 }
             })
-            // HandaleFeatchData()
+            HandaleFeatchData()
 
         } catch (err) {
             console.error('Error submitting form', err);

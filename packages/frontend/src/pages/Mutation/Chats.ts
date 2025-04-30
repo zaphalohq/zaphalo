@@ -111,7 +111,7 @@ export const InstantsSelection = gql`mutation InstantsSelection($instantsId: Str
         name
         phoneNumberId
         businessAccountId
-        select
+        defaultSelected
     }
 }`
 

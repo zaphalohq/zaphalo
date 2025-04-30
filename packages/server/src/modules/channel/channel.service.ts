@@ -7,9 +7,28 @@ import { ContactsService } from "../contacts/contacts.service";
 import { UserService } from "../user/user.service";
 import { join } from "path";
 import { existsSync, unlinkSync } from "fs";
-import axios from "axios"
+import axios, { AxiosResponse } from "axios"
 import fs from "fs"
 import { WorkspaceService } from "../workspace/workspace.service";
+
+interface TemplateComponent {
+    type: 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS';
+    text?: string;
+    format?: 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT';
+    buttons?: Array<{
+      type: 'QUICK_REPLY' | 'PHONE_NUMBER' | 'URL';
+      text: string;
+      phone_number?: string;
+      url?: string;
+    }>;
+  }
+  
+  interface TemplateRequest {
+    name: string;
+    category: 'AUTHENTICATION' | 'MARKETING' | 'UTILITY';
+    language: string;
+    components: TemplateComponent[];
+  }
 
 @Injectable()
 export class ChannelService {
@@ -269,6 +288,59 @@ export class ChannelService {
             throw new Error("Failed to delete file: ${error.message}");
         }
     }
+
+
+    async submitTemplate(template: TemplateRequest): Promise<any> {
+        try {
+          const url = `https://graph.facebook.com/v22.0/565830889949112/message_templates`;
+          
+          const response: AxiosResponse = await this.httpService.post(
+            url,
+            {
+              ...template,
+              allow_category_change: true,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${this.accessToken}`,
+                'Content-Type': 'application/json',
+              },
+            },
+          ).toPromise();
+    
+          return {
+            success: true,
+            data: response.data,
+          };
+        } catch (error) {
+          return {
+            success: false,
+            error: error.response?.data || error.message,
+          };
+        }
+      }
+    
+      async getTemplateStatus(templateId: string): Promise<any> {
+        try {
+          const url = `${this.apiUrl}/${this.phoneNumberId}/message_templates?template_id=${templateId}`;
+          
+          const response: AxiosResponse = await this.httpService.get(url, {
+            headers: {
+              Authorization: `Bearer ${this.accessToken}`,
+            },
+          }).toPromise();
+    
+          return {
+            success: true,
+            data: response.data,
+          };
+        } catch (error) {
+          return {
+            success: false,
+            error: error.response?.data || error.message,
+          };
+        }
+      }
 
 
 }

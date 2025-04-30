@@ -57,7 +57,7 @@ const ChatsSide = ({ setIsChatOpen }: any) => {
             <button onClick={() => setIsInstantsVis(!isInstantsVis)} className='p-2 hover:bg-stone-300 rounded cursor-pointer'><FiList /></button>
             <div className="menuref1" ref={modalRef1}>
               {isInstantsVis ?
-                <AllInstants HandleCreateContactVis={HandleCreateContactVis} HandleNewChatVisiablity={HandleNewChatVisiablity} /> 
+                <AllInstants /> 
                  : null} 
             </div>
           </div>

@@ -57,6 +57,7 @@ import { JwtService } from "@nestjs/jwt";
 import { WorkspaceService } from "../workspace/workspace.service";
 import * as bcrypt from "bcrypt";
 import { CreateUserDTO } from "../user/dto/create-user.dto";
+import { error } from "console";
 
 @Injectable()
 export class AuthService {
@@ -79,9 +80,15 @@ export class AuthService {
     const workspaces = await this.workspaceService.getOrCreateWorkspaceForUser(user.id);
     const WorkspaceIds = workspaces.map(workspace => workspace.id);
     const payload = { username: user.username, sub: user.id, workspaceIds: WorkspaceIds };
+    const users = await this.userservice.findByUserId(user.id)
+    if(!users) throw error("this is error of")
     return {
       access_token: this.jwtservice.sign(payload),
       workspaceIds: JSON.stringify(WorkspaceIds),
+      userDetails : {
+        name : users.username,
+        email : users.email
+      }
     };
   }
 

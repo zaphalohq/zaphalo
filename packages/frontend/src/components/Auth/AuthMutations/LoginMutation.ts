@@ -6,6 +6,10 @@ export const LoginMutation = gql`
     login(authInput: { username: $username, password: $password }) {
       access_token
       workspaceIds
+      userDetails {
+      email
+      name
+    }
     }
   }
 `;

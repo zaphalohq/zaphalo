@@ -14,7 +14,7 @@ const AllInstants = () => {
         name: "",
         phoneNumberId: "",
         businessAccountId: "",
-        select: false
+        defaultSelected: false
     }])
     const HandleFetchInstants = async () => {
         try {
@@ -84,7 +84,7 @@ const AllInstants = () => {
                 <div className="px-4 p-2 bg-gray-100 font-medium sticky top-0 border-b border-gray-300">All Instants</div>
                 {filteredInstants?.map((instants, index) => (
                     <div key={index}>
-                    {instants.select == true ?
+                    {instants.defaultSelected == true ?
                         <div onClick={() => HandleInstantsSelection(instants.id)} className="bg-gray-300 w-full hover:bg-gray-300 cursor-pointer flex gap-3 px-4 items-center p-2.5 border-b border-gray-300">
                             <div className="w-11 h-11 bg-blue-200 rounded-full 
                        flex justify-center text-blue-500 font-bold text-lg 
