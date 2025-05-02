@@ -13,6 +13,7 @@ import WhatsappInstants from './pages/WhatsappInstants'
 import Chats from './pages/Chats'
 import MainLayout from './pages/MainLayout'
 import Contacts from './pages/Contacts'
+import TemplateForm from './pages/TemplateForm'
 
 
 
@@ -39,6 +40,7 @@ function App() {
         <Route path="chats" element={<Chats />} /> 
         <Route path="whatsappinstants" element={<WhatsappInstants />} />
         <Route path="contacts" element={<Contacts />} />
+        <Route path="templateform" element={<TemplateForm />} />
       </Route>
       </Route >
       {/*<Route path="chats" element={<Chats />} /> */}

@@ -10,6 +10,7 @@ import { existsSync, unlinkSync } from "fs";
 import axios, { AxiosResponse } from "axios"
 import fs from "fs"
 import { WorkspaceService } from "../workspace/workspace.service";
+import { TemplateRequestInput } from "./dto/TemplateRequestInput";
 
 interface TemplateComponent {
     type: 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS';
@@ -290,57 +291,96 @@ export class ChannelService {
     }
 
 
-    async submitTemplate(template: TemplateRequest): Promise<any> {
-        try {
-          const url = `https://graph.facebook.com/v22.0/565830889949112/message_templates`;
-          
-          const response: AxiosResponse = await this.httpService.post(
-            url,
-            {
-              ...template,
-              allow_category_change: true,
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${this.accessToken}`,
-                'Content-Type': 'application/json',
-              },
-            },
-          ).toPromise();
-    
-          return {
-            success: true,
-            data: response.data,
-          };
-        } catch (error) {
-          return {
-            success: false,
-            error: error.response?.data || error.message,
-          };
-        }
+    async submitTemplate(template: TemplateRequestInput): Promise<any> {
+      // console.log(template);
+      const payload = {
+        name: 'exclusive_offer_2021',
+        language: 'en_US' ,
+        category: 'MARKETING',
+        components: [
+          {
+            type: 'HEADER',
+            format: 'TEXT',
+            text: 'Special Offer!'
+          },
+          {
+            type: 'BODY',
+            text: 'Hi zeel, get 20% off on your next purchase. Offer valid till 8 pm. Shop now!'
+          },
+          {
+            type: 'FOOTER',
+            text: 'Powered by Chintan'
+          },
+          {
+            type: 'BUTTONS',
+            buttons: [
+              {
+                type: 'URL',
+                text: 'Shop Now',
+                url: 'https://yourstore.com/offer'
+              }
+            ]
+          }
+        ]
+      };
+      
+      try {
+        const response = await axios({
+          url: `https://graph.facebook.com/v22.0/1649375815967023/message_templates`,
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer EAAJ64cjZAwZBoBO9lZB7xsQNNCIJoFBWDuoZBjJu16HeyH19DSLHbJ7YuZAluNnhmFS5NwTpaWnnJ76dbSMf1ZA8AFzmzC8U3JW2Qv8BNCJ6ZAEt0HGKY9gkF4TZAIotRzGlI4i4LrmLil9hhZCJeHm3sJ90gecT4MjEDT0Uir6Qxw6PpZBUSudIXvz02IsCrZA4gkOLNDcSxnYJ9p5g12g9xajTOhnfi7AlxJCZB1MZD`,
+            'Content-Type': 'application/json',
+          },
+          data : JSON.stringify(payload)
+        });
+                  // data: JSON.stringify({
+          //   ...template,
+          //   allow_category_change: true,
+          // }),
+  
+        console.log(response, "Fsdfsdfsdsdf....................................................");
+        const { id, status, category } = response.data;
+      if (!id) {
+        throw new Error('Template ID not returned in response');
       }
-    
-      async getTemplateStatus(templateId: string): Promise<any> {
-        try {
-          const url = `${this.apiUrl}/${this.phoneNumberId}/message_templates?template_id=${templateId}`;
-          
-          const response: AxiosResponse = await this.httpService.get(url, {
-            headers: {
-              Authorization: `Bearer ${this.accessToken}`,
-            },
-          }).toPromise();
-    
-          return {
-            success: true,
-            data: response.data,
-          };
-        } catch (error) {
-          return {
-            success: false,
-            error: error.response?.data || error.message,
-          };
-        }
+
+        return {
+          success: true,
+          data: response.data,
+        };
+      } catch (error) {
+        return {
+          success: false,
+          error: error.response?.data || error.message,
+        };
       }
+    }
+  
+    async getTemplateStatus(templateId: string): Promise<any> {
+      try {
+        const response = await axios({
+          // url: `https://graph.facebook.com/v22.0/1649375815967023/message_templates?template_id=${templateId}`,
+          url : `https://graph.facebook.com/v22.0/${templateId}?fields=name,status,category,language,components`,
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer EAAJ64cjZAwZBoBO9lZB7xsQNNCIJoFBWDuoZBjJu16HeyH19DSLHbJ7YuZAluNnhmFS5NwTpaWnnJ76dbSMf1ZA8AFzmzC8U3JW2Qv8BNCJ6ZAEt0HGKY9gkF4TZAIotRzGlI4i4LrmLil9hhZCJeHm3sJ90gecT4MjEDT0Uir6Qxw6PpZBUSudIXvz02IsCrZA4gkOLNDcSxnYJ9p5g12g9xajTOhnfi7AlxJCZB1MZD`,
+            'Content-Type': 'application/json',
+          },
+        });
+  console.log(response,"....................................................");
+  
+        return {
+          success: true,
+          data: response.data,
+        };
+      } catch (error) {
+        return {
+          success: false,
+          error: error.response?.data || error.message,
+        };
+      }
+    }
 
 
 }

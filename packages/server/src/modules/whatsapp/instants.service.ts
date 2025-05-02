@@ -100,7 +100,7 @@ export class instantsService {
             url:'https://graph.facebook.com/v22.0/565830889949112/messages',
             method:'POST',
             headers:{
-                'Authorization':'Bearer EAAao8Mkc6lMBOw89Nyjm1wZAZCu22JyY7KQibodfgbLsznrLIeZCvCadGUr5kKZBR8ZAoHsmtvAM0Vfa0FHQI1Ue7XMZCZCjxKp5X7ZBCe4NpaYGfE9nbwDbZB8XGGNn1EHBdJzgO49qEmafyS5twKTLMEY8WO4aZCZAaid2qVrsY1OIi6IA4Ly4ppkYllVDdkQ6oasLCx6Ergb6i05HusJeoDAysXhlT2unJUQdKJh',
+                'Authorization':'Bearer EAAJ64cjZAwZBoBOyzRoenLhu0bjnUOhRYs9rsrE6s8CZB4qbJPaWMiZABqiBtUFnGdYOkXCx4wjWCZBI3e42DCOL1xiJ1JrAc124ASgE2CKDVidTxlmO8KN0mALz52jcRN3IZBIzDdHbwpRzWwcUKfGz3CnhvpB0lbmp8lBgHGRlUlOZAXByMfKW4DVslwatmQRY5NBcx7YakWlGtFiEJgENCpGsACjovpyzeIZD',
                 'Content-Type' : 'application/json'
             },
             data: JSON.stringify(data)
@@ -108,7 +108,7 @@ export class instantsService {
     }
 
     async sendTemplateMessage() {
-        const response = this.whatsappApiPost({
+        const response = await this.whatsappApiPost({
                 "messaging_product": "whatsapp",
                 "to": "917202031718",
                 "type": "template",
@@ -119,13 +119,13 @@ export class instantsService {
                     }
                 }
             })
-            console.log(response);
+            console.log(response.data);
             
             return "response"
         }
 
     async sendTextMessage() {
-        const response =   this.whatsappApiPost({
+        const response =   await this.whatsappApiPost({
                 "messaging_product": "whatsapp",
                 "to": "917202031718",
                 "type": "text",
@@ -133,7 +133,7 @@ export class instantsService {
                     'body' : "this is the text message"
                 }
             })
-            console.log(response);
+            console.log(response.data);
             return "response";
         }
 

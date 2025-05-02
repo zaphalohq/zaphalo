@@ -11,6 +11,8 @@ import axios from 'axios'
 import { instantsService } from "../whatsapp/instants.service";
 import { throwError } from "rxjs";
 import { log } from "console";
+import { TemplateResponseDto } from "./dto/TemplateResponseDto";
+import { TemplateRequestInput } from "./dto/TemplateRequestInput";
 
 @Resolver(() => Channel)
 export class ChannelResolver {
@@ -133,6 +135,30 @@ export class ChannelResolver {
   @Mutation(() => Channel)
   async updateChannelNameById(@Args('channelId') channelId : string, @Args('updatedValue') updatedValue : string) : Promise<Channel> {
     return await this.channelService.updateChannelNameById(channelId,updatedValue)
+  }
+
+  @Mutation(() => TemplateResponseDto)
+  async submitTemplate(
+    @Args('template') template: TemplateRequestInput,
+  ): Promise<TemplateResponseDto> {
+    const result = await this.channelService.submitTemplate(template);
+    return {
+      success: result.success,
+      data: result.data ? JSON.stringify(result.data) : undefined,
+      error: result.error ? JSON.stringify(result.error) : undefined,
+    };
+  }
+
+  @Query(() => TemplateResponseDto)
+  async getTemplateStatus(
+    @Args('templateId') templateId: string,
+  ): Promise<TemplateResponseDto> {
+    const result = await this.channelService.getTemplateStatus(templateId);
+    return {
+      success: result.success,
+      data: result.data ? JSON.stringify(result.data) : undefined,
+      error: result.error ? JSON.stringify(result.error) : undefined,
+    };
   }
 
 }

@@ -40,7 +40,6 @@ import { ChatsContext, ChatsProvider } from "../components/Context/ChatsContext"
 import UpdateChannelName from "../components/Chats/UpdateChannelName";
 import { useContext, useEffect } from "react";
 import { Bold } from "lucide-react";
-import ChannelDetails from "../components/Chats/ChannelDetails"
 import { useLocation, useNavigate } from "react-router-dom";
 // import Sidebar from "components/MainLayout/Sidebar/Sidebar"
 
