@@ -11,8 +11,8 @@ import axios from 'axios'
 import { instantsService } from "../whatsapp/instants.service";
 import { throwError } from "rxjs";
 import { log } from "console";
-import { TemplateResponseDto } from "./dto/TemplateResponseDto";
-import { TemplateRequestInput } from "./dto/TemplateRequestInput";
+// import { TemplateResponseDto } from "./dto/TemplateResponseDto";
+// import { TemplateRequestInput } from "./dto/TemplateRequestInput";
 
 @Resolver(() => Channel)
 export class ChannelResolver {
@@ -37,7 +37,7 @@ export class ChannelResolver {
     @Query(() => [Message])
     async findMsgByChannelId(@Context('req') req,@Args('channelId') channelId : string ) : Promise<Message[] | Message> {
         console.log(channelId,"this is channelid");
-        const workspaceId = req.user.workspaceIds[0];
+        
         const messages = await this.channelService.findMsgByChannelId(channelId);        
         await this.channelService.makeUnseenSeen(messages); 
         return messages
@@ -137,28 +137,37 @@ export class ChannelResolver {
     return await this.channelService.updateChannelNameById(channelId,updatedValue)
   }
 
-  @Mutation(() => TemplateResponseDto)
-  async submitTemplate(
-    @Args('template') template: TemplateRequestInput,
-  ): Promise<TemplateResponseDto> {
-    const result = await this.channelService.submitTemplate(template);
-    return {
-      success: result.success,
-      data: result.data ? JSON.stringify(result.data) : undefined,
-      error: result.error ? JSON.stringify(result.error) : undefined,
-    };
-  }
 
-  @Query(() => TemplateResponseDto)
-  async getTemplateStatus(
-    @Args('templateId') templateId: string,
-  ): Promise<TemplateResponseDto> {
-    const result = await this.channelService.getTemplateStatus(templateId);
-    return {
-      success: result.success,
-      data: result.data ? JSON.stringify(result.data) : undefined,
-      error: result.error ? JSON.stringify(result.error) : undefined,
-    };
-  }
+  // @Mutation(() => TemplateResponseDto)
+  // async submitTemplate(
+  //   @Args('template') template: TemplateRequestInput,
+  // ): Promise<TemplateResponseDto> {
+  //   const result = await this.channelService.submitTemplate(template);
+  //   return {
+  //     success: result.success,
+  //     data: result.data ? JSON.stringify(result.data) : undefined,
+  //     error: result.error ? JSON.stringify(result.error) : undefined,
+  //   };
+  // }
+
+  // @Query(() => TemplateResponseDto)
+  // async getTemplateStatus(
+  //   @Args('templateId') templateId: string,
+  // ): Promise<TemplateResponseDto> {
+  //   const result = await this.channelService.getTemplateStatus(templateId);
+  //   return {
+  //     success: result.success,
+  //     data: result.data ? JSON.stringify(result.data) : undefined,
+  //     error: result.error ? JSON.stringify(result.error) : undefined,
+  //   };
+  // }
+
+
+  // @Query(() => String)
+  // async getAllTemplates(){
+  // await this.channelService.getAllTemplates()
+  // }
+  
 
 }
+

@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
-import { GET_TEMPLATE_STATUS, SUBMIT_TEMPLATE } from "./Mutation/Chats";
-// import { GET_TEMPLATE_STATUS } from "./Mutation/Chats";
+import { GET_TEMPLATE_STATUS, SUBMIT_TEMPLATE } from "../../pages/Mutation/Template";
 
-const TemplateForm = () => {
+const TemplateForm = ({ setTriggerRefetch } : any) => {
     const [formData, setFormData] = useState({
         name: '',
         category: 'UTILITY',
@@ -11,7 +10,9 @@ const TemplateForm = () => {
         headerText: '',
         bodyText: '',
         footerText: '',
-        buttonText: ''
+        buttonText: '',
+        buttonUrl: '',
+        body_text : ''
       });
       const [status, setStatus] = useState(null);
       const [templateId, setTemplateId] = useState('');
@@ -44,15 +45,19 @@ const TemplateForm = () => {
                 },
                 {
                   type: 'BODY',
-                  text: formData.bodyText
+                  text: formData.bodyText,
+                  example: {
+                    body_text: [[formData.body_text]]
+                  }
                 },
                 formData.footerText && {
                   type: 'FOOTER',
                   text: formData.footerText
                 },
-                formData.buttonText && {
+                formData.buttonText && formData.buttonUrl && {
                   type: 'BUTTONS',
-                  buttons: [{ type: 'QUICK_REPLY', text: formData.buttonText }]
+                  buttons: [{ type: 'URL', text: formData.buttonText, url : formData.buttonUrl }]
+                  // buttons: [{ type: 'QUICK_REPLY', text: formData.buttonText }]
                 }
               ].filter(Boolean)
             }
@@ -62,6 +67,8 @@ const TemplateForm = () => {
           setStatus(result);
           if (result.success) {
             setTemplateId(JSON.parse(result.data).id);
+            checkStatus(JSON.parse(result.data).id, setStatus, setError)
+            setTriggerRefetch((prevCount : any) => prevCount + 1)
           }
         } catch (err : any) {
           setError(err.message || 'Failed to submit template');
@@ -84,11 +91,12 @@ const TemplateForm = () => {
       const checkStatus = (templateId : any, setStatus : any, setError : any) => {
         if (!templateId) return;
     
-        const { data, error } = useQuery(GET_TEMPLATE_STATUS, {
+        const { data, error } = useQuery(GET_TEMPLATE_STATUS  , {
           variables: { templateId },
           skip: !templateId,
           onCompleted: (data) => {
             setStatus(data.getTemplateStatus);
+            setTriggerRefetch((prevCount : any) => prevCount + 1)
           },
           onError: (err) => {
             setError(err.message || 'Failed to check status');
@@ -174,6 +182,18 @@ const TemplateForm = () => {
                   required
                 />
               </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Body Example Text (Optional)</label>
+                <input
+                  type="text"
+                  name="body_text"
+                  value={formData.body_text}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2"
+                  placeholder="Chintan Patel"
+                />
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Footer Text (Optional)</label>
@@ -196,6 +216,18 @@ const TemplateForm = () => {
                   onChange={handleInputChange}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2"
                   placeholder="Learn More"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Button URL (Optional)</label>
+                <input
+                  type="text"
+                  name="buttonUrl"
+                  value={formData.buttonUrl}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2"
+                  placeholder="https://chatgpt.com/"
                 />
               </div>
 

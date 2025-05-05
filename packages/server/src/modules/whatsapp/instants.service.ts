@@ -9,146 +9,210 @@ import { ContactsService } from '../contacts/contacts.service';
 
 @Injectable()
 export class instantsService {
-    constructor (
+    constructor(
         @InjectRepository(WhatsappInstants, 'core')                // Inject User repository
         private instantsRepository: Repository<WhatsappInstants>,
         private readonly workspaceService: WorkspaceService,
         private readonly contactsService: ContactsService,
-    ) {}
+    ) { }
 
-    async CreateInstants(WhatsappInstantsData : CreateFormDataInput, workspaceId: string): Promise<WhatsappInstants | null>{
+    async CreateInstants(WhatsappInstantsData: CreateFormDataInput, workspaceId: string): Promise<WhatsappInstants | null> {
         console.log(WhatsappInstantsData);
         const workspace = await this.workspaceService.findWorkspaceById(workspaceId)
         if (!workspace) throw new Error("workspace doesnt found")
 
-        const instants = await this.instantsRepository.find({ where : { id : workspaceId}});
-        console.log(instants.length,"...............................");
-        
+        const instants = await this.instantsRepository.find({ where: { id: workspaceId } });
+        console.log(instants.length, "...............................");
+
         let defaultSelected = false;
-        if(instants.length < 1){
+        if (instants.length < 1) {
             defaultSelected = true
         }
-        const whatappInstants =  this.instantsRepository.create({
-            name : WhatsappInstantsData.name,
-            appId : WhatsappInstantsData.appId,
-            phoneNumberId : WhatsappInstantsData.phoneNumberId,
-            businessAccountId : WhatsappInstantsData.businessAccountId,
-            accessToken : WhatsappInstantsData.accessToken,
-            appSecret : WhatsappInstantsData.appSecret,
+        const whatappInstants = this.instantsRepository.create({
+            name: WhatsappInstantsData.name,
+            appId: WhatsappInstantsData.appId,
+            phoneNumberId: WhatsappInstantsData.phoneNumberId,
+            businessAccountId: WhatsappInstantsData.businessAccountId,
+            accessToken: WhatsappInstantsData.accessToken,
+            appSecret: WhatsappInstantsData.appSecret,
             workspace,
-            defaultSelected : defaultSelected
+            defaultSelected: defaultSelected
         })
         await this.contactsService.createContacts({
-          contactName : WhatsappInstantsData.name,
-          phoneNo : Number(WhatsappInstantsData.phoneNumberId),
-          defaultContact : true,
-        }, workspaceId )
+            contactName: WhatsappInstantsData.name,
+            phoneNo: Number(WhatsappInstantsData.phoneNumberId),
+            defaultContact: true,
+        }, workspaceId)
         await this.instantsRepository.save(whatappInstants)
         return whatappInstants;
     }
 
-    async findAllInstants(workspaceId : string): Promise<WhatsappInstants[]> {
+    async findAllInstants(workspaceId: string): Promise<WhatsappInstants[]> {
         return await this.instantsRepository.find({
-            where: { workspace : { id: workspaceId}},
+            where: { workspace: { id: workspaceId } },
             order: { createdAt: 'ASC' }, // Sort by creation time
-          });
+        });
     }
 
-    async UpdateInstants( id : string, updatedInstants : CreateFormDataInput ): Promise<WhatsappInstants | null> {
-        const existingInstants = await this.instantsRepository.findOne({ where : {id} });
+    async UpdateInstants(id: string, updatedInstants: CreateFormDataInput): Promise<WhatsappInstants | null> {
+        const existingInstants = await this.instantsRepository.findOne({ where: { id } });
         if (!existingInstants) {
             throw new NotFoundException(`Instant with ID ${id} not found`);
-          }
+        }
         Object.assign(existingInstants, updatedInstants); // Merge input data into the existing entity
 
-          return this.instantsRepository.save(existingInstants); // Save updated instant to the database
+        return this.instantsRepository.save(existingInstants); // Save updated instant to the database
     }
 
-    async DeleteInstants(id : string) : Promise<WhatsappInstants | null> {
-        const deleteInstants = await this.instantsRepository.findOne({ where : { id }});
+    async DeleteInstants(id: string): Promise<WhatsappInstants | null> {
+        const deleteInstants = await this.instantsRepository.findOne({ where: { id } });
         if (deleteInstants)
-            return  await this.instantsRepository.remove(deleteInstants)
+            return await this.instantsRepository.remove(deleteInstants)
         else
             return null
 
     }
 
-    async InstantsSelection(instantsId : string, workspaceId : string){
+    async InstantsSelection(instantsId: string, workspaceId: string) {
         const findSelectedInstants = await this.FindSelectedInstants(workspaceId)
 
         await this.instantsRepository.update(
-            { id : findSelectedInstants?.id },
-            { defaultSelected : false }
+            { id: findSelectedInstants?.id },
+            { defaultSelected: false }
         )
         await this.instantsRepository.update(
-            { id : instantsId },
-            { defaultSelected : true }
+            { id: instantsId },
+            { defaultSelected: true }
         )
         return await this.findAllInstants(workspaceId)
     }
 
-    
+
     async FindSelectedInstants(workspaceId) {
         return this.instantsRepository.findOne({
-            where : { defaultSelected : true,
-                      workspace : { id : workspaceId }
-                }});
+            where: {
+                defaultSelected: true,
+                workspace: { id: workspaceId }
+            }
+        });
     }
 
-    async whatsappApiPost(data){
-        return  await axios({            
-            url:'https://graph.facebook.com/v22.0/565830889949112/messages',
-            method:'POST',
-            headers:{
-                'Authorization':'Bearer EAAJ64cjZAwZBoBOyzRoenLhu0bjnUOhRYs9rsrE6s8CZB4qbJPaWMiZABqiBtUFnGdYOkXCx4wjWCZBI3e42DCOL1xiJ1JrAc124ASgE2CKDVidTxlmO8KN0mALz52jcRN3IZBIzDdHbwpRzWwcUKfGz3CnhvpB0lbmp8lBgHGRlUlOZAXByMfKW4DVslwatmQRY5NBcx7YakWlGtFiEJgENCpGsACjovpyzeIZD',
-                'Content-Type' : 'application/json'
+    async whatsappApiPost(data) {
+        return await axios({
+            url: 'https://graph.facebook.com/v22.0/565830889949112/messages',
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer EAAao8Mkc6lMBO1ySEZCLWhiI7Xt2FIQlPFQdFdPESTlZAlwxFaHZBZBZCxyN11dsryzwHdr9xxaLIawMtUxsQ5uxsUDCdigvKikhhETCoJgxt0mzMVbgR2PZCuT8owCpETLS8TxZB2YZCPsOvRpOTA9hIwDFW0werkxZCoPWLK0hj6Y8apUDsH6kwHA2zdHf7id7SGZBmnOo8qSZC0iFQs5LZB4SeNVpX0sh2J4PWG0ZD',
+                'Content-Type': 'application/json'
             },
             data: JSON.stringify(data)
         })
     }
 
     async sendTemplateMessage() {
-        const response = await this.whatsappApiPost({
-                "messaging_product": "whatsapp",
-                "to": "917202031718",
-                "type": "template",
-                "template": {
-                    "name": "hello_world",
-                    "language": {
-                        "code": "en_US"
+        // const response = await this.whatsappApiPost({
+        //         "messaging_product": "whatsapp",
+        //         "to": "917202031718",
+        //         "type": "template",
+        //         "template": {
+        //             "name": "hello_world",
+        //             "language": {
+        //                 "code": "en_US"
+        //             }
+        //         }
+        //     })
+        //     console.log(response.data);
+        const url = `https://graph.facebook.com/v22.0/565830889949112/messages`;
+
+        const payload = {
+            messaging_product: 'whatsapp',
+            to: 917202031718,
+            type: 'template',
+            template: {
+                name: 'order_template',
+                language: { code: 'en_US' },
+                components: [
+                    {
+                        type: 'body',
+                        parameters: [
+                            {
+                                type: 'text',
+                                text: 'Chintan Patel' //replaces {{1}} in the body and URL
+                            }
+                        ]
                     }
+                ]
+            }
+        };
+
+        try {
+            const response = await axios.post(url, payload, {
+                headers: {
+                    Authorization: `Bearer EAAao8Mkc6lMBOzWSkoUZCyUApRFfe9L1iX3b1UcOIKFioDR8lEDibs852NZAQCoe3etb0pjNtoIHVLBSidp41ZBUKW1WcpPi6aDwbAvIZCevit9oIGQ44N1a9JKLuxY8OkcrACzbFlRq5BYxZATEm30rKV6jncqsRKR3F7vV0ZA3NZAXEREJ1NvCZBaYSSX6AHRlp9Iq3pcVMeJHK4vJmwjUIn8y6vVJ0IOZAUzpC`,
+                    'Content-Type': 'application/json'
                 }
-            })
-            console.log(response.data);
-            
-            return "response"
+            });
+
+            console.log('✅ Message sent:', response.data);
+        } catch (error) {
+            console.error('❌ Send message failed:', error.response?.data || error.message);
         }
+        return "response"
+    }
 
     async sendTextMessage() {
-        const response =   await this.whatsappApiPost({
-                "messaging_product": "whatsapp",
-                "to": "917202031718",
-                "type": "text",
-                "text": {
-                    'body' : "this is the text message"
-                }
+        // const response =   await this.whatsappApiPost({
+        //         "messaging_product": "whatsapp",
+        //         "to": "917202031718",
+        //         "type": "text",
+        //         "text": {
+        //             'body' : "this is the text message"
+        //         }
+        //     })
+        //     console.log(response.data);
+
+
+        const token = 'EAAao8Mkc6lMBO3ksn7duH8zbgFSMFxDlsQtqnACih41A8q7jHvRkAvt3kbfIGOadkZAG89EFL0ZBx0IrLuZBACFBw9QZBbFIB0yR0T1qV2KIgyMaT2RVZCrtbg26TGCZB9AsIH5IeyP6jBfgoyPSGx7cOR9I6HE0sK61RF82R8LHsJFY2ItHxej9ph22MGN30yJw3LZBPu48xTzUjN29L1O9ZCraDpsZBZCEfZBxC8ZD';
+        const phoneNumberId = '565830889949112';
+        const recipient = '917202031718'; // without "+" sign
+
+        const payload = {
+            messaging_product: 'whatsapp',
+            to: recipient,
+            type: 'text',
+            text: {
+                preview_url: false,
+                body: 'Hello! This is a test message from the WhatsApp Cloud API.'
+            }
+        };
+
+        axios.post(`https://graph.facebook.com/v19.0/${phoneNumberId}/messages`, payload, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(res => {
+                console.log('✅ Message sent:', res.data);
             })
-            console.log(response.data);
-            return "response";
-        }
+            .catch(err => {
+                console.error('❌ Error:', err.response?.data || err.message);
+            });
+        return "response";
+    }
 
     async sendMediaMessage() {
-        const response = this.whatsappApiPost({
-                "messaging_product": "whatsapp",
-                "to": "917202031718",
-                "type": "image",
-                "image": {
-                    "link" : "https://images.unsplash.com/photo-1575936123452-b67c3203c357?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aW1hZ2V8ZW58MHx8MHx8fDA%3D",
-                    "caption" : "this is image"
-                }
-            })
-            console.log(response);
-            return "response"
+        const response = await this.whatsappApiPost({
+            "messaging_product": "whatsapp",
+            "to": "917202031718",
+            "type": "image",
+            "image": {
+                "link": "https://images.unsplash.com/photo-1575936123452-b67c3203c357?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aW1hZ2V8ZW58MHx8MHx8fDA%3D",
+                "caption": "this is image https://chatgpt.com/c/6814731d-1ac0-800c-8eb7-a83c5b6573a8"
+            }
+        })
+        console.log(response.data, response.data.messages, response.data.contacts);
+        return "response"
     }
 
 }

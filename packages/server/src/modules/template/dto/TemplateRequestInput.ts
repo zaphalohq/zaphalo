@@ -1,6 +1,12 @@
 import { Field, InputType } from "@nestjs/graphql";
 
 @InputType()
+class ExampleInput {
+  @Field(() => [[String]], { nullable: true })
+  body_text?: string[][];
+}
+
+@InputType()
 class TemplateComponentInput {
   @Field()
   type: string;
@@ -13,7 +19,13 @@ class TemplateComponentInput {
 
   @Field(() => [ButtonInput], { nullable: true })
   buttons?: ButtonInput[];
+
+  @Field(() => ExampleInput, { nullable: true })
+  example?: ExampleInput;
+  
 }
+
+
 
 @InputType()
 class ButtonInput {
