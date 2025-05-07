@@ -153,9 +153,9 @@ export class instantsService {
                 }
             });
 
-            console.log('✅ Message sent:', response.data);
+            console.log('Message sent:', response.data);
         } catch (error) {
-            console.error('❌ Send message failed:', error.response?.data || error.message);
+            console.error('Send message failed:', error.response?.data || error.message);
         }
         return "response"
     }

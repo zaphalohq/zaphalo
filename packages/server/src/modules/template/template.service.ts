@@ -5,7 +5,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { ContactsService } from "../contacts/contacts.service";
 import { UserService } from "../user/user.service";
 import { join } from "path";
-import { existsSync, unlinkSync } from "fs";
+import { existsSync, ReadStream, unlinkSync } from "fs";
 import axios, { AxiosResponse } from "axios"
 import fs from "fs"
 import { WorkspaceService } from "../workspace/workspace.service";
@@ -44,16 +44,54 @@ export class TemplateService {
 
     async submitTemplate(template: TemplateRequestInput, workspaceId : string): Promise<any> {
       console.log(template,".templaet...................");
+
+
+      const payload = {
+        "name": "welcome_message_102",
+        "category": "MARKETING",
+        "language": "en_US",
+        "components": [
+          {
+            "type": "HEADER",
+            "format": "IMAGE",
+            "example": {
+              "header_handle": ["https://www.kaleyra.com/wp-content/uploads/kaleyra.png"]
+            }
+          },
+          {
+            "type": "BODY",
+            "text": "\nWelcome to Banastech, {{1}}\n\nThanks for shopping with us! Our team is getting your order ready and we’ll notify you once it has been dispatched. Here are your order details: Order ID: 43223432, Date: 10/08/2020, Shipment status: Preparing for Dispatch, Item Ordered: fsdf, Price: 300. Please feel free to reach out to our customer support team if you have any questions—we’re happy to serve you better!\n\nThank you\n",
+            "example": {
+              "body_text": [["John"]]
+            }
+          },
+          {
+            "type": "FOOTER",
+            "text": "Powered by BanasTech"
+          },
+          {
+            "type": "BUTTONS",
+            "buttons": [
+              {
+                "type": "URL",
+                "text": "View Order",
+                "url": "https://example.com/order/43223432"
+              }
+            ]
+          }
+        ]
+      }
+
       try {
         const response = await axios({
           url: `https://graph.facebook.com/v22.0/1649375815967023/message_templates`,
           method: 'POST',
           headers: {
-            Authorization: `Bearer EAAao8Mkc6lMBOzWSkoUZCyUApRFfe9L1iX3b1UcOIKFioDR8lEDibs852NZAQCoe3etb0pjNtoIHVLBSidp41ZBUKW1WcpPi6aDwbAvIZCevit9oIGQ44N1a9JKLuxY8OkcrACzbFlRq5BYxZATEm30rKV6jncqsRKR3F7vV0ZA3NZAXEREJ1NvCZBaYSSX6AHRlp9Iq3pcVMeJHK4vJmwjUIn8y6vVJ0IOZAUzpC`,
+            Authorization: `Bearer EAAao8Mkc6lMBOyOU80TNGkEhCfYAEZBj3C2UVQQ0JZArJGXLTyQG3gfweZBEH2RZABkArevR9dYUvOyrTzZCP9OlHLqtAPvEYu2A36sUEZCVlDaNeUp8IXdEexWasPvO65PP7k6sQww5nwJJSJp6a1Gb2pzyvNDds0ZCnsUSG7YkGDZC002VcZAst6PfbShq6F3JmuZBZCFCT3DKoGxViaZC6QKLjub5mfZBNXLCujvQZD`,
             'Content-Type': 'application/json',
           },
-          data : JSON.stringify({...template})
-          // data : JSON.stringify(payload)
+          // data : JSON.stringify({...template})
+          data : JSON.stringify(payload)
         });
                   // data: JSON.stringify({
           //   ...template,
@@ -76,6 +114,11 @@ export class TemplateService {
           data: response.data,
         };
       } catch (error) {
+        console.log({
+          success: false,
+          error: error.response?.data || error.message,
+        });
+        
         return {
           success: false,
           error: error.response?.data || error.message,
@@ -136,7 +179,7 @@ export class TemplateService {
           url : `https://graph.facebook.com/v22.0/${templateId}?fields=name,status,category,language,components`,
           method: 'GET',
           headers: {
-            Authorization: `Bearer EAAao8Mkc6lMBOzWSkoUZCyUApRFfe9L1iX3b1UcOIKFioDR8lEDibs852NZAQCoe3etb0pjNtoIHVLBSidp41ZBUKW1WcpPi6aDwbAvIZCevit9oIGQ44N1a9JKLuxY8OkcrACzbFlRq5BYxZATEm30rKV6jncqsRKR3F7vV0ZA3NZAXEREJ1NvCZBaYSSX6AHRlp9Iq3pcVMeJHK4vJmwjUIn8y6vVJ0IOZAUzpC`,
+            Authorization: `Bearer EAAao8Mkc6lMBOyOU80TNGkEhCfYAEZBj3C2UVQQ0JZArJGXLTyQG3gfweZBEH2RZABkArevR9dYUvOyrTzZCP9OlHLqtAPvEYu2A36sUEZCVlDaNeUp8IXdEexWasPvO65PP7k6sQww5nwJJSJp6a1Gb2pzyvNDds0ZCnsUSG7YkGDZC002VcZAst6PfbShq6F3JmuZBZCFCT3DKoGxViaZC6QKLjub5mfZBNXLCujvQZD`,
             'Content-Type': 'application/json',
           },
         });
@@ -173,22 +216,22 @@ async getAllTemplates() {
   try {
     const response = await axios.get(url, {
       headers: {
-        Authorization: `Bearer EAAao8Mkc6lMBOzWSkoUZCyUApRFfe9L1iX3b1UcOIKFioDR8lEDibs852NZAQCoe3etb0pjNtoIHVLBSidp41ZBUKW1WcpPi6aDwbAvIZCevit9oIGQ44N1a9JKLuxY8OkcrACzbFlRq5BYxZATEm30rKV6jncqsRKR3F7vV0ZA3NZAXEREJ1NvCZBaYSSX6AHRlp9Iq3pcVMeJHK4vJmwjUIn8y6vVJ0IOZAUzpC`,
+        Authorization: `Bearer EAAao8Mkc6lMBOyOU80TNGkEhCfYAEZBj3C2UVQQ0JZArJGXLTyQG3gfweZBEH2RZABkArevR9dYUvOyrTzZCP9OlHLqtAPvEYu2A36sUEZCVlDaNeUp8IXdEexWasPvO65PP7k6sQww5nwJJSJp6a1Gb2pzyvNDds0ZCnsUSG7YkGDZC002VcZAst6PfbShq6F3JmuZBZCFCT3DKoGxViaZC6QKLjub5mfZBNXLCujvQZD`,
       },
     });
 
     const templates = response.data.data;
     console.log(templates);
     
-    // console.log(`📋 Total Templates Found: ${templates.length}`);
+    // console.log(`Total Templates Found: ${templates.length}`);
     // templates.forEach((t, i) => {
     //   console.log(
-    //     `\n🔢 #${i + 1}\n🧾 Name: ${t.name}\n📦 Category: ${t.category}\n🌍 Language: ${t.language?.code}\n📄 Status: ${t.status}\n🆔 ID: ${t.id || 'Not returned'}`
+    //     `\n #${i + 1}\n Name: ${t.name}\n Category: ${t.category}\n Language: ${t.language?.code}\n Status: ${t.status}\n ID: ${t.id || 'Not returned'}`
     //   );
     // });
     return "fsds"
   } catch (err) {
-    console.error('❌ Error fetching templates:', err.response?.data || err.message);
+    console.error('Error fetching templates:', err.response?.data || err.message);
     return "fsds"
   }
 
@@ -208,5 +251,32 @@ async findAllTemplate(workspaceId : string) {
 async findTemplateByTemplateId(templateId : string){
   return await this.templateRepository.findOne({ where : {templateId : templateId}})
 }
+
+
+
+// async uploadFile(file: { createReadStream: () => ReadStream; mimetype: string }): Promise<string> {
+//   const stream = file.createReadStream();
+//   const form = new FormData();
+//   form.append('file', stream, { contentType: file.mimetype });
+//   form.append('type', file.mimetype);
+//   form.append('messaging_product', 'whatsapp');
+
+//   try {
+//     const response = await axios({
+//       url: this.whatsappApiUrl,
+//       method: 'POST',
+//       headers: {
+//         ...form.getHeaders(),
+//         Authorization: `Bearer ${this.accessToken}`,
+//         'Content-Type': 'multipart/form-data',
+//       },
+//       data: form,
+//     });
+
+//     return response.data.id;
+//   } catch (error) {
+//     throw new Error(`Failed to upload file to WhatsApp: ${error.response?.data?.error?.message || error.message}`);
+//   }
+// }
 
 }

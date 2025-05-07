@@ -24,6 +24,6 @@ async function bootstrap() {
     // app.use(passport.initialize());
     app.useStaticAssets(path.join(__dirname, "../uploads"))
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(Number(process.env.PORT));
 }
 bootstrap();

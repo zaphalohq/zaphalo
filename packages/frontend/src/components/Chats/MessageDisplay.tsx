@@ -410,7 +410,7 @@ import { ChatsContext } from "../Context/ChatsContext"
 import { getItem, setItem } from "../utils/localStorage";
 import { useQuery } from "@apollo/client";
 import { findMsgByChannelId } from "../../pages/Mutation/Chats";
-import { useWebSocket } from "./hooks/WebSocket";
+import { useWebSocket } from "./Websocket_hooks/WebSocket";
 
 const MessageDisplay = () => {
   const senderPhoneNo = import.meta.env.VITE_SENDER_PHONENO;

@@ -1,6 +1,5 @@
-import { use, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
-import { getItem, setItem } from "../../utils/localStorage";
 import { ChatsContext } from "../../Context/ChatsContext";
 
 interface Message {
@@ -28,7 +27,7 @@ export async function useWebSocket() {
     }, [newUnseenMessage])
 
     useEffect(() => {
-        const socketIo = io("http://localhost:8080", {
+        const socketIo = io(import.meta.env.VITE_WEBSOCKET_URL, {
             transports: ["websocket"],
             reconnection: true,
         });

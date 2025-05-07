@@ -1,13 +1,17 @@
 import { FaPlus } from 'react-icons/fa'
 import TemplateForm from '../components/Template/TemplateForm'
 import SubmitButton, { CloseButton } from '../components/UI/SubmitButton'
-import { useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { FiX } from 'react-icons/fi'
 import TemplateTable from '../components/Template/TemplateTable'
+import { TemplateContext, TemplateProvider } from '../components/Context/TemplateContext'
+import TemplatePreview from '../components/Template/TemplatePreview'
 
-const Template = () => {
+const TemplateMain = () => {
   const [isTemplateFormVis, setIsTemplateFormVis] = useState(false)
-  const [triggerRefetch, setTriggerRefetch ] = useState(0)
+  const [triggerRefetch, setTriggerRefetch] = useState(0)
+  const { templateFormData }: any = useContext(TemplateContext)
+
   return (
     <div className='h-[calc(100vh-90px)] overflow-y-scroll'>
       <div className="grid grid-cols-4 pt-4 px-4 ">
@@ -16,12 +20,37 @@ const Template = () => {
             : <CloseButton type='button' onClick={() => setIsTemplateFormVis(false)} title="Close Create Template" Icon={FiX} />}
         </div>
       </div>
-      {isTemplateFormVis ? <TemplateForm setTriggerRefetch={setTriggerRefetch} /> : <></>}
+      {isTemplateFormVis ?
+        <div className="grid grid-cols-2 gap-6 p-6 overflow-y-auto ">
+          <TemplateForm setTriggerRefetch={setTriggerRefetch} />
+          <div className=' absolute right-60 top-96 flex justify-center items-center'>
+
+            {/* <div>{templateFormData.name}</div>
+                <div>{templateFormData.category}</div>
+                <div>{templateFormData.language}</div>
+                <div>{templateFormData.headerText}</div>
+                <div>{templateFormData.footerText}</div>
+                <div>{templateFormData.buttonText}</div>
+                <div>{templateFormData.buttonUrl}</div>
+                <div>{templateFormData.body_text}</div>
+                <div>{templateFormData.headerFormat}</div> */}
+            <TemplatePreview formData={templateFormData} />
+          </div>
+        </div>
+        : <></>}
       <div>
-        <TemplateTable triggerRefetch={triggerRefetch} />
+        {!isTemplateFormVis ? <TemplateTable triggerRefetch={triggerRefetch} /> : <></>}
       </div>
     </div>
   )
 }
+
+const Template = () => {
+  return (
+    <TemplateProvider>
+      <TemplateMain />
+    </TemplateProvider>
+  );
+};
 
 export default Template

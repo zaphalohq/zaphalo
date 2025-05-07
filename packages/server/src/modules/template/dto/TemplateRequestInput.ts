@@ -4,7 +4,11 @@ import { Field, InputType } from "@nestjs/graphql";
 class ExampleInput {
   @Field(() => [[String]], { nullable: true })
   body_text?: string[][];
+
+  @Field(() => [String], { nullable: true })
+  header_handle?: string[];
 }
+
 
 @InputType()
 class TemplateComponentInput {
@@ -23,6 +27,7 @@ class TemplateComponentInput {
   @Field(() => ExampleInput, { nullable: true })
   example?: ExampleInput;
   
+  
 }
 
 
@@ -33,7 +38,7 @@ class ButtonInput {
   type: string;
 
   @Field()
-  text: string;
+  text?: string;
 
   @Field({ nullable: true })
   phone_number?: string;

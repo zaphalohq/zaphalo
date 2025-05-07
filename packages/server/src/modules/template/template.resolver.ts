@@ -7,14 +7,11 @@ import { Request, UseGuards } from "@nestjs/common";
 import { GqlAuthGuard } from "../auth/guards/gql-auth.guard";
 import axios from 'axios'
 import { instantsService } from "../whatsapp/instants.service";
-import { throwError } from "rxjs";
-import { error, log } from "console";
 import { TemplateResponseDto } from "./dto/TemplateResponseDto";
 import { TemplateRequestInput } from "./dto/TemplateRequestInput";
 import { Template } from "./template.entity";
 import { TemplateService } from "./template.service";
-import { AuthGuard } from "@nestjs/passport";
-import { workerData } from "worker_threads";
+// import { GraphQLUpload, FileUpload } from 'graphql-upload';
 
 @Resolver(() => Template)
 export class TemplateResolver {
@@ -67,7 +64,22 @@ export class TemplateResolver {
     }
 
 
-
+    // @Mutation(() => String)
+    // async uploadFileToWhatsApp(@Args('file', { type: () => GraphQLUpload }) file: FileUpload): Promise<string> {
+    //   if (!file.mimetype.startsWith('image/') || !['image/png', 'image/jpeg', 'image/jpg'].includes(file.mimetype)) {
+    //     throw new Error('Please upload a PNG or JPG image.');
+    //   }
+  
+    //   // Note: WhatsApp has a 5MB file size limit for images.
+    //   // FileUpload streams don't provide size directly. To validate size:
+    //   // 1. Use middleware like graphqlUploadExpress with maxFileSize option (preferred).
+    //   // 2. Or read the stream to calculate size (less efficient, requires buffering).
+    //   // For now, rely on client-side validation (frontend checks file size < 5MB).
+    //   // Example middleware setup in main.ts:
+    //   // app.use(graphqlUploadExpress({ maxFileSize: 5 * 1024 * 1024, maxFiles: 1 }));
+  
+    //   return this.templateService.uploadFile(file);
+    // }
 
 }
 
