@@ -3,7 +3,7 @@ import { FiPaperclip } from 'react-icons/fi';
 import { IoSendSharp } from 'react-icons/io5';
 import axios from 'axios';
 import { ChatsContext } from '../Context/ChatsContext';
-import { SEND_MESSAGE } from '../../pages/Mutation/Chats';
+import { SEND_MESSAGE } from '@pages/Mutation/Chats';
 import { useMutation } from '@apollo/client';
 
 const MessageArea = () => {

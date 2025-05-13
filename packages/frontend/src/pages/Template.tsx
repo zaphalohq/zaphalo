@@ -1,11 +1,11 @@
 import { FaPlus } from 'react-icons/fa'
-import TemplateForm from '../components/Template/TemplateForm'
-import SubmitButton, { CloseButton } from '../components/UI/SubmitButton'
+import TemplateForm from '@components/Template/TemplateForm'
+import SubmitButton, { CloseButton } from '@components/UI/SubmitButton'
 import { useState } from 'react'
 import { FiX } from 'react-icons/fi'
-import TemplateTable from '../components/Template/TemplateTable'
-import { TemplateProvider } from '../components/Context/TemplateContext'
-import TemplatePreview from '../components/Template/TemplatePreview'
+import TemplateTable from '@components/Template/TemplateTable'
+import { TemplateProvider } from '@components/Context/TemplateContext'
+import TemplatePreview from '@components/Template/TemplatePreview'
 
 const TemplateMain = () => {
   const [isTemplateFormVis, setIsTemplateFormVis] = useState(false)

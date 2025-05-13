@@ -38,14 +38,18 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@src/*": ["/src/*"],
-      "@components/*": ["/src/components/*"]
+      "@src/*": ["src/*"],
+      "@components/*": ["src/components/*"],
+      "@pages/*": ["src/pages/*"],
+      "@UI/*": ["src/components/UI/*"],
+      "@utils/*": ["src/components/utils/*"],
+      "@Context/*": ["src/components/Context/*"]
     },
  
     /* Types */
     "types": ["vitest/globals", "node"]
   },
-  "include": ["src","components"],
+  "include": ["src"],
 
   "files": [],
   // "references": [

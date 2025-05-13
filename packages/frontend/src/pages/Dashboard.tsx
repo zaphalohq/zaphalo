@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { MessageSquare, Users2, Layout, TrendingUp, Workflow } from 'lucide-react';
-import MetricsCards from '../components/UI/MetricsCards';
+import MetricsCards from '@components/UI/MetricsCards';
 import { useQuery } from '@apollo/client';
 import { findWorkspace } from './Mutation/Dashboard';
 import Workspace from './Workspace';
-import { getItem } from '../components/utils/localStorage';
+import { getItem } from '@components/utils/localStorage';
 
 // Define types for our data structures
 interface MetricsData {

@@ -1,10 +1,8 @@
 import { useContext, useEffect, useState } from "react"
-import { InstantsContext } from "../Context/InstantsContext"
-import InputLabel from "../UI/InputLabel"
-import SubmitButton from "../UI/SubmitButton"
-import { FaSyncAlt } from "react-icons/fa"
-import CloseButton from "../UI/CloseButton"
-import { ContactsContext } from "../Context/ContactsContext"
+import InputLabel from "@UI/InputLabel"
+import SubmitButton from "@UI/SubmitButton"
+import CloseButton from "@UI/CloseButton"
+import { ContactsContext } from "@Context/ContactsContext"
 
 const ContactsForm = () => {
 	const {

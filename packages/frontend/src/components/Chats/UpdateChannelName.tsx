@@ -1,12 +1,12 @@
 import { FormEvent, useContext, useState } from 'react'
-import CloseButton from '../UI/CloseButton'
-import InputLabel from '../UI/InputLabel'
-import SubmitButton from '../UI/SubmitButton'
+import CloseButton from '@UI/CloseButton'
+import InputLabel from '@UI/InputLabel'
+import SubmitButton from '@UI/SubmitButton'
 import { FaSyncAlt } from 'react-icons/fa'
-import { ChatsContext } from '../Context/ChatsContext'
+import { ChatsContext } from '@Context/ChatsContext'
 import { useMutation } from '@apollo/client'
-import { updateChannelNameById } from '../../pages/Mutation/Chats'
-import { setItem } from '../utils/localStorage'
+import { updateChannelNameById } from '@pages/Mutation/Chats'
+import { setItem } from '@utils/localStorage'
 
 const UpdateChannelName = () => {
   const { isUpdateChannelName, setIsUpdateChannelName }: any = useContext(ChatsContext)

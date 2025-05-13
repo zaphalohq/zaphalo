@@ -1,10 +1,10 @@
 import { useContext, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
-import { GET_TEMPLATE_STATUS, SUBMIT_TEMPLATE } from "../../pages/Mutation/Template";
-import { TemplateContext } from "../Context/TemplateContext";
+import { GET_TEMPLATE_STATUS, SUBMIT_TEMPLATE } from "@pages/Mutation/Template";
+import { TemplateContext } from "@Context/TemplateContext";
 import TemplateFileUpload from "./TemplateFileUpload";
 import axios from 'axios';
-import { getItem } from "../utils/localStorage";
+import { getItem } from "@utils/localStorage";
 
 const TemplateForm = ({ setTriggerRefetch }: any) => {
   const [templateData, setTemplateData] = useState({

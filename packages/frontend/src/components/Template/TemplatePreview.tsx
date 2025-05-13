@@ -1,5 +1,5 @@
 import { FiExternalLink } from "react-icons/fi";
-import { TemplateContext } from "../Context/TemplateContext";
+import { TemplateContext } from "@Context/TemplateContext";
 import { useContext } from "react";
 
 const TemplatePreview = ({ formData }: any) => {

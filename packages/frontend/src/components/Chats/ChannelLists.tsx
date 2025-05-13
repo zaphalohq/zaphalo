@@ -1,8 +1,8 @@
 import { useQuery } from "@apollo/client"
-import { findAllChannel } from "../../pages/Mutation/Chats"
+import { findAllChannel } from "@pages/Mutation/Chats"
 import { useContext, useEffect, useState } from "react"
 import CurrentChannel from "./CurrentChannel"
-import { ChatsContext } from "../Context/ChatsContext"
+import { ChatsContext } from "@Context/ChatsContext"
 
 const ChannelLists = ({ searchChannel }: any) => {
   //---------------FindALLChannel---------------------------------------

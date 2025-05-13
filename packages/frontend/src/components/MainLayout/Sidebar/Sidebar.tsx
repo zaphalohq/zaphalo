@@ -2,7 +2,7 @@
 import SidebarElement from './SidebarElements'
 import { FiGrid, FiSettings, FiUsers, FiLink, FiMenu, FiLayers, FiMap } from 'react-icons/fi'
 import { IoChatbubbleEllipsesOutline } from 'react-icons/io5'
-import AccountToggle from '../../UI/AccountToggle'
+import AccountToggle from '@UI/AccountToggle'
 import Logout from '../../Auth/Logout'
 
 const Sidebar = ({ isToggleActivated, HandleToggleButton }: any) => {

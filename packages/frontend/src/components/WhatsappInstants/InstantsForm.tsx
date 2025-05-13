@@ -1,10 +1,10 @@
 import { useContext } from "react"
-import { InstantsContext } from "../Context/InstantsContext"
-import InputLabel from "../UI/InputLabel"
-import SubmitButton from "../UI/SubmitButton"
+import { InstantsContext } from "@Context/InstantsContext"
+import InputLabel from "@UI/InputLabel"
+import SubmitButton from "@UI/SubmitButton"
 import { FaSyncAlt } from "react-icons/fa"
 import { FiX } from "react-icons/fi"
-import CloseButton from "../UI/CloseButton"
+import CloseButton from "@UI/CloseButton"
 
 const InstantsForm = () => {
     const {

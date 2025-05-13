@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { SearchWhite } from '../UI/Search'
+import { SearchWhite } from '@UI/Search'
 import { FiPlus, FiUsers } from 'react-icons/fi'
 import { useQuery } from '@apollo/client'
-import { findAllContacts } from '../../pages/Mutation/Chats'
+import { findAllContacts } from '@pages/Mutation/Chats'
 import ListContacts from './ListContacts'
 
 

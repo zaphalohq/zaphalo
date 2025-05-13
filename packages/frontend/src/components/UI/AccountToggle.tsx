@@ -1,4 +1,4 @@
-import { getItem } from "../utils/localStorage"
+import { getItem } from "@utils/localStorage"
 
 const AccountToggle = () => {
     const user = getItem('userDetails')

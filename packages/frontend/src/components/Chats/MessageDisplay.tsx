@@ -406,10 +406,10 @@
 
 
 import { useContext, useEffect, useRef, useState } from "react"
-import { ChatsContext } from "../Context/ChatsContext"
-import { getItem, setItem } from "../utils/localStorage";
+import { ChatsContext } from "@Context/ChatsContext"
+import { getItem, setItem } from "@utils/localStorage";
 import { useQuery } from "@apollo/client";
-import { findMsgByChannelId } from "../../pages/Mutation/Chats";
+import { findMsgByChannelId } from "@pages/Mutation/Chats";
 import { useWebSocket } from "./Websocket_hooks/WebSocket";
 
 const MessageDisplay = () => {

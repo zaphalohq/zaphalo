@@ -1,5 +1,5 @@
 import SidebarElement from './SidebarElements'
-import AccountToggle from '../../UI/AccountToggle'
+import AccountToggle from '@UI/AccountToggle'
 import { FiGrid, FiLink, FiSettings, FiUsers } from 'react-icons/fi'
 import { IoChatbubbleEllipsesOutline } from 'react-icons/io5'
 import Logout from '../../Auth/Logout'

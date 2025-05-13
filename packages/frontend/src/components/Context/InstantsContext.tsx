@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { ChangeEvent, createContext, ReactNode, useState } from "react";
-import { DeleteInstantsMutation, findAllInstants, UpdatedInstants, WhatsappInstantsCreation } from "../../pages/Mutation/WhatsappInstants";
+import { DeleteInstantsMutation, findAllInstants, UpdatedInstants, WhatsappInstantsCreation } from "@pages/Mutation/WhatsappInstants";
 
 export interface InstantsContectProps {
     instantsData : any,

@@ -34,10 +34,10 @@
 
 
 // import Sidebar from "@components/MainLayout/Sidebar/Sidebar"
-import ChatsMain from "../components/Chats/ChatLayout";
-import ChatsSide from "../components/Chats/Sidebar";
-import { ChatsContext, ChatsProvider } from "../components/Context/ChatsContext";
-import UpdateChannelName from "../components/Chats/UpdateChannelName";
+import ChatsMain from "@components/Chats/ChatLayout";
+import ChatsSide from "@components/Chats/Sidebar";
+import { ChatsContext, ChatsProvider } from "@components/Context/ChatsContext";
+import UpdateChannelName from "@components/Chats/UpdateChannelName";
 import { useContext, useEffect } from "react";
 import { Bold } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";

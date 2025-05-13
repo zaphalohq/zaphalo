@@ -1,6 +1,6 @@
 import { useQuery } from "@apollo/client"
 import { useEffect, useState } from "react"
-import { Find_ALL_TEMPLATE } from "../../pages/Mutation/Template"
+import { Find_ALL_TEMPLATE } from "@pages/Mutation/Template"
 
 const TemplateTable = ({triggerRefetch} : any) => {
     const [templates, setTemplates] = useState([{

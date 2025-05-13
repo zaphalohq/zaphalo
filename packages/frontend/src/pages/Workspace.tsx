@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import SubmitButton from '../components/UI/SubmitButton'
+import SubmitButton from '@components/UI/SubmitButton'
 import { FiRefreshCw } from 'react-icons/fi';
 import { useMutation } from '@apollo/client';
 import { GenerateInviteLink } from './Mutation/Chats';
-import { getItem } from '../components/utils/localStorage';
+import { getItem } from '@components/utils/localStorage';
 
 const Workspace = () => {
   const [copied, setCopied] = useState(false);

@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import CloseButton from '../UI/CloseButton'
-import InputLabel from '../UI/InputLabel'
-import SubmitButton from '../UI/SubmitButton'
+import CloseButton from '@UI/CloseButton'
+import InputLabel from '@UI/InputLabel'
+import SubmitButton from '@UI/SubmitButton'
 import { useMutation } from '@apollo/client';
-import { CreateContactMute } from '../../pages/Mutation/Chats';
+import { CreateContactMute } from '@pages/Mutation/Chats';
 
 const CreateContacts = ({ HandleCreateContactVis }: any) => {
 

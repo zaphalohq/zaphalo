@@ -1,5 +1,5 @@
 import { FiEdit, FiList } from "react-icons/fi"
-import { SearchWhite } from "../UI/Search"
+import { SearchWhite } from "@UI/Search"
 import { useEffect, useRef, useState } from "react"
 import ContactList from "./ContactsArea"
 import CreateContacts from "./CreateContacts"

@@ -1,7 +1,7 @@
 import { useContext } from 'react'
 import { FiEdit2 } from 'react-icons/fi'
 import { MdDelete } from 'react-icons/md'
-import { InstantsContext } from '../Context/InstantsContext'
+import { InstantsContext } from '@Context/InstantsContext'
 // import { HandleDeleteInstants } from '../Logic/WhatsappInstants/delete';
 
 const TableListView = () => {

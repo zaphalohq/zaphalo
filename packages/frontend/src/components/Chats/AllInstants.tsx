@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { SearchWhite } from '../UI/Search'
+import { SearchWhite } from '@UI/Search'
 import { useMutation, useQuery } from '@apollo/client'
-import { findAllInstants } from '../../pages/Mutation/WhatsappInstants'
-import { InstantsSelection } from '../../pages/Mutation/Chats'
+import { findAllInstants } from '@pages/Mutation/WhatsappInstants'
+import { InstantsSelection } from '@pages/Mutation/Chats'
 
 
 const AllInstants = () => {

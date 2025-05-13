@@ -1,9 +1,8 @@
 import { useContext } from 'react'
-import { ChatsContext } from '../Context/ChatsContext'
+import { ChatsContext } from '@Context/ChatsContext'
 import { useMutation, useQuery } from '@apollo/client'
-import { findChannelByPhoneNo, DeleteContact } from '../../pages/Mutation/Chats'
-import { setItem } from '../utils/localStorage'
-import { Divide } from 'lucide-react'
+import { findChannelByPhoneNo, DeleteContact } from '@pages/Mutation/Chats'
+import { setItem } from '@utils/localStorage'
 
 const ListContacts = ({ contactName, phoneNo, HandleNewChatVisiablity, profileImg }: any) => {
     const { chatsDetails, setChatsDetails }: any = useContext(ChatsContext)

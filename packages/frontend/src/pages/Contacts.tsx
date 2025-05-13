@@ -1,11 +1,9 @@
 import { useContext, useEffect } from "react"
 import { FaPlus } from "react-icons/fa"
-import SubmitButton from "../components/UI/SubmitButton"
-import InstantsForm from "../components/WhatsappInstants/InstantsForm"
-import TableListView from "../components/WhatsappInstants/TableListView"
-import { ContactsContext, ContactsProvider } from "../components/Context/ContactsContext"
-import ContactsForm from "../components/Contacts/ContactsForm"
-import ContactsTable from "../components/Contacts/ContactsTable"
+import SubmitButton from "@components/UI/SubmitButton"
+import { ContactsContext, ContactsProvider } from "@components/Context/ContactsContext"
+import ContactsForm from "@components/Contacts/ContactsForm"
+import ContactsTable from "@components/Contacts/ContactsTable"
 
 const ContactsContent = () => {
 	const { 

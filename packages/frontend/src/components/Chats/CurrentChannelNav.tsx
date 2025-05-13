@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from 'react'
-import { ChatsContext } from '../Context/ChatsContext'
+import { ChatsContext } from '@Context/ChatsContext'
 import { FiArrowLeft, FiEdit2 } from 'react-icons/fi'
 
 const CurrentChannelNav = () => {

@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react"
-import { ChatsContext } from "../Context/ChatsContext"
-import { setItem } from "../utils/localStorage"
+import { ChatsContext } from "@Context/ChatsContext"
+import { setItem } from "@utils/localStorage"
 
 
 const CurrentChannel = ({ channelName, channelId, memberIds, unseen, setIsChannelExist }: any) => {

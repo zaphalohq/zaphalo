@@ -1,8 +1,7 @@
 import { useContext, useEffect } from 'react'
 import { FiEdit2 } from 'react-icons/fi'
 import { MdDelete } from 'react-icons/md'
-import { InstantsContext } from '../Context/InstantsContext'
-import { ContactsContext } from '../Context/ContactsContext'
+import { ContactsContext } from '@Context/ContactsContext'
 // import { HandleDeleteInstants } from '../Logic/WhatsappInstants/delete';
 
 const ContactsTable = () => {

@@ -1,5 +1,5 @@
 import { createContext, useState } from "react";
-import { getItem } from "../utils/localStorage"
+import { getItem } from "@utils/localStorage"
 export interface ChatsContectProps {
     chatsDetails: any,
     setChatsDetails: Function,

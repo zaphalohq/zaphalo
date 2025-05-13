@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { ChangeEvent, createContext, ReactNode, useState } from "react";
-import { DeleteInstantsMutation, findAllInstants, UpdatedInstants, WhatsappInstantsCreation } from "../../pages/Mutation/WhatsappInstants";
-import { CreateContactMute, DeleteContact, findAllContacts } from "../../pages/Mutation/Chats";
+import { DeleteInstantsMutation, findAllInstants, UpdatedInstants, WhatsappInstantsCreation } from "@pages/Mutation/WhatsappInstants";
+import { CreateContactMute, DeleteContact, findAllContacts } from "@pages/Mutation/Chats";
 
 export interface ContactsContectProps {
     isNewContacts: any,
