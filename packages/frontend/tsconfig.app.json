@@ -18,6 +18,8 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
     "composite": true,
+
+    // "emitDeclarationOnly" : true
     // "noEmit": false,
     
   },

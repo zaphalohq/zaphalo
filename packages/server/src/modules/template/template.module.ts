@@ -7,6 +7,8 @@ import { Template } from "./template.entity";
 import { TemplateService } from "./template.service";
 import { TemplateResolver } from "./template.resolver";
 import { WorkspaceModule } from "../workspace/workspace.module";
+import { TemplateFileUpload } from "./templateFileUpload.controller";
+import { instantsModule } from "../whatsapp/instants.module";
 
 
 @Module({
@@ -17,12 +19,12 @@ import { WorkspaceModule } from "../workspace/workspace.module";
             // ContactsModule,
             // UserModule,
             WorkspaceModule,
-            // instantsModule
+            instantsModule
           ],
-          services: [TemplateService],
+          services: [TemplateService,],
         //   resolvers: whatappinstanstsAutoResolverOpts,
         }),],
-    // controllers : [fileupload,channelController],
+    controllers : [TemplateFileUpload],
     providers : [TemplateService, TemplateResolver],
     exports: [TemplateService ],
 })

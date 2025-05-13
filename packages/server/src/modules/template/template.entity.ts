@@ -29,6 +29,8 @@ export class Template {
     @Field()
     category: string;
 
+    
+
     @Field(() => Workspace, { nullable : true})
     @ManyToOne(() => Workspace, {nullable : true})
     workspace: Relation<Workspace>

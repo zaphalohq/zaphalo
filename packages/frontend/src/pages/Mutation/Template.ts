@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
 export const SUBMIT_TEMPLATE = gql`
-mutation SubmitTemplate($template: TemplateRequestInput!) {
-  submitTemplate(template: $template) {
+mutation SubmitTemplate($templateData: TemplateRequestInput!) {
+  submitTemplate(templateData: $templateData) {
     success
     data
     error
@@ -32,3 +32,10 @@ query findAllTemplate {
   }
 }
 `
+
+
+// export const UPLOAD_FILE_TO_WHATSAPP = gql`
+//   mutation UploadFileToWhatsApp($file: Upload!) {
+//     uploadFileToWhatsApp(file: $file)
+//   }
+// `;

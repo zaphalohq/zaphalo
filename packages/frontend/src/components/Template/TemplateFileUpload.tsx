@@ -1,10 +1,10 @@
 import { useMutation } from '@apollo/client';
 import React, { useState } from 'react'
-
+import axios from 'axios'
 const TemplateFileUpload = () => {
     const [file, setFile] = useState<File | null>(null);
     const [error, setError] = useState('')
-    // const [uploadFile, { loading }] = useMutation(UPLOAD_FILE, {
+    // const [uploadFile, { loading }] = useMutation(UPLOAD_FILE_TO_WHATSAPP, {
     //     onCompleted: (data) => {
     //     //   setMediaId(data.uploadFileToWhatsApp);
     //       setError('');
@@ -17,20 +17,27 @@ const TemplateFileUpload = () => {
 
 
     const handleFileChange = (e : any) => {
+      console.log(e.target.files[0]);
+      
         setFile(e.target.files[0])
     }
 
-    const handleUpload = () => {
+    const handleUpload = async () => {
         if (file !== null) {
             
             const formData = new FormData();
-            formData.append('file', file); // Now it's guaranteed to be File, not null
-
-            // console.log(formData.);
-            
-
+            formData.append('file', file); 
+            try {
+              const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/templateFileUpload`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+              });
+              console.log('File uploaded successfully:', response.data);
+            } catch (error) {
+              console.error('Error uploading file:', error);
+            }
           }
-    }
+          }
+    
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
           <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">

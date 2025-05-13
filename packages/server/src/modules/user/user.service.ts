@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';                      // TypeORM repository
 import { User } from 'src/modules/user/user.entity';                      // Our User entity
 import { CreateUserDTO } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
-import { use } from 'react';
 // import { userDTO } from './dto/user.dto';
 
 @Injectable()                              // Makes this service injectable into other classes

@@ -1,7 +1,6 @@
 import ChatsNav from "./CurrentChannelNav"
 import MessageArea from "./Messagingbot"
 import MessageDisplay from "./MessageDisplay"
-import { useWebSocket } from "./hooks/WebSocket"
 
 const ChatsMain = () => {
   // const { messages }: any = useWebSocket()

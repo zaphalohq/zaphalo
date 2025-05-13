@@ -66,6 +66,7 @@ const MessageArea = () => {
 
     const formData = new FormData();
     formData.append('file', files[0]); // Single file upload
+console.log(formData,'..................');
 
     try {
       const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/fileupload`, formData, {

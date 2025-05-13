@@ -1,16 +1,15 @@
 import { FaPlus } from 'react-icons/fa'
 import TemplateForm from '../components/Template/TemplateForm'
 import SubmitButton, { CloseButton } from '../components/UI/SubmitButton'
-import { useContext, useEffect, useState } from 'react'
+import { useState } from 'react'
 import { FiX } from 'react-icons/fi'
 import TemplateTable from '../components/Template/TemplateTable'
-import { TemplateContext, TemplateProvider } from '../components/Context/TemplateContext'
+import { TemplateProvider } from '../components/Context/TemplateContext'
 import TemplatePreview from '../components/Template/TemplatePreview'
 
 const TemplateMain = () => {
   const [isTemplateFormVis, setIsTemplateFormVis] = useState(false)
   const [triggerRefetch, setTriggerRefetch] = useState(0)
-  const { templateFormData }: any = useContext(TemplateContext)
 
   return (
     <div className='h-[calc(100vh-90px)] overflow-y-scroll'>
@@ -34,7 +33,7 @@ const TemplateMain = () => {
                 <div>{templateFormData.buttonUrl}</div>
                 <div>{templateFormData.body_text}</div>
                 <div>{templateFormData.headerFormat}</div> */}
-            <TemplatePreview formData={templateFormData} />
+            <TemplatePreview />
           </div>
         </div>
         : <></>}

@@ -10,6 +10,7 @@ async function bootstrap() {
     // Increase the payload size limit (e.g., 10MB)
     app.use(bodyParser.json({ limit: '5mb' }));
     app.use(bodyParser.urlencoded({ limit: '5mb', extended: true }));
+    // app.use(graphqlUploadExpress({ maxFileSize: 5 * 1024 * 1024, maxFiles: 1 }));
     // app.enableCors({
     //   origin: 'http://localhost:5173', // React app origin
     //   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',

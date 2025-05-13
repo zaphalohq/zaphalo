@@ -60,10 +60,10 @@ const handleSubmit = async (event : any) => {
         {error && <p className="text-red-500">Error: {error.message}</p>}
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-          <AuthInputLabel title="Username" name="username" placeholder="Enter your username" HandleChange={HandleChange} />
+          <AuthInputLabel type='text' title="Username" name="username" placeholder="Enter your username" HandleChange={HandleChange} />
           </div>
           <div className="mb-6">
-          <AuthInputLabel title="password" name="password" placeholder="Enter your password" HandleChange={HandleChange} />
+          <AuthInputLabel type='password' title="password" name="password" placeholder="Enter your password" HandleChange={HandleChange} />
           </div>
           <button
             type="submit"

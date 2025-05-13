@@ -3,7 +3,6 @@ import { Outlet, useLocation } from "react-router-dom"
 import { useState } from "react"
 import Sidebar from "../components/MainLayout/Sidebar/Sidebar"
 import Navbar from "../components/MainLayout/Navbar/Navbar"
-import { useWebSocket } from "../components/Chats/hooks/WebSocket"
 
 // const MainLayout = () => {
 //   const [isToggleActivated, setIsToggleActivated] = useState(false)

@@ -6,6 +6,7 @@ import { CreateFormDataInput } from './DTO/create-form-data.input';
 import axios from 'axios';
 import { WorkspaceService } from '../workspace/workspace.service';
 import { ContactsService } from '../contacts/contacts.service';
+import fs from 'fs';
 
 @Injectable()
 export class instantsService {
@@ -129,9 +130,20 @@ export class instantsService {
             to: 917202031718,
             type: 'template',
             template: {
-                name: 'order_template',
+                name: 'welcome_message_102',
                 language: { code: 'en_US' },
                 components: [
+                    {
+                        type: 'header',
+                        parameters: [
+                            {
+                                type: 'image',
+                                image: {
+                                    link: 'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png'
+                                  }
+                            }
+                        ]
+                    },
                     {
                         type: 'body',
                         parameters: [
@@ -148,7 +160,7 @@ export class instantsService {
         try {
             const response = await axios.post(url, payload, {
                 headers: {
-                    Authorization: `Bearer EAAao8Mkc6lMBOzWSkoUZCyUApRFfe9L1iX3b1UcOIKFioDR8lEDibs852NZAQCoe3etb0pjNtoIHVLBSidp41ZBUKW1WcpPi6aDwbAvIZCevit9oIGQ44N1a9JKLuxY8OkcrACzbFlRq5BYxZATEm30rKV6jncqsRKR3F7vV0ZA3NZAXEREJ1NvCZBaYSSX6AHRlp9Iq3pcVMeJHK4vJmwjUIn8y6vVJ0IOZAUzpCt`,
+                    Authorization: `Bearer EAAao8Mkc6lMBO1O4qgK3Bam1syGPZCTtLmcIXH7f9h4dthJKFI4cABSVjag1DUAlYer4BulPZBzLZAItLlxNaEZA4mXp1fnMCqTejFLieEZA6iWfXXmshbgxZCPedW9kHAZC1KTu77pNKFPQsPZBwQDjM7P2GYVw2qsbm9GZC2iierMlXAuTI1kUzKcP6LTqFkSPNGNaJ5XnfxWHeI0WbDsmmKTSBukTgw4jZAIxwZD`,
                     'Content-Type': 'application/json'
                 }
             });
@@ -172,33 +184,60 @@ export class instantsService {
         //     console.log(response.data);
 
 
-        const token = 'EAAao8Mkc6lMBO3ksn7duH8zbgFSMFxDlsQtqnACih41A8q7jHvRkAvt3kbfIGOadkZAG89EFL0ZBx0IrLuZBACFBw9QZBbFIB0yR0T1qV2KIgyMaT2RVZCrtbg26TGCZB9AsIH5IeyP6jBfgoyPSGx7cOR9I6HE0sK61RF82R8LHsJFY2ItHxej9ph22MGN30yJw3LZBPu48xTzUjN29L1O9ZCraDpsZBZCEfZBxC8ZD';
-        const phoneNumberId = '565830889949112';
-        const recipient = '917202031718'; // without "+" sign
+        // const token = 'EAAao8Mkc6lMBO3ksn7duH8zbgFSMFxDlsQtqnACih41A8q7jHvRkAvt3kbfIGOadkZAG89EFL0ZBx0IrLuZBACFBw9QZBbFIB0yR0T1qV2KIgyMaT2RVZCrtbg26TGCZB9AsIH5IeyP6jBfgoyPSGx7cOR9I6HE0sK61RF82R8LHsJFY2ItHxej9ph22MGN30yJw3LZBPu48xTzUjN29L1O9ZCraDpsZBZCEfZBxC8ZD';
+        // const phoneNumberId = '565830889949112';
+        // const recipient = '917202031718'; // without "+" sign
 
-        const payload = {
-            messaging_product: 'whatsapp',
-            to: recipient,
-            type: 'text',
-            text: {
-                preview_url: false,
-                body: 'Hello! This is a test message from the WhatsApp Cloud API.'
-            }
-        };
+        // const payload = {
+        //     messaging_product: 'whatsapp',
+        //     to: recipient,
+        //     type: 'text',
+        //     text: {
+        //         preview_url: false,
+        //         body: 'Hello! This is a test message from the WhatsApp Cloud API.'
+        //     }
+        // };
 
-        axios.post(`https://graph.facebook.com/v19.0/${phoneNumberId}/messages`, payload, {
+        // axios.post(`https://graph.facebook.com/v19.0/${phoneNumberId}/messages`, payload, {
+        //     headers: {
+        //         Authorization: `Bearer ${token}`,
+        //         'Content-Type': 'application/json'
+        //     }
+        // })
+        //     .then(res => {
+        //         console.log('✅ Message sent:', res.data);
+        //     })
+        //     .catch(err => {
+        //         console.error('❌ Error:', err.response?.data || err.message);
+        //     });
+        // return "response";
+
+
+
+        const form = new FormData();
+        form.append('file', '@/uploads\\1746617752805-abc.png');
+        // form.append('file', String(fs.createReadStream('uploads\\1746617752805-abc.png')));
+        form.append('type', 'image/png');
+        form.append('messaging_product', 'whatsapp');
+        console.log(form,"...................................");
+        
+      
+        // try {
+          const response = await axios({
+            url: 'https://graph.facebook.com/v22.0/565830889949112/media',
+            method: 'POST',
             headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(res => {
-                console.log('✅ Message sent:', res.data);
-            })
-            .catch(err => {
-                console.error('❌ Error:', err.response?.data || err.message);
-            });
-        return "response";
+                Authorization: `Bearer EAAao8Mkc6lMBO4ZBZCpNMgpI1VlJxdZAXpMTJx9B3VOM815fYZAAZAxAwymnZAEYsSAh0hUdHQiA379ZANpw7MAcxNrCx2PZB395yZCygcgkg1UUhSLqkydbgHntnKVLBFbiYWdie4sYtHcONuCf40mkbUbbhKq20zCvtm1TI33ZC5uesjt15PlZAHTs4P4hQu4SEkdyFPeIyVtBA9eZCYzafrroBWSh5TOHIMVh5OsZD`,
+                'Content-Type': 'multipart/form-data',
+            },
+            data: form,
+          });
+
+      
+          return "response.data.id";
+        // } catch (error) {
+        //   throw new Error(`Failed to upload file to WhatsApp: ${error.response?.data?.error?.message || error.message}`);
+        // }
     }
 
     async sendMediaMessage() {

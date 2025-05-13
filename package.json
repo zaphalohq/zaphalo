@@ -16,12 +16,13 @@
     "@swc-node/register": "~1.9.1",
     "@swc/core": "~1.5.7",
     "@swc/helpers": "~0.5.11",
+    "@tailwindcss/vite": "^4.1.6",
     "nx": "20.4.2",
     "storybook": "^8.4.6",
     "ts-node": "10.9.1",
     "tslib": "^2.3.0",
     "typescript": "~5.7.2",
-    "vite": "^5.0.0"
+    "vite": "^6.3.5"
   },
   "engines": {
     "node": "^18.17.1",
@@ -38,12 +39,13 @@
   "version": "0.2.1",
   "nx": {},
   "scripts": {
-    "start": "npx concurrently --kill-others 'npx nx run-many -t start -p twenty-server twenty-front' 'npx wait-on tcp:3000 && npx nx run twenty-server:worker'"
+    "start": "yarn nx run-many -t start -p server frontend"
   },
   "type": "module",
   "workspaces": [
     "packages/frontend",
-    "packages/server"
+    "packages/server",
+    "packages/front"
   ],
   "packageManager": "yarn@4.7.0"
 }

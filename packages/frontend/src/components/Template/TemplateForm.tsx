@@ -3,9 +3,11 @@ import { useMutation, useQuery } from "@apollo/client";
 import { GET_TEMPLATE_STATUS, SUBMIT_TEMPLATE } from "../../pages/Mutation/Template";
 import { TemplateContext } from "../Context/TemplateContext";
 import TemplateFileUpload from "./TemplateFileUpload";
+import axios from 'axios';
+import { getItem } from "../utils/localStorage";
 
 const TemplateForm = ({ setTriggerRefetch }: any) => {
-  const [formData, setFormData] = useState({
+  const [templateData, setTemplateData] = useState({
     name: '',
     category: 'UTILITY',
     language: 'en_US',
@@ -16,77 +18,82 @@ const TemplateForm = ({ setTriggerRefetch }: any) => {
     buttonUrl: '',
     body_text: '',
     headerFormat: 'TEXT',
-    imageUrlExample : ''
+    header_handle: '',
+    imageUrl: ''
   });
   const [status, setStatus] = useState(null);
   const [templateId, setTemplateId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<String | null>(null);
   const [submitTemplate] = useMutation(SUBMIT_TEMPLATE);
-  const { templateFormData,setTemplateFormData } : any = useContext(TemplateContext)
-
+  const { templateFormData, setTemplateFormData }: any = useContext(TemplateContext)
+  const [file, setFile] = useState<File | null>(null);
 
   const handleInputChange = (e: any) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setTemplateData({ ...templateData, [e.target.name]: e.target.value });
     setTemplateFormData({ ...templateFormData, [e.target.name]: e.target.value });
-    console.log(formData);
-    
+    console.log(templateData);
+
   };
+
+  const handleFileUpload = async () => {
+    let updatedTemplateData = { ...templateData };
+      if (file !== null) {        
+        const formData = new FormData();
+        formData.append('file', file);
+        try {
+          const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/templateFileUpload`, formData, {
+            headers: {
+              Authorization: `Bearer ${getItem('access_token')}`,
+              'Content-Type': 'multipart/form-data'
+            },
+          });
+
+          updatedTemplateData['header_handle'] = response.data.file_handle;
+          setTemplateData(updatedTemplateData);
+          console.log('File uploaded successfully:', response.data);
+          return updatedTemplateData
+        } catch (error) {
+          console.error('Error uploading file:', error);
+        }
+      }
+      return updatedTemplateData
+
+  }
+
+
+  const handleFileChange = (e: any) => {
+    const file = e.target.files[0];
+    if (file) {
+    setFile(file)
+    const imageURL = URL.createObjectURL(file)
+    console.log(imageURL,"iamdsnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj");
+    
+    setTemplateFormData({ ...templateFormData, ["imageURL"]: imageURL})
+    }
+  }
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
     setStatus(null);
-
+    const updatedTemplateData = await handleFileUpload()
     try {
-      const variables = {
-        template: {
-          name: formData.name.toLowerCase().replace(/\s/g, '_'),
-          category: formData.category,
-          language: formData.language,
-          components: [
-            formData.headerText && {
-              type: 'HEADER',
-              format: 'TEXT',
-              text: formData.headerText
-            },
-            formData.headerFormat && {
-              type: 'HEADER',
-              format: formData.headerFormat,
-              example: {
-                header_handle: ['https://www.lasercuttingmachines.co.in/wp-content/uploads/2022/06/Brand-Your-Company-Through-Laser-1300x731.jpg']
-              }
-            },
-            {
-              type: 'BODY',
-              text: formData.bodyText,
-              example: {
-                body_text: [[formData.body_text]]
-              }
-            },
-            formData.footerText && {
-              type: 'FOOTER',
-              text: formData.footerText
-            },
-            formData.buttonText && formData.buttonUrl && {
-              type: 'BUTTONS',
-              buttons: [{ type: 'URL', text: formData.buttonText, url: formData.buttonUrl }]
-              // buttons: [{ type: 'QUICK_REPLY', text: formData.buttonText }]
-            }
-          ].filter(Boolean)
-        }
-      };
-      const response = await submitTemplate({ variables });
-      const result = response.data.submitTemplate;
+      const response = await submitTemplate({ variables: { templateData : updatedTemplateData } });
+      const result = response.data;
+      console.log(response.data);
+      
       setStatus(result);
       if (result.success) {
         setTemplateId(JSON.parse(result.data).id);
-        checkStatus(JSON.parse(result.data).id, setStatus, setError)
+        checkStatus(JSON.parse(result.data).id)
         setTriggerRefetch((prevCount: any) => prevCount + 1)
       }
     } catch (err: any) {
       setError(err.message || 'Failed to submit template');
+      console.log(err);
+      
     } finally {
       setIsSubmitting(false);
     }
@@ -103,7 +110,7 @@ const TemplateForm = ({ setTriggerRefetch }: any) => {
   //     }
   //   };
 
-  const checkStatus = (templateId: any, setStatus: any, setError: any) => {
+  const checkStatus = (templateId: any) => {
     if (!templateId) return;
 
     const { data, error } = useQuery(GET_TEMPLATE_STATUS, {
@@ -139,7 +146,7 @@ const TemplateForm = ({ setTriggerRefetch }: any) => {
               <input
                 type="text"
                 name="name"
-                value={formData.name}
+                value={templateData.name}
                 onChange={handleInputChange}
                 className="mt-1 block w-full rounded-md outline-none shadow-sm p-2"
                 placeholder="welcome_message"
@@ -151,7 +158,7 @@ const TemplateForm = ({ setTriggerRefetch }: any) => {
               <label className="block text-sm font-medium text-gray-700">Category</label>
               <select
                 name="category"
-                value={formData.category}
+                value={templateData.category}
                 onChange={handleInputChange}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
               >
@@ -166,7 +173,7 @@ const TemplateForm = ({ setTriggerRefetch }: any) => {
               <input
                 type="text"
                 name="language"
-                value={formData.language}
+                value={templateData.language}
                 onChange={handleInputChange}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2"
                 placeholder="en_US"
@@ -178,7 +185,7 @@ const TemplateForm = ({ setTriggerRefetch }: any) => {
               <label className="block text-sm font-medium text-gray-700">Header</label>
               <select
                 name="headerFormat"
-                value={formData.headerFormat}
+                value={templateData.headerFormat}
                 onChange={handleInputChange}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
               >
@@ -189,27 +196,41 @@ const TemplateForm = ({ setTriggerRefetch }: any) => {
               </select>
             </div>
 
-            {formData.headerFormat === 'TEXT' ?
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 ">Header Text (Optional)</label>
-                  <input
-                    type="text"
-                    name="headerText"
-                    value={formData.headerText}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2"
-                    placeholder="Welcome to Our Service"
-                  />
-                </div>
+            {templateData.headerFormat === 'TEXT' ?
+              <div>
+                <label className="block text-sm font-medium text-gray-700 ">Header Text (Optional)</label>
+                <input
+                  type="text"
+                  name="headerText"
+                  value={templateData.headerText}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2"
+                  placeholder="Welcome to Our Service"
+                />
+              </div>
               :
-                <></>
-              }
+              <></>
+            }
+
+            {templateData.headerFormat === 'IMAGE' ?
+              <>
+                <h2 className="text-lg font-semibold mb-4 text-gray-700">Upload Image to WhatsApp</h2>
+                <input
+                  type="file"
+                  name="imageUrl"
+                  accept="image/png,image/jpeg,image/jpg"
+                  onChange={handleFileChange}
+                  className="mb-4 w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                /></>
+              :
+              <></>
+            }
 
             <div>
               <label className="block text-sm font-medium text-gray-700">Body Text</label>
               <textarea
                 name="bodyText"
-                value={formData.bodyText}
+                value={templateData.bodyText}
                 onChange={handleInputChange}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2"
                 placeholder="Hello {{1}}, thank you for joining!"
@@ -222,7 +243,7 @@ const TemplateForm = ({ setTriggerRefetch }: any) => {
               <input
                 type="text"
                 name="body_text"
-                value={formData.body_text}
+                value={templateData.body_text}
                 onChange={handleInputChange}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2"
                 placeholder="Chintan Patel"
@@ -234,7 +255,7 @@ const TemplateForm = ({ setTriggerRefetch }: any) => {
               <input
                 type="text"
                 name="footerText"
-                value={formData.footerText}
+                value={templateData.footerText}
                 onChange={handleInputChange}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2"
                 placeholder="Contact us for support"
@@ -246,7 +267,7 @@ const TemplateForm = ({ setTriggerRefetch }: any) => {
               <input
                 type="text"
                 name="buttonText"
-                value={formData.buttonText}
+                value={templateData.buttonText}
                 onChange={handleInputChange}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2"
                 placeholder="Learn More"
@@ -258,7 +279,7 @@ const TemplateForm = ({ setTriggerRefetch }: any) => {
               <input
                 type="text"
                 name="buttonUrl"
-                value={formData.buttonUrl}
+                value={templateData.buttonUrl}
                 onChange={handleInputChange}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2"
                 placeholder="https://chatgpt.com/"
@@ -284,7 +305,7 @@ const TemplateForm = ({ setTriggerRefetch }: any) => {
           </pre>
           {templateId && (
             <button
-              onClick={() => checkStatus(templateId, setStatus, setError)}
+              onClick={() => checkStatus(templateId)}
               className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
             >
               Refresh Status
@@ -292,7 +313,6 @@ const TemplateForm = ({ setTriggerRefetch }: any) => {
           )}
         </div>
       )}
-      <TemplateFileUpload />
       {error && (
         <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mt-4" role="alert">
           <p>{error}</p>
