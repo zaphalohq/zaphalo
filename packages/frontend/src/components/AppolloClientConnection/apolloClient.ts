@@ -1,0 +1,32 @@
+
+import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
+import { setContext } from '@apollo/client/link/context';
+
+
+// Define the link to your GraphQL server
+const httpLink = createHttpLink({
+  uri: 'http://localhost:3000/graphql',  // Replace with your NestJS GraphQL endpoint
+});
+
+// Use setContext to attach the JWT token to headers
+const authLink = setContext((_, { headers }) => {
+  // Retrieve token from localStorage or cookies
+  const token = localStorage.getItem('access_token');  // or from cookies if you're using them
+  console.log(`....................${token}....`);
+  
+  // Return the headers with Authorization token
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? `Bearer ${token}` : "",  // Attach JWT in Authorization header
+    }
+  };
+});
+
+// Initialize Apollo Client
+const client = new ApolloClient({
+  link: authLink.concat(httpLink),  // Combine authLink with httpLink
+  cache: new InMemoryCache(),       // Enable client-side caching
+});
+
+export default client;

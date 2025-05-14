@@ -1,0 +1,11 @@
+@import "tailwindcss";
+.bg-stone-100{
+    background-color: #f5f5f4;
+}
+
+.text-stone-950{
+    color: #0c0a09;
+}
+.bg-whatsappImg{
+    background-image: url('../src/assets/whatsappBg.png');
+}

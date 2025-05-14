@@ -1,0 +1,30 @@
+{
+  "name": "@yaari/source",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "start": "cross-env FORCE_COLOR=true concurrently -n \"server,front\" -c \"bgBlue.bold,bgGreen.bold\" \"yarn nx start:dev server\" \"yarn nx start front\""
+  },
+  "private": true,
+  "devDependencies": {
+    "@nx/js": "20.4.2",
+    "@nx/web": "20.4.2",
+    "@storybook/core-server": "^8.4.6",
+    "@storybook/jest": "^0.2.3",
+    "@storybook/react-vite": "^8.4.6",
+    "@storybook/test-runner": "^0.19.0",
+    "@storybook/testing-library": "^0.2.2",
+    "@swc-node/register": "~1.9.1",
+    "@swc/core": "~1.5.7",
+    "@swc/helpers": "~0.5.11",
+    "nx": "20.4.2",
+    "storybook": "^8.4.6",
+    "ts-node": "10.9.1",
+    "tslib": "^2.3.0",
+    "typescript": "~5.7.2",
+    "vite": "^5.0.0"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+}
