@@ -12,73 +12,68 @@ import axios from 'axios';
 
 @Controller('fileupload')
 export class fileupload {
-    constructor(
-        @InjectRepository(Channel, 'core')
-        private readonly channelRepository: Repository<Channel>,
-        // @InjectRepository(Message, 'core')
-        private readonly channelservice: ChannelService,
-    ) { }
+  constructor(
+    @InjectRepository(Channel, 'core')
+    private readonly channelRepository: Repository<Channel>,
+    private readonly channelservice: ChannelService,
+  ) { }
 
-    // fileArray.forEach(file => {
-    //     formData.append('files', file); // Note: 'files' matches the interceptor field name
-    //   });
-    @UseInterceptors(
-        FileInterceptor('file', {
-            storage: diskStorage({
-                destination: './uploads',
-                filename: (req, file, cd) => {
-                    cd(null, `${Date.now()}-${file.originalname}`)
-                }
-            }),
-            limits: { fileSize: 10 * 1024 * 1024 }
-    }))
-    @Post()
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cd) => {
+          cd(null, `${Date.now()}-${file.originalname}`)
+        }
+      }),
+      limits: { fileSize: 10 * 1024 * 1024 }
+    })
+  )
+
+  @Post()
     // @UseGuards(AuthGuard("jwt"))
-    async FileUpload(@UploadedFile() file: Express.Multer.File): Promise<string> {
-        console.log(file);
+  async FileUpload(@UploadedFile() file: Express.Multer.File): Promise<string> {
+    console.log(file);
 
-        //     const response = await axios({
-        //     url: 'https://graph.facebook.com/v22.0/565830889949112/messages',
-        //     method: 'POST',
-        //     headers: {
-        //         'Authorization': `Bearer ${process.env.Whatsapp_Token}`,
-        //         'Content-Type': 'application/json'
-        //     },
-        //     data: JSON.stringify({
-        //         "messaging_product": "whatsapp",
-        //         "to": "917202031718",
-        //         "type": "image",
-        //         "image": {
-        //             "link" : file,
-        //             "caption" : "this is image"
-        //         }
-        //     })
-        // })
-        //  console.log(file);
-        //  const reader = new FileReader();
-        //  reader.onloadend = () => {
-        //      console.log(reader.result);
-        // Logs data:<type>;base64,wL2dvYWwgbW9yZ...
-        //  };
-        //  reader.readAsDataURL(file);
+//     const response = await axios({
+//     url: 'https://graph.facebook.com/v22.0/565830889949112/messages',
+//     method: 'POST',
+//     headers: {
+//         'Authorization': `Bearer ${process.env.Whatsapp_Token}`,
+//         'Content-Type': 'application/json'
+//     },
+//     data: JSON.stringify({
+//         "messaging_product": "whatsapp",
+//         "to": "917202031718",
+//         "type": "image",
+//         "image": {
+//             "link" : file,
+//             "caption" : "this is image"
+//         }
+//     })
+// })
+//  console.log(file);
+//  const reader = new FileReader();
+//  reader.onloadend = () => {
+//      console.log(reader.result);
+// Logs data:<type>;base64,wL2dvYWwgbW9yZ...
+//  };
+//  reader.readAsDataURL(file);
 
-        return this.channelservice.handleFileUpload(file);
-    }
+    return this.channelservice.handleFileUpload(file);
+  }
 
-    @Get()
-    async getMessage() {
-        return "messages"
-    }
+  @Get()
+  async getMessage() {
+    return "messages"
+  }
 
-    // @UseGuards(AuthGuard("jwt"))
-    @Delete(':deleteFileName')
-    async deleteFile(@Param('deleteFileName') deleteFileName: string) {
-        console.log(deleteFileName);
-
-        await this.channelservice.deleteFile(deleteFileName);
-        return {
-            message: `File ${deleteFileName} deleted successfully!`
-        };
-    }
-
+  // @UseGuards(AuthGuard("jwt"))
+  @Delete(':deleteFileName')
+  async deleteFile(@Param('deleteFileName') deleteFileName: string) {
+    await this.channelservice.deleteFile(deleteFileName);
+    return {
+      message: `File ${deleteFileName} deleted successfully!`
+    };
+  }
 }

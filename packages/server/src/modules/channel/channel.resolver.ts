@@ -11,8 +11,6 @@ import axios from 'axios'
 import { instantsService } from "../whatsapp/instants.service";
 import { throwError } from "rxjs";
 import { log } from "console";
-// import { TemplateResponseDto } from "./dto/TemplateResponseDto";
-// import { TemplateRequestInput } from "./dto/TemplateRequestInput";
 
 @Resolver(() => Channel)
 export class ChannelResolver {
@@ -22,9 +20,7 @@ export class ChannelResolver {
     @InjectRepository(Message, 'core')
     private readonly messageRepository: Repository<Message>,
     private readonly channelService: ChannelService,
-    private readonly instantsService: instantsService,
-  ) { }
-
+    private readonly instantsService: instantsService) { }
 
   @Query(() => [Channel])
   @UseGuards(GqlAuthGuard)
@@ -47,8 +43,6 @@ export class ChannelResolver {
   @Query(() => Channel)
   async findExistingChannelByPhoneNo(@Context('req') req, @Args('memberIds') memberIds: string): Promise<Channel | undefined> {
     const workspaceId = req.user.workspaceIds[0];
-    console.log(workspaceId, "workspaceId.........................workspaceId");
-
     return await this.channelService.findExistingChannelByPhoneNo(JSON.parse(memberIds), workspaceId)
   }
 
@@ -56,10 +50,7 @@ export class ChannelResolver {
   @UseGuards(GqlAuthGuard)
   @Query(() => [Message])
   async findAllUnseen() {
-    console.log("this if form unseeen form backend");
     const unseenMessages = await this.channelService.findAllUnseen()
-    console.log(unseenMessages);
-
     return unseenMessages
   }
 
@@ -70,9 +61,8 @@ export class ChannelResolver {
   async sendMessage(
     @Context('req') req,
     @Args('input') input: SendMessageInput,
-  ): Promise<SendMessageResponse> {
+    ): Promise<SendMessageResponse> {
     const { senderId, receiverId, message, channelName, channelId, attachment } = input;
-    // console.log(input,senderId , 'senterid', receiverId, 'receiverId', message, 'msg', channelName ,'channelName', channelId,'channelId' ,"...........................input........................");
     const userId = req.user.userId;
     const workspaceId = req.user.workspaceIds[0];
     const findTrueInstants = await this.instantsService.FindSelectedInstants(workspaceId)
@@ -108,7 +98,7 @@ export class ChannelResolver {
         workspaceId,
         channelName,
         userId,
-      );
+        );
 
       if (!channel.channel.id) {
         throw new Error('Channel not found');
@@ -167,7 +157,6 @@ export class ChannelResolver {
   // async getAllTemplates(){
   // await this.channelService.getAllTemplates()
   // }
-
 
 }
 

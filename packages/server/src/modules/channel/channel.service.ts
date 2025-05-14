@@ -10,7 +10,6 @@ import { existsSync, unlinkSync } from "fs";
 import axios, { AxiosResponse } from "axios"
 import fs from "fs"
 import { WorkspaceService } from "../workspace/workspace.service";
-// import { TemplateRequestInput } from "./dto/TemplateRequestInput";
 
 interface TemplateComponent {
     type: 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS';
@@ -21,15 +20,15 @@ interface TemplateComponent {
       text: string;
       phone_number?: string;
       url?: string;
-    }>;
-  }
-  
-  interface TemplateRequest {
+  }>;
+}
+
+interface TemplateRequest {
     name: string;
     category: 'AUTHENTICATION' | 'MARKETING' | 'UTILITY';
     language: string;
     components: TemplateComponent[];
-  }
+}
 
 @Injectable()
 export class ChannelService {
@@ -43,7 +42,7 @@ export class ChannelService {
         private readonly workspaceService: WorkspaceService,
         // Use an absolute path relative to the module's location
     // private readonly uploadDir = './uploads'
-    ) { }
+        ) { }
 
 
     async findOrCreateChannel(phoneNo: any, memberIds: number[],workspaceId : string, channelName?: string, userId?: any, ) {        
@@ -57,9 +56,9 @@ export class ChannelService {
             return {channel : isChannelExist , newChannelCreated : false }
         const user = await this.userService.findByUserId(userId)
         if (!user) throw new Error("user doesnt found")
-        const workspace = await this.workspaceService.findWorkspaceById(workspaceId)
+            const workspace = await this.workspaceService.findWorkspaceById(workspaceId)
         if (!workspace) throw new Error("workspace doesnt found")
-        const newChannel = this.channelRepository.create({
+            const newChannel = this.channelRepository.create({
             channelName: channelName || phoneNo, // Default name as phoneNo
             contacts: contacts,
             writeUser: user,
@@ -92,9 +91,9 @@ export class ChannelService {
         const membersIdsStr = memberIds.sort((a, b) => a - b).join(',')
         const stillChannelExist = channelExist.find(channel => {
             const channelPhoneNoStr = channel.contacts
-                .map(contacts => contacts.phoneNo)
-                .sort((a, b) => a - b)
-                .join(',')
+            .map(contacts => contacts.phoneNo)
+            .sort((a, b) => a - b)
+            .join(',')
             // console.log(channelPhoneNoStr);
 
             return channelPhoneNoStr == membersIdsStr;
@@ -127,27 +126,27 @@ export class ChannelService {
 
     async findAllChannel(workspaceId : string): Promise<Channel[]> {
         const allChannel = await this.channelRepository.find({
-             relations: ['contacts'] ,
-            })
+           relations: ['contacts'] ,
+       })
 
 
-            return await this.channelRepository
-            .createQueryBuilder('channel')
-            .leftJoinAndSelect('channel.contacts', 'contacts')
-            .leftJoinAndSelect('channel.messages', 'messages', 'messages.unseen = :unseen', { unseen: false })
+        return await this.channelRepository
+        .createQueryBuilder('channel')
+        .leftJoinAndSelect('channel.contacts', 'contacts')
+        .leftJoinAndSelect('channel.messages', 'messages', 'messages.unseen = :unseen', { unseen: false })
             .leftJoinAndSelect('channel.workspace', 'workspace') // Ensure workspace relation is loaded
             .where('workspace.id = :workspaceId', { workspaceId }) // Filter by workspaceId
             .addSelect(
               (subQuery) =>
-                subQuery
-                  .select('MAX(m.createdAt)', 'latest_time')
-                  .from(Message, 'm')
-                  .where('m.channelId = channel.id'),
+              subQuery
+              .select('MAX(m.createdAt)', 'latest_time')
+              .from(Message, 'm')
+              .where('m.channelId = channel.id'),
               'latest_message_time'
-            )
+              )
             .orderBy('latest_message_time', 'DESC', 'NULLS LAST')
             .getMany();
-        
+            
         // return await this.channelRepository
         // .createQueryBuilder('channel')
         // .leftJoinAndSelect('channel.contacts', 'contacts')
@@ -166,7 +165,7 @@ export class ChannelService {
         // )
         // .orderBy('latest_message_time', 'DESC', 'NULLS LAST')
         // .getMany();
-    }
+        }
 
     // async findAllChannel(): Promise<Channel[]> {
     //     return await this.channelRepository
@@ -179,7 +178,7 @@ export class ChannelService {
     //   }
 
     //   async findMsgByChannelId(channelId: string): Promise<Message[]> {
-    
+        
     //     return await this.messageRepository
     //       .createQueryBuilder('message')
     //       .leftJoinAndSelect('message.channel', 'channel')
@@ -189,50 +188,50 @@ export class ChannelService {
     //       .getMany();
     //   }
 
-    async findMsgByChannelId(channelId: any): Promise<Message[]> {
+        async findMsgByChannelId(channelId: any): Promise<Message[]> {
 
-        var messages = await this.messageRepository.find({
-            where: { channel: { id: channelId} },
-            relations: ['channel', 'sender'],
-            order: { createdAt: 'ASC' }
-        })
-        return messages;
-    }
+            var messages = await this.messageRepository.find({
+                where: { channel: { id: channelId} },
+                relations: ['channel', 'sender'],
+                order: { createdAt: 'ASC' }
+            })
+            return messages;
+        }
 
-    async makeUnseenSeen(messages: Message[]): Promise<void> {
+        async makeUnseenSeen(messages: Message[]): Promise<void> {
         const messageIds = messages.map(message => message.id); // Extract IDs
-    
+        
         // Update all matching messages in one query
         await this.messageRepository.update(
           { id: In(messageIds) }, // Where clause with IDs
           { unseen: true },       // Fields to update
-        );
-      }
+          );
+    }
 
-      async findAllUnseen(): Promise<Message[]> {
+    async findAllUnseen(): Promise<Message[]> {
         return await this.messageRepository.find({ 
             where: { unseen: false },
             relations : ['channel', 'sender'],
         })
-      }
+    }
 
-      async deleteChannelById(channelId : string) {
+    async deleteChannelById(channelId : string) {
         const deleteChannel = await this.channelRepository.findOne({ where: { id: channelId}})
         if(deleteChannel)
             return this.channelRepository.remove(deleteChannel)
         else 
-            null
-      }
+        null
+    }
 
 
-      async updateChannelNameById(channelId: string, updatedValue : string) {
+    async updateChannelNameById(channelId: string, updatedValue : string) {
         const channel = await this.channelRepository.findOne({ where : { id : channelId }})
         if (!channel) {
             throw new Error('Channel not found');
-          }
+        }
         channel.channelName = updatedValue
         return await this.channelRepository.save(channel)
-      }
+    }
 
 
 
@@ -348,7 +347,7 @@ export class ChannelService {
 //           }
 //         ]
 //       };
-      
+    
 //       try {
 //         const response = await axios({
 //           url: `https://graph.facebook.com/v22.0/1649375815967023/message_templates`,
@@ -364,7 +363,7 @@ export class ChannelService {
 //           //   ...template,
 //           //   allow_category_change: true,
 //           // }),
-  
+    
 //         console.log(response, "Fsdfsdfsdsdf....................................................");
 //         const { id, status, category } = response.data;
 //       if (!id) {
@@ -382,7 +381,7 @@ export class ChannelService {
 //         };
 //       }
 //     }
-  
+    
 //     async getTemplateStatus(templateId: string): Promise<any> {
 //       try {
 //         const response = await axios({
@@ -395,7 +394,7 @@ export class ChannelService {
 //           },
 //         });
 //   console.log(response,"....................................................");
-  
+    
 //         return {
 //           success: true,
 //           data: response.data,
