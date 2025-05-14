@@ -1,17 +1,68 @@
+// {
+//   "extends": "../../tsconfig.base.json",
+//   "files": [],
+//   "references": [
+//     {
+//       "path": "./tsconfig.app.json"
+//     },
+//     {
+//       "path": "./tsconfig.node.json"
+//     },
+//   ],
+   
+// }
 {
-  "files": [],
-  "references": [
-    {
-      "path": "./tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig.node.json"
-    },
-  ],
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "baseUrl": "./",
+    "target": "es2021",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    // "types": ["vite/client", "vite-plugin-svgr/client"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    // "module": "esnext",
+    // "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "newLine": "lf",
+    "noEmit": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
     "paths": {
-      "@components/*": ["src/components/*"]
-    }
-  }
+      "@src/*": ["src/*"],
+      "@components/*": ["src/components/*"],
+      "@pages/*": ["src/pages/*"],
+      "@UI/*": ["src/components/UI/*"],
+      "@utils/*": ["src/components/utils/*"],
+      "@Context/*": ["src/components/Context/*"]
+    },
+ 
+    /* Types */
+    "types": ["vitest/globals", "node"]
+  },
+  "include": ["src"],
+
+  "files": [],
+  // "references": [
+  //   {
+  //     "path": "../tsconfig.app.json"
+  //   },
+  //   {
+  //     "path": "./tsconfig.node.json"
+  //   }
+  // ],
+  "compileOnSave": false,
+  "exclude": [
+    "node_modules",
+    "tmp"
+  ]
 }

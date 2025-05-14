@@ -1,6 +1,6 @@
 import { InputType, ObjectType, Field, ID } from '@nestjs/graphql';  // GraphQL decorators
 import { FilterableField } from '@ptc-org/nestjs-query-graphql';
-import { IsString, IsEmail, IsStrongPassword } from 'class-validator';  // Optional: for validation
+import { IsString, IsEmail, IsStrongPassword, IsOptional } from 'class-validator';  // Optional: for validation
 
 @InputType()
 @ObjectType()  // Marks the class as a GraphQL object (type that can be queried)
@@ -20,4 +20,10 @@ export class CreateUserDTO {
   @Field()
   // @IsStrongPassword()
   password: string;
+
+
+  @Field({ nullable: true })
+  @IsString()
+  @IsOptional()
+  inviteToken?: string;
 }

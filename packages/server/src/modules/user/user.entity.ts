@@ -12,6 +12,7 @@ import {
 } from 'typeorm';
 import { IDField } from '@ptc-org/nestjs-query-graphql';
 import { UUIDScalarType } from '../api/scalars/uuid.scalar';
+import { IsOptional, IsString } from 'class-validator';
 
 // import { AppToken } from 'src/constro/modules/app-token/app-token.entity';
 // import { Workspace } from 'src/constro/modules/workspace/workspace.entity';
@@ -39,4 +40,9 @@ export class User {
   @Column()
   @Field()
   password: string ;
+
+   @Field({ nullable: true })
+    @IsString()
+    @IsOptional()
+    inviteToken?: string;
 }

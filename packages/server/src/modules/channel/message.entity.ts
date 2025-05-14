@@ -1,6 +1,5 @@
 // src/channel/message.entity.ts
 import { Field, Float } from '@nestjs/graphql';
-import { Contacts } from 'src/modules/contacts/contacts.entity';
 import { 
   Entity,
   PrimaryGeneratedColumn,
@@ -13,10 +12,12 @@ import { Channel } from './channel.entity';
 import { UUIDScalarType } from '../api/scalars/uuid.scalar';
 import { IDField } from '@ptc-org/nestjs-query-graphql';
 import { ObjectType } from '@nestjs/graphql'; // Import ObjectType
+import { Contacts } from '../contacts/contacts.entity';
 
 @Entity({ name: 'messages', schema: 'core' })
 @ObjectType() // Add this
 export class Message {
+  
   @IDField(() => UUIDScalarType)
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -27,9 +28,9 @@ export class Message {
 
 
   @Field(() => Channel)
-  @ManyToOne(() => Channel , channel => channel.messages, { onDelete: 'SET NULL' })
+  @ManyToOne(() => Channel , channel => channel.messages, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'channelId' })
-  channel: Channel;
+  channel: Relation<Channel>;
 
   @Field(() => Contacts)
   @ManyToOne(() => Contacts, (contact) => contact.messages, { onDelete: 'SET NULL' })
@@ -43,4 +44,8 @@ export class Message {
   @Field()
   @CreateDateColumn()
   createdAt: Date;
+
+  @Field(() => Boolean)
+  @Column({ type: 'boolean', default: false, nullable: false }) // Explicitly define type and default
+  unseen: boolean; // Use proper TypeScript type
 }

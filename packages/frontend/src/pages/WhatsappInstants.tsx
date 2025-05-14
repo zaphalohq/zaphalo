@@ -1,9 +1,9 @@
 import { useContext, useEffect } from "react"
 import { FaPlus } from "react-icons/fa"
-import SubmitButton from "../components/UI/SubmitButton"
-import TableListView from "../components/UI/TableListView"
-import { InstantsContext, InstantsProvider } from "../components/Context/InstantsContext"
-import InstantsForm from "../components/WhatsappInstants/InstantsForm"
+import SubmitButton from "@components/UI/SubmitButton"
+import { InstantsContext, InstantsProvider } from "@components/Context/InstantsContext"
+import InstantsForm from "@components/WhatsappInstants/InstantsForm"
+import TableListView from "@components/WhatsappInstants/TableListView"
 
 const WhatsappInstantsContent = () => {
 	const { 
@@ -25,7 +25,7 @@ const WhatsappInstantsContent = () => {
 	return (
 		<div className="h-screen">
 			<div className="grid grid-cols-5 pt-4 px-4">
-				<div className="col-start-5">
+				<div className="md:col-start-5 md:pb-0 col-start-1 col-end-5 pb-4">
 					<SubmitButton onClick={() => {
 						setFormData({
 							id: "",

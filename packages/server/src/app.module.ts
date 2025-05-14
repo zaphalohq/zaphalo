@@ -19,9 +19,9 @@ import { instantsModule } from './modules/whatsapp/instants.module';
     GraphQLModule.forRootAsync<YogaDriverConfig>({
       driver: YogaDriver,
       imports: [GraphQLConfigModule],
-      useClass: GraphQLConfigService,
-      
+      useClass: GraphQLConfigService, 
     }),
+    
     CoreModule,
     instantsModule,
 ],

@@ -36,6 +36,7 @@ export const findAllInstants = gql`
       businessAccountId
       accessToken
       appSecret
+      defaultSelected
     }
   }
 `;

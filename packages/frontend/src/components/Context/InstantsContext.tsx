@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { ChangeEvent, createContext, ReactNode, useState } from "react";
-import { DeleteInstantsMutation, findAllInstants, UpdatedInstants, WhatsappInstantsCreation } from "../../pages/Mutation/WhatsappInstants";
+import { DeleteInstantsMutation, findAllInstants, UpdatedInstants, WhatsappInstantsCreation } from "@pages/Mutation/WhatsappInstants";
 
 export interface InstantsContectProps {
     instantsData : any,
@@ -52,7 +52,7 @@ export const InstantsProvider = ({children} : { children: ReactNode }) => {
                     ...formData
                 }
             })
-            // HandaleFeatchData()
+            HandaleFeatchData()
 
         } catch (err) {
             console.error('Error submitting form', err);
@@ -100,9 +100,7 @@ export const InstantsProvider = ({children} : { children: ReactNode }) => {
 
 	//-------------------------------Handle Featch and refeatch----------------
     const { data, loading, refetch } = useQuery(findAllInstants);
-	 const HandaleFeatchData = async ()  => {
-        console.log(".......................");
-        
+	 const HandaleFeatchData = async ()  => {        
 		try {
 			const data1 = await data
 			setInstantsData(data1?.findAllInstants)

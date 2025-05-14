@@ -1,6 +1,13 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Channel } from 'src/modules/channel/channel.entity';
+import { Message } from 'src/modules/channel/message.entity';
+
+import { Contacts } from 'src/modules/contacts/contacts.entity';
+import { Template } from 'src/modules/template/template.entity';
 import { User } from 'src/modules/user/user.entity';
 import { WhatsappInstants } from 'src/modules/whatsapp/Instants.entity';
+import { Workspace } from 'src/modules/workspace/workspace.entity';
+import { WorkspaceMember } from 'src/modules/workspace/workspaceMember.entity';
 
 
 
@@ -34,6 +41,12 @@ export class TypeORMService implements OnModuleInit, OnModuleDestroy {
       entities: [
         User,
         WhatsappInstants,
+        Contacts,
+        Channel,
+        Message,
+        Workspace,
+        WorkspaceMember,
+        Template
         // Workspace,
         // UserWorkspace,
         // AppToken,
@@ -41,6 +54,7 @@ export class TypeORMService implements OnModuleInit, OnModuleDestroy {
         // BillingSubscription,
         // BillingSubscriptionItem,
       ],
+      // synchronize: true,
       // ssl: environmentService.get('PG_SSL_ALLOW_SELF_SIGNED')
       //   ? {
       //       rejectUnauthorized: false,

@@ -1,0 +1,40 @@
+{
+  "name": "server",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "tags": ["scope:backend"],
+  "targets": {
+    "build:packageJson": {
+      "executor": "@nx/js:tsc",
+      "options": {
+        "main": "packages/server/dist/src/main.js",
+        "tsConfig": "packages/server/tsconfig.json",
+        "outputPath": "packages/server/dist",
+        "updateBuildableProjectDepsInPackageJson": true
+      }
+    },
+    "typeorm": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "packages/server",
+        "command": "ts-node ../../node_modules/typeorm/cli.js"
+      }
+    },
+    "ts-node": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "cwd": "packages/server",
+        "command": "ts-node"
+      }
+    },
+    "ts-node-no-deps": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "packages/server",
+        "command": "ts-node"
+      }
+    }
+    
+  }
+}

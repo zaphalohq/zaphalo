@@ -1,0 +1,25 @@
+    //   const payload = {
+    //     name: 'promo_offer_202',
+    //     category: 'MARKETING',
+    //     language: 'en_US',
+    //     components: [
+    //       {
+    //         type: 'BODY',
+    //         text: 'Hi {{1}}, get 20% off your next purchase! Offer valid until 8 PM, May 31, 2025. Shop now!',
+    //         example: {
+    //           body_text: [["Sarah Smith"]]
+    //         }
+    //       },
+    //       {
+    //         type: 'BUTTONS',
+    //         buttons: [
+    //           {
+    //             type: 'URL',
+    //             text: 'Shop Now',
+    //             url: 'https://your-ecommerce-site.com/promo' // Replace with a valid, approved URL
+    //           }
+    //         ]
+    //       } 
+    //     ]
+    //   };
+      

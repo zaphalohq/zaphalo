@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { LoginMutation } from './AuthMutations/LoginMutation';
 import { useNavigate } from 'react-router-dom';
 import AuthInputLabel from '../UI/AuthInputLabel';
+import { setItem } from '../utils/localStorage';
 
 
 function Login() {
@@ -41,9 +42,11 @@ const handleSubmit = async (event : any) => {
         password : authForm.password,
       },
     });
-    console.log('Login Success:', response.data.login.access_token);    
+    console.log('Login Success:', response.data);    
     // Save accessToken in localStorage or cookies
-    localStorage.setItem('access_token', response.data.login.access_token);  
+    setItem('access_token', response.data.login.access_token);  
+    setItem('workspaceIds', JSON.parse(response.data.login.workspaceIds))
+    setItem('userDetails',{ name : response.data.login.userDetails.name, email : response.data.login.userDetails.email })
     navigate('/dashboard')
   } catch (err) {
     console.error('Error logging in:', err);
@@ -57,10 +60,10 @@ const handleSubmit = async (event : any) => {
         {error && <p className="text-red-500">Error: {error.message}</p>}
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-          <AuthInputLabel title="Username" name="username" placeholder="Enter your username" HandleChange={HandleChange} />
+          <AuthInputLabel type='text' title="Username" name="username" placeholder="Enter your username" HandleChange={HandleChange} />
           </div>
           <div className="mb-6">
-          <AuthInputLabel title="password" name="password" placeholder="Enter your password" HandleChange={HandleChange} />
+          <AuthInputLabel type='password' title="password" name="password" placeholder="Enter your password" HandleChange={HandleChange} />
           </div>
           <button
             type="submit"

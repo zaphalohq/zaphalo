@@ -6,7 +6,7 @@ import { UserService } from '../../user/user.service';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
  constructor(
-  private usersService: UserService,
+  private readonly usersService: UserService,
 ) {
    super({
      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -22,6 +22,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   // const isBlacklisted = await this.tokenBlacklistService.isTokenBlacklisted(token);
   // if (isBlacklisted) {
   //   throw new UnauthorizedException('Token is blacklisted');
-   return { userId: payload.sub, username: payload.username };
+  // console.log(payload,"....................payload.............");
+  
+   return { userId: payload.sub, username: payload.username , workspaceIds: payload.workspaceIds};
  }
 }

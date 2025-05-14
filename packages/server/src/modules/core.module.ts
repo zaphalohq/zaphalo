@@ -4,6 +4,8 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ContactsModule } from './contacts/contacts.module';
 import { channelModule } from './channel/channel.module';
+import { WorkspaceModule } from './workspace/workspace.module';
+import { TemplateModule } from './template/template.module';
 // import { WhatsappinstantsModule } from '../../components/whatsappinstants/instants.module';
 // import { ClientConfigModule } from 'src/constro/modules/config/client-config.module';
 
@@ -13,13 +15,17 @@ import { channelModule } from './channel/channel.module';
     AuthModule,
     ContactsModule,
     channelModule,
+    WorkspaceModule,
+    TemplateModule
     // WhatsappinstantsModule, it is direcly add at app.module
   ],
   exports: [
     UserModule,
     AuthModule,
     ContactsModule,
-    channelModule
+    channelModule,
+    WorkspaceModule,
+    TemplateModule
     // WhatsappinstantsModule,
   ],
 })

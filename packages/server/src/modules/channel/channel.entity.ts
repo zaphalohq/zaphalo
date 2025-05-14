@@ -1,9 +1,11 @@
 import { Field, Float, Int, ObjectType } from '@nestjs/graphql';
 import { IDField } from '@ptc-org/nestjs-query-graphql';
-import { UUIDScalarType } from 'src/modules/api/scalars/uuid.scalar'; // Ensure this path is correct
-import { Column, CreateDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn, Relation } from 'typeorm';
 import { Message } from './message.entity';
 import { Contacts } from '../contacts/contacts.entity';
+import { User } from '../user/user.entity';
+import { UUIDScalarType } from '../api/scalars/uuid.scalar';
+import { Workspace } from '../workspace/workspace.entity';
 
 @Entity({ name: 'channel', schema: 'core' })
 @ObjectType()
@@ -23,7 +25,7 @@ export class Channel {
     joinColumn: { name: 'channelId', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'contactId', referencedColumnName: 'id' },
   })
-  contacts: Contacts[];
+  contacts: Relation<Contacts[]>;
 
   @Field(() => String) // Date as ISO string in GraphQL
   @CreateDateColumn()
@@ -33,15 +35,24 @@ export class Channel {
   @UpdateDateColumn()
   writeDate: Date;
 
-  @Field(() => Float) // Use Int for simplicity
-  @Column({ type: 'bigint' })
-  writeUser: number;
+  @Field(() => [User], { nullable : false}) // Use Int for simplicity
+  @ManyToOne(() => User, { nullable : false})
+  // @JoinColumn({name: 'write_uid'})
+  writeUser: Relation<User>;
 
-  @Field(() => String) // BigInt as String to avoid GraphQL limitations
-  @Column({ type: 'bigint' })
-  createUser: bigint; // Lowercase 'bigint' for TypeScript type
+  @Field(() => User, { nullable : true}) // BigInt as String to avoid GraphQL limitations
+  @ManyToOne(() => User, { nullable : true})
+  createUser: Relation<User>; // Lowercase 'bigint' for TypeScript type
 
   @Field(() => [Message])
   @OneToMany(() => Message, message => message.channel)
-  messages : Message[]
+  messages : Relation<Message[]>
+  
+  @Field(() => String)
+  @Column({ nullable : true })
+  membersidsss : string
+
+  @Field(() => Workspace)
+  @ManyToOne(() => Workspace, workspace => workspace.channels)
+  workspace : Relation<Workspace>
 }

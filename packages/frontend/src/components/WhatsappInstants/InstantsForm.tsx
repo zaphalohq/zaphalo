@@ -1,10 +1,10 @@
 import { useContext } from "react"
-import { InstantsContext } from "../Context/InstantsContext"
-import InputLabel from "../UI/InputLabel"
-import SubmitButton from "../UI/SubmitButton"
+import { InstantsContext } from "@Context/InstantsContext"
+import InputLabel from "@UI/InputLabel"
+import SubmitButton from "@UI/SubmitButton"
 import { FaSyncAlt } from "react-icons/fa"
 import { FiX } from "react-icons/fi"
-import CloseButton from "../UI/CloseButton"
+import CloseButton from "@UI/CloseButton"
 
 const InstantsForm = () => {
     const {
@@ -17,10 +17,6 @@ const InstantsForm = () => {
     } : any = useContext(InstantsContext)
   return (
     <div className="fixed inset-0 bg-stone-900/30 flex items-center justify-center">
-				{/* <div className="absolute right-60 top-40 p-0.5 "><button onClick={() => {
-					setIsNewInstants(false)
-					HandleFormVisibility()
-				}} className="cursor-pointer hover:bg-stone-200 text-3xl rounded-full p-1 text-center text-violet-500 bg-stone-50"><FiX /></button></div> */}
 				<CloseButton onClick={() => {
 					setIsNewInstants(false)
 					HandleFormVisibility()
@@ -37,7 +33,7 @@ const InstantsForm = () => {
 					<InputLabel type="text" name='phoneNumberId' value={formData.phoneNumberId} HandleInputChange={HandleInputChange} title="Phone Number ID" placeholder="Phone Number ID" />
 					<InputLabel type="text" name='businessAccountId' value={formData.businessAccountId} HandleInputChange={HandleInputChange} title="Business Account ID" placeholder="Business Account ID" />
 					<InputLabel type="text" name='accessToken' value={formData.accessToken} HandleInputChange={HandleInputChange} title="Access Token" placeholder="Access Token" />
-					<InputLabel type="text" name='appSecret' value={formData.appSecret} HandleInputChange={HandleInputChange} title="App Secret" placeholder="App Secret" />
+					<InputLabel type="password" name='appSecret' value={formData.appSecret} HandleInputChange={HandleInputChange} title="App Secret" placeholder="App Secret" />
 					<SubmitButton type="submit" Icon={FaSyncAlt} title='Sync Template' />
 				</form>
 			</div>
