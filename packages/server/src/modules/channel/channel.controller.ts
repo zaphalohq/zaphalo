@@ -10,6 +10,7 @@ import { ContactsService } from '../contacts/contacts.service';
 import { GqlAuthGuard } from '../auth/guards/gql-auth.guard';
 import axios from 'axios'
 import { Context } from '@nestjs/graphql';
+import { instantsService } from '../whatsapp/instants.service';
 
 const token = 'my-token'
 
@@ -23,7 +24,8 @@ export class channelController {
 
         private readonly webSocketService: WebSocketService,
         private readonly channelservice: ChannelService,
-        private readonly contactsservice: ContactsService
+        private readonly contactsservice: ContactsService,
+        private readonly instantsService: instantsService,
     ) { }
 
     @Get()
@@ -52,11 +54,18 @@ export class channelController {
             const userPhoneNo = data.entry[0].changes[0].value.messages[0].from;
             const memberIds = [data.entry[0].changes[0].value.metadata.phone_number_id]
             const myPhoneNo = Number(data.entry[0].changes[0].value.metadata.phone_number_id)
-            const workspace = await this.contactsservice.findOneContact(myPhoneNo)
-            const workspaceId = workspace?.workspace.id
+            const findTrueInstants = await this.instantsService.findInstantsByPhoneNoId(data.entry[0].changes[0].value.metadata.phone_number_id)
+            if (!findTrueInstants) throw new Error('findTrueInstants not found');
+            // const workspace = await this.contactsservice.findOneContact(myPhoneNo)
+            console.log(findTrueInstants.workspace.id,"workspacesosjs.................");
+            
+            // const workspaceId = workspace?.workspace.id
+            const workspaceId = findTrueInstants.workspace.id
+            console.log(myPhoneNo,"myPhoneNomyPhoneNomyPhoneNomyPhoneNomyPhoneNomyPhoneNomyPhoneNo");
+            
             const createContactNotExist = await this.contactsservice.createContacts({ contactName: userPhoneNo, phoneNo: Number(userPhoneNo)}, workspaceId)
             if (!createContactNotExist) throw new Error('ContactNotExist not found');
-            const {channel , newChannelCreated }: any = await this.channelservice.findOrCreateChannel(userPhoneNo, [Number(memberIds), Number(userPhoneNo)], "f751daf2-8241-44dd-babb-f86a3069b17e")
+            const {channel , newChannelCreated }: any = await this.channelservice.findOrCreateChannel(userPhoneNo, [Number(memberIds), Number(userPhoneNo)], workspaceId)
             if (!channel.id) throw new Error('channel not found');
             const message = await this.channelservice.createMessage(msg, channel.id, Number(userPhoneNo), workspaceId)
 

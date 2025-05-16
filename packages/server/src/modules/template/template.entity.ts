@@ -13,12 +13,12 @@ export class Template {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column()                                // Regular database column
-    @Field()                                 // GraphQL field
+    @Column()
+    @Field()
     templateName: string;
 
-    @Column()                                // Regular database column
-    @Field()                                 // GraphQL field
+    @Column()
+    @Field()
     status: string;
 
     @Column()
@@ -29,14 +29,18 @@ export class Template {
     @Field()
     category: string;
 
-    
+//     language: string
 
+// headerFormat: string
+// headerText: string
+// footerText
+// bodyText
     @Field(() => Workspace, { nullable : true})
     @ManyToOne(() => Workspace, {nullable : true})
     workspace: Relation<Workspace>
 
     @CreateDateColumn()
-    @Field() // If using GraphQL
+    @Field()
     createdAt: Date;
 
 

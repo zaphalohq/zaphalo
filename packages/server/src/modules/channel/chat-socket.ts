@@ -6,35 +6,31 @@ import {
     WebSocketGateway,
     WebSocketServer,
 } from '@nestjs/websockets';
-import { log } from 'console';
 import { Server, Socket } from 'socket.io';
 
 
 @WebSocketGateway(Number(process.env.WEBSOCKET_PORT), { cors: { origin: '*' } }) // Port 8080 with CORS enabled
 export class WebSocketService implements OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer()
-    server : Server
+    server: Server
 
     private userCount = 0;
 
     handleConnection(client: Socket, ...args: any[]) {
         this.userCount += 1;
         console.log("No of client connected", this.userCount, client.id)
-        
     }
 
     @SubscribeMessage("message")
-    handleMessage( client : Socket , message  :any) : void {
-      console.log(message)
-    //   client.emit("reply","from xys")
-    this.server.emit("message", "brodcasting............")
+    handleMessage(client: Socket, message: any): void {
+        console.log(message)
+        this.server.emit("message", "brodcasting............")
     }
 
-    // Reusable method to send messages to a channel
-    sendMessageToChannel(channelId,messages, phoneNo, newChannelCreated) {
-        console.log(channelId,"..............");
-        const message = JSON.stringify({messages,channelId,phoneNo, newChannelCreated})
-        console.log(message,"this is from message backend in websocket");
+    sendMessageToChannel(channelId, messages, phoneNo, newChannelCreated) {
+        console.log(channelId, "..............");
+        const message = JSON.stringify({ messages, channelId, phoneNo, newChannelCreated })
+        console.log(message, "this is from message backend in websocket");
         this.server.emit('message', message);
     }
 
@@ -42,6 +38,4 @@ export class WebSocketService implements OnGatewayConnection, OnGatewayDisconnec
         this.userCount -= 1;
         console.log("no of user connected", this.userCount, client.id)
     }
-
-
 }

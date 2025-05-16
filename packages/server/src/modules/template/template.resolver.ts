@@ -3,16 +3,13 @@ import { Args, Context, Field, Mutation, ObjectType, Query, Resolver } from "@ne
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
-import { Request, UseGuards } from "@nestjs/common";
+import { UseGuards } from "@nestjs/common";
 import { GqlAuthGuard } from "../auth/guards/gql-auth.guard";
-import axios from 'axios'
-import { instantsService } from "../whatsapp/instants.service";
 import { TemplateResponseDto } from "./dto/TemplateResponseDto";
 import { TemplateRequestInput } from "./dto/TemplateRequestInputDto";
 import { Template } from "./template.entity";
 import { TemplateService } from "./template.service";
-// import { GraphQLUpload, FileUpload } from 'graphql-upload';
-import {GraphQLUpload,FileUpload} from "graphql-upload"
+
 
 @Resolver(() => Template)
 export class TemplateResolver {
@@ -27,13 +24,21 @@ export class TemplateResolver {
     async submitTemplate(
         @Context('req') req, @Args('templateData') templateData: TemplateRequestInput,
     ): Promise<TemplateResponseDto> {
-        const workspaceId = req.user.workspaceIds[0];
-        const result = await this.templateService.submitTemplate(templateData, workspaceId);
+        // const workspaceId = req.user.workspaceIds[0];
+        // const result = await this.templateService.submitTemplate(templateData, workspaceId);
+        // return {
+        //     success: result.success,
+        //     data: result.data ? JSON.stringify(result.data) : undefined,
+        //     error: result.error ? JSON.stringify(result.error) : undefined,
+        // };
+        console.log(templateData,"etetetetettete....................");
+        
         return {
-            success: result.success,
-            data: result.data ? JSON.stringify(result.data) : undefined,
-            error: result.error ? JSON.stringify(result.error) : undefined,
+            success: true,
+            data: "result.data ? JSON.stringify(result.data) : undefined",
+            error: "result.error ? JSON.stringify(result.error) : undefined",
         };
+
 
     }
 
@@ -52,6 +57,8 @@ export class TemplateResolver {
             data: result.data ? JSON.stringify(result.data) : undefined,
             error: result.error ? JSON.stringify(result.error) : undefined,
         };
+
+
     }
 
     @Query(() => String)

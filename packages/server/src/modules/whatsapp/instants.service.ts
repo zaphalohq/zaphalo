@@ -98,6 +98,13 @@ export class instantsService {
         });
     }
 
+    async findInstantsByPhoneNoId(phoneNoId: string): Promise<WhatsappInstants | null> {
+        return await this.instantsRepository.findOne({
+            where: { phoneNumberId : phoneNoId },
+            relations: ['workspace'] // Sort by creation time
+        });
+    }
+
     async whatsappApiPost(data) {
         return await axios({
             url: 'https://graph.facebook.com/v22.0/565830889949112/messages',
@@ -160,7 +167,7 @@ export class instantsService {
         try {
             const response = await axios.post(url, payload, {
                 headers: {
-                    Authorization: `Bearer EAAao8Mkc6lMBO1O4qgK3Bam1syGPZCTtLmcIXH7f9h4dthJKFI4cABSVjag1DUAlYer4BulPZBzLZAItLlxNaEZA4mXp1fnMCqTejFLieEZA6iWfXXmshbgxZCPedW9kHAZC1KTu77pNKFPQsPZBwQDjM7P2GYVw2qsbm9GZC2iierMlXAuTI1kUzKcP6LTqFkSPNGNaJ5XnfxWHeI0WbDsmmKTSBukTgw4jZAIxwZD`,
+                    Authorization: `Bearer EAAao8Mkc6lMBO3j9es54Sq0xi4194bhdwVZAxoegjZBlWFZAoCncsr7DEJFE18e3GL5NVUsq1186D5SUdALXZBSARVMTaiJqKLKY7mB1ZBddIiaLqNSPkaRDCftrQ8DzgoGhZAP2ZB4hiM2XjrWZAARyyyG97OXSB5B7hAk9yNRo7KLVyTX5JdaLinSCViFQKRBsHvO3rU1HfGei0dblfkHrb8yVyMPe6fGoJssZD`,
                     'Content-Type': 'application/json'
                 }
             });

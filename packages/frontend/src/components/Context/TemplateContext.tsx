@@ -10,16 +10,19 @@ export const TemplateContext = createContext<TemplateContextProps | undefined>(u
 
 export const TemplateProvider = ({ children }: any) => {
   const [templateFormData, setTemplateFormData] = useState({
+    account: '',
     name: '',
     category: 'UTILITY',
     language: 'en_US',
     headerText: '',
-    bodyText: '',
+    bodyText: `Hi {{1}},Your order *{{2}}* from *{{3}}* has been shipped.To track the shipping: {{4}}.Thank you`,
     footerText: '',
     buttonText: '',
     buttonUrl: '',
     body_text: '',
-    headerFormat: 'TEXT'
+    headerFormat: 'NONE',
+    header_handle: '',
+    imageUrl: ''
   });
 
 //   useEffect(() => {

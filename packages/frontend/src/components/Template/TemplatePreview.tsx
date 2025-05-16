@@ -2,7 +2,7 @@ import { FiExternalLink } from "react-icons/fi";
 import { TemplateContext } from "@Context/TemplateContext";
 import { useContext } from "react";
 
-const TemplatePreview = ({ formData }: any) => {
+const TemplatePreview = () => {
  const { templateFormData }: any = useContext(TemplateContext)
 
     // Format current time as HH:MM
@@ -34,7 +34,7 @@ const TemplatePreview = ({ formData }: any) => {
 
       {/* Footer */}
       <div className="px-3 pb-2 border-b-2 border-gray-200 flex justify-between ">
-        <p className="text-sm text-gray-500">{templateFormData.footerText}</p>
+        <p className="text-[13.5px] text-gray-500">{templateFormData.footerText}</p>
         <p className="text-[10px] text-gray-500 self-end">12:00</p>
       </div>
       <div className="flex gap-2 items-center justify-center p-2 text-blue-600 ">

@@ -1,21 +1,13 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { In, Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
-
-import { ContactsService } from "../contacts/contacts.service";
-import { UserService } from "../user/user.service";
-import { join } from "path";
-import { existsSync, ReadStream, unlinkSync } from "fs";
 import axios, { AxiosResponse } from "axios"
-import fs from "fs"
 import { WorkspaceService } from "../workspace/workspace.service";
 import { Template } from "./template.entity";
 import cron from 'node-cron';
-import { errorMonitor } from "events";
-import { Readable } from "stream";
-import GraphQLUpload, { FileUpload } from "graphql-upload"
 import { TemplateRequestInput } from "./dto/TemplateRequestInputDto";
 import { instantsService } from "../whatsapp/instants.service";
+import fs from 'fs/promises';
 
 interface TemplateComponent {
   type: 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS';
@@ -83,11 +75,11 @@ export class TemplateService {
             type: 'FOOTER',
             text: templateData.footerText
           },
-          templateData.buttonText && templateData.buttonUrl && {
-            type: 'BUTTONS',
-            buttons: [{ type: 'URL', text: templateData.buttonText, url: templateData.buttonUrl }]
-            // buttons: [{ type: 'QUICK_REPLY', text: templateData.buttonText }]
-          }
+          // templateData.buttonText && templateData.buttonUrl && {
+          //   type: 'BUTTONS',
+          //   buttons: [{ type: 'URL', text: templateData.buttonText, url: templateData.buttonUrl }]
+          //   // buttons: [{ type: 'QUICK_REPLY', text: templateData.buttonText }]
+          // }
         ].filter(Boolean)
       }
     };
@@ -263,7 +255,10 @@ export class TemplateService {
 
 
   async uploadFile(file, appId, accessToken) {
-    const { filename, mimetype, buffer, size }: any = file;
+    const { filename, mimetype, path, size }: any = file;
+    const buffer = await fs.readFile(path)
+    console.log(buffer, "bufferbufferbufferbufferbufferbuffer");
+    
     const uploadSessionRes = await axios.post(
       `https://graph.facebook.com/v22.0/${appId}/uploads`,
       null,

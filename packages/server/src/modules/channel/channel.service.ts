@@ -79,7 +79,7 @@ export class ChannelService {
             where: { contacts: memberIds.map((member) => ({ phoneNo: member })), workspace : { id : workspaceId} },
             relations: ['contacts','workspace']
         })
-        // console.log(channelExist, "this is the one channelExistst ");
+        console.log(channelExist, memberIds, "this is the one channelExistst ");
         //------------this is for messaging to own number------------
         // if(memberIds.length === 2 && memberIds[0] === memberIds[1]){
         //     const defaultChannel = await this.channelRepository.findOne({
@@ -104,13 +104,14 @@ export class ChannelService {
         return stillChannelExist
     }
 
-    async createMessage(message: string, channelId: string, senderId1: number, workspaceId :string | undefined ,unseen?: boolean, attachment?: string) {
-        const sender = await this.contactsservice.findOneContact(senderId1, workspaceId);
-        console.log(sender,"sendersendersendersendersendersendersendersender");
+    async createMessage(message: string, channelId: string, senderId: number, workspaceId :string | undefined ,unseen?: boolean, attachment?: string) {
+        const sender = await this.contactsservice.findOneContact(senderId, workspaceId);
+        console.log(sender, channelId,"sendersendersendersendersendersendersendersender");
         
         if (!sender) throw new Error('Sender not found');
         const channel = await this.channelRepository.findOne({ where: { id: channelId, workspace : { id : workspaceId }}});
         if (!channel) throw new Error('Channel not found');
+console.log(channel,"channelchannelchannelchannelchannelchannelchannel");
 
         const message_rec = this.messageRepository.create({
             message,
@@ -122,7 +123,7 @@ export class ChannelService {
         await this.messageRepository.save(message_rec)
         // console.log(message_rec);
 
-        return message
+        return message_rec
     }
 
     async findAllChannel(workspaceId : string): Promise<Channel[]> {

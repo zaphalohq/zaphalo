@@ -31,19 +31,19 @@ export class TemplateFileUpload {
                     cd(null, `${Date.now()}-${file.originalname}`)
                 }
             }),
-            limits: { fileSize: 10 * 1024 * 1024 }
+            limits: { fileSize: 5 * 1024 * 1024 }
         }))
     async FileUpload(@Req() req, @UploadedFile() file: Express.Multer.File) {
-        // const workspaceId = req.user.workspaceIds[0];
-        // const findSelectedInstants = await this.instantsService.FindSelectedInstants(workspaceId)
-        // if (!findSelectedInstants) throw new Error('findSelectedInstants not found');
-        // const appId = findSelectedInstants?.appId
-        // const accessToken = findSelectedInstants?.accessToken
-        // console.log(workspaceId);
+        const workspaceId = req.user.workspaceIds[0];
+        const findSelectedInstants = await this.instantsService.FindSelectedInstants(workspaceId)
+        if (!findSelectedInstants) throw new Error('findSelectedInstants not found');
+        const appId = findSelectedInstants?.appId
+        const accessToken = findSelectedInstants?.accessToken
+        console.log(workspaceId);
 console.log(file);
 
-        // const file_handle = await this.templateService.uploadFile(file, appId, accessToken);
-        return { file_handle : "fsdf"}
+        const file_handle = await this.templateService.uploadFile(file, appId, accessToken);
+        return { file_handle, fileUrl : file.path }
 
     }
 

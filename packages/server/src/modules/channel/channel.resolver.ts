@@ -47,8 +47,13 @@ export class ChannelResolver {
   @Query(() => Channel)
   async findExistingChannelByPhoneNo(@Context('req') req, @Args('memberIds') memberIds: string): Promise<Channel | undefined> {
     const workspaceId = req.user.workspaceIds[0];
-    console.log(workspaceId, "workspaceId.........................workspaceId");
-
+    const findTrueInstants = await this.instantsService.FindSelectedInstants(workspaceId)
+    if (!findTrueInstants) throw new Error('findTrueInstants not found');
+    const senderId = Number(findTrueInstants?.phoneNumberId)
+    const memberIdsJson = JSON.parse(memberIds)
+    memberIdsJson.push(senderId)
+    console.log(workspaceId, memberIdsJson, "workspaceId.........................workspaceId");
+    console.log(".....................................................................................");
     return await this.channelService.findExistingChannelByPhoneNo(JSON.parse(memberIds), workspaceId)
   }
 
@@ -71,13 +76,15 @@ export class ChannelResolver {
     @Context('req') req,
     @Args('input') input: SendMessageInput,
   ): Promise<SendMessageResponse> {
-    const { senderId, receiverId, message, channelName, channelId, attachment } = input;
+    console.log("...........................backend.............");
+
+    const { receiverId, message, channelName, channelId, attachment } = input;
     // console.log(input,senderId , 'senterid', receiverId, 'receiverId', message, 'msg', channelName ,'channelName', channelId,'channelId' ,"...........................input........................");
     const userId = req.user.userId;
     const workspaceId = req.user.workspaceIds[0];
     const findTrueInstants = await this.instantsService.FindSelectedInstants(workspaceId)
     if (!findTrueInstants) throw new Error('findTrueInstants not found');
-    const senderId1 = Number(findTrueInstants?.phoneNumberId)
+    const senderId = Number(findTrueInstants?.phoneNumberId)
     // // Send WhatsApp message via Facebook Graph API
     // const response = await axios({
     //   url: `https://graph.facebook.com/v22.0/${senderId1}/messages`,
@@ -101,9 +108,9 @@ export class ChannelResolver {
 
 
     if (channelId == "") {
-      const memberIds = [...receiverId, senderId1]; // Combine sender and receivers
+      const memberIds = [...receiverId, senderId]; // Combine sender and receivers
       const channel: any = await this.channelService.findOrCreateChannel(
-        senderId1,
+        senderId,
         memberIds,
         workspaceId,
         channelName,
@@ -115,11 +122,11 @@ export class ChannelResolver {
       }
       console.log(channel.channel.id, "channelIdchannelIdchannelIdchannelIdchannelIdchannelIdchannelIdchannelId..........................");
 
-      await this.channelService.createMessage(message, channel.channel.id, senderId1, workspaceId, true, attachment);
+      await this.channelService.createMessage(message, channel.channel.id, senderId, workspaceId, true, attachment);
       return { message: 'Message sent' };
     } else {
       if (channelId && channelId !== "")
-        await this.channelService.createMessage(message, channelId, senderId1, workspaceId, true, attachment);
+        await this.channelService.createMessage(message, channelId, senderId, workspaceId, true, attachment);
       return { message: 'Message sent' };
     }
 
