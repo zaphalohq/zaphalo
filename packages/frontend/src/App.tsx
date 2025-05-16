@@ -13,7 +13,6 @@ import Chats from './pages/Chats'
 import MainLayout from './pages/MainLayout'
 import Contacts from './pages/Contacts'
 import Template from './pages/Template'
-import Chatss from './pages/Chatss'
 
 
 
