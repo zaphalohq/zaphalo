@@ -14,7 +14,6 @@ import { userAutoResolverOpts } from './user.auto-resolver-opts';
 import { userDTO } from './dto/user.dto';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { TypeORMModule } from 'src/database/typeorm/typeorm.module';
-import { AuthMiddleware } from './auth.middleware';
 
 @Module({
   imports: [
@@ -40,13 +39,8 @@ import { AuthMiddleware } from './auth.middleware';
   providers: [UserService, UserResolver, TypeORMModule],
 })
 
-export class UserModule implements NestModule {
-  public configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(AuthMiddleware)
-      .forRoutes('*');
-  }
-}
+export class UserModule {}
+
 // import { Module } from '@nestjs/common'
 // import { NestjsQueryGraphQLModule } from '@ptc-org/nestjs-query-graphql'
 // import { NestjsQueryTypeOrmModule } from '@ptc-org/nestjs-query-typeorm'

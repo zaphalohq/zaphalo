@@ -4,6 +4,7 @@ import { UUIDScalarType } from "../api/scalars/uuid.scalar";
 import { IDField } from "@ptc-org/nestjs-query-graphql";
 import { User } from "../user/user.entity";
 import { Workspace } from "./workspace.entity";
+import { Role } from 'src/enums/role.enum';
 
 // WorkspaceMember Entity
 @Entity({ name: 'workspace_member', schema: 'core' })
@@ -32,11 +33,10 @@ export class WorkspaceMember {
   @ManyToOne(() => Workspace, (workspace) => workspace.members, { nullable: true })
   workspace: Relation<Workspace>;
 
-  @Field()
-  @Column({ type: 'varchar', length: 50, default: 'member' })
-  role: string; // e.g., 'admin', 'member'
-
   @Field(() => String)
   @CreateDateColumn()
   joinedAt: Date;
+
+  @Column({ type: 'enum', enum: Role, default: Role.USER })
+  role: Role;
 }

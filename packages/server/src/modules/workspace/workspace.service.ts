@@ -9,7 +9,7 @@ import { WorkspaceInvitation } from "./workspaceInvitation.entity";
 import { v4 as uuidv4 } from 'uuid';
 import { ContactsService } from "../contacts/contacts.service";
 import { Contacts } from "../contacts/contacts.entity";
-
+import { Role } from 'src/enums/role.enum';
 
 @Injectable()
 export class WorkspaceService {
@@ -75,7 +75,7 @@ export class WorkspaceService {
     const membership = this.workspaceMemberRepository.create({
       user,
       workspace: invitation.workspace,
-      role: 'member',
+      role: Role.USER,
     });
     await this.workspaceMemberRepository.save(membership);
 
@@ -124,7 +124,7 @@ export class WorkspaceService {
     const membership = this.workspaceMemberRepository.create({
       user,
       workspace: workspace,
-      role: 'admin',
+      role: Role.ADMIN,
     });
     await this.workspaceMemberRepository.save(membership);
 

@@ -24,11 +24,10 @@ const Workspace = () => {
   const HandleInviteLink = async () => {
     try{
       const workspaceIds = getItem("workspaceIds")
-      console.log(workspaceIds,"...............................................");
       
        const inviteLinkRes = await InviteLink({
         variables : { 
-          workspaceId : "f751daf2-8241-44dd-babb-f86a3069b17e"
+          workspaceId : workspaceIds && workspaceIds[0],
         } })
         await data
        console.log(inviteLinkRes.data.generateWorkspaceInvitation);
