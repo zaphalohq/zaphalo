@@ -25,7 +25,7 @@ export class AuthService {
   async login(user: any) {
     const workspaces = await this.workspaceService.getOrCreateWorkspaceForUser(user.id);
     const WorkspaceIds = workspaces.map(workspace => workspace.id);
-    const payload = { username: user.username, sub: user.id, workspaceIds: WorkspaceIds };
+    const payload = { username: user.username, sub: user.id, workspaceIds: WorkspaceIds, role: user.role};
     const users = await this.userservice.findByUserId(user.id)
     if(!users) throw error("this is error of")
       return {

@@ -30,11 +30,8 @@
     ],
     "paths": {
       "src/*": [
-        "packages/server/src/*"
+        "./src/*"
       ],
-      "core/*": [
-        "packages/server/src/core/*"
-      ]
     }
   },
   "ts-node": {
