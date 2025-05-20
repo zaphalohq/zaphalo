@@ -10,6 +10,7 @@ import { ContactsService } from '../contacts/contacts.service';
 import { GqlAuthGuard } from '../auth/guards/gql-auth.guard';
 import axios from 'axios'
 import { Context } from '@nestjs/graphql';
+import { instantsService } from '../whatsapp/instants.service';
 
 const token = 'my-token'
 
@@ -22,8 +23,9 @@ export class channelController {
     private readonly messageRepository: Repository<Message>,
     private readonly webSocketService: WebSocketService,
     private readonly channelservice: ChannelService,
-    private readonly contactsservice: ContactsService){ }
-
+    private readonly contactsservice: ContactsService,
+    private readonly instantsService: instantsService,
+    ) { }
   @Get()
   getWhatsappApi(@Query() query: any): string {
     const mode = query['hub.mode']

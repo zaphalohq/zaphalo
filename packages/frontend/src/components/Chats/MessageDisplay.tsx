@@ -510,12 +510,13 @@ const MessageDisplay = () => {
     if ( newMessage != undefined) {
       const currentChannel = newMessage.find((message: any) => message.channelId === chatsDetails.channelId) || null;
       const currentChannelIndex = newMessage.findIndex((message: any) => message.channelId === chatsDetails.channelId);
-
+      // console.log(currentChannel?.message[0].message,"currentChannelcurrentChannelcurrentChannelcurrentChannelcurrentChannel");
+      
  
       if (currentChannel && JSON.parse(JSON.stringify(currentChannel)).channelId != "") { // Check if channel exists
         // Build the new messages array once
-        const newMessages = currentChannel.message.map((message: any) => ({
-          message: message,
+        const newMessages = currentChannel?.message.map((message: any) => ({
+          message: message.message,
           sender: {
             id: "",
             phoneNo: currentChannel.phoneNo,

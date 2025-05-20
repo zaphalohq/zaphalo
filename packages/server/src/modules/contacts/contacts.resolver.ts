@@ -25,7 +25,10 @@ export class contactsResolver {
     @UseGuards(GqlAuthGuard)
     @Query(() => [Contacts])
     async findAllContacts(@Context('req') req) {
-        const workspaceId = req.user.workspaceIds[0];
+        // const workspaceId = req.user.workspaceIds[0];
+        const workspaceId = req.headers['x-workspace-id']; 
+        console.log(workspaceId,"worspacid...................................");
+        
         return await this.contactsservice.findAllContacts(workspaceId)
     }
 

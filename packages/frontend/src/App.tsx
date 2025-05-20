@@ -17,32 +17,26 @@ import Template from './pages/Template'
 
 
 function App() {
-   
+
   return (
     <ApolloProvider client={client}>
-    <BrowserRouter>
-    <Routes>
-    <Route path="/register/:token?" element={<Register />} />
-    <Route path='/login' element={<Login />} />
-    {/* <Route path='/dashboard' element={
-      <PrivateRoute>
-        <Dashboard />
-      </PrivateRoute>
-    } /> */}
-     <Route element={<ProtectedRoute />}>
-      {/* Protected Dashboard Layout */}
-      <Route path="/" element={<MainLayout />}>
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="workspace" element={<Workspace />} />
-        <Route path="chats" element={<Chats />} /> 
-        <Route path="whatsappinstants" element={<WhatsappInstants />} />
-        <Route path="contacts" element={<Contacts />} />
-        <Route path="template" element={<Template />} />
-      </Route>
-      </Route >
-      {/*<Route path="chats" element={<Chats />} /> */}
-    </Routes>
-    </BrowserRouter>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/register" element={<Register />} />
+          <Route path="/register/:token" element={<Register />} />
+          <Route path='/login' element={<Login />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<MainLayout />}>
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="workspace" element={<Workspace />} />
+              <Route path="chats" element={<Chats />} />
+              <Route path="whatsappinstants" element={<WhatsappInstants />} />
+              <Route path="contacts" element={<Contacts />} />
+              <Route path="template" element={<Template />} />
+            </Route>
+          </Route >
+        </Routes>
+      </BrowserRouter>
     </ApolloProvider>
   )
 }

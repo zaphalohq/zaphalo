@@ -22,7 +22,7 @@ const TemplateMain = () => {
       {isTemplateFormVis ?
         <div className="grid grid-cols-2 gap-6 p-6 overflow-y-auto ">
           <TemplateForm setTriggerRefetch={setTriggerRefetch} />
-          <div className=' absolute right-60 top-96 flex justify-center items-center'>
+          <div className=' absolute right-35 top-60 flex justify-center items-center'>
 
             {/* <div>{templateFormData.name}</div>
                 <div>{templateFormData.category}</div>
