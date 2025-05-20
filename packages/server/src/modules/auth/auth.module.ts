@@ -14,33 +14,24 @@ import { UserService } from '../user/user.service';
 import { userAutoResolverOpts } from '../user/user.auto-resolver-opts';
 
 @Module({
-    imports: [
-      NestjsQueryGraphQLModule.forFeature({
-        imports: [
-          NestjsQueryTypeOrmModule.forFeature([User,], 'core'),
-          TypeORMModule,
-          UserModule,
-          WorkspaceModule,
-          PassportModule,
-          JwtModule.register({
-            secret: 'secretKey',
-            signOptions: { expiresIn: '7d' },
-          }),
-          WorkspaceModule,
-        ],
-        services: [UserService],
-        // resolvers: [
-        //   {
-        //     DTOClass: userDTO,
-        //     EntityClass: User,
-        //     CreateDTOClass: CreateUserDTO,
-        //     ServiceClass: UserService,
-        //     enableAggregate: true
-        //   }
-        // ],
-        resolvers: userAutoResolverOpts,
-      }),
-    ],
+  imports: [
+    NestjsQueryGraphQLModule.forFeature({
+      imports: [
+        NestjsQueryTypeOrmModule.forFeature([User,], 'core'),
+        TypeORMModule,
+        UserModule,
+        WorkspaceModule,
+        PassportModule,
+        JwtModule.register({
+          secret: 'secretKey',
+          signOptions: { expiresIn: '7d' },
+        }),
+        WorkspaceModule,
+      ],
+      services: [UserService],
+      resolvers: userAutoResolverOpts,
+    }),
+  ],
   providers: [AuthService, AuthResolver, JwtStrategy],
   exports: [AuthService],
 })

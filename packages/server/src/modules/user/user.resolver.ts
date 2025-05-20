@@ -33,6 +33,9 @@ import { promises } from 'fs';
 import { userDTO } from './dto/user.dto';
 
 import { GqlAuthGuard } from '../auth/guards/gql-auth.guard';
+import { Roles } from 'src/modules/auth/decorators/roles.decorator';
+import { Role } from 'src/enums/role.enum';
+import { RolesGuard } from 'src/modules/auth/guards/roles.guard';
 
   const getHMACKey = (email?: string, key?: string | null) => {
     if (!email || !key) return null;
@@ -53,6 +56,8 @@ import { GqlAuthGuard } from '../auth/guards/gql-auth.guard';
       // private readonly fileUploadService: FileUploadService,
     ) {}
 
+    @Roles(Role.ADMIN)
+    @UseGuards(RolesGuard)
     @UseGuards(GqlAuthGuard)
     @Query(() => [User])
     async findAll() : Promise<User[]>{

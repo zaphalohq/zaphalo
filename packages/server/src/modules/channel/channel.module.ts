@@ -17,23 +17,23 @@ import { fileupload } from "./fileupload.controller";
 import { WorkspaceModule } from "../workspace/workspace.module";
 import { instantsModule } from "../whatsapp/instants.module";
 
-
 @Module({
-    imports : [ NestjsQueryGraphQLModule.forFeature({
-          imports: [
-            NestjsQueryTypeOrmModule.forFeature([Channel, Message, User], 'core'),
-            TypeORMModule,
-            ContactsModule,
-            UserModule,
-            WorkspaceModule,
-            instantsModule
-          ],
-          services: [ChannelService],
-        //   resolvers: whatappinstanstsAutoResolverOpts,
-        }),],
-    controllers : [fileupload,channelController],
-    providers : [fileupload, ChannelService, channelController, WebSocketService, ChannelResolver, UserService],
-    exports: [channelController ],
+  imports : [
+    NestjsQueryGraphQLModule.forFeature({
+      imports: [
+        NestjsQueryTypeOrmModule.forFeature([Channel, Message, User], 'core'),
+        TypeORMModule,
+        ContactsModule,
+        UserModule,
+        WorkspaceModule,
+        instantsModule
+      ],
+      services: [ChannelService],
+    })
+  ],
+  controllers : [fileupload,channelController],
+  providers : [fileupload, ChannelService, channelController, WebSocketService, ChannelResolver, UserService],
+  exports: [channelController ],
 })
 
 export class channelModule {}

@@ -30,13 +30,7 @@
     ],
     "paths": {
       "src/*": [
-        "packages/server/src/*"
-      ],
-      "core/*": [
-        "packages/server/src/core/*"
-      ],
-      "modules/*": [
-        "packages/server/src/modules/*"
+        "./src/*"
       ]
     }
   },

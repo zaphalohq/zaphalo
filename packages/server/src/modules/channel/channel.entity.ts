@@ -10,15 +10,15 @@ import { Workspace } from '../workspace/workspace.entity';
 @Entity({ name: 'channel', schema: 'core' })
 @ObjectType()
 export class Channel {
-  @IDField(() => UUIDScalarType) // Custom UUID scalar
+  @IDField(() => UUIDScalarType)
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Field(() => String, { nullable: true }) // Explicitly typed as String
+  @Field(() => String, { nullable: true })
   @Column({ type: 'varchar', length: 255, nullable: true })
   channelName: string;
 
-  @Field(() => [Contacts]) // Array of integers
+  @Field(() => [Contacts])
   @ManyToMany(() => Contacts, contacts => contacts.channel)
   @JoinTable({
     name: 'channel_contacts',
@@ -27,22 +27,21 @@ export class Channel {
   })
   contacts: Relation<Contacts[]>;
 
-  @Field(() => String) // Date as ISO string in GraphQL
+  @Field(() => String)
   @CreateDateColumn()
   createdAt: Date;
 
-  @Field(() => String) // Date as ISO string in GraphQL
+  @Field(() => String)
   @UpdateDateColumn()
   writeDate: Date;
 
-  @Field(() => [User], { nullable : false}) // Use Int for simplicity
+  @Field(() => [User], { nullable : false})
   @ManyToOne(() => User, { nullable : false})
-  // @JoinColumn({name: 'write_uid'})
   writeUser: Relation<User>;
 
-  @Field(() => User, { nullable : true}) // BigInt as String to avoid GraphQL limitations
+  @Field(() => User, { nullable : true})
   @ManyToOne(() => User, { nullable : true})
-  createUser: Relation<User>; // Lowercase 'bigint' for TypeScript type
+  createUser: Relation<User>;
 
   @Field(() => [Message])
   @OneToMany(() => Message, message => message.channel)

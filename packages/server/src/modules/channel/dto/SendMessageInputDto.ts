@@ -5,7 +5,7 @@ export class SendMessageInput {
   @Field(() => Number, { nullable: true })
   senderId?: number;
 
-  @Field(() => [Number]) // Array of numbers
+  @Field(() => [Number])
   receiverId: number[];
 
   @Field(() => String)
@@ -21,9 +21,8 @@ export class SendMessageInput {
   attachment: string;
 }
 
-// Define the response type
 @ObjectType()
 export class SendMessageResponse {
   @Field(() => String)
-  message: string; // Simple response for now
+  message: string;
 }
