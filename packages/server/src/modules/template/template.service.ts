@@ -8,25 +8,8 @@ import cron from 'node-cron';
 import { TemplateRequestInput } from "./dto/TemplateRequestInputDto";
 import { instantsService } from "../whatsapp/instants.service";
 import fs from 'fs/promises';
+import { log } from "console";
 
-interface TemplateComponent {
-  type: 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS';
-  text?: string;
-  format?: 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT';
-  buttons?: Array<{
-    type: 'QUICK_REPLY' | 'PHONE_NUMBER' | 'URL';
-    text: string;
-    phone_number?: string;
-    url?: string;
-  }>;
-}
-
-interface TemplateRequest {
-  name: string;
-  category: 'AUTHENTICATION' | 'MARKETING' | 'UTILITY';
-  language: string;
-  components: TemplateComponent[];
-}
 
 @Injectable()
 export class TemplateService {
@@ -40,26 +23,25 @@ export class TemplateService {
 
   async submitTemplate(templateData: TemplateRequestInput, workspaceId: string): Promise<any> {
     console.log(templateData);
-    const findSelectedInstants = await this.instantsService.FindSelectedInstants(workspaceId)
+    const findSelectedInstants = await this.instantsService.findInstantsByInstantsId(templateData.account)
     if (!findSelectedInstants) throw new Error('findSelectedInstants not found');
     const businessId = findSelectedInstants?.businessAccountId
     const accessToken = findSelectedInstants?.accessToken
-    console.log(templateData, 'templatedtatatatatatattatatatata');
+    const variablesValue = templateData.variables.map((variable : any) => variable.value)
 
     const payload = {
-      template: {
-        name: templateData.name.toLowerCase().replace(/\s/g, '_'),
+        name: templateData.templateName.toLowerCase().replace(/\s/g, '_'),
         category: templateData.category,
         language: templateData.language,
         components: [
-          templateData.headerText && {
+          templateData.header_handle && templateData.headerType == 'TEXT' && {
             type: 'HEADER',
             format: 'TEXT',
-            text: templateData.headerText
+            text: templateData.header_handle
           },
-          templateData.headerFormat && {
+          templateData.headerType && templateData.headerType == 'IMAGE' && {
             type: 'HEADER',
-            format: templateData.headerFormat,
+            format: 'IMAGE',
             example: {
               header_handle: [templateData.header_handle]
             }
@@ -68,25 +50,24 @@ export class TemplateService {
             type: 'BODY',
             text: templateData.bodyText,
             example: {
-              body_text: [[templateData.body_text]]
+              body_text: [variablesValue]
             }
           },
           templateData.footerText && {
             type: 'FOOTER',
             text: templateData.footerText
           },
-          // templateData.buttonText && templateData.buttonUrl && {
-          //   type: 'BUTTONS',
-          //   buttons: [{ type: 'URL', text: templateData.buttonText, url: templateData.buttonUrl }]
-          //   // buttons: [{ type: 'QUICK_REPLY', text: templateData.buttonText }]
-          // }
+          templateData.button && {
+            type: 'BUTTONS',
+            buttons: templateData.button
+            // buttons: [{ type: 'QUICK_REPLY', text: templateData.buttonText }]
+          }
         ].filter(Boolean)
-      }
     };
 
 
+console.log(payload,"..........................................tem................");
 
-    console.log(payload);
 
     try {
       const response = await axios({
@@ -98,37 +79,39 @@ export class TemplateService {
         },
         data: JSON.stringify({ ...payload })
       });
-      // data: JSON.stringify({
-      //   ...template,
-      //   allow_category_change: true,
-      // }),
+
       const workspace = await this.workspaceService.findWorkspaceById(workspaceId)
       if (!workspace) throw new Error("workspace doesnt found")
-      const templateResponse = response.data
-      const templateCreation = this.templateRepository.create({
-        templateId: templateResponse.id,
-        templateName: payload.template.name,
-        status: templateResponse.status.toLowerCase(),
-        category: templateResponse.category.toLowerCase(),
+
+      const templateAPiResponse = response.data
+console.log(templateAPiResponse,"templateAPiResponsetemplateAPiResponsetemplateAPiResponse");
+
+      if(templateAPiResponse.success || templateAPiResponse.id) {
+        const templateCreation = this.templateRepository.create({
+        templateId: templateAPiResponse.id,
+        status: templateAPiResponse.status.toLowerCase(),
+        ...templateData,
         workspace
       })
+    
       await this.templateRepository.save(templateCreation)
       console.log(response.data, "response.dataresponse.dataresponse.data");
       return {
         success: true,
-        data: "response.data",
+        data: response.data,
       };
+    }
     } catch (error) {
       console.log({
         success: false,
         error: error.response?.data || error.message,
       });
-
       return {
         success: false,
         error: error.response?.data || error.message,
       };
-    }
+  }
+
   }
 
   async getTemplateStatusByCron(templateId: string, workspaceId: string) {
@@ -240,7 +223,7 @@ export class TemplateService {
 
 
 
-  async findAllTemplate(workspaceId: string) {
+  async findAllTemplate(workspaceId: string) : Promise<Template[]>  {
     console.log("....................................fsdfsdfdsfds.");
 
     return await this.templateRepository.find({

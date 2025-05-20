@@ -23,12 +23,24 @@ query GetTemplateStatus($templateId: String!) {
 
 export const Find_ALL_TEMPLATE = gql`
 query findAllTemplate {
-  findAllTemplate {
-    category
-    id
-    status
-    templateId
-    templateName
+    findAllTemplate {
+      account
+      bodyText
+      button {
+        phone_number
+        text
+        type
+        url
+      }
+      category
+      footerText
+      headerType
+      header_handle
+      id
+      language
+      status
+      templateId
+      templateName
   }
 }
 `

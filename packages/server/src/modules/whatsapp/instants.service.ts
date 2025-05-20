@@ -101,7 +101,14 @@ export class instantsService {
     async findInstantsByPhoneNoId(phoneNoId: string): Promise<WhatsappInstants | null> {
         return await this.instantsRepository.findOne({
             where: { phoneNumberId : phoneNoId },
-            relations: ['workspace'] // Sort by creation time
+            relations: ['workspace'] 
+        });
+    }
+
+      async findInstantsByInstantsId(instantsId: string): Promise<WhatsappInstants | null> {
+        return await this.instantsRepository.findOne({
+            where: { id : instantsId },
+            relations: ['workspace'] 
         });
     }
 

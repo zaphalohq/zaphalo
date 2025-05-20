@@ -13,12 +13,13 @@ const TemplateTable = ({triggerRefetch} : any) => {
 
     const { data: templateData, loading: templateLoading, refetch: templateRefetch }: any = useQuery(Find_ALL_TEMPLATE);
     useEffect(() => {
-        if (templateData && !templateLoading) {
+        console.log(templateData,"...........................teddd..............................");
             templateRefetch()
+        if (templateData && !templateLoading) {
             console.log(templateData.findAllTemplate);
             setTemplates(templateData.findAllTemplate)
         }
-    }, [templateData, templateLoading, triggerRefetch])
+    }, [templateData])
 
     return (
         <div>

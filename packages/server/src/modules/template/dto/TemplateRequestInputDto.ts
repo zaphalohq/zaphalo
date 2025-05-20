@@ -51,10 +51,16 @@ export class VariableInput {
 @InputType()
 export class ButtonInput {
   @Field()
-  buttonText: string;
+  type: string;
 
   @Field()
-  buttonUrl: string;
+  text: string;
+
+  @Field({ nullable: true })
+  url: string;
+
+  @Field({ nullable: true })
+  phone_number: string;
 }
 
 @InputType()
@@ -63,7 +69,7 @@ export class TemplateRequestInput {
   account: string;
 
   @Field()
-  name: string;
+  templateName: string;
 
   @Field()
   category: string;
@@ -72,16 +78,10 @@ export class TemplateRequestInput {
   language: string;
 
   @Field({ nullable: true })
-  headerText: string;
-
-  @Field({ nullable: true })
-  headerFormat: string;
+  headerType: string;
 
   @Field({ nullable: true })
   bodyText: string;
-
-  @Field({ nullable: true })
-  body_text: string;
 
   @Field({ nullable: true })
   footerText: string;

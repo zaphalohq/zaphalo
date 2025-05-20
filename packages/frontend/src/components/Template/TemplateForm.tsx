@@ -12,21 +12,17 @@ import TemplateVariables from "./TemplateVariables";
 const TemplateForm = ({ setTriggerRefetch }: any) => {
   const [templateData, setTemplateData] = useState({
     account: '',
-    name: '',
+    templateName: '',
     category: 'UTILITY',
     language: 'en_US',
     bodyText: `Hi {{1}},
-
 Your order *{{2}}* from *{{3}}* has been shipped.
-
 To track the shipping: {{4}}
-
 Thank you.`,
     footerText: '',
     button: [],
     variables : [],
-    body_text: '',
-    headerFormat: 'NONE',
+    headerType: 'NONE',
     header_handle: '',
   });
   const [status, setStatus] = useState(null);
@@ -76,7 +72,6 @@ Thank you.`,
       setFile(file)
       const imageURL = URL.createObjectURL(file)
       console.log(imageURL, "iamdsnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj");
-
       setTemplateFormData({ ...templateFormData, ["header_handle"]: imageURL })
     }
   }
@@ -87,6 +82,8 @@ Thank you.`,
     setError(null);
     setStatus(null);
     const updatedTemplateData = await handleFileUpload()
+    console.log(templateData);
+    
     try {
       const response = await submitTemplate({ variables: { templateData: updatedTemplateData } });
       const result = response.data;

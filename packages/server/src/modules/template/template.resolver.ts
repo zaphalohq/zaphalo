@@ -24,20 +24,22 @@ export class TemplateResolver {
     async submitTemplate(
         @Context('req') req, @Args('templateData') templateData: TemplateRequestInput,
     ): Promise<TemplateResponseDto> {
-        // const workspaceId = req.user.workspaceIds[0];
-        // const result = await this.templateService.submitTemplate(templateData, workspaceId);
-        // return {
-        //     success: result.success,
-        //     data: result.data ? JSON.stringify(result.data) : undefined,
-        //     error: result.error ? JSON.stringify(result.error) : undefined,
-        // };
-        console.log(templateData,"etetetetettete....................");
+        const workspaceId = req.user.workspaceIds[0];
+        const result = await this.templateService.submitTemplate(templateData, workspaceId);
+        console.log(result,"resultresultresultresultresultresultresult");
         
         return {
-            success: true,
-            data: "result.data ? JSON.stringify(result.data) : undefined",
-            error: "result.error ? JSON.stringify(result.error) : undefined",
+            success: result.success,
+            data: result.data ? JSON.stringify(result.data) : undefined,
+            error: result.error ? JSON.stringify(result.error) : undefined,
         };
+        // console.log(templateData,"etetetetettete....................");
+        
+        // return {
+        //     success: true,
+        //     data: "result.data ? JSON.stringify(result.data) : undefined",
+        //     error: "result.error ? JSON.stringify(result.error) : undefined",
+        // };
 
 
     }

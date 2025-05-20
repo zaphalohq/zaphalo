@@ -11,8 +11,8 @@ const TemplateBasic = ({ templateData, handleInputChange, handleFileChange }: an
         <label className="block text-sm font-medium text-gray-700 mt-4">Template Name</label>
         <input
           type="text"
-          name="name"
-          value={templateData.name}
+          name="templateName"
+          value={templateData.templateName}
           onChange={handleInputChange}
           className="mt-1 block w-full rounded-md outline-none shadow-sm p-2"
           placeholder="welcome_message"

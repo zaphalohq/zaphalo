@@ -15,6 +15,10 @@ export class Template {
 
     @Column()
     @Field()
+    account: string;
+
+    @Column()
+    @Field()
     templateName: string;
 
     @Column()
@@ -29,19 +33,73 @@ export class Template {
     @Field()
     category: string;
 
-//     language: string
+    @Column()
+    @Field()
+    language: string;
 
-// headerFormat: string
-// headerText: string
-// footerText
-// bodyText
-    @Field(() => Workspace, { nullable : true})
-    @ManyToOne(() => Workspace, {nullable : true})
+    @Column({ nullable: true })
+    @Field({ nullable: true })
+    headerType: string;
+
+    @Column({ nullable: true })
+    @Field({ nullable: true })
+    bodyText: string;
+
+
+    @Column({ nullable: true })
+    @Field({ nullable: true })
+    footerText: string;
+
+    @Column({ nullable: true })
+    @Field({ nullable: true })
+    header_handle: string;
+
+    @Column('json', { nullable: true })
+    @Field(() => [Button], { nullable: true })
+    button: {
+        type: string;
+        text: string;
+        url?: string;
+        phone_number?: string;
+    }[];
+
+    @Column('json', { nullable: true })
+    @Field(() => [Variable], { nullable: true })
+    variables: {
+        name: string;
+        value: string;
+    }[];
+
+    @Field(() => Workspace, { nullable: true })
+    @ManyToOne(() => Workspace, { nullable: true })
     workspace: Relation<Workspace>
 
     @CreateDateColumn()
-    @Field()
     createdAt: Date;
+}
 
 
+@ObjectType()
+class Button {
+  @Field()
+  type: string;
+
+  @Field()
+  text: string;
+
+  @Field({ nullable: true })
+  url?: string;
+
+  @Field({ nullable: true })
+  phone_number?: string;
+}
+
+
+@ObjectType()
+class Variable {
+  @Field()
+  name: string;
+
+  @Field()
+  value: string;
 }

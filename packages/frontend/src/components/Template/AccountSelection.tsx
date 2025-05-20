@@ -44,6 +44,9 @@ const AccountSelection = ({ templateData, handleInputChange} : any) => {
           onChange={handleInputChange}
           className="mt-1 block w-full rounded-md outline-none shadow-sm p-2"
         >
+          <option className='p-4' value="NONE">
+            NONE
+          </option>
           { allInstants.map((instant : any, index) => 
           <option key={index} className='p-4' value={instant.id}>
             {`${instant.name} — ${instant.phoneNumberId}`}
