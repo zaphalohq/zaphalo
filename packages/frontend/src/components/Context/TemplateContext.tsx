@@ -10,16 +10,17 @@ export const TemplateContext = createContext<TemplateContextProps | undefined>(u
 
 export const TemplateProvider = ({ children }: any) => {
   const [templateFormData, setTemplateFormData] = useState({
-    name: '',
+    account: '',
+    templateName: '',
     category: 'UTILITY',
     language: 'en_US',
-    headerText: '',
     bodyText: '',
     footerText: '',
-    buttonText: '',
-    buttonUrl: '',
     body_text: '',
-    headerFormat: 'TEXT'
+    headerType: 'NONE',
+    header_handle: '',
+    button: [],
+    variables : [],
   });
 
 //   useEffect(() => {

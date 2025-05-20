@@ -106,7 +106,7 @@ export async function useWebSocket() {
         return () => {
             socketIo.disconnect();
         };
-    }, []); // Re-run when channelId changes
+    }, []); 
 
     return { socket, newUnseenMessage };
 }

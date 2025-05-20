@@ -7,7 +7,7 @@ import { InstantsSelection } from '@pages/Mutation/Chats'
 
 const AllInstants = () => {
     //--------------------------findAllContacts-----------------------------
-    const { data, loading, refetch } = useQuery(findAllInstants)
+    const { data : instantsData, loading, refetch } = useQuery(findAllInstants)
 
     const [allInstants, setAllInstants] = useState([{
         id: "",
@@ -18,12 +18,16 @@ const AllInstants = () => {
     }])
     const HandleFetchInstants = async () => {
         try {
-            const data1 = await data
+            const data = await instantsData
             
             // Check if data exists and has the expected structure
-          if (data1?.findAllInstants) {
-            setAllInstants(data1?.findAllInstants)
+          if (data?.findAllInstants) {
+            setAllInstants(data?.findAllInstants)
             refetch();
+            const currentInstants = data?.findAllInstants.filter((instants : any) => instants.defaultSelected == true)
+            console.log(currentInstants,"currentInstantscurrentInstantscurrentInstantscurrentInstants");
+            
+            
           } else {
             console.error('No data returned from mutation');
           }
@@ -34,7 +38,7 @@ const AllInstants = () => {
     }
     useEffect(() => {
         HandleFetchInstants()
-    }, [data])
+    }, [instantsData])
 
     const [searchedInstantsChar, setSearchInstantsChar] = useState("")
     const [filteredInstants, setFilteredInstants] = useState(allInstants); // New state for filtered results

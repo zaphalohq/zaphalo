@@ -2,8 +2,8 @@ import { Field, InputType, ObjectType } from "@nestjs/graphql";
 
 @InputType()
 export class SendMessageInput {
-  @Field(() => Number)
-  senderId: number;
+  @Field(() => Number, { nullable: true })
+  senderId?: number;
 
   @Field(() => [Number])
   receiverId: number[];

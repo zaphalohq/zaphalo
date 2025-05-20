@@ -28,7 +28,6 @@ const MessageArea = () => {
 
       const variables = {
         input: {
-          senderId: Number(import.meta.env.VITE_SENDER_PHONENO),
           receiverId: chatsDetails.receiverId,
           message: currentMsg,
           channelName: chatsDetails.channelName,
@@ -40,6 +39,7 @@ const MessageArea = () => {
       setFileUrl(''); // Clear file URL after sending
       setFileName([]); // Clear file names after sending
       setIsFileUploaded(false)
+console.log(variables,"variablesvariablesvariablesvariablesvariablesvariablesvariablesvariables");
 
       try {
         const response = await sendMessage({ variables });
