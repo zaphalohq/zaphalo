@@ -67,6 +67,7 @@ export class WorkspaceService {
     const existingMembership = await this.workspaceMemberRepository.findOne({
       where: { user: { id: userId }, workspace: { id: invitation.workspace.id } },
     });
+
     if (existingMembership) {
       return existingMembership.workspace[0];
     }

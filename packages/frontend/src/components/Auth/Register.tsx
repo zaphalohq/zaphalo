@@ -116,12 +116,12 @@ const Register = () => {
         {error && <p className="text-red-500">Error: {error.message}</p>}
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Name</label>
+            <label className="block text-gray-700 mb-2">Full Name</label>
             <input
               type="text"
               className="w-full p-3 border border-gray-300 rounded-lg"
-              placeholder="Enter your username"
-              value={username}
+              placeholder="Full name"
+              value={name}
               onChange={(e) => setUsername(e.target.value)}
               required
             />
@@ -131,9 +131,20 @@ const Register = () => {
             <input
               type="email"
               className="w-full p-3 border border-gray-300 rounded-lg"
-              placeholder="Enter your email"
+              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 mb-2">Username</label>
+            <input
+              type="text"
+              className="w-full p-3 border border-gray-300 rounded-lg"
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
             />
           </div>
@@ -142,7 +153,18 @@ const Register = () => {
             <input
               type="password"
               className="w-full p-3 border border-gray-300 rounded-lg"
-              placeholder="Enter your password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <div className="mb-6">
+            <label className="block text-gray-700 mb-2">Confirm Password</label>
+            <input
+              type="confirm_password"
+              className="w-full p-3 border border-gray-300 rounded-lg"
+              placeholder="Confirm password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
