@@ -14,12 +14,12 @@ const TemplatePreview = () => {
   return (
     <>
     { templateFormData.headerType !== 'NONE' || templateFormData.footerText || templateFormData.bodyText?
-     <div className="bg-white max-w-xs min-w-xs mx-auto overflow-hidden shadow-md font-sans border border-[#d0e3ea] pb-1">
+     <div className="bg-white max-w-xs min-w-xs mx-auto mt-20 overflow-hidden shadow-md font-sans border border-[#d0e3ea] pb-1">
       {/* Header with image */}
       <div className="relative">
         {templateFormData.headerType === 'IMAGE' ? <img
           // src="https://images.unsplash.com/photo-1588702547923-7093a6c3ba33?auto=format&fit=crop&w=400&q=80"
-          src={templateFormData.header_handle}
+          src={templateFormData.fileUrl}
           alt="Media"
           className="w-full min-h-50 max-h-70 object-cover p-2 rounded"
         /> : <></>}

@@ -24,6 +24,7 @@ Thank you.`,
     variables : [],
     headerType: 'NONE',
     header_handle: '',
+    fileUrl: ''
   });
   const [status, setStatus] = useState(null);
   const [templateId, setTemplateId] = useState('');
@@ -54,6 +55,7 @@ Thank you.`,
         });
 
         updatedTemplateData['header_handle'] = response.data.file_handle;
+        updatedTemplateData['fileUrl'] = response.data.fileUrl;
         setTemplateData(updatedTemplateData);
         console.log('File uploaded successfully:', response.data);
         return updatedTemplateData
@@ -71,8 +73,7 @@ Thank you.`,
     if (file) {
       setFile(file)
       const imageURL = URL.createObjectURL(file)
-      console.log(imageURL, "iamdsnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj");
-      setTemplateFormData({ ...templateFormData, ["header_handle"]: imageURL })
+      setTemplateFormData({ ...templateFormData, ["fileUrl"]: imageURL })
     }
   }
 
@@ -92,7 +93,7 @@ Thank you.`,
       setStatus(result);
       if (result.success) {
         setTemplateId(JSON.parse(result.data).id);
-        checkStatus(JSON.parse(result.data).id)
+        // checkStatus(JSON.parse(result.data).id)
         setTriggerRefetch((prevCount: any) => prevCount + 1)
       }
     } catch (err: any) {
@@ -115,28 +116,28 @@ Thank you.`,
   //     }
   //   };
 
-  const checkStatus = (templateId: any) => {
-    if (!templateId) return;
+  // const checkStatus = (templateId: any) => {
+  //   if (!templateId) return;
 
-    const { data, error } = useQuery(GET_TEMPLATE_STATUS, {
-      variables: { templateId },
-      skip: !templateId,
-      onCompleted: (data) => {
-        setStatus(data.getTemplateStatus);
-        setTriggerRefetch((prevCount: any) => prevCount + 1)
-      },
-      onError: (err) => {
-        setError(err.message || 'Failed to check status');
-      },
-    });
+  //   const { data, error } = useQuery(GET_TEMPLATE_STATUS, {
+  //     variables: { templateId },
+  //     skip: !templateId,
+  //     onCompleted: (data) => {
+  //       setStatus(data.getTemplateStatus);
+  //       setTriggerRefetch((prevCount: any) => prevCount + 1)
+  //     },
+  //     onError: (err) => {
+  //       setError(err.message || 'Failed to check status');
+  //     },
+  //   });
 
-    if (data) {
-      setStatus(data.getTemplateStatus);
-    }
-    if (error) {
-      setError(error.message || 'Failed to check status');
-    }
-  };
+  //   if (data) {
+  //     setStatus(data.getTemplateStatus);
+  //   }
+  //   if (error) {
+  //     setError(error.message || 'Failed to check status');
+  //   }
+  // };
 
   const [currentComponent, setCurrentComponent] = useState("Body")
   const templateComponents = ["Body", "Buttons", "Variables"]
@@ -212,7 +213,7 @@ Thank you.`,
           </pre>
           {templateId && (
             <button
-              onClick={() => checkStatus(templateId)}
+              // onClick={() => checkStatus(templateId)}
               className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
             >
               Refresh Status

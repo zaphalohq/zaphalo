@@ -69,15 +69,26 @@ export class ChannelResolver {
     @Context('req') req,
     @Args('input') input: SendMessageInput,
     ): Promise<SendMessageResponse> {
-    const { receiverId, message, channelName, channelId, attachment } = input;
+    const { receiverId, textMessage, channelName, channelId, attachmentUrl } = input;
+    
     const userId = req.user.userId;
     const workspaceId = req.user.workspaceIds[0];
     const findTrueInstants = await this.instantsService.FindSelectedInstants(workspaceId)
     if (!findTrueInstants) throw new Error('findTrueInstants not found');
     const senderId = Number(findTrueInstants?.phoneNumberId)
-    // // Send WhatsApp message via Facebook Graph API
+    const messageType = await this.channelService.findMessageType(attachmentUrl)
+    const accessToken = findTrueInstants?.accessToken
+    await this.channelService.sendWhatsappMessage(
+      { accessToken,
+        senderId,
+        receiverId,
+        messageType,
+        textMessage,
+        attachmentUrl
+      })
+    // Send WhatsApp message via Facebook Graph API
     // const response = await axios({
-    //   url: `https://graph.facebook.com/v22.0/${senderId1}/messages`,
+    //   url: `https://graph.facebook.com/v22.0/${senderId}/messages`,
     //   method: 'POST',
     //   headers: {
     //     Authorization: `Bearer ${findTrueInstants?.accessToken}`,
@@ -85,7 +96,7 @@ export class ChannelResolver {
     //   },
     //   data: JSON.stringify({
     //     messaging_product: 'whatsapp',
-    //     to: receiverId[0], // Assuming first receiverId is the target
+    //     to: receiverId[0], 
     //     type: 'text',
     //     text: {
     //       body: message,
@@ -112,12 +123,12 @@ export class ChannelResolver {
       }
       console.log(channel.channel.id, "channelIdchannelIdchannelIdchannelIdchannelIdchannelIdchannelIdchannelId..........................");
 
-      await this.channelService.createMessage(message, channel.channel.id, senderId, workspaceId, true, attachment);
-      return { message: 'Message sent' };
+      await this.channelService.createMessage(textMessage, channel.channel.id, senderId, workspaceId, true, attachmentUrl);
+      return { success: 'Message sent' };
     } else {
       if (channelId && channelId !== "")
-        await this.channelService.createMessage(message, channelId, senderId, workspaceId, true, attachment);
-      return { message: 'Message sent' };
+        await this.channelService.createMessage(textMessage, channelId, senderId, workspaceId, true, attachmentUrl);
+      return { success : 'Message sent' };
     }
 
   }

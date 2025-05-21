@@ -54,6 +54,10 @@ export class Template {
     @Field({ nullable: true })
     header_handle: string;
 
+    @Column({ nullable: true })
+    @Field({ nullable: true })
+    fileUrl: string;
+
     @Column('json', { nullable: true })
     @Field(() => [Button], { nullable: true })
     button: {

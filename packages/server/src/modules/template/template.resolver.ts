@@ -9,6 +9,7 @@ import { TemplateResponseDto } from "./dto/TemplateResponseDto";
 import { TemplateRequestInput } from "./dto/TemplateRequestInputDto";
 import { Template } from "./template.entity";
 import { TemplateService } from "./template.service";
+import { instantsService } from "../whatsapp/instants.service";
 
 
 @Resolver(() => Template)
@@ -17,6 +18,7 @@ export class TemplateResolver {
         @InjectRepository(Template, 'core')
         private readonly templateRepository: Repository<Template>,
         private readonly templateService: TemplateService,
+        private readonly instantsService: instantsService
     ) { }
 
     @UseGuards(GqlAuthGuard)
@@ -26,15 +28,15 @@ export class TemplateResolver {
     ): Promise<TemplateResponseDto> {
         const workspaceId = req.user.workspaceIds[0];
         const result = await this.templateService.submitTemplate(templateData, workspaceId);
-        console.log(result,"resultresultresultresultresultresultresult");
-        
+        console.log(result, "resultresultresultresultresultresultresult");
+
         return {
             success: result.success,
             data: result.data ? JSON.stringify(result.data) : undefined,
             error: result.error ? JSON.stringify(result.error) : undefined,
         };
         // console.log(templateData,"etetetetettete....................");
-        
+
         // return {
         //     success: true,
         //     data: "result.data ? JSON.stringify(result.data) : undefined",
@@ -52,7 +54,7 @@ export class TemplateResolver {
     ): Promise<TemplateResponseDto> {
         const workspaceId = req.user.workspaceIds[0];
         const result = await this.templateService.getTemplateStatusByCron(templateId, workspaceId);
-        if(!result) throw new Error ("result doesnt found in resolver templateResolver")
+        if (!result) throw new Error("result doesnt found in resolver templateResolver")
 
         return {
             success: result.success,
@@ -75,24 +77,35 @@ export class TemplateResolver {
         return await this.templateService.findAllTemplate(workspaceId)
     }
 
+    @UseGuards(GqlAuthGuard)
+    @Mutation(() => String)
+    async sendTemplateToWhatssapp(@Context('req') req): Promise<string> {
+        const workspaceId = req.user.workspaceIds[0];
+        const findTrueInstants = await this.instantsService.FindSelectedInstants(workspaceId)
+        const accessToken = findTrueInstants?.accessToken
+        
+        await this.templateService.sendTemplateToWhatssapp(accessToken)
+        return "worked ....."
+    }
 
-//     @Mutation(() => String)
-//     async uploadFileToWhatsApp(@Args('file', { type: () => GraphQLUpload }) file: FileUpload): Promise<string> {
-//       if (!file.mimetype.startsWith('image/') || !['image/png', 'image/jpeg', 'image/jpg'].includes(file.mimetype)) {
-//         throw new Error('Please upload a PNG or JPG image.');
-//       }
-  
-//       // Note: WhatsApp has a 5MB file size limit for images.
-//       // FileUpload streams don't provide size directly. To validate size:
-//       // 1. Use middleware like graphqlUploadExpress with maxFileSize option (preferred).
-//       // 2. Or read the stream to calculate size (less efficient, requires buffering).
-//       // For now, rely on client-side validation (frontend checks file size < 5MB).
-//       // Example middleware setup in main.ts:
-//       // app.use(graphqlUploadExpress({ maxFileSize: 5 * 1024 * 1024, maxFiles: 1 }));
-//   console.log(file);
-  
-//       return this.templateService.uploadFile(file);
-//     }
+
+    //     @Mutation(() => String)
+    //     async uploadFileToWhatsApp(@Args('file', { type: () => GraphQLUpload }) file: FileUpload): Promise<string> {
+    //       if (!file.mimetype.startsWith('image/') || !['image/png', 'image/jpeg', 'image/jpg'].includes(file.mimetype)) {
+    //         throw new Error('Please upload a PNG or JPG image.');
+    //       }
+
+    //       // Note: WhatsApp has a 5MB file size limit for images.
+    //       // FileUpload streams don't provide size directly. To validate size:
+    //       // 1. Use middleware like graphqlUploadExpress with maxFileSize option (preferred).
+    //       // 2. Or read the stream to calculate size (less efficient, requires buffering).
+    //       // For now, rely on client-side validation (frontend checks file size < 5MB).
+    //       // Example middleware setup in main.ts:
+    //       // app.use(graphqlUploadExpress({ maxFileSize: 5 * 1024 * 1024, maxFiles: 1 }));
+    //   console.log(file);
+
+    //       return this.templateService.uploadFile(file);
+    //     }
 
 }
 

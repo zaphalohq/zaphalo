@@ -27,46 +27,46 @@ export class TemplateService {
     if (!findSelectedInstants) throw new Error('findSelectedInstants not found');
     const businessId = findSelectedInstants?.businessAccountId
     const accessToken = findSelectedInstants?.accessToken
-    const variablesValue = templateData.variables.map((variable : any) => variable.value)
+    const variablesValue = templateData.variables.map((variable: any) => variable.value)
 
     const payload = {
-        name: templateData.templateName.toLowerCase().replace(/\s/g, '_'),
-        category: templateData.category,
-        language: templateData.language,
-        components: [
-          templateData.header_handle && templateData.headerType == 'TEXT' && {
-            type: 'HEADER',
-            format: 'TEXT',
-            text: templateData.header_handle
-          },
-          templateData.headerType && templateData.headerType == 'IMAGE' && {
-            type: 'HEADER',
-            format: 'IMAGE',
-            example: {
-              header_handle: [templateData.header_handle]
-            }
-          },
-          {
-            type: 'BODY',
-            text: templateData.bodyText,
-            example: {
-              body_text: [variablesValue]
-            }
-          },
-          templateData.footerText && {
-            type: 'FOOTER',
-            text: templateData.footerText
-          },
-          templateData.button && {
-            type: 'BUTTONS',
-            buttons: templateData.button
-            // buttons: [{ type: 'QUICK_REPLY', text: templateData.buttonText }]
+      name: templateData.templateName.toLowerCase().replace(/\s/g, '_'),
+      category: templateData.category,
+      language: templateData.language,
+      components: [
+        templateData.header_handle && templateData.headerType == 'TEXT' && {
+          type: 'HEADER',
+          format: 'TEXT',
+          text: templateData.header_handle
+        },
+        templateData.headerType && templateData.headerType == 'IMAGE' && {
+          type: 'HEADER',
+          format: 'IMAGE',
+          example: {
+            header_handle: [templateData.header_handle]
           }
-        ].filter(Boolean)
+        },
+        {
+          type: 'BODY',
+          text: templateData.bodyText,
+          example: {
+            body_text: [variablesValue]
+          }
+        },
+        templateData.footerText && {
+          type: 'FOOTER',
+          text: templateData.footerText
+        },
+        templateData.button && {
+          type: 'BUTTONS',
+          buttons: templateData.button
+          // buttons: [{ type: 'QUICK_REPLY', text: templateData.buttonText }]
+        }
+      ].filter(Boolean)
     };
 
 
-console.log(payload,"..........................................tem................");
+    console.log(payload, "..........................................tem................");
 
 
     try {
@@ -84,23 +84,23 @@ console.log(payload,"..........................................tem..............
       if (!workspace) throw new Error("workspace doesnt found")
 
       const templateAPiResponse = response.data
-console.log(templateAPiResponse,"templateAPiResponsetemplateAPiResponsetemplateAPiResponse");
+      console.log(templateAPiResponse, "templateAPiResponsetemplateAPiResponsetemplateAPiResponse");
 
-      if(templateAPiResponse.success || templateAPiResponse.id) {
+      if (templateAPiResponse.success || templateAPiResponse.id) {
         const templateCreation = this.templateRepository.create({
-        templateId: templateAPiResponse.id,
-        status: templateAPiResponse.status.toLowerCase(),
-        ...templateData,
-        workspace
-      })
-    
-      await this.templateRepository.save(templateCreation)
-      console.log(response.data, "response.dataresponse.dataresponse.data");
-      return {
-        success: true,
-        data: response.data,
-      };
-    }
+          templateId: templateAPiResponse.id,
+          status: templateAPiResponse.status.toLowerCase(),
+          ...templateData,
+          workspace
+        })
+
+        await this.templateRepository.save(templateCreation)
+        console.log(response.data, "response.dataresponse.dataresponse.data");
+        return {
+          success: true,
+          data: response.data,
+        };
+      }
     } catch (error) {
       console.log({
         success: false,
@@ -110,7 +110,7 @@ console.log(templateAPiResponse,"templateAPiResponsetemplateAPiResponsetemplateA
         success: false,
         error: error.response?.data || error.message,
       };
-  }
+    }
 
   }
 
@@ -223,7 +223,7 @@ console.log(templateAPiResponse,"templateAPiResponsetemplateAPiResponsetemplateA
 
 
 
-  async findAllTemplate(workspaceId: string) : Promise<Template[]>  {
+  async findAllTemplate(workspaceId: string): Promise<Template[]> {
     console.log("....................................fsdfsdfdsfds.");
 
     return await this.templateRepository.find({
@@ -241,7 +241,7 @@ console.log(templateAPiResponse,"templateAPiResponsetemplateAPiResponsetemplateA
     const { filename, mimetype, path, size }: any = file;
     const buffer = await fs.readFile(path)
     console.log(buffer, "bufferbufferbufferbufferbufferbuffer");
-    
+
     const uploadSessionRes = await axios.post(
       `https://graph.facebook.com/v22.0/${appId}/uploads`,
       null,
@@ -267,6 +267,70 @@ console.log(templateAPiResponse,"templateAPiResponsetemplateAPiResponsetemplateA
       }
     });
     console.log(response, response.data.h);
-    return response.data.h 
+    return response.data.h
+  }
+
+
+
+
+
+
+
+
+
+
+  async sendTemplateToWhatssapp(accessToken) {
+    const url = `https://graph.facebook.com/v22.0/565830889949112/messages`;
+
+    const payload = {
+      messaging_product: 'whatsapp',
+      to: 917202031718,
+      type: 'template',
+      template: {
+        name: 'promo_offer_72020',
+        language: { code: 'en_US' },
+        components: [
+          {
+            type: 'header',
+            parameters: [
+              {
+                type: 'image',
+                image: {
+                  link: 'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png'
+                }
+              }
+            ]
+          },
+          {
+            type: 'body',
+            parameters: [
+              {
+                type: 'text',
+                text: 'Chintan Patel'
+              },
+              {
+                type: 'text',
+                text: '50'
+              }
+            ]
+          }
+        ]
+      }
+    };
+
+
+    const response = await axios.post(url, payload, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+
+    console.log(response.data);
+    
   }
 }
+
+
+

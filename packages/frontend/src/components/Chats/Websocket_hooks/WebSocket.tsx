@@ -5,7 +5,7 @@ import { ChatsContext } from "../../Context/ChatsContext";
 interface Message {
     channelId: string;
     phoneNo: string;
-    message: string[]; // Array of messages
+    textMessage: string[]; // Array of messages
     unseen: number;
 }
 
@@ -17,7 +17,7 @@ export async function useWebSocket() {
         [{
             channelId: '',
             phoneNo: '',
-            message: [], // Array of messages
+            textMessage: [], // Array of messages
             unseen: 0,
         }])
 
@@ -66,8 +66,8 @@ export async function useWebSocket() {
                         const updatedMessages = [...prevMessages];
                         updatedMessages[channelIndex] = {
                             ...updatedMessages[channelIndex],
-                            message: [
-                                ...updatedMessages[channelIndex].message,
+                            textMessage: [
+                                ...updatedMessages[channelIndex].textMessage,
                                 newMsg.messages,
                             ],
                             unseen: updatedMessages[channelIndex].unseen + 1,
@@ -80,7 +80,7 @@ export async function useWebSocket() {
                             {
                                 channelId: newMsg.channelId || "",
                                 phoneNo: newMsg.phoneNo || "",
-                                message: [newMsg.messages],
+                                textMessage: [newMsg.messages],
                                 unseen: 1,
                             },
                         ];

@@ -21,19 +21,8 @@ const AccountToggle = () => {
                 : <FiChevronRight className="absolute top-3 right-2"/>} */}
                 
             </button>
-            <div className="flex flex-col gap-2 pt-2">
-                {/* <select name="" id=""> */}
+            {/* <div className="flex flex-col gap-2 pt-2">
                     {workspaceIds.map((workspaceId : string) => 
-                    
-                //         <option value="">
-                //             <div className="text-start">
-                //     <span className="font-bold text-sm block">{user.name}</span>
-                //     <span className="block text-xs text-stone-500">{user.email}</span>
-                // </div>
-                //         </option>
-
-                   
-                    
                 
                         <div 
                         onClick={() => {
@@ -42,8 +31,7 @@ const AccountToggle = () => {
                         }}
                         className="bg-gray-300 p-2 hover:bg-gray-400 cursor-pointer">{workspaceId}</div>
                         )}
-                         {/* </select> */}
-                </div>
+                </div> */}
         </div>
 
     )

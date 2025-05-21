@@ -11,7 +11,7 @@ mutation SubmitTemplate($templateData: TemplateRequestInput!) {
 `;
 
 export const GET_TEMPLATE_STATUS = gql`
-query GetTemplateStatus($templateId: String!) {
+mutation getTemplateStatus($templateId: String!) {
   getTemplateStatus(templateId: $templateId) {
     success
     data
@@ -41,13 +41,14 @@ query findAllTemplate {
       status
       templateId
       templateName
+      fileUrl
   }
 }
 `
 
 
-// export const UPLOAD_FILE_TO_WHATSAPP = gql`
-//   mutation UploadFileToWhatsApp($file: Upload!) {
-//     uploadFileToWhatsApp(file: $file)
-//   }
-// `;
+export const Send_Template_Message = gql`
+  mutation sendTemplateMessage {
+  sendTemplateToWhatssapp
+}
+`;

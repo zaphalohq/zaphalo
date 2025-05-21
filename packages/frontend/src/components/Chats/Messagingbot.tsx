@@ -29,10 +29,10 @@ const MessageArea = () => {
       const variables = {
         input: {
           receiverId: chatsDetails.receiverId,
-          message: currentMsg,
+          textMessage: currentMsg,
           channelName: chatsDetails.channelName,
           channelId: chatsDetails.channelId && chatsDetails.channelId !== '' ? chatsDetails.channelId : '',
-          attachment: fileUrl ? fileUrl : null, // Use fileUrl if available
+          attachmentUrl: fileUrl ? fileUrl : null, // Use fileUrl if available
         },
       };
       setCurrentMsg("");

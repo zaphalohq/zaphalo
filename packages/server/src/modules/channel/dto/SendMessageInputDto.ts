@@ -9,7 +9,7 @@ export class SendMessageInput {
   receiverId: number[];
 
   @Field(() => String)
-  message: string;
+  textMessage: string;
 
   @Field(() => String)
   channelName: string;
@@ -18,11 +18,11 @@ export class SendMessageInput {
   channelId?: string;
 
   @Field(() => String, { nullable : true})
-  attachment: string;
+  attachmentUrl: string;
 }
 
 @ObjectType()
 export class SendMessageResponse {
   @Field(() => String)
-  message: string;
+  success: string;
 }
