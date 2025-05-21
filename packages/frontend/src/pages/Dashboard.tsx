@@ -69,14 +69,12 @@ const Dashboard: React.FC = () => {
         { name: 'Messages', value: metricsData.totalMessages, color: '#8b5cf6' }, // purple
         { name: 'Contacts', value: metricsData.totalContacts, color: '#10b981' }  // green
       ];
-
       setChartData(barChartData);
 
     }, 500);
 
     return () => clearTimeout(loadData);
   }, [data, loading]);
-
 
   // Custom bar for applying colors
   const CustomBar = (props: any) => {

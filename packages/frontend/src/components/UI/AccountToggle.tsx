@@ -35,7 +35,7 @@ const AccountToggle = () => {
                    
                     
                 
-                        <div 
+                        <div key={workspaceId}
                         onClick={() => {
                             sessionStorage.setItem('workspaceId', workspaceId)
                             window.location.reload()
