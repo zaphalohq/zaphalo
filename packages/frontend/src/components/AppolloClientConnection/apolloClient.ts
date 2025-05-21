@@ -15,8 +15,6 @@ const authLink = setContext((_, { headers }) => {
   // Retrieve token from localStorage or cookies
   const token = getItem('access_token');  // or from cookies if you're using them
   const workspaceId = sessionStorage.getItem("workspaceId");
-  console.log(`....${workspaceId}................${token}....`);
-  
   // Return the headers with Authorization token
   return {
     headers: {
@@ -32,5 +30,4 @@ const client = new ApolloClient({
   link: authLink.concat(httpLink),  // Combine authLink with httpLink
   cache: new InMemoryCache(),       // Enable client-side caching
 });
-
 export default client;

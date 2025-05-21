@@ -13,31 +13,40 @@ import Chats from './pages/Chats'
 import MainLayout from './pages/MainLayout'
 import Contacts from './pages/Contacts'
 import Template from './pages/Template'
-
+import { RecoilRoot } from 'recoil';
+import { ErrorBoundary } from "react-error-boundary";
+import { AppErrorBoundary } from '@src/modules/error/components/AppErrorBoundary';
+import { AppErrorFallback } from '@src/modules/error/components/AppErrorFallback';
 
 
 function App() {
 
   return (
-    <ApolloProvider client={client}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/register" element={<Register />} />
-          <Route path="/register/:token" element={<Register />} />
-          <Route path='/login' element={<Login />} />
-          <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<MainLayout />}>
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="workspace" element={<Workspace />} />
-              <Route path="chats" element={<Chats />} />
-              <Route path="whatsappinstants" element={<WhatsappInstants />} />
-              <Route path="contacts" element={<Contacts />} />
-              <Route path="template" element={<Template />} />
-            </Route>
-          </Route >
-        </Routes>
-      </BrowserRouter>
-    </ApolloProvider>
+    <RecoilRoot>
+      <AppErrorBoundary
+        resetOnLocationChange={false}
+        FallbackComponent={AppErrorFallback}>
+        <ApolloProvider client={client}>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/register" element={<Register />} />
+              <Route path="/register/:token" element={<Register />} />
+              <Route path='/login' element={<Login />} />
+              <Route element={<ProtectedRoute />}>
+                <Route path="/" element={<MainLayout />}>
+                  <Route path="dashboard" element={<Dashboard />} />
+                  <Route path="workspace" element={<Workspace />} />
+                  <Route path="chats" element={<Chats />} />
+                  <Route path="whatsappinstants" element={<WhatsappInstants />} />
+                  <Route path="contacts" element={<Contacts />} />
+                  <Route path="template" element={<Template />} />
+                </Route>
+              </Route >
+            </Routes>
+          </BrowserRouter>
+        </ApolloProvider>
+      </AppErrorBoundary>
+    </RecoilRoot>
   )
 }
 

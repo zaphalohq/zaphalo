@@ -24,7 +24,6 @@ const Workspace = () => {
   const HandleInviteLink = async () => {
     try{
       const workspaceIds = getItem("workspaceIds")
-      console.log(workspaceIds,"...............................................");
       
        const inviteLinkRes = await InviteLink({
         variables : { 

@@ -24,7 +24,7 @@ const AccountToggle = () => {
             {/* <div className="flex flex-col gap-2 pt-2">
                     {workspaceIds.map((workspaceId : string) => 
                 
-                        <div 
+                        <div key={workspaceId}
                         onClick={() => {
                             sessionStorage.setItem('workspaceId', workspaceId)
                             window.location.reload()
