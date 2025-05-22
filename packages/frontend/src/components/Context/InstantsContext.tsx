@@ -44,9 +44,9 @@ export const InstantsProvider = ({children} : { children: ReactNode }) => {
 	const [CreateInstants] = useMutation(WhatsappInstantsCreation);
 	//-----------------------Submitting the data to backend----------------------------
  const HandleFormData = async () => {
-
+    console.log("......................", formData);
     if (isNewInstants) {
-        try {
+        // try {
             await CreateInstants({
                 variables: {
                     ...formData
@@ -54,9 +54,9 @@ export const InstantsProvider = ({children} : { children: ReactNode }) => {
             })
             HandaleFeatchData()
 
-        } catch (err) {
-            console.error('Error submitting form', err);
-        }
+        // } catch (err) {
+        //     console.error('Error submitting form', err);
+        // }
 
     }
     else {
