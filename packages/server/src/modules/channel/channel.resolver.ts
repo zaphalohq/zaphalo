@@ -25,15 +25,14 @@ export class ChannelResolver {
   @Query(() => [Channel])
   @UseGuards(GqlAuthGuard)
   async findAllChannel(@Context('req') req): Promise<Channel[]> {
-    const workspaceIds = req.user.workspaceIds[0];
-    return await this.channelService.findAllChannel(workspaceIds);
+    const workspaceId = req.headers['x-workspace-id']
+    return await this.channelService.findAllChannel(workspaceId);
   }
 
   @UseGuards(GqlAuthGuard)
   @Query(() => [Message])
   async findMsgByChannelId(@Context('req') req, @Args('channelId') channelId: string): Promise<Message[] | Message> {
     console.log(channelId, "this is channelid");
-
     const messages = await this.channelService.findMsgByChannelId(channelId);
     await this.channelService.makeUnseenSeen(messages);
     return messages
@@ -42,7 +41,7 @@ export class ChannelResolver {
   @UseGuards(GqlAuthGuard)
   @Query(() => Channel)
   async findExistingChannelByPhoneNo(@Context('req') req, @Args('memberIds') memberIds: string): Promise<Channel | undefined> {
-    const workspaceId = req.user.workspaceIds[0];
+    const workspaceId = req.headers['x-workspace-id']
     const findTrueInstants = await this.instantsService.FindSelectedInstants(workspaceId)
     if (!findTrueInstants) throw new Error('findTrueInstants not found');
     const senderId = Number(findTrueInstants?.phoneNumberId)
@@ -72,7 +71,7 @@ export class ChannelResolver {
     const { receiverId, textMessage, channelName, channelId, attachmentUrl } = input;
     
     const userId = req.user.userId;
-    const workspaceId = req.user.workspaceIds[0];
+    const workspaceId = req.headers['x-workspace-id']
     const findTrueInstants = await this.instantsService.FindSelectedInstants(workspaceId)
     if (!findTrueInstants) throw new Error('findTrueInstants not found');
     const senderId = Number(findTrueInstants?.phoneNumberId)

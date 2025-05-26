@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client"
 
-export const findWorkspace = gql`query findWorkspaceByIdForDash($workspaceId: String!) {
+export const findCountForDash = gql`query findWorkspaceByIdForDash($workspaceId: String!) {
     findWorkspaceByIdForDash(workspaceId: $workspaceId) {
     workspace {
       channels {

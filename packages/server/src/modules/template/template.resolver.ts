@@ -26,7 +26,7 @@ export class TemplateResolver {
     async submitTemplate(
         @Context('req') req, @Args('templateData') templateData: TemplateRequestInput,
     ): Promise<TemplateResponseDto> {
-        const workspaceId = req.user.workspaceIds[0];
+        const workspaceId = req.headers['x-workspace-id']
         const result = await this.templateService.submitTemplate(templateData, workspaceId);
         console.log(result, "resultresultresultresultresultresultresult");
 
@@ -52,7 +52,7 @@ export class TemplateResolver {
         @Context('req') req,
         @Args('templateId') templateId: string,
     ): Promise<TemplateResponseDto> {
-        const workspaceId = req.user.workspaceIds[0];
+        const workspaceId = req.headers['x-workspace-id']
         const result = await this.templateService.getTemplateStatusByCron(templateId, workspaceId);
         if (!result) throw new Error("result doesnt found in resolver templateResolver")
 
@@ -73,14 +73,14 @@ export class TemplateResolver {
     @UseGuards(GqlAuthGuard)
     @Query(() => [Template])
     async findAllTemplate(@Context('req') req): Promise<Template[]> {
-        const workspaceId = req.user.workspaceIds[0];
+        const workspaceId = req.headers['x-workspace-id']
         return await this.templateService.findAllTemplate(workspaceId)
     }
 
     @UseGuards(GqlAuthGuard)
     @Mutation(() => String)
     async sendTemplateToWhatssapp(@Context('req') req): Promise<string> {
-        const workspaceId = req.user.workspaceIds[0];
+        const workspaceId = req.headers['x-workspace-id']
         const findTrueInstants = await this.instantsService.FindSelectedInstants(workspaceId)
         const accessToken = findTrueInstants?.accessToken
         

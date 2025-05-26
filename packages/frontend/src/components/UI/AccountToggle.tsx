@@ -21,7 +21,7 @@ const AccountToggle = () => {
                 : <FiChevronRight className="absolute top-3 right-2"/>} */}
                 
             </button>
-            {/* <div className="flex flex-col gap-2 pt-2">
+            <div className="flex flex-col gap-2 pt-2">
                     {workspaceIds.map((workspaceId : string) => 
                 
                         <div key={workspaceId}
@@ -31,7 +31,7 @@ const AccountToggle = () => {
                         }}
                         className="bg-gray-300 p-2 hover:bg-gray-400 cursor-pointer">{workspaceId}</div>
                         )}
-                </div> */}
+                </div>
         </div>
 
     )

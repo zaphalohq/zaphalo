@@ -1,4 +1,4 @@
-import { useErrorBoundary, FallbackProps } from "react-error-boundary";
+import { FallbackProps } from "react-error-boundary";
 
 type AppRootErrorFallbackProps = FallbackProps & {
   title?: string;
@@ -12,7 +12,7 @@ export const AppErrorFallback = ({
   // const { resetBoundary } = useErrorBoundary();
 
   return (
-    <div class="grid justify-center items-center" role="alert">
+    <div className="grid justify-center items-center" role="alert">
       <p>Something went wrong:</p>
       <pre style={{ color: "red" }}>{error.message}</pre>
       <button onClick={resetErrorBoundary}>Try again</button>

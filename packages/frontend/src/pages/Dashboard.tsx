@@ -3,11 +3,10 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recha
 import { MessageSquare, Users2, Layout, TrendingUp, Workflow } from 'lucide-react';
 import MetricsCards from '@components/UI/MetricsCards';
 import { useQuery } from '@apollo/client';
-import { findWorkspace } from './Mutation/Dashboard';
+import { findCountForDash } from './Mutation/Dashboard';
 import Workspace from './Workspace';
 import { getItem } from '@components/utils/localStorage';
 
-// Define types for our data structures
 interface MetricsData {
   totalChannels: number;
   totalMessages: number;
@@ -20,15 +19,7 @@ interface ChartDataPoint {
   color: string;
 }
 
-interface RecentActivity {
-  id: number;
-  type: string;
-  message: string;
-  timeAgo: number;
-}
-
 const Dashboard: React.FC = () => {
-  // Sample data with proper types
   const [metrics, setMetrics] = useState<MetricsData>({
     totalChannels: 0,
     totalMessages: 0,
@@ -36,27 +27,26 @@ const Dashboard: React.FC = () => {
   });
 
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
-  const [recentActivities, setRecentActivities] = useState<RecentActivity[]>([]);
-  const { data, refetch, loading } = useQuery(findWorkspace, {
+  const { data, refetch, loading } = useQuery(findCountForDash, {
     variables: { workspaceId: getItem("workspaceIds")[0] }
   })
 
   // Simulate data loading with a slight delay
   useEffect(() => {
-    console.log(data?.findWorkspaceByIdForDash);
-    const response = data?.findWorkspaceByIdForDash;
-    const workspace = response?.workspace?.channels;
-    const contacts = response?.contacts
-    console.log(workspace,'dtatatattatattatatt');
+    console.log(getItem("workspaceIds")[0]);
+    const findCountForDash = data?.findWorkspaceByIdForDash;
+    const channels = findCountForDash?.workspace?.channels;
+    const contacts = findCountForDash?.contacts
+    console.log(data,'dtatatattatattatatt');
 
     let messagesCount = 0
-    workspace?.forEach((channel : any) => {
+    channels?.forEach((channel : any) => {
       messagesCount = messagesCount + channel.messages.length
     });
     const loadData = setTimeout(() => {
       // Set metrics data
       const metricsData: MetricsData = {
-        totalChannels: workspace.length,
+        totalChannels: channels.length,
         totalMessages: messagesCount,
         totalContacts: contacts.length,
       };

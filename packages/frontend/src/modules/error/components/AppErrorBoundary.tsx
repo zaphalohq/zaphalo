@@ -1,5 +1,6 @@
-import { ErrorBoundary } from "react-error-boundary";
+import { ErrorBoundary, FallbackProps } from "react-error-boundary";
 import * as Sentry from '@sentry/react';
+import { ErrorInfo, ReactNode } from "react";
 
 type AppErrorBoundaryProps = {
   children: ReactNode;

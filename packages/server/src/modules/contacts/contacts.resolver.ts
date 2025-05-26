@@ -18,14 +18,13 @@ export class contactsResolver {
     @UseGuards(GqlAuthGuard)
     @Mutation(() => Contacts)
     async CreateContacts(@Context('req') req, @Args('CreateContacts') CreateContacts: createContactsDto): Promise<Contacts | undefined> {
-        const workspaceId = req.user.workspaceIds[0];
+        const workspaceId = req.headers['x-workspace-id']
         return await this.contactsservice.createContacts(CreateContacts, workspaceId)
     }
 
     @UseGuards(GqlAuthGuard)
     @Query(() => [Contacts])
     async findAllContacts(@Context('req') req) {
-        // const workspaceId = req.user.workspaceIds[0];
         const workspaceId = req.headers['x-workspace-id']; 
         console.log(workspaceId,"worspacid...................................");
         

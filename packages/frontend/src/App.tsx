@@ -17,6 +17,8 @@ import { RecoilRoot } from 'recoil';
 import { ErrorBoundary } from "react-error-boundary";
 import { AppErrorBoundary } from '@src/modules/error/components/AppErrorBoundary';
 import { AppErrorFallback } from '@src/modules/error/components/AppErrorFallback';
+import MailingList from './pages/MailingList'
+import Broadcast from './pages/Broadcast'
 
 
 function App() {
@@ -40,6 +42,8 @@ function App() {
                   <Route path="whatsappinstants" element={<WhatsappInstants />} />
                   <Route path="contacts" element={<Contacts />} />
                   <Route path="template" element={<Template />} />
+                  <Route path="mailinglist" element={<MailingList />} />
+                  <Route path="broadcast" element={<Broadcast />} />
                 </Route>
               </Route >
             </Routes>

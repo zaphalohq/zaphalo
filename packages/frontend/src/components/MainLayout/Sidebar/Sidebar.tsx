@@ -1,6 +1,6 @@
 
 import SidebarElement from './SidebarElements'
-import { FiGrid, FiSettings, FiUsers, FiLink, FiMenu, FiLayers, FiMap } from 'react-icons/fi'
+import { FiGrid, FiSettings, FiUsers, FiLink, FiMenu, FiLayers, FiMap, FiRadio } from 'react-icons/fi'
 import { IoChatbubbleEllipsesOutline } from 'react-icons/io5'
 import AccountToggle from '@UI/AccountToggle'
 import Logout from '../../Auth/Logout'
@@ -13,8 +13,9 @@ const Sidebar = ({ isToggleActivated, HandleToggleButton }: any) => {
         <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiGrid} to='/dashboard' title={"Dashboard"} />
         <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiLayers} to='/workspace' title={"Workspace"} />
         <SidebarElement HandleToggleButton={HandleToggleButton} Icon={IoChatbubbleEllipsesOutline} to='/chats' title={"Chats"} />
+        <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiRadio} to='/broadcast' title={"Broadcast"} />
         <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiUsers} to='/contacts' title={"Contacts"} />
-        
+        <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiUsers} to='/mailinglist' title={"MailingList"} />
         <SidebarElement 
           HandleToggleButton={HandleToggleButton} 
           Icon={FiSettings} 
