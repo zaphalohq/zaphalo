@@ -9,6 +9,7 @@ import { WorkspaceModule } from "../workspace/workspace.module";
 import { TemplateFileUpload } from "./templateFileUpload.controller";
 import { instantsModule } from "../whatsapp/instants.module";
 import { TypeORMModule } from "../../database/typeorm/typeorm.module";
+import { MailingListModule } from "../mailingList/mailingList.module";
 
 
 @Module({
@@ -19,7 +20,8 @@ import { TypeORMModule } from "../../database/typeorm/typeorm.module";
             // ContactsModule,
             // UserModule,
             WorkspaceModule,
-            instantsModule
+            instantsModule,
+            MailingListModule,
           ],
           services: [TemplateService,],
         //   resolvers: whatappinstanstsAutoResolverOpts,

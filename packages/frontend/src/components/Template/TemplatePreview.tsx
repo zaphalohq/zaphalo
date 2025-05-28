@@ -8,7 +8,7 @@ const TemplatePreview = ({ templatePreviewData } : any) => {
   return (
     <>
     { templatePreviewData.headerType !== 'NONE' || templatePreviewData.footerText || templatePreviewData.bodyText?
-     <div className="bg-white max-w-xs min-w-xs mx-auto mt-20 overflow-hidden shadow-md font-sans border border-[#d0e3ea] pb-1">
+     <div className="bg-white max-w-xs min-w-xs mx-auto mt-15 overflow-hidden shadow-md font-sans border border-[#d0e3ea] pb-1">
       {/* Header with image */}
       <div className="relative">
         {templatePreviewData.headerType === 'IMAGE' ? <img

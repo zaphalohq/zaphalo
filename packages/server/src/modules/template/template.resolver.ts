@@ -10,7 +10,7 @@ import { TemplateRequestInput } from "./dto/TemplateRequestInputDto";
 import { Template } from "./template.entity";
 import { TemplateService } from "./template.service";
 import { instantsService } from "../whatsapp/instants.service";
-
+import { TemplateWhatsappReq } from "./dto/TemplateWhatsappReq";
 
 @Resolver(() => Template)
 export class TemplateResolver {
@@ -79,13 +79,13 @@ export class TemplateResolver {
 
     @UseGuards(GqlAuthGuard)
     @Mutation(() => String)
-    async sendTemplateToWhatssapp(@Context('req') req): Promise<string> {
+    async sendTemplateToWhatssapp(@Context('req') req, @Args('broadcastData') broadcastData : TemplateWhatsappReq): Promise<string> {
         const workspaceId = req.headers['x-workspace-id']
         const findTrueInstants = await this.instantsService.FindSelectedInstants(workspaceId)
         const accessToken = findTrueInstants?.accessToken
         
-        await this.templateService.sendTemplateToWhatssapp(accessToken)
-        return "worked ....."
+        await this.templateService.sendTemplateToWhatssapp(accessToken, broadcastData)
+        return "worked......."
     }
 
 

@@ -21,7 +21,7 @@ import { MailingListResolver } from "./mailingList.resolver";
   ],
   controllers : [],
   providers : [MailingListResolver,MailingListService],
-  exports: [ ],
+  exports: [ MailingListService],
 })
 
 export class MailingListModule {}

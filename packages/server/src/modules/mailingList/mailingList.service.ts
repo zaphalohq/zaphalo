@@ -23,16 +23,16 @@ export class MailingListService {
         private readonly workspaceService: WorkspaceService,
     ) { }
 
-    async CreateMailingList(mailingListInput : MailingListInputDto, workspaceId: string) {
+    async CreateMailingList(mailingListInput: MailingListInputDto, workspaceId: string) {
         const workspace = await this.workspaceService.findWorkspaceById(workspaceId)
         if (!workspace) throw new Error("workspace doesnt found")
         const mailingListName = `ListName-${Math.floor(Math.random() * 9000) + 1000}`;
-        const mailingList = this.mailingListRepository.create({ mailingListName,workspace})
+        const mailingList = this.mailingListRepository.create({ mailingListName, workspace })
         await this.mailingListRepository.save(mailingList)
 
-        mailingListInput.mailingContacts.map( async (mailingContact) => {
-        const mailingContacts = this.mailingContactsRepository.create({...mailingContact, mailingList})
-        await this.mailingContactsRepository.save(mailingContacts)
+        mailingListInput.mailingContacts.map(async (mailingContact) => {
+            const mailingContacts = this.mailingContactsRepository.create({ ...mailingContact, mailingList })
+            await this.mailingContactsRepository.save(mailingContacts)
         })
 
 
@@ -40,9 +40,19 @@ export class MailingListService {
     }
 
     async findAllMailingList(workspaceId: string): Promise<MailingList[]> {
-        const mailinglist = await this.mailingListRepository.find({ where : { workspace : { id : workspaceId}}})
-        console.log(mailinglist,"........................");
-        
+        const mailinglist = await this.mailingListRepository.find({ where: { workspace: { id: workspaceId } } })
+        console.log(mailinglist, "........................");
+
+        return mailinglist
+    }
+
+    async findAllContactsOfMailingList(mailingListId: string): Promise<MailingContacts[]> {
+        const mailinglist = await this.mailingContactsRepository.find(
+            { 
+                where: { mailingList: { id: mailingListId }},
+                relations: ['mailingList']
+             }
+        )
         return mailinglist
     }
 

@@ -52,3 +52,10 @@ export const Send_Template_Message = gql`
   sendTemplateToWhatssapp
 }
 `;
+
+export const SEND_TEMPLATE_TO_WHATSAPP = gql`
+  mutation SendTemplateToWhatssapp($broadcastData: TemplateWhatsappReq!) {
+    sendTemplateToWhatssapp(broadcastData: $broadcastData)
+  }
+`;
+
