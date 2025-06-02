@@ -103,7 +103,7 @@ const SidebarElement = ({ title, to, Icon, HandleToggleButton, subItems = [] }: 
               key={subItem.to}
               to={subItem.to}
               onClick={HandleToggleButton}
-              className={`flex pl-4 hover:bg-stone-200 w-full rounded p-1 text-sm text-stone-950 gap-2 items-center ${
+              className={`flex pl-4 hover:bg-stone-200 w-full rounded p-1 text-sm text-stone-950 gap-2 items-center whitespace-pre ${
                 location.pathname === subItem.to ? 'bg-white shadow' : ''
               }`}
             >

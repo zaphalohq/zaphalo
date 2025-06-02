@@ -9,7 +9,6 @@ import TemplatePreview from '@components/Template/TemplatePreview'
 
 const TemplateMain = () => {
   const [isTemplateFormVis, setIsTemplateFormVis] = useState(false)
-  const [triggerRefetch, setTriggerRefetch] = useState(0)
   const [isTemplatePreviewVis, setIsTemplatePreviewVis] = useState(false)
   const { templateFormData,setTemplateFormData }: any = useContext(TemplateContext)
   return (
@@ -22,7 +21,7 @@ const TemplateMain = () => {
       </div>
       {isTemplateFormVis ?
         <div className="grid grid-cols-2 gap-6 p-6 overflow-y-auto ">
-          <TemplateForm setTriggerRefetch={setTriggerRefetch} />
+          <TemplateForm />
           <div className=' absolute right-35 top-60 flex justify-center items-center'>
             <TemplatePreview templatePreviewData={templateFormData} />
           </div>
@@ -49,7 +48,7 @@ const TemplateMain = () => {
               }} className='ml-6 flex items-center justify-center h-10 w-10 rounded-full bg-violet-400 hover:bg-violet-500 cursor-pointer text-white text-lg font-bold'><FiArrowLeft /></div>
               <TemplatePreview templatePreviewData={templateFormData} />
             </div>)
-            : <TemplateTable triggerRefetch={triggerRefetch} setIsTemplatePreviewVis={setIsTemplatePreviewVis} />)
+            : <TemplateTable setIsTemplatePreviewVis={setIsTemplatePreviewVis} />)
           : <></>}
       </div>
     </div>

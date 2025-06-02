@@ -304,7 +304,7 @@ export class ChannelService {
 
         let messagePayload = {};
 
-        if (messageType === 'Invalid URL' && textMessage) {
+        if (messageType === 'text' && textMessage) {
             messagePayload = {
                 type: 'text',
                 text: {
@@ -347,9 +347,11 @@ export class ChannelService {
             throw new Error(`Unsupported message type: ${messageType}`);
         }
 
+        receiverId.forEach( async (receiver) => {
+            
         const finalPayload = {
             messaging_product: 'whatsapp',
-            to: receiverId,
+            to: receiver,
             ...messagePayload,
         };
         console.log('access EAAao8Mkc6lMBOZBEsL7ZCkENxPbZAP1Ocs3z8phccZAa0ctc2lzLXumH34AjS8pkAkTvp7hDxTSG0TnutK4JfwXal9GINecTl3i2J4ezaFSq1qZCVXH7JToLL3crmRSZBZBZBDNvaZAg377BTpLuDKGv85kERpa5kFobcpp6lk39aohrLqYyTjJTzdSMG9PbLEnU9Q7sbGrOZALXAMzZCqCUHHaNPrnBFc3xlr0ZB6a3');
@@ -362,8 +364,9 @@ export class ChannelService {
                 'Content-Type': 'application/json',
             },
         });
-
         return response.data;
+        });
+        
     }
 
 

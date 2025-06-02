@@ -67,24 +67,15 @@ export class ChannelResolver {
   async sendMessage(
     @Context('req') req,
     @Args('input') input: SendMessageInput,
-    ): Promise<SendMessageResponse> {
-    const { receiverId, textMessage, channelName, channelId, attachmentUrl } = input;
-    
+  ): Promise<SendMessageResponse> {
+    const { receiverId, textMessage, channelName, channelId, uploadedFiles } = input;
     const userId = req.user.userId;
     const workspaceId = req.headers['x-workspace-id']
     const findTrueInstants = await this.instantsService.FindSelectedInstants(workspaceId)
     if (!findTrueInstants) throw new Error('findTrueInstants not found');
     const senderId = Number(findTrueInstants?.phoneNumberId)
-    const messageType = await this.channelService.findMessageType(attachmentUrl)
     const accessToken = findTrueInstants?.accessToken
-    await this.channelService.sendWhatsappMessage(
-      { accessToken,
-        senderId,
-        receiverId,
-        messageType,
-        textMessage,
-        attachmentUrl
-      })
+
     // Send WhatsApp message via Facebook Graph API
     // const response = await axios({
     //   url: `https://graph.facebook.com/v22.0/${senderId}/messages`,
@@ -103,32 +94,71 @@ export class ChannelResolver {
     //   }),
     // });
 
-    // console.log(response);
 
 
 
-    if (channelId == "") {
-      const memberIds = [...receiverId, senderId]; // Combine sender and receivers
+ if ((!uploadedFiles || uploadedFiles.length === 0) && textMessage) {
+    // Send plain text message
+    const messageType = 'text'
+    await this.channelService.sendWhatsappMessage({
+      accessToken,
+      senderId,
+      receiverId,
+      messageType,
+      textMessage,
+      attachmentUrl: null,
+    });
+
+    // Save message to DB
+    if (!channelId || channelId === '') {
+      const memberIds = [...receiverId, senderId];
       const channel: any = await this.channelService.findOrCreateChannel(
         senderId,
         memberIds,
         workspaceId,
         channelName,
         userId,
-        );
-
-      if (!channel.channel.id) {
-        throw new Error('Channel not found');
-      }
-      console.log(channel.channel.id, "channelIdchannelIdchannelIdchannelIdchannelIdchannelIdchannelIdchannelId..........................");
-
-      await this.channelService.createMessage(textMessage, channel.channel.id, senderId, workspaceId, true, attachmentUrl);
-      return { success: 'Message sent' };
+      );
+      if (!channel.channel.id) throw new Error('Channel not found');
+      await this.channelService.createMessage(textMessage, channel.channel.id, senderId, workspaceId, true);
     } else {
-      if (channelId && channelId !== "")
-        await this.channelService.createMessage(textMessage, channelId, senderId, workspaceId, true, attachmentUrl);
-      return { success : 'Message sent' };
+      await this.channelService.createMessage(textMessage, channelId, senderId, workspaceId, true);
     }
+  }
+
+  //Handle uploaded files (with or without textMessage)
+  if (uploadedFiles && uploadedFiles.length > 0) {
+    for (const uploadedFile of uploadedFiles) {
+      const attachmentUrl = uploadedFile.fileUrl;
+      const messageType = await this.channelService.findMessageType(attachmentUrl);
+
+      await this.channelService.sendWhatsappMessage({
+        accessToken,
+        senderId,
+        receiverId,
+        messageType,
+        textMessage,
+        attachmentUrl,
+      });
+
+      if (!channelId || channelId === '') {
+        const memberIds = [...receiverId, senderId];
+        const channel: any = await this.channelService.findOrCreateChannel(
+          senderId,
+          memberIds,
+          workspaceId,
+          channelName,
+          userId,
+        );
+        if (!channel.channel.id) throw new Error('Channel not found');
+        await this.channelService.createMessage(textMessage, channel.channel.id, senderId, workspaceId, true, attachmentUrl);
+      } else {
+        await this.channelService.createMessage(textMessage, channelId, senderId, workspaceId, true, attachmentUrl);
+      }
+    }
+  }
+
+    return { success: 'Message sent' };
 
   }
 

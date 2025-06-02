@@ -12,14 +12,23 @@ const TemplatePreview = ({ templatePreviewData } : any) => {
       {/* Header with image */}
       <div className="relative">
         {templatePreviewData.headerType === 'IMAGE' ? <img
-          // src="https://images.unsplash.com/photo-1588702547923-7093a6c3ba33?auto=format&fit=crop&w=400&q=80"
           src={templatePreviewData.fileUrl}
           alt="Media"
           className="w-full min-h-50 max-h-70 object-cover p-2 rounded"
-        /> : <></>}
-        {templatePreviewData.headerType === 'TEXT' ? <div className="px-3 pt-2 pb-1 font-semibold">{templatePreviewData.header_handle}</div>
-          : <></>
+        /> 
+        : templatePreviewData.headerType === 'VIDEO' || 'DOCUMENT' ?
+        <iframe
+          src={templatePreviewData.fileUrl}
+          className="w-full min-h-50 max-h-60 object-cover p-2 rounded"
+        /> 
+        :templatePreviewData.headerType === 'TEXT' ? <div className="px-3 pt-2 pb-1 font-semibold">{templatePreviewData.header_handle}</div>
+        : <></>
+        
         }
+        {/* {
+        templatePreviewData.headerType === 'TEXT' ? <div className="px-3 pt-2 pb-1 font-semibold">{templatePreviewData.header_handle}</div>
+          : <></>
+        } */}
       </div>
 
       {/* Body */}

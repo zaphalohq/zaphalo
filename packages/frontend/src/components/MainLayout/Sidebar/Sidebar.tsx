@@ -22,7 +22,7 @@ const Sidebar = ({ isToggleActivated, HandleToggleButton }: any) => {
           // to='/settings' 
           title={"Settings"} 
           subItems={[
-            { title: "WhatsappInstants", to: "/whatsappinstants", Icon: FiLink },
+            { title: "Whatsapp Instants", to: "/whatsappinstants", Icon: FiLink },
             { title: "Template", to: "/template", Icon: FiMap }
           ]}
         />

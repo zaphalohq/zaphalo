@@ -19,6 +19,7 @@ import { AppErrorBoundary } from '@src/modules/error/components/AppErrorBoundary
 import { AppErrorFallback } from '@src/modules/error/components/AppErrorFallback';
 import MailingList from './pages/MailingList'
 import Broadcast from './pages/Broadcast'
+import LoadingPage from './components/UI/Loadingpage'
 
 
 function App() {
@@ -44,6 +45,7 @@ function App() {
                   <Route path="template" element={<Template />} />
                   <Route path="mailinglist" element={<MailingList />} />
                   <Route path="broadcast" element={<Broadcast />} />
+                  <Route path="loading" element={<LoadingPage />} />
                 </Route>
               </Route >
             </Routes>

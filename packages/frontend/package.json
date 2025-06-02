@@ -96,7 +96,7 @@
     "workbox-webpack-plugin": "^6.5.4"
   },
   "scripts": {
-    "start": "vite --port 5173",
+    "start": "vite",
     "startWithEmulators": "VITE_APP_FIREBASE_EMULATORS=true vite --port 7699",
     "emulators": "firebase emulators:start --only firestore,auth --import ./emulators/ --export-on-exit",
     "test": "vitest",

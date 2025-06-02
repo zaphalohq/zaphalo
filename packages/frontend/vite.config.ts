@@ -60,5 +60,9 @@ export default defineConfig({
     // To enable import of SVG as React component
     svgrPlugin(),
   ],
+  server: {
+    host: 'localhost',
+    port: 5073
+  }
   
 });

@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from "react"
 import { Find_ALL_TEMPLATE, GET_TEMPLATE_STATUS, Send_Template_Message } from "@pages/Mutation/Template"
 import { TemplateContext } from "../Context/TemplateContext"
 
-const TemplateTable = ({ triggerRefetch, setIsTemplatePreviewVis }: any) => {
+const TemplateTable = ({ setIsTemplatePreviewVis }: any) => {
     const { setTemplateFormData }: any = useContext(TemplateContext)
     const [templates, setTemplates] = useState([{
         id: '',

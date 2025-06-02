@@ -48,6 +48,20 @@ export class TemplateService {
             header_handle: [templateData.header_handle]
           }
         },
+        templateData.headerType && templateData.headerType == 'VIDEO' && {
+          type: 'HEADER',
+          format: 'VIDEO',
+          example: {
+            header_handle: [templateData.header_handle]
+          }
+        },
+        templateData.headerType && templateData.headerType == 'DOCUMENT' && {
+          type: 'HEADER',
+          format: 'DOCUMENT',
+          example: {
+            header_handle: [templateData.header_handle]
+          }
+        },
         {
           type: 'BODY',
           text: templateData.bodyText,
@@ -98,6 +112,8 @@ export class TemplateService {
 
         await this.templateRepository.save(templateCreation)
         console.log(response.data, "response.dataresponse.dataresponse.data");
+
+        this.getTemplateStatusByCron(templateAPiResponse.id, workspaceId)
         return {
           success: true,
           data: response.data,
