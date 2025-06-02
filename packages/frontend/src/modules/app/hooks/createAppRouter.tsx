@@ -17,13 +17,15 @@ import Chats from 'src/pages/Chats';
 import MainLayout from 'src/pages/MainLayout';
 import Contacts from 'src/pages/Contacts';
 import Template from 'src/pages/Template';
+import SignUpPage from 'src/modules/auth/pages/SignUpPage';
 
 
 const routes = createRoutesFromElements(
   <Route>
     <Route path="/register" element={<Register />} />
       <Route path="/register/:token" element={<Register />} />
-      <Route path='/login' element={<Login />} />
+      {/*<Route path='/login' element={<Login />} />*/}
+      <Route path='/login' element={<SignUpPage />} />
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<MainLayout />}>
           <Route path="dashboard" element={<Dashboard />} />

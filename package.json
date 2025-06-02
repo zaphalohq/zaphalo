@@ -1,8 +1,14 @@
 {
   "dependencies": {
+    "@nestjs/passport": "^9.0.3",
     "@nestjs/typeorm": "^11.0.0",
     "@ptc-org/nestjs-query-typeorm": "4.2.1-alpha.2",
     "@sentry/react": "^9.22.0",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-jwt": "^4.0.1",
+    "passport-local": "^1.0.0",
+    "passport-microsoft": "^2.0.0",
     "pg": "^8.14.1",
     "react-error-boundary": "^6.0.0",
     "react-router-dom": "^7.6.0",
@@ -21,6 +27,8 @@
     "@swc/core": "~1.5.7",
     "@swc/helpers": "~0.5.11",
     "@tailwindcss/vite": "^4.1.6",
+    "@types/passport": "^0",
+    "@types/passport-google-oauth2": "^0",
     "nx": "20.4.2",
     "storybook": "^8.4.6",
     "ts-node": "10.9.1",

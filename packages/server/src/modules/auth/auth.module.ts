@@ -5,6 +5,8 @@ import { AuthService } from './auth.service';
 import { UserModule } from '../user/user.module';
 import { AuthResolver } from './auth.resolver';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { GoogleStrategy } from './strategies/google.auth.strategy';
+
 import { WorkspaceModule } from '../workspace/workspace.module';
 import { NestjsQueryGraphQLModule } from '@ptc-org/nestjs-query-graphql';
 import { NestjsQueryTypeOrmModule } from '@ptc-org/nestjs-query-typeorm';
@@ -12,6 +14,7 @@ import { User } from '../user/user.entity';
 import { TypeORMModule } from 'src/database/typeorm/typeorm.module';
 import { UserService } from '../user/user.service';
 import { userAutoResolverOpts } from '../user/user.auto-resolver-opts';
+import { GoogleAuthController } from 'src/modules/auth/controllers/google.auth.controller';
 
 @Module({
   imports: [
@@ -32,7 +35,10 @@ import { userAutoResolverOpts } from '../user/user.auto-resolver-opts';
       resolvers: userAutoResolverOpts,
     }),
   ],
-  providers: [AuthService, AuthResolver, JwtStrategy],
+  controllers: [
+    GoogleAuthController,
+  ],
+  providers: [AuthService, AuthResolver, JwtStrategy, GoogleStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}
