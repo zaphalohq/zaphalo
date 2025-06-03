@@ -75,12 +75,12 @@ const SidebarElement = ({ title, to, Icon, HandleToggleButton, subItems = [] }: 
   return (
     <div>
       <div 
-        className={`flex pl-4 hover:bg-stone-200 w-full rounded p-1 text-sm text-stone-950 gap-2 items-center cursor-pointer ${
-          isPageActive ? 'bg-white shadow' : ''
+        className={`flex pl-4 hover-blacky p-2 w-full rounded text-sm text-gray-200 gap-2 items-center cursor-pointer ${
+          isPageActive ? 'bg-blacky-light shadow' : ''
         }`}
         onClick={toggleSubMenu}
       >
-        <Icon className={`${isPageActive ? 'text-violet-500' : 'text-gray-500'}`} />
+        <Icon className={`${isPageActive ? 'text-violet-500' : 'text-violet-400'}`} />
         {subItems.length > 0 || !to ? (
           <div className="flex gap-20 items-center">
           <span>{title}</span>
@@ -103,11 +103,11 @@ const SidebarElement = ({ title, to, Icon, HandleToggleButton, subItems = [] }: 
               key={subItem.to}
               to={subItem.to}
               onClick={HandleToggleButton}
-              className={`flex pl-4 hover:bg-stone-200 w-full rounded p-1 text-sm text-stone-950 gap-2 items-center whitespace-pre ${
-                location.pathname === subItem.to ? 'bg-white shadow' : ''
+              className={`flex pl-4 hover-blacky w-full rounded p-1.5 text-sm text-white gap-2 items-center whitespace-pre ${
+                location.pathname === subItem.to ? 'bg-blacky-light shadow' : ''
               }`}
             >
-              <subItem.Icon className={`${location.pathname === subItem.to ? 'text-violet-500' : 'text-gray-500'}`} />
+              <subItem.Icon className={`${location.pathname === subItem.to ? 'text-violet-500' : 'text-violet-400'}`} />
               {subItem.title}
             </NavLink>
           ))}

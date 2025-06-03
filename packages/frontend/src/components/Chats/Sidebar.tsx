@@ -43,18 +43,18 @@ const ChatsSide = ({ setIsChatOpen }: any) => {
     <div>
       <div className='sticky inset-shadow-sm z-11'>
         {/* this is the upper on left side of chats */}
-        <div className='flex justify-between p-4.5 bg-stone-200'>
+        <div className='flex justify-between p-4.5 bg-white border-b border-gray-300 '>
           <h2 className='text-xl font-bold text-stone-950'>Chats</h2>
           <div className='relative flex gap-2 text-lg items-center'>
             {/* -------------this is button on sidebar with new contacts list----------- */}
-            <button onClick={HandleNewChatVisiablity} className='p-2 hover:bg-stone-300 rounded cursor-pointer'><FiEdit /></button>
+            <button onClick={HandleNewChatVisiablity} className='p-2 hover-light rounded cursor-pointer'><FiEdit /></button>
             <div className="menuref" ref={modalRef}>
               {isNewChatOpen ?
                 <ContactList HandleCreateContactVis={HandleCreateContactVis} HandleNewChatVisiablity={HandleNewChatVisiablity} /> 
                  : null} 
             </div>
             {isCreateContactVis ? <CreateContacts HandleCreateContactVis={HandleCreateContactVis} /> : null}
-            <button onClick={() => setIsInstantsVis(!isInstantsVis)} className='p-2 hover:bg-stone-300 rounded cursor-pointer'><FiList /></button>
+            <button onClick={() => setIsInstantsVis(!isInstantsVis)} className='p-2 hover-light rounded cursor-pointer'><FiList /></button>
             <div className="menuref1" ref={modalRef1}>
               {isInstantsVis ?
                 <AllInstants /> 
@@ -63,10 +63,11 @@ const ChatsSide = ({ setIsChatOpen }: any) => {
           </div>
         </div>
         {/* this is the search of left side of chats */}
-        <div className='p-3  border-b border-stone-300'>
+        <div className='px-5 py-4'>
           <SearchWhite HandleSearch={(event: any) => setSearchChannel(event.target.value)} />
         </div>
         <div className=" max-h-[79vh] min-h-[79vh] bg-gray-50 overflow-y-scroll">
+          <div className="px-4 pt-4 font-bold text-gray-500">Last chats</div>
           <ChannelLists searchChannel={searchChannel} />
         </div>
       </div>

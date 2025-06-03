@@ -24,12 +24,12 @@ const CurrentChannelNav = () => {
       const { setIsChatOpen } : any = useContext(ChatsContext)
 
     return (
-        <div className="px-4 py-1 pr-4 bg-stone-200 flex items-center justify-between">
+        <div className="px-4 py-1 pr-4 flex items-center justify-between border-b border-gray-300">
             <div onClick={() => setIsChannelDetails(!isChannelDetails)} className="flex items-center hover:cursor-pointer gap-4 p-[7px]">
             <div onClick={() => setIsChatOpen(false)} className='text-2xl md:hidden'><FiArrowLeft /></div>
                 {chatsDetails.profileImg ?
-                    <img className="w-12 h-12 p-0.5 object-cover rounded-full" src={chatsDetails.profileImg} alt="cdsdcsd" />
-                    : <div className='w-12 h-12 p-0.5 rounded-full bg-blue-200 flex items-center justify-center text-lg font-bold text-blue-500'>{chatsDetails.channelName.slice(0, 1).toUpperCase()}</div>
+                    <img className="w-8 h-8 p-0.5 object-cover rounded-full" src={chatsDetails.profileImg} alt="cdsdcsd" />
+                    : <div className='w-8 h-8 p-0.5 rounded-full bg-blue-200 flex items-center justify-center text-sm font-bold text-blue-500'>{chatsDetails.channelName.slice(0, 1).toUpperCase()}</div>
                 }
                 <div className="font-bold tex-lg">{chatsDetails.contactName ? chatsDetails.contactName : chatsDetails.channelName}</div>
             </div>
@@ -48,7 +48,7 @@ const CurrentChannelNav = () => {
             <div className="flex gap-4 text-[1.3rem] ">
                 {/* <button className="p-2 cursor-pointer rounded hover:bg-stone-300 text-lg"></button> */}
                 <button onClick={() => setIsUpdateChannelName(true)}
-                    className="p-2 cursor-pointer rounded bg-stone-300 hover:bg-stone-100 text-lg text-violet-600"><FiEdit2 /></button>
+                    className="p-2 cursor-pointer rounded hover:bg-gray-300 text-base font-normal text-violet-600"><FiEdit2 /></button>
                 {/* {/* <div className='text-violet-600'><FiEdit2 /></div> */}
             </div>
             {/* ------------------------this is delete if we want to delete channel now it is commented out */}

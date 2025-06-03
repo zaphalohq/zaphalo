@@ -7,9 +7,9 @@ import Logout from '../../Auth/Logout'
 
 const Sidebar = ({ isToggleActivated, HandleToggleButton }: any) => {
   return (
-    <div>
-      <div className={`${isToggleActivated ? '' : 'hidden md:block'} overflow-y-scroll sticky top-4 h-[calc(100vh-32px-40px)]`}>
+    <div className='bg-blacky-900 px-4'>
         <AccountToggle />
+      <div className={`${isToggleActivated ? '' : 'hidden md:block'} overflow-y-scroll custom-scrollbox custom-scroll sticky top-4 h-[calc(100vh-150px)]`}>
         <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiGrid} to='/dashboard' title={"Dashboard"} />
         <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiLayers} to='/workspace' title={"Workspace"} />
         <SidebarElement HandleToggleButton={HandleToggleButton} Icon={IoChatbubbleEllipsesOutline} to='/chats' title={"Chats"} />

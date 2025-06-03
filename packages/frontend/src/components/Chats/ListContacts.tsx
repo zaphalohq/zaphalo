@@ -80,7 +80,7 @@ const ListContacts = ({ contactName, phoneNo, HandleNewChatVisiablity, profileIm
             setFetchNow(true)
         HandleCurrentContact();
         setIsChatOpen(true);
-        }} className="bg-gray-100 cursor-pointer hover:bg-stone-300 w-full  flex gap-3 px-4 items-center p-2.5 border-b border-gray-200">
+        }} className="bg-gray-100 cursor-pointer hover-light w-full  flex gap-3 px-4 items-center p-2.5 border-b border-gray-200">
             {profileImg ?
                 <img className='w-11 h-11 object-cover rounded-full'
                     src={profileImg} alt="dfssdf" />

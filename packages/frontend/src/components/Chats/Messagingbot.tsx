@@ -194,6 +194,7 @@ import { SEND_MESSAGE } from '@src/pages/Mutation/Chats';
 import { ChatsContext } from '../Context/ChatsContext';
 import { IoSendSharp } from 'react-icons/io5';
 import { FiPaperclip } from 'react-icons/fi';
+import { RiSendPlaneFill } from "react-icons/ri";
 
 
 const MessageArea = () => {
@@ -301,11 +302,11 @@ console.log(deleteFileName);
   };
 
   return (
-    <form onSubmit={SubmitMsg}>
-      <div className="flex items-center justify-between bg-stone-200 p-6 px-8 relative">
+    <form className='bg-white mx-6 mb-6 rounded-2xl' onSubmit={SubmitMsg}>
+      <div className="flex items-center justify-between p-6 px-8 relative">
         <button
           type="button" // Prevent form submission
-          className="text-2xl p-2 hover:bg-stone-300 cursor-pointer relative"
+          className="text-2xl p-2 hover-light rounded cursor-pointer relative"
           onClick={() => document.getElementById('fileInput')?.click()} >
           <input
             type="file"
@@ -355,8 +356,8 @@ console.log(deleteFileName);
             placeholder="type a message here ..."
           />
         )}
-        <button type="submit" className="text-2xl p-2 hover:bg-stone-300 cursor-pointer">
-          <IoSendSharp />
+        <button type="submit" className="text-2xl p-2 rounded hover:bg-violet-700  bg-violet-500 text-white cursor-pointer">
+          <RiSendPlaneFill />
         </button>
       </div>
     </form>

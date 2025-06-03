@@ -33,9 +33,7 @@ const CurrentChannel = ({ channelName, channelId, memberIds, unseen, setIsChanne
   //------------------Handle Current Channel-------------------------
   const HandleCurrentChannel = async () => {
     const allMemberNumbers = memberIds.map((member: any) => member.phoneNo)
-      
     const receiverNumbers = allMemberNumbers.filter((number : any) => number != import.meta.env.VITE_SENDER_PHONENO)
-
     const currentChannel = {
       channelName,
       channelId,
@@ -70,20 +68,17 @@ const { setIsChatOpen }: any = useContext(ChatsContext);
         setIsChatOpen(true)
       }
       }
-        className={`flex cursor-pointer items-center justify-between 
-                       px-6 py-3  border-stone-300
-                       ${channelId === chatsDetails.channelId ? 'bg-stone-300' : 'hover:bg-stone-100 border-b'}
+        className={`flex cursor-pointer items-center justify-between rounded mx-2 
+                       px-6 py-3 
+                       ${channelId === chatsDetails.channelId ? 'bg-light' : 'hover-light'}
                        `}>
         <div className='flex gap-4'>
-          {/* Profile Picture */}
           {/* <img className='w-11 h-11 object-cover rounded-full' src="https://www.washingtonpost.com/wp-apps/imrs.php?src=https://arc-anglerfish-washpost-prod-washpost.s3.amazonaws.com/public/L73IDX7GKCHAD7EJJS7FQ7A6BU.JPG&w=1200" alt="" /> */}
-          <div className="w-11 h-11 bg-blue-200 rounded-full flex justify-center text-blue-500 font-bold text-lg items-center">{(channelName).slice(0, 1).toUpperCase()}</div>
-          {/* Message Details */}
+          <div className="w-8 h-8 bg-blue-200 rounded-full flex justify-center text-blue-500 font-bold text-sm items-center">{(channelName).slice(0, 1).toUpperCase()}</div>
           <div className="flex items-center">
             <p className='font-bold truncate w-[9rem]'>{channelName}</p>
           </div>
         </div>
-        {/* Message Time and Notification */}
         <span className='flex flex-col items-end text-sm'>
           {/* <div>12:00</div> */}
           {unseenMessageCount !== 0 ?
@@ -92,7 +87,6 @@ const { setIsChatOpen }: any = useContext(ChatsContext);
             </div>
             : <></>}
         </span>
-        {/* <button className="p-2 cursor-pointer rounded hover:bg-stone-300 text-lg"><FaEllipsisVertical /></button> */}
       </div>
     </div>
   )

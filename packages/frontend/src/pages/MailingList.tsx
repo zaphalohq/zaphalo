@@ -56,6 +56,8 @@ const mailingList = () => {
 
 
   return (
+    <div>
+      <div className='font-bold text-lg border-gray-300 p-4 border-b'>Mailing List</div>
     <div className="p-10 mt-4 bg-white rounded">
       <div onClick={HandelAddButton} className="flex text-lg font-semibold  items-center justify-end" >
         <div className="p-2 px-4 rounded hover:bg-violet-600 cursor-pointer bg-violet-500 text-white flex items-center justify-center gap-2">
@@ -101,6 +103,7 @@ const mailingList = () => {
           <span>Create Mailing List</span>
         </div>
       </div>
+    </div>
     </div>
   )
 }

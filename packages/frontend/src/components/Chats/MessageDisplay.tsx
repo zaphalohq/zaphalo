@@ -144,9 +144,9 @@ const MessageDisplay = () => {
   }, [allMessages]);
 
   return (
-    <div className="relative h-[75vh]">
+    <div className="relative h-[72.8vh]">
       {/* opacity of image */}
-      <div style={{ backgroundAttachment: "fixed" }} className="absolute inset-0 overflow-y-scroll bg-whatsappImg bg-gray-500 opacity-15 z-0 "></div>
+      {/* <div style={{ backgroundAttachment: "fixed" }} className="absolute inset-0 overflow-y-scroll bg-whatsappImg bg-gray-500 opacity-15 z-0 "></div> */}
       <div ref={messagesContainerRef} className="relative z-10 h-full overflow-y-scroll p-4">
         {/* <button onClick={BUTTON}>BUTTON</button> */}
         {allMessages.map((message, index) =>
@@ -164,7 +164,7 @@ const MessageDisplay = () => {
               </div>
             ) : (
               <div className="flex justify-end rounded text-lg">
-                <div className=" bg-[#dbf8c6] p-2 rounded-lg flex flex-col gap-1 max-w-[70%] md:max-w-[30%]">
+                <div className=" bg-[#dbdff1] p-2 rounded-lg flex flex-col gap-1 max-w-[70%] md:max-w-[30%]">
                   {message.attachmentUrl ? <div>
                     {/\.(png|jpe?g|gif|webp|svg)$/i.test(message.attachmentUrl) ? (
                       <img

@@ -38,6 +38,8 @@ const Workspace = () => {
   }
 
   return (
+    <div>
+      <div className='font-bold text-lg border-gray-300 p-4 border-b'>Workspace Invites</div>
     <div className='bg-white flex md:flex-row p-4 mt-2 rounded items-center gap-4  flex-col'>
       <div className='w-full flex rounded-2xl'>
         <input className='p-4 border-none focus:outline-none focus:ring-0 focus:border-none w-full bg-gray-200 text-blue-700' type="text" name="" id="" defaultValue={inviteLink} />
@@ -47,6 +49,8 @@ const Workspace = () => {
       <SubmitButton title="Generate Invite" type='button' onClick={HandleInviteLink} Icon={FiRefreshCw} />
       </div>
     </div>
+    </div>
+
   )
 }
 

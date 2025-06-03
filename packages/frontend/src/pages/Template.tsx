@@ -12,7 +12,9 @@ const TemplateMain = () => {
   const [isTemplatePreviewVis, setIsTemplatePreviewVis] = useState(false)
   const { templateFormData,setTemplateFormData }: any = useContext(TemplateContext)
   return (
-    <div className='h-[calc(100vh-90px)] overflow-y-scroll'>
+    <div >
+      <div className='font-bold text-lg border-gray-300 p-4 border-b'>Mailing List</div>
+      <div className='h-[calc(100vh-100px)]  overflow-y-scroll'>
       <div className="grid grid-cols-4 pt-4 px-4 ">
         <div className="md:col-start-4 md:pb-0 col-start-1 col-end-4 pb-4">
           {!isTemplateFormVis ? <SubmitButton type='button' onClick={() => setIsTemplateFormVis(true)} title="Create New Template" Icon={FaPlus} />
@@ -50,6 +52,7 @@ const TemplateMain = () => {
             </div>)
             : <TemplateTable setIsTemplatePreviewVis={setIsTemplatePreviewVis} />)
           : <></>}
+      </div>
       </div>
     </div>
   )

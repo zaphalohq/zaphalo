@@ -165,9 +165,9 @@ const Broadcast = () => {
     };
 
     return (
+        <div>
+      <div className='font-bold text-lg border-gray-300 p-4 border-b'>Broadcast Template</div>
         <div className="mt-4 bg-white rounded-lg shadow-lg p-6 w-full max-w-6xl mx-auto relative">
-            <h1 className="text-2xl font-bold text-gray-800 mb-6">Broadcast Template</h1>
-
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 relative z-10">
                 {/* Template Dropdown */}
                 <div className="relative">
@@ -271,6 +271,7 @@ const Broadcast = () => {
                 )}
                 {/* </div> */}
             </div>
+        </div>
         </div>
     );
 };

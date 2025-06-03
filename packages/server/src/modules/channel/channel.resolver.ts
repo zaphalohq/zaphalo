@@ -23,7 +23,7 @@ export class ChannelResolver {
     private readonly instantsService: instantsService) { }
 
   @Query(() => [Channel])
-  @UseGuards(GqlAuthGuard)
+  // @UseGuards(GqlAuthGuard)
   async findAllChannel(@Context('req') req): Promise<Channel[]> {
     const workspaceId = req.headers['x-workspace-id']
     return await this.channelService.findAllChannel(workspaceId);
