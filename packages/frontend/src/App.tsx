@@ -1,5 +1,5 @@
 import './App.css'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import Register from './components/Auth/Register'
 import Login from './components/Auth/Login'
 import { ApolloProvider } from '@apollo/client'
@@ -37,6 +37,7 @@ function App() {
               <Route path='/login' element={<Login />} />
               <Route element={<ProtectedRoute />}>
                 <Route path="/" element={<MainLayout />}>
+                 <Route index element={<Navigate to="dashboard" replace />} />
                   <Route path="dashboard" element={<Dashboard />} />
                   <Route path="workspace" element={<Workspace />} />
                   <Route path="chats" element={<Chats />} />

@@ -7,6 +7,7 @@ import { TypeORMModule } from "../../database/typeorm/typeorm.module";
 import { MailingContacts } from "./mailingContacts.entity";
 import { MailingListService } from "./mailingList.service";
 import { MailingListResolver } from "./mailingList.resolver";
+import { MailingListController } from "./mailingList.controller";
 
 @Module({
   imports : [
@@ -19,7 +20,7 @@ import { MailingListResolver } from "./mailingList.resolver";
       services: [MailingListService],
     })
   ],
-  controllers : [],
+  controllers : [MailingListController],
   providers : [MailingListResolver,MailingListService],
   exports: [ MailingListService],
 })

@@ -54,10 +54,7 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    // tailwindcss(),
-    // To enable import '@src/' type of imports
     tsconfigPaths(),
-    // To enable import of SVG as React component
     svgrPlugin(),
   ],
   server: {
