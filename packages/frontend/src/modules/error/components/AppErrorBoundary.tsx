@@ -15,7 +15,6 @@ export const AppErrorBoundary = ({
 }: AppErrorBoundaryProps) => {
 
   const handleError = (error: Error, info: ErrorInfo) => {
-    console.log("........error.......................", error);
     Sentry.captureException(error, (scope) => {
       scope.setExtras({ info });
       return scope;

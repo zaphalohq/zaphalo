@@ -17,9 +17,9 @@ import { RecoilRoot } from 'recoil';
 import { ErrorBoundary } from "react-error-boundary";
 import { AppErrorBoundary } from '@src/modules/error/components/AppErrorBoundary';
 import { AppErrorFallback } from '@src/modules/error/components/AppErrorFallback';
-import MailingList from './pages/MailingList'
-import Broadcast from './pages/Broadcast'
-import LoadingPage from './components/UI/Loadingpage'
+
+import { AppRouter } from '@src/modules/app/components/AppRouter';
+
 
 
 function App() {
@@ -30,27 +30,7 @@ function App() {
         resetOnLocationChange={false}
         FallbackComponent={AppErrorFallback}>
         <ApolloProvider client={client}>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/register" element={<Register />} />
-              <Route path="/register/:token" element={<Register />} />
-              <Route path='/login' element={<Login />} />
-              <Route element={<ProtectedRoute />}>
-                <Route path="/" element={<MainLayout />}>
-                 <Route index element={<Navigate to="dashboard" replace />} />
-                  <Route path="dashboard" element={<Dashboard />} />
-                  <Route path="workspace" element={<Workspace />} />
-                  <Route path="chats" element={<Chats />} />
-                  <Route path="whatsappinstants" element={<WhatsappInstants />} />
-                  <Route path="contacts" element={<Contacts />} />
-                  <Route path="template" element={<Template />} />
-                  <Route path="mailinglist" element={<MailingList />} />
-                  <Route path="broadcast" element={<Broadcast />} />
-                  <Route path="loading" element={<LoadingPage />} />
-                </Route>
-              </Route >
-            </Routes>
-          </BrowserRouter>
+          <AppRouter/>
         </ApolloProvider>
       </AppErrorBoundary>
     </RecoilRoot>

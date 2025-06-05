@@ -15,7 +15,7 @@ export class MailingListController {
 
     @Post()
     @UseInterceptors(FileInterceptor('file'))
-    @UseGuards(GqlAuthGuard)
+    @UseGuards(GqlAuthGuard)    
     async uploadExcel(@UploadedFile() file: Express.Multer.File, @Req() req: Request) {
 
         const workbook = XLSX.read(file.buffer, { type: 'buffer' });
