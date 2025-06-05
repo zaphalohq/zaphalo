@@ -163,7 +163,7 @@ export class instantsService {
                         parameters: [
                             {
                                 type: 'text',
-                                text: 'Chintan Patel' //replaces {{1}} in the body and URL
+                                text: 'Chintan Patel' 
                             }
                         ]
                     }

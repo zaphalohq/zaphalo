@@ -43,7 +43,7 @@ export class TemplateFileUpload {
 console.log(file);
 
         const file_handle = await this.templateService.uploadFile(file, appId, accessToken);
-        return { file_handle, fileUrl : file.path }
+        return { file_handle, fileUrl : `http://localhost:3000/${file.filename}` }
 
     }
 
@@ -57,5 +57,7 @@ console.log(file);
     //         message: `File ${deleteFileName} deleted successfully!`
     //     };
     // }
+
+    
 
 }

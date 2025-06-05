@@ -1,8 +1,10 @@
-import { useQuery } from "@apollo/client"
-import { useEffect, useState } from "react"
-import { Find_ALL_TEMPLATE } from "@pages/Mutation/Template"
+import { useMutation, useQuery } from "@apollo/client"
+import { useContext, useEffect, useState } from "react"
+import { Find_ALL_TEMPLATE, GET_TEMPLATE_STATUS, Send_Template_Message } from "@pages/Mutation/Template"
+import { TemplateContext } from "../Context/TemplateContext"
 
-const TemplateTable = ({triggerRefetch} : any) => {
+const TemplateTable = ({ setIsTemplatePreviewVis }: any) => {
+    const { setTemplateFormData }: any = useContext(TemplateContext)
     const [templates, setTemplates] = useState([{
         id: '',
         status: '',
@@ -11,15 +13,29 @@ const TemplateTable = ({triggerRefetch} : any) => {
         category: '',
     }])
 
+    const [templateId, setTemplateId] = useState("")
+    const [GetTemplateStatus] = useMutation(GET_TEMPLATE_STATUS)
+
+    const [SendTemplateMessage] = useMutation(Send_Template_Message)
+    const HandelSendMessage = () => {
+        SendTemplateMessage()
+    }
+
     const { data: templateData, loading: templateLoading, refetch: templateRefetch }: any = useQuery(Find_ALL_TEMPLATE);
     useEffect(() => {
-        console.log(templateData,"...........................teddd..............................");
-            templateRefetch()
+        console.log(templateData, "...........................teddd..............................");
+        templateRefetch()
         if (templateData && !templateLoading) {
             console.log(templateData.findAllTemplate);
             setTemplates(templateData.findAllTemplate)
         }
     }, [templateData])
+
+    const HandleTempalteStatus = (templateId: string) => {
+        GetTemplateStatus({
+            variables: { templateId },
+        })
+    }
 
     return (
         <div>
@@ -31,6 +47,9 @@ const TemplateTable = ({triggerRefetch} : any) => {
                             <th scope="col" className="px-6 py-4 text-center truncate">Template Id</th>
                             <th scope="col" className="px-6 py-4 text-center truncate">Status</th>
                             <th scope="col" className="px-6 py-4 text-center truncate">Category</th>
+                            <th scope="col" className="px-6 py-4 text-center truncate">Check Template Status</th>
+                            <th scope="col" className="px-6 py-4 text-center truncate">preview</th>
+                            <th scope="col" className="px-6 py-4 text-center truncate">Send Template</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -54,9 +73,9 @@ const TemplateTable = ({triggerRefetch} : any) => {
                                     title={template.status}
                                 >
                                     <div className="flex items-center justify-center">
-                                        { template.status.toLowerCase() == "approved" ? <p className="p-1.5 bg-green-600 rounded-full "></p> : <></>}
-                                        { template.status.toLowerCase() == "rejected" ? <p className="p-1.5 bg-red-600 rounded-full "></p> : <></>}
-                                        { template.status.toLowerCase() == "pending" ? <p className="p-1.5 bg-yellow-600 rounded-full "></p> : <></>}
+                                        {template.status.toLowerCase() == "approved" ? <p className="p-1.5 bg-green-600 rounded-full "></p> : <></>}
+                                        {template.status.toLowerCase() == "rejected" ? <p className="p-1.5 bg-red-600 rounded-full "></p> : <></>}
+                                        {template.status.toLowerCase() == "pending" ? <p className="p-1.5 bg-yellow-600 rounded-full "></p> : <></>}
                                         <p className="p-2">{template.status.toUpperCase()}</p>
                                     </div>
 
@@ -66,6 +85,27 @@ const TemplateTable = ({triggerRefetch} : any) => {
                                     title={template.category}
                                 >
                                     {template.category.toUpperCase()}
+                                </td>
+                                <td onClick={() => HandleTempalteStatus(template.templateId)}
+                                    className="px-6 py-4 text-center truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
+                                    title="sendTemplate"
+                                >
+                                    Check Template Status
+                                </td>
+                                <td onClick={() => {
+                                    setTemplateFormData(template)
+                                    setIsTemplatePreviewVis(true)
+                                }}
+                                    className="px-6 py-4 text-center truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
+                                    title="sendTemplate"
+                                >
+                                    preview
+                                </td>
+                                <td onClick={HandelSendMessage}
+                                    className="px-6 py-4 text-center truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
+                                    title="sendTemplate"
+                                >
+                                    send template
                                 </td>
                             </tr>
                         ))}

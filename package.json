@@ -11,7 +11,7 @@
     "passport-microsoft": "^2.0.0",
     "pg": "^8.14.1",
     "react-error-boundary": "^6.0.0",
-    "react-router-dom": "^7.6.0",
+    "react-router-dom": "^7.6.2",
     "recoil": "^0.7.7",
     "typeorm": "^0.3.21"
   },

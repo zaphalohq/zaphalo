@@ -5,6 +5,7 @@ import { ContactsModule } from './contacts/contacts.module';
 import { channelModule } from './channel/channel.module';
 import { WorkspaceModule } from './workspace/workspace.module';
 import { TemplateModule } from './template/template.module';
+import { MailingListModule } from './mailingList/mailingList.module';
 
 @Module({
   imports: [
@@ -13,7 +14,8 @@ import { TemplateModule } from './template/template.module';
     ContactsModule,
     channelModule,
     WorkspaceModule,
-    TemplateModule
+    TemplateModule,
+    MailingListModule
   ],
   exports: [
     UserModule,
@@ -21,7 +23,8 @@ import { TemplateModule } from './template/template.module';
     ContactsModule,
     channelModule,
     WorkspaceModule,
-    TemplateModule
+    TemplateModule,
+    MailingListModule
   ],
 })
 export class CoreModule {}

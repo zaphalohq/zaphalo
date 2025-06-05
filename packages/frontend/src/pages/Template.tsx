@@ -1,18 +1,20 @@
 import { FaPlus } from 'react-icons/fa'
 import TemplateForm from '@components/Template/TemplateForm'
 import SubmitButton, { CloseButton } from '@components/UI/SubmitButton'
-import { useState } from 'react'
-import { FiX } from 'react-icons/fi'
+import { useContext, useState } from 'react'
+import { FiArrowLeft, FiX } from 'react-icons/fi'
 import TemplateTable from '@components/Template/TemplateTable'
-import { TemplateProvider } from '@components/Context/TemplateContext'
+import { TemplateContext, TemplateProvider } from '@components/Context/TemplateContext'
 import TemplatePreview from '@components/Template/TemplatePreview'
 
 const TemplateMain = () => {
   const [isTemplateFormVis, setIsTemplateFormVis] = useState(false)
-  const [triggerRefetch, setTriggerRefetch] = useState(0)
-
+  const [isTemplatePreviewVis, setIsTemplatePreviewVis] = useState(false)
+  const { templateFormData,setTemplateFormData }: any = useContext(TemplateContext)
   return (
-    <div className='h-[calc(100vh-90px)] overflow-y-scroll'>
+    <div >
+      <div className='font-bold text-lg border-gray-300 p-4 border-b'>Mailing List</div>
+      <div className='h-[calc(100vh-100px)]  overflow-y-scroll'>
       <div className="grid grid-cols-4 pt-4 px-4 ">
         <div className="md:col-start-4 md:pb-0 col-start-1 col-end-4 pb-4">
           {!isTemplateFormVis ? <SubmitButton type='button' onClick={() => setIsTemplateFormVis(true)} title="Create New Template" Icon={FaPlus} />
@@ -21,24 +23,36 @@ const TemplateMain = () => {
       </div>
       {isTemplateFormVis ?
         <div className="grid grid-cols-2 gap-6 p-6 overflow-y-auto ">
-          <TemplateForm setTriggerRefetch={setTriggerRefetch} />
+          <TemplateForm />
           <div className=' absolute right-35 top-60 flex justify-center items-center'>
-
-            {/* <div>{templateFormData.name}</div>
-                <div>{templateFormData.category}</div>
-                <div>{templateFormData.language}</div>
-                <div>{templateFormData.headerText}</div>
-                <div>{templateFormData.footerText}</div>
-                <div>{templateFormData.buttonText}</div>
-                <div>{templateFormData.buttonUrl}</div>
-                <div>{templateFormData.body_text}</div>
-                <div>{templateFormData.headerFormat}</div> */}
-            <TemplatePreview />
+            <TemplatePreview templatePreviewData={templateFormData} />
           </div>
         </div>
         : <></>}
       <div>
-        {!isTemplateFormVis ? <TemplateTable triggerRefetch={triggerRefetch} /> : <></>}
+        {!isTemplateFormVis ?
+          (isTemplatePreviewVis ? (
+            <div>
+              <div onClick={() => {
+                setTemplateFormData({
+                  account: '',
+                  templateName: '',
+                  category: 'UTILITY',
+                  language: 'en_US',
+                  bodyText: '',
+                  footerText: '',
+                  headerType: 'NONE',
+                  header_handle: '',
+                  button: [],
+                  variables: [],
+                })
+                setIsTemplatePreviewVis(false)
+              }} className='ml-6 flex items-center justify-center h-10 w-10 rounded-full bg-violet-400 hover:bg-violet-500 cursor-pointer text-white text-lg font-bold'><FiArrowLeft /></div>
+              <TemplatePreview templatePreviewData={templateFormData} />
+            </div>)
+            : <TemplateTable setIsTemplatePreviewVis={setIsTemplatePreviewVis} />)
+          : <></>}
+      </div>
       </div>
     </div>
   )

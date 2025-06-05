@@ -89,6 +89,9 @@ export class TemplateRequestInput {
   @Field({ nullable: true })
   header_handle: string;
 
+  @Field({ nullable: true })
+  fileUrl: string;
+
   @Field(() => [ButtonInput], { nullable: true })
   button: ButtonInput[];
 

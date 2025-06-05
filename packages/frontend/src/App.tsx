@@ -1,5 +1,5 @@
 import './App.css'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import Register from './components/Auth/Register'
 import Login from './components/Auth/Login'
 import { ApolloProvider } from '@apollo/client'
@@ -17,7 +17,9 @@ import { RecoilRoot } from 'recoil';
 import { ErrorBoundary } from "react-error-boundary";
 import { AppErrorBoundary } from '@src/modules/error/components/AppErrorBoundary';
 import { AppErrorFallback } from '@src/modules/error/components/AppErrorFallback';
+
 import { AppRouter } from '@src/modules/app/components/AppRouter';
+
 
 
 function App() {

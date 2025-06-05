@@ -35,7 +35,7 @@ export const ChatsProvider = ({ children }: any) => {
     const [newMessage, setNewMessage] = useState([{
             channelId: '',
             phoneNo: '',
-            message: [], // Array of messages
+            textMessage: [], // Array of messages
             unseen: 0,
         }])
 

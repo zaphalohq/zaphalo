@@ -9,7 +9,7 @@ import {
 import { Server, Socket } from 'socket.io';
 
 
-@WebSocketGateway(Number(process.env.WEBSOCKET_PORT), { cors: { origin: '*' } }) // Port 8080 with CORS enabled
+@WebSocketGateway(Number(process.env.WEBSOCKET_PORT), { cors: { origin: '*' } })
 export class WebSocketService implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server : Server

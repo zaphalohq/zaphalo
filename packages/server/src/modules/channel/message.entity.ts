@@ -24,7 +24,7 @@ export class Message {
 
   @Field(() => String)
   @Column()
-  message: string;
+  textMessage: string;
 
   @Field(() => Channel)
   @ManyToOne(() => Channel , channel => channel.messages, { onDelete: 'CASCADE' })
@@ -38,7 +38,7 @@ export class Message {
 
   @Field(() => String, { nullable: true })
   @Column({ nullable: true })
-  attachment: string;
+  attachmentUrl: string;
 
   @Field()
   @CreateDateColumn()

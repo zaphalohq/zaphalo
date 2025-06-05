@@ -60,12 +60,12 @@ const ContactList = ({ HandleNewChatVisiablity, HandleCreateContactVis }: any) =
                     HandleCreateContactVis()
                 }
                 }
-                    className="bg-gray-100 cursor-pointer hover:bg-stone-300 w-full  flex gap-3 px-4 items-center p-2 border-b border-gray-200">
+                    className="bg-gray-100 cursor-pointer hover-light w-full  flex gap-3 px-4 items-center p-2 border-b border-gray-200">
                     <span className="text-lg rounded-full bg-stone-200 p-3 text-stone-950"><FiPlus /></span>
                     <span className="font-semibold">New contacts</span>
                 </div>
 
-                <div className="bg-gray-100 cursor-pointer hover:bg-stone-300 w-full  flex gap-3 px-4 items-center p-2 border-b border-gray-200">
+                <div className="bg-gray-100 cursor-pointer hover-light w-full  flex gap-3 px-4 items-center p-2 border-b border-gray-200">
                     <span className="text-lg rounded-full bg-stone-200 p-3 text-stone-950"><FiUsers /></span>
                     <span className="font-semibold">New group</span>
                 </div>

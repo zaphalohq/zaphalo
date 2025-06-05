@@ -9,7 +9,7 @@ import TemplateBody from "./TemplateBody";
 import TemplateButton from "./TemplateButton";
 import TemplateVariables from "./TemplateVariables";
 
-const TemplateForm = ({ setTriggerRefetch }: any) => {
+const TemplateForm = () => {
   const [templateData, setTemplateData] = useState({
     account: '',
     templateName: '',
@@ -24,6 +24,7 @@ Thank you.`,
     variables : [],
     headerType: 'NONE',
     header_handle: '',
+    fileUrl: ''
   });
   const [status, setStatus] = useState(null);
   const [templateId, setTemplateId] = useState('');
@@ -54,6 +55,7 @@ Thank you.`,
         });
 
         updatedTemplateData['header_handle'] = response.data.file_handle;
+        updatedTemplateData['fileUrl'] = response.data.fileUrl;
         setTemplateData(updatedTemplateData);
         console.log('File uploaded successfully:', response.data);
         return updatedTemplateData
@@ -71,8 +73,7 @@ Thank you.`,
     if (file) {
       setFile(file)
       const imageURL = URL.createObjectURL(file)
-      console.log(imageURL, "iamdsnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj");
-      setTemplateFormData({ ...templateFormData, ["header_handle"]: imageURL })
+      setTemplateFormData({ ...templateFormData, ["fileUrl"]: imageURL })
     }
   }
 
@@ -92,8 +93,6 @@ Thank you.`,
       setStatus(result);
       if (result.success) {
         setTemplateId(JSON.parse(result.data).id);
-        checkStatus(JSON.parse(result.data).id)
-        setTriggerRefetch((prevCount: any) => prevCount + 1)
       }
     } catch (err: any) {
       setError(err.message || 'Failed to submit template');
@@ -101,40 +100,6 @@ Thank you.`,
 
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  // const [getTemplateStatus] = useMutation\(GET_TEMPLATE_STATUS);
-  // const checkStatus = async () => {
-  //     if (!templateId) return;
-  //     try {
-  //       const response = await getTemplateStatus({ variables: { templateId } });
-  //       setStatus(response.data.getTemplateStatus);
-  //     } catch (err : any) {
-  //       setError(err.message || 'Failed to check status');
-  //     }
-  //   };
-
-  const checkStatus = (templateId: any) => {
-    if (!templateId) return;
-
-    const { data, error } = useQuery(GET_TEMPLATE_STATUS, {
-      variables: { templateId },
-      skip: !templateId,
-      onCompleted: (data) => {
-        setStatus(data.getTemplateStatus);
-        setTriggerRefetch((prevCount: any) => prevCount + 1)
-      },
-      onError: (err) => {
-        setError(err.message || 'Failed to check status');
-      },
-    });
-
-    if (data) {
-      setStatus(data.getTemplateStatus);
-    }
-    if (error) {
-      setError(error.message || 'Failed to check status');
     }
   };
 
@@ -168,31 +133,7 @@ Thank you.`,
 
             {currentComponent == "Variables" ?
               <TemplateVariables setTemplateData={setTemplateData} />
-              : <></>}
-            {/* <div className="grid grid-cols-2 gap-6 mt-8">
-            <div onClick={() =>{
-              const componentIndex = templateComponents.findIndex((component : any ) => component == currentComponent)
-              if(componentIndex == 0){
-                setCurrentComponent(templateComponents[0])
-              }else{
-              setCurrentComponent(templateComponents[componentIndex - 1])
-              }
-            }} className="p-2 flex items-center justify-center gap-2 rounded text-lg text-white cursor-pointer bg-violet-500 hover:bg-violet-700">
-              <FiChevronLeft />
-              <p>Previous</p>
-            </div>
-            <div onClick={() =>{
-              const componentIndex = templateComponents.findIndex((component : any ) => component == currentComponent)
-              if(componentIndex == 4){
-                setCurrentComponent(templateComponents[4])
-              }else{
-              setCurrentComponent(templateComponents[componentIndex + 1])
-              }
-            }} className="p-2 flex items-center justify-center gap-2 rounded text-lg text-white cursor-pointer bg-violet-500 hover:bg-violet-700">
-              <p>Next</p>
-              <FiChevronRight />
-            </div>
-           </div> */}
+              : <></>} 
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
@@ -212,7 +153,7 @@ Thank you.`,
           </pre>
           {templateId && (
             <button
-              onClick={() => checkStatus(templateId)}
+              // onClick={() => checkStatus(templateId)}
               className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
             >
               Refresh Status

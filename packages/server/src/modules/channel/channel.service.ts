@@ -11,24 +11,6 @@ import axios, { AxiosResponse } from "axios"
 import fs from "fs"
 import { WorkspaceService } from "../workspace/workspace.service";
 
-interface TemplateComponent {
-    type: 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS';
-    text?: string;
-    format?: 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT';
-    buttons?: Array<{
-      type: 'QUICK_REPLY' | 'PHONE_NUMBER' | 'URL';
-      text: string;
-      phone_number?: string;
-      url?: string;
-  }>;
-}
-
-interface TemplateRequest {
-    name: string;
-    category: 'AUTHENTICATION' | 'MARKETING' | 'UTILITY';
-    language: string;
-    components: TemplateComponent[];
-}
 
 @Injectable()
 export class ChannelService {
@@ -41,42 +23,42 @@ export class ChannelService {
         private readonly userService: UserService,
         private readonly workspaceService: WorkspaceService,
         // Use an absolute path relative to the module's location
-    // private readonly uploadDir = './uploads'
-        ) { }
+        // private readonly uploadDir = './uploads'
+    ) { }
 
 
-    async findOrCreateChannel(phoneNo: any, memberIds: number[],workspaceId : string, channelName?: string, userId?: any, ) {        
+    async findOrCreateChannel(phoneNo: any, memberIds: number[], workspaceId: string, channelName?: string, userId?: any,) {
         const contacts = await this.contactsservice.findContactsByPhoneNoArr(memberIds, workspaceId)
 
         //----finding channel exist or not ------------------------
         const isChannelExist = await this.findExistingChannelByPhoneNo(memberIds, workspaceId)
-        console.log(isChannelExist,"isChannelExist...................isChannelExist");
-        
+        console.log(isChannelExist, "isChannelExist...................isChannelExist");
+
         if (isChannelExist && isChannelExist.channelName)
-            return {channel : isChannelExist , newChannelCreated : false }
+            return { channel: isChannelExist, newChannelCreated: false }
         const user = await this.userService.findByUserId(userId)
         if (!user) throw new Error("user doesnt found")
-            const workspace = await this.workspaceService.findWorkspaceById(workspaceId)
+        const workspace = await this.workspaceService.findWorkspaceById(workspaceId)
         if (!workspace) throw new Error("workspace doesnt found")
-            const newChannel = this.channelRepository.create({
+        const newChannel = this.channelRepository.create({
             channelName: channelName || phoneNo, // Default name as phoneNo
             contacts: contacts,
             writeUser: user,
             createUser: user,
             membersidsss: JSON.stringify(memberIds),
-            workspace : workspace,
+            workspace: workspace,
         })
         await this.channelRepository.save(newChannel)
         // console.log('thi siis memebrs ids', memberIds);
-        console.log(newChannel,"..................................ds.ds.......................");
-        
-        return {channel : newChannel, newChannelCreated : true}
+        console.log(newChannel, "..................................ds.ds.......................");
+
+        return { channel: newChannel, newChannelCreated: true }
     }
 
-    async findExistingChannelByPhoneNo(memberIds: any, workspaceId : string): Promise<Channel | undefined> {
+    async findExistingChannelByPhoneNo(memberIds: any, workspaceId: string): Promise<Channel | undefined> {
         const channelExist = await this.channelRepository.find({
-            where: { contacts: memberIds.map((member) => ({ phoneNo: member })), workspace : { id : workspaceId} },
-            relations: ['contacts','workspace']
+            where: { contacts: memberIds.map((member) => ({ phoneNo: member })), workspace: { id: workspaceId } },
+            relations: ['contacts', 'workspace']
         })
         console.log(channelExist, memberIds, "this is the one channelExistst ");
         //------------this is for messaging to own number------------
@@ -87,13 +69,13 @@ export class ChannelService {
         //     return defaultChannel || undefined
         // } else { }
         // console.log(channelExist,"..............channelExist......................");
-        
+
         const membersIdsStr = memberIds.sort((a, b) => a - b).join(',')
         const stillChannelExist = channelExist.find(channel => {
             const channelPhoneNoStr = channel.contacts
-            .map(contacts => contacts.phoneNo)
-            .sort((a, b) => a - b)
-            .join(',')
+                .map(contacts => contacts.phoneNo)
+                .sort((a, b) => a - b)
+                .join(',')
             // console.log(channelPhoneNoStr);
 
             return channelPhoneNoStr == membersIdsStr;
@@ -103,18 +85,18 @@ export class ChannelService {
         return stillChannelExist
     }
 
-    async createMessage(message: string, channelId: string, senderId: number, workspaceId :string | undefined ,unseen?: boolean, attachment?: string) {
+    async createMessage(textMessage: string, channelId: string, senderId: number, workspaceId: string | undefined, unseen?: boolean, attachmentUrl?: string) {
         const sender = await this.contactsservice.findOneContact(senderId, workspaceId);
-        console.log(sender, channelId,"sendersendersendersendersendersendersendersender");
-        
+        console.log(sender, channelId, "sendersendersendersendersendersendersendersender");
+
         if (!sender) throw new Error('Sender not found');
-        const channel = await this.channelRepository.findOne({ where: { id: channelId, workspace : { id : workspaceId }}});
+        const channel = await this.channelRepository.findOne({ where: { id: channelId, workspace: { id: workspaceId } } });
         if (!channel) throw new Error('Channel not found');
-console.log(channel,"channelchannelchannelchannelchannelchannelchannel");
+        console.log(channel, "channelchannelchannelchannelchannelchannelchannel");
 
         const message_rec = this.messageRepository.create({
-            message,
-            attachment,
+            textMessage,
+            attachmentUrl,
             sender: sender,
             channel: channel,
             unseen: unseen,
@@ -125,29 +107,29 @@ console.log(channel,"channelchannelchannelchannelchannelchannelchannel");
         return message_rec
     }
 
-    async findAllChannel(workspaceId : string): Promise<Channel[]> {
+    async findAllChannel(workspaceId: string): Promise<Channel[]> {
         const allChannel = await this.channelRepository.find({
-           relations: ['contacts'] ,
-       })
+            relations: ['contacts'],
+        })
 
 
         return await this.channelRepository
-        .createQueryBuilder('channel')
-        .leftJoinAndSelect('channel.contacts', 'contacts')
-        .leftJoinAndSelect('channel.messages', 'messages', 'messages.unseen = :unseen', { unseen: false })
+            .createQueryBuilder('channel')
+            .leftJoinAndSelect('channel.contacts', 'contacts')
+            .leftJoinAndSelect('channel.messages', 'messages', 'messages.unseen = :unseen', { unseen: false })
             .leftJoinAndSelect('channel.workspace', 'workspace') // Ensure workspace relation is loaded
             .where('workspace.id = :workspaceId', { workspaceId }) // Filter by workspaceId
             .addSelect(
-              (subQuery) =>
-              subQuery
-              .select('MAX(m.createdAt)', 'latest_time')
-              .from(Message, 'm')
-              .where('m.channelId = channel.id'),
-              'latest_message_time'
-              )
+                (subQuery) =>
+                    subQuery
+                        .select('MAX(m.createdAt)', 'latest_time')
+                        .from(Message, 'm')
+                        .where('m.channelId = channel.id'),
+                'latest_message_time'
+            )
             .orderBy('latest_message_time', 'DESC', 'NULLS LAST')
             .getMany();
-            
+
         // return await this.channelRepository
         // .createQueryBuilder('channel')
         // .leftJoinAndSelect('channel.contacts', 'contacts')
@@ -166,7 +148,7 @@ console.log(channel,"channelchannelchannelchannelchannelchannelchannel");
         // )
         // .orderBy('latest_message_time', 'DESC', 'NULLS LAST')
         // .getMany();
-        }
+    }
 
     // async findAllChannel(): Promise<Channel[]> {
     //     return await this.channelRepository
@@ -179,7 +161,7 @@ console.log(channel,"channelchannelchannelchannelchannelchannelchannel");
     //   }
 
     //   async findMsgByChannelId(channelId: string): Promise<Message[]> {
-        
+
     //     return await this.messageRepository
     //       .createQueryBuilder('message')
     //       .leftJoinAndSelect('message.channel', 'channel')
@@ -189,44 +171,44 @@ console.log(channel,"channelchannelchannelchannelchannelchannelchannel");
     //       .getMany();
     //   }
 
-        async findMsgByChannelId(channelId: any): Promise<Message[]> {
+    async findMsgByChannelId(channelId: any): Promise<Message[]> {
 
-            var messages = await this.messageRepository.find({
-                where: { channel: { id: channelId} },
-                relations: ['channel', 'sender'],
-                order: { createdAt: 'ASC' }
-            })
-            return messages;
-        }
+        var messages = await this.messageRepository.find({
+            where: { channel: { id: channelId } },
+            relations: ['channel', 'sender'],
+            order: { createdAt: 'ASC' }
+        })
+        return messages;
+    }
 
-        async makeUnseenSeen(messages: Message[]): Promise<void> {
+    async makeUnseenSeen(messages: Message[]): Promise<void> {
         const messageIds = messages.map(message => message.id); // Extract IDs
-        
+
         // Update all matching messages in one query
         await this.messageRepository.update(
-          { id: In(messageIds) }, // Where clause with IDs
-          { unseen: true },       // Fields to update
-          );
+            { id: In(messageIds) }, // Where clause with IDs
+            { unseen: true },       // Fields to update
+        );
     }
 
     async findAllUnseen(): Promise<Message[]> {
-        return await this.messageRepository.find({ 
+        return await this.messageRepository.find({
             where: { unseen: false },
-            relations : ['channel', 'sender'],
+            relations: ['channel', 'sender'],
         })
     }
 
-    async deleteChannelById(channelId : string) {
-        const deleteChannel = await this.channelRepository.findOne({ where: { id: channelId}})
-        if(deleteChannel)
+    async deleteChannelById(channelId: string) {
+        const deleteChannel = await this.channelRepository.findOne({ where: { id: channelId } })
+        if (deleteChannel)
             return this.channelRepository.remove(deleteChannel)
-        else 
-        null
+        else
+            null
     }
 
 
-    async updateChannelNameById(channelId: string, updatedValue : string) {
-        const channel = await this.channelRepository.findOne({ where : { id : channelId }})
+    async updateChannelNameById(channelId: string, updatedValue: string) {
+        const channel = await this.channelRepository.findOne({ where: { id: channelId } })
         if (!channel) {
             throw new Error('Channel not found');
         }
@@ -242,33 +224,33 @@ console.log(channel,"channelchannelchannelchannelchannelchannelchannel");
         }
 
         // Generate the URL
-        const baseUrl = 'http://localhost:3000'; 
+        const baseUrl = 'http://localhost:3000';
         const fileUrl = `${baseUrl}/${file.filename}`;
 
         // Here you could add additional logic, like saving file metadata to a database
         console.log(`File saved: ${file.path}, URL: ${fileUrl}`);
-// // Convert to Base64 (for logging or other purposes)
-// const fileBuffer = fs.readFileSync(file.path);
-// const base64String = fileBuffer.toString('base64');
-// console.log(base64String);
+        // // Convert to Base64 (for logging or other purposes)
+        // const fileBuffer = fs.readFileSync(file.path);
+        // const base64String = fileBuffer.toString('base64');
+        // console.log(base64String);
 
-//              const response = await axios({
-//             url: 'https://graph.facebook.com/v22.0/565830889949112/messages',
-//             method: 'POST',
-//             headers: {
-//                 'Authorization': `Bearer ${process.env.Whatsapp_Token}`,
-//                 'Content-Type': 'application/json'
-//             },
-//             data: JSON.stringify({
-//                 "messaging_product": "whatsapp",
-//                 "to": "917202031718",
-//                 "type": "image",
-//                 "image": {
-//                     "link" : base64String,
-//                     "caption" : "this is image"
-//                 }
-//             })
-//         })
+        //              const response = await axios({
+        //             url: 'https://graph.facebook.com/v22.0/565830889949112/messages',
+        //             method: 'POST',
+        //             headers: {
+        //                 'Authorization': `Bearer ${process.env.Whatsapp_Token}`,
+        //                 'Content-Type': 'application/json'
+        //             },
+        //             data: JSON.stringify({
+        //                 "messaging_product": "whatsapp",
+        //                 "to": "917202031718",
+        //                 "type": "image",
+        //                 "image": {
+        //                     "link" : base64String,
+        //                     "caption" : "this is image"
+        //                 }
+        //             })
+        //         })
 
         return fileUrl;
     }
@@ -281,7 +263,7 @@ console.log(channel,"channelchannelchannelchannelchannelchannelchannel");
         // if (!existsSync(filePath)) {
         //     throw new NotFoundException(`File ${filename} not found`);
         // }
-        
+
         try {
             unlinkSync(`uploads\\${filename}`);
             console.log('File deleted: ${filePath}');
@@ -290,153 +272,102 @@ console.log(channel,"channelchannelchannelchannelchannelchannelchannel");
         }
     }
 
+    async findMessageType(attachmentUrl: string) {
+        try {
+            const lastDotIndex = attachmentUrl.lastIndexOf('.');
+            if (lastDotIndex === -1) return 'Invalid URL';
 
-//     async submitTemplate(template: TemplateRequestInput): Promise<any> {
-//       console.log(template,".templaet...................");
-//       // const payload = {
-//       //   name: 'exclusive_offer_3',
-//       //   language: 'en_US' ,
-//       //   category: 'MARKETING',
-//       //   components: [
-//       //     {
-//       //       type: 'HEADER',
-//       //       format: 'TEXT',
-//       //       text: 'Special Offer!'
-//       //     },
-//       //     {
-//       //       type: 'BODY',
-//       //       text: 'Hi {{1}}, get 20% off on your next purchase. Offer valid till 8 pm. Shop now!'
-//       //     },
-//       //     {
-//       //       type: 'FOOTER',
-//       //       text: 'Powered by Chintan'
-//       //     },
-//       //     {
-//       //       type: 'BUTTONS',
-//       //       buttons: [
-//       //         {
-//       //           type: 'URL',
-//       //           text: 'Shop Now',
-//       //           url: 'https://yourstore.com/offer'
-//       //         }
-//       //       ]
-//       //     }
-//       //   ]
-//       // };
+            const urlExt = attachmentUrl.slice(lastDotIndex + 1).toLowerCase();
 
-//       const payload = {
-//         name: 'promo_offer_202',
-//         category: 'MARKETING',
-//         language: 'en_US',
-//         components: [
-//           {
-//             type: 'BODY',
-//             text: 'Hi {{1}}, get 20% off your next purchase! Offer valid until 8 PM, May 31, 2025. Shop now!',
-//             example: {
-//               body_text: [["Sarah Smith"]]
-//             }
-//           },
-//           {
-//             type: 'BUTTONS',
-//             buttons: [
-//               {
-//                 type: 'URL',
-//                 text: 'Shop Now',
-//                 url: 'https://your-ecommerce-site.com/promo' // Replace with a valid, approved URL
-//               }
-//             ]
-//           }
-//         ]
-//       };
-    
-//       try {
-//         const response = await axios({
-//           url: `https://graph.facebook.com/v22.0/1649375815967023/message_templates`,
-//           method: 'POST',
-//           headers: {
-//             Authorization: `Bearer EAAao8Mkc6lMBO5QAttvc1GZAZBiqtOhIbt79YdM9C9mVPy4dZBoqxGss47tQS53WskKnGUA7qFKTZA5YK3kag7qn3CuaCf0D3n1QhV7m9GYq4v4CQGqiMv1dO8905iIXyUTyubfWGeprM1kdO4HUXhumU9ml8eoHFG8rHjiMZBqP2ta9ZBFmiqGLxR7emt02crNlXOTFlFBUaG8ksdXR9zD7TbFTlkZALPN1eO1`,
-//             'Content-Type': 'application/json',
-//           },
-//           // data : JSON.stringify({...template})
-//           data : JSON.stringify(payload)
-//         });
-//                   // data: JSON.stringify({
-//           //   ...template,
-//           //   allow_category_change: true,
-//           // }),
-    
-//         console.log(response, "Fsdfsdfsdsdf....................................................");
-//         const { id, status, category } = response.data;
-//       if (!id) {
-//         throw new Error('Template ID not returned in response');
-//       }
+            if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(urlExt)) return 'image';
+            if (['mp4', 'mov', '3gp'].includes(urlExt)) return 'video';
+            if (['mp3', 'ogg', 'wav', 'aac'].includes(urlExt)) return 'audio';
+            if (['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt'].includes(urlExt)) return 'document';
 
-//         return {
-//           success: true,
-//           data: response.data,
-//         };
-//       } catch (error) {
-//         return {
-//           success: false,
-//           error: error.response?.data || error.message,
-//         };
-//       }
-//     }
-    
-//     async getTemplateStatus(templateId: string): Promise<any> {
-//       try {
-//         const response = await axios({
-//           // url: `https://graph.facebook.com/v22.0/1649375815967023/message_templates?template_id=${templateId}`,
-//           url : `https://graph.facebook.com/v22.0/${templateId}?fields=name,status,category,language,components`,
-//           method: 'GET',
-//           headers: {
-//             Authorization: `Bearer EAAao8Mkc6lMBO5QAttvc1GZAZBiqtOhIbt79YdM9C9mVPy4dZBoqxGss47tQS53WskKnGUA7qFKTZA5YK3kag7qn3CuaCf0D3n1QhV7m9GYq4v4CQGqiMv1dO8905iIXyUTyubfWGeprM1kdO4HUXhumU9ml8eoHFG8rHjiMZBqP2ta9ZBFmiqGLxR7emt02crNlXOTFlFBUaG8ksdXR9zD7TbFTlkZALPN1eO1`,
-//             'Content-Type': 'application/json',
-//           },
-//         });
-//   console.log(response,"....................................................");
-    
-//         return {
-//           success: true,
-//           data: response.data,
-//         };
-//       } catch (error) {
-//         return {
-//           success: false,
-//           error: error.response?.data || error.message,
-//         };
-//       }
-//     }
+            return 'Invalid URL';
+        } catch (err) {
+            console.error('Invalid URL:', attachmentUrl);
+            return 'Invalid URL';
+        }
+    }
 
 
+    async sendWhatsappMessage({
+        accessToken,
+        senderId,
+        receiverId,
+        messageType,
+        textMessage,
+        attachmentUrl
+    }) {
+        const url = `https://graph.facebook.com/v22.0/${senderId}/messages`;
 
+        let messagePayload = {};
 
+        if (messageType === 'text' && textMessage) {
+            messagePayload = {
+                type: 'text',
+                text: {
+                    body: textMessage,
+                },
+            };
+        } else if (messageType === 'image') {
+            messagePayload = {
+                type: 'image',
+                image: {
+                    link: "https://images.unsplash.com/photo-1575936123452-b67c3203c357?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aW1hZ2V8ZW58MHx8MHx8fDA%3D",
+                    caption: textMessage || '',
+                },
+            };
+        } else if (messageType === 'document') {
+            
+            messagePayload = {
+                type: 'document',
+                document: {
+                    link: attachmentUrl,
+                    filename: textMessage || 'file.pdf',
+                },
+            };
+        } else if (messageType === 'video') {
+            messagePayload = {
+                type: 'video',
+                video: {
+                    link: attachmentUrl,
+                    caption: textMessage || '',
+                },
+            };
+        } else if (messageType === 'audio') {
+            messagePayload = {
+                type: 'audio',
+                audio: {
+                    link: attachmentUrl,
+                },
+            };
+        } else {
+            throw new Error(`Unsupported message type: ${messageType}`);
+        }
 
-// async getAllTemplates() {
-//   const url = `https://graph.facebook.com/v22.0/1649375815967023/message_templates`;
+        receiverId.forEach( async (receiver) => {
+            
+        const finalPayload = {
+            messaging_product: 'whatsapp',
+            to: receiver,
+            ...messagePayload,
+        };
+        console.log('access EAAao8Mkc6lMBOZBEsL7ZCkENxPbZAP1Ocs3z8phccZAa0ctc2lzLXumH34AjS8pkAkTvp7hDxTSG0TnutK4JfwXal9GINecTl3i2J4ezaFSq1qZCVXH7JToLL3crmRSZBZBZBDNvaZAg377BTpLuDKGv85kERpa5kFobcpp6lk39aohrLqYyTjJTzdSMG9PbLEnU9Q7sbGrOZALXAMzZCqCUHHaNPrnBFc3xlr0ZB6a3');
+        console.log(accessToken);
+        
+        
+        const response = await axios.post(url, finalPayload, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        return response.data;
+        });
+        
+    }
 
-//   try {
-//     const response = await axios.get(url, {
-//       headers: {
-//         Authorization: `Bearer EAAao8Mkc6lMBO5QAttvc1GZAZBiqtOhIbt79YdM9C9mVPy4dZBoqxGss47tQS53WskKnGUA7qFKTZA5YK3kag7qn3CuaCf0D3n1QhV7m9GYq4v4CQGqiMv1dO8905iIXyUTyubfWGeprM1kdO4HUXhumU9ml8eoHFG8rHjiMZBqP2ta9ZBFmiqGLxR7emt02crNlXOTFlFBUaG8ksdXR9zD7TbFTlkZALPN1eO1`,
-//       },
-//     });
-
-//     const templates = response.data.data;
-//     console.log(templates);
-    
-//     // console.log(`📋 Total Templates Found: ${templates.length}`);
-//     // templates.forEach((t, i) => {
-//     //   console.log(
-//     //     `\n🔢 #${i + 1}\n🧾 Name: ${t.name}\n📦 Category: ${t.category}\n🌍 Language: ${t.language?.code}\n📄 Status: ${t.status}\n🆔 ID: ${t.id || 'Not returned'}`
-//     //   );
-//     // });
-//     return "fsds"
-//   } catch (err) {
-//     console.error('❌ Error fetching templates:', err.response?.data || err.message);
-//     return "fsds"
-//   }
-
-// }
 
 }

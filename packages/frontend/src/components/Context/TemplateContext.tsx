@@ -16,11 +16,11 @@ export const TemplateProvider = ({ children }: any) => {
     language: 'en_US',
     bodyText: '',
     footerText: '',
-    body_text: '',
     headerType: 'NONE',
     header_handle: '',
     button: [],
     variables : [],
+    fileUrl: ''
   });
 
 //   useEffect(() => {

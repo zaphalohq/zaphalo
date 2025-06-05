@@ -3,11 +3,10 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recha
 import { MessageSquare, Users2, Layout, TrendingUp, Workflow } from 'lucide-react';
 import MetricsCards from '@components/UI/MetricsCards';
 import { useQuery } from '@apollo/client';
-import { findWorkspace } from './Mutation/Dashboard';
+import { findCountForDash } from './Mutation/Dashboard';
 import Workspace from './Workspace';
 import { getItem } from '@components/utils/localStorage';
 
-// Define types for our data structures
 interface MetricsData {
   totalChannels: number;
   totalMessages: number;
@@ -20,15 +19,7 @@ interface ChartDataPoint {
   color: string;
 }
 
-interface RecentActivity {
-  id: number;
-  type: string;
-  message: string;
-  timeAgo: number;
-}
-
 const Dashboard: React.FC = () => {
-  // Sample data with proper types
   const [metrics, setMetrics] = useState<MetricsData>({
     totalChannels: 0,
     totalMessages: 0,
@@ -36,27 +27,27 @@ const Dashboard: React.FC = () => {
   });
 
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
-  const [recentActivities, setRecentActivities] = useState<RecentActivity[]>([]);
-  const { data, refetch, loading } = useQuery(findWorkspace, {
-    variables: { workspaceId: getItem("workspaceIds")[0] }
+  const { data, refetch, loading } = useQuery(findCountForDash, {
+    variables: { workspaceId: '72407694-250e-4c9e-b1aa-480f0afbeb99' }
   })
 
   // Simulate data loading with a slight delay
   useEffect(() => {
-    console.log(data?.findWorkspaceByIdForDash);
-    const response = data?.findWorkspaceByIdForDash;
-    const workspace = response?.workspace?.channels;
-    const contacts = response?.contacts
-    console.log(workspace,'dtatatattatattatatt');
+    console.log(getItem("workspaceIds")[0]);
+    refetch()
+    const findCountForDash = data?.findWorkspaceByIdForDash;
+    const channels = findCountForDash?.workspace?.channels;
+    const contacts = findCountForDash?.contacts
+    console.log(data,'dtatatattatattatatt');
 
     let messagesCount = 0
-    workspace?.forEach((channel : any) => {
+    channels?.forEach((channel : any) => {
       messagesCount = messagesCount + channel.messages.length
     });
     const loadData = setTimeout(() => {
       // Set metrics data
       const metricsData: MetricsData = {
-        totalChannels: workspace.length,
+        totalChannels: channels.length,
         totalMessages: messagesCount,
         totalContacts: contacts.length,
       };
@@ -85,13 +76,15 @@ const Dashboard: React.FC = () => {
   };
 
   return (
+    <div>
+      <div className='font-bold text-lg border-gray-300 p-4 border-b'>Dashboard Overview</div>
     <div className="mt-4 bg-white rounded-lg shadow-lg p-6 w-full max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Dashboard Overview</h1>
+      {/* <h1 className="text-2xl font-bold text-gray-800 mb-6">Dashboard Overview</h1> */}
 
       {/* Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         <MetricsCards title="Total Channels" total={metrics.totalChannels}
-          Icon={<Layout className="text-blue-500" size={24} />}
+          Ip-4 con={<Layout className="text-blue-500" size={24} />}
           baseColor="bg-blue-50"
           textColor="text-blue-600"
         />
@@ -140,6 +133,7 @@ const Dashboard: React.FC = () => {
           ))}
         </div>
       </div>
+    </div>
     </div>
   );
 };
