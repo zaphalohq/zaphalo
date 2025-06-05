@@ -48,18 +48,18 @@ const Chats = () => {
   const location = useLocation();
   const navigate = useNavigate();
   useEffect(() => {
-console.log(location.pathname,"..........................................................................................");
-if(location.pathname == './chats') navigate(0)
+    console.log(location.pathname, "..........................................................................................");
+    if (location.pathname == './chats') navigate(0)
 
-  },[]) 
+  }, [])
   return (
     <div className="bg-[#DDDCD1] border-stone-50 border-b-2 md:mt-0 mt-4 flex flex-col">
       <div className="grid md:grid-cols-[300px_1fr] w-full h-full mx-auto rounded-lg flex-1">
-        <div className={`${isChatOpen ? "hidden" : "block"} md:block bg-gray-50  min-w-full max-w-ful`}>
+        <div className={`${isChatOpen ? "hidden" : "block"} md:block bg-gray-50  min-w-full max-w-full`}>
           <ChatsSide />
         </div>
-        <div className={`${isChatOpen ? "block" : "hidden"} md:block min-w-full max-w-full`}>
-          <ChatsMain />
+        <div className={`${isChatOpen ? "block" : "hidden"} md:block min-w-full max-w-full bg-white`}>
+            <ChatsMain />
         </div>
       </div>
       <UpdateChannelName />

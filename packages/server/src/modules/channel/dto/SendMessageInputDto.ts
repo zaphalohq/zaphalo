@@ -1,4 +1,16 @@
-import { Field, InputType, ObjectType } from "@nestjs/graphql";
+import { Field, InputType, ObjectType } from '@nestjs/graphql';
+
+@InputType()
+export class UploadedFileInput {
+  @Field(() => String)
+  fileUrl: string;
+
+  @Field(() => String)
+  fileType: string;
+
+  @Field(() => String)
+  fileName: string;
+}
 
 @InputType()
 export class SendMessageInput {
@@ -9,7 +21,7 @@ export class SendMessageInput {
   receiverId: number[];
 
   @Field(() => String)
-  message: string;
+  textMessage: string;
 
   @Field(() => String)
   channelName: string;
@@ -17,12 +29,12 @@ export class SendMessageInput {
   @Field(() => String, { nullable: true })
   channelId?: string;
 
-  @Field(() => String, { nullable : true})
-  attachment: string;
+  @Field(() => [UploadedFileInput], { nullable: true })
+  uploadedFiles?: UploadedFileInput[];
 }
 
 @ObjectType()
 export class SendMessageResponse {
   @Field(() => String)
-  message: string;
+  success: string;
 }

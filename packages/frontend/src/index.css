@@ -21,9 +21,29 @@
   background-color: #313130;
 }
 
-.bg-spider-900{
-  background-color: #1c1c1c;
+.bg-blacky-900{
+  background-color: #151718; 
 }
+
+.hover-blacky:hover {
+    background-color: #323337;
+  }
+
+.bg-blacky-light {
+  background-color: #323337;
+}
+
+.bg-chat {
+  background-color: #edf0f6;
+}
+
+.hover-light:hover {
+    background-color: #e0e6f2;
+  }
+
+.bg-light {
+    background-color: #e0e6f2;
+  }
 
 .spider-100{
   color: #313130;

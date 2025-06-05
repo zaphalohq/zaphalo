@@ -45,8 +45,9 @@ const handleSubmit = async (event : any) => {
     console.log('Login Success:', response.data);    
     // Save accessToken in localStorage or cookies
     setItem('access_token', response.data.login.access_token);  
-    setItem('workspaceIds', JSON.parse(response.data.login.workspaceIds))
-    sessionStorage.setItem('workspaceId', JSON.parse(response.data.login.workspaceIds)[0]);
+    const workspaceIds = JSON.parse(response.data.login.workspaceIds)
+    setItem('workspaceIds', workspaceIds)
+    sessionStorage.setItem('workspaceId', workspaceIds[0]);
     setItem('userDetails',{ name : response.data.login.userDetails.name, email : response.data.login.userDetails.email })
     navigate('/dashboard')
   } catch (err) {

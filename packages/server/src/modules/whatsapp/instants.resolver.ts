@@ -28,7 +28,7 @@ export class instantsResolver {
     @UseGuards(GqlAuthGuard)
     @Query(() => [WhatsappInstants])
     async findAllInstants(@Context('req') req) : Promise<WhatsappInstants[]> {   
-        const workspaceId = req.user.workspaceIds[0];     
+        const workspaceId = req.headers['x-workspace-id']
         return await this.instantsservice.findAllInstants(workspaceId);
     }
 
@@ -47,7 +47,7 @@ export class instantsResolver {
     @UseGuards(GqlAuthGuard)
     @Mutation(() => [WhatsappInstants])
     async InstantsSelection(@Context('req') req, @Args('instantsId') instantsId : string ) : Promise<WhatsappInstants[]> {   
-        const workspaceId = req.user.workspaceIds[0];     
+        const workspaceId = req.headers['x-workspace-id']
         return await this.instantsservice.InstantsSelection(instantsId, workspaceId);
     }
 

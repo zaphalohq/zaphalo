@@ -32,20 +32,20 @@ const MainLayout = () => {
   }
   const location = useLocation();
   return (
-    <div className="grid gap-4 md:grid-cols-[220px_1fr] p-4 min-h-screen w-full overflow-hidden">
+    <div className="grid md:grid-cols-[260px_1fr] min-h-screen w-full bg-blacky-900 p-5 overflow-hidden">
       {/* Sidebar */}
       <Sidebar HandleToggleButton={HandleToggleButton} isToggleActivated={isToggleActivated} />
-
+      
       {/* Main Content */}
-      <div className="w-full overflow-hidden">
+      <div className="w-full overflow-hidden  rounded-2xl">
         <div className={`${isToggleActivated ? 'hidden md:block' : 'md:block'} md:block w-full h-full`}>
-        {/* <Navbar HandleToggleButton={HandleToggleButton} location={location} /> */}
+        {/* <Navbar HandleToggleButton={HandleToggleButton} location={location} />
           {location.pathname !== '/chats' ? <Navbar HandleToggleButton={HandleToggleButton} location={location} />
            : <div className="md:hidden"><Navbar HandleToggleButton={HandleToggleButton} location={location} /></div>
            }
-          
+           */}
           {/* Outlet takes full width and prevents overflow */}
-          <div className="w-full h-full overflow-hidden">
+          <div className="w-full h-full overflow-hidden bg-white">
             <Outlet />
           </div>
         </div>
