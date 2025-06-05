@@ -23,19 +23,21 @@ import SignUpPage from 'src/modules/auth/pages/SignUpPage';
 const routes = createRoutesFromElements(
   <Route>
     <Route path="/register" element={<Register />} />
-      <Route path="/register/:token" element={<Register />} />
-      {/*<Route path='/login' element={<Login />} />*/}
-      <Route path='/login' element={<SignUpPage />} />
-      <Route element={<ProtectedRoute />}>
-        <Route path="/" element={<MainLayout />}>
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="workspace" element={<Workspace />} />
-          <Route path="chats" element={<Chats />} />
-          <Route path="whatsappinstants" element={<WhatsappInstants />} />
-          <Route path="contacts" element={<Contacts />} />
-          <Route path="template" element={<Template />} />
-        </Route>
-      </Route >
+    <Route path="/register/:token" element={<Register />} />
+    <Route path="/invite/:workspaceInviteToken" element={<SignUpPage />} />
+    <Route path="/verify" element={<Register />} />
+    <Route path='/login' element={<Login />} />
+    <Route path='/login2' element={<SignUpPage />} />
+    <Route element={<ProtectedRoute />}>
+      <Route path="/" element={<MainLayout />}>
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="workspace" element={<Workspace />} />
+        <Route path="chats" element={<Chats />} />
+        <Route path="whatsappinstants" element={<WhatsappInstants />} />
+        <Route path="contacts" element={<Contacts />} />
+        <Route path="template" element={<Template />} />
+      </Route>
+    </Route >
   </Route>
 );
  

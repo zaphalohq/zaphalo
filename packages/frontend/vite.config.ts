@@ -60,5 +60,7 @@ export default defineConfig({
     // To enable import of SVG as React component
     svgrPlugin(),
   ],
-  
+    define: {
+    "process.env": process.env,
+  },
 });

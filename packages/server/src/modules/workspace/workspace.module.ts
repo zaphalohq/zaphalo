@@ -18,7 +18,16 @@ import { WorkspaceInvitation } from "./workspaceInvitation.entity";
   imports: [
     NestjsQueryGraphQLModule.forFeature({
       imports: [
-        NestjsQueryTypeOrmModule.forFeature([User, Workspace, WorkspaceMember, WorkspaceInvitation, Contacts], 'core'),
+        NestjsQueryTypeOrmModule.forFeature(
+          [
+            User,
+            Workspace,
+            WorkspaceMember,
+            WorkspaceInvitation,
+            Contacts
+          ],
+          'core'
+        ),
         TypeORMModule,
         UserModule, // UserService is exported from here
       ],
@@ -27,6 +36,6 @@ import { WorkspaceInvitation } from "./workspaceInvitation.entity";
     }),
   ],
   providers: [WorkspaceService, workspaceResolver],
-  exports: [WorkspaceService],
+  exports: [WorkspaceService, workspaceResolver],
 })
 export class WorkspaceModule {}

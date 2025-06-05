@@ -46,7 +46,7 @@ export class WorkspaceService {
     });
     await this.invitationRepository.save(invitation);
 
-    return `http://localhost:5173/register/${token}`; // Replace with your app's URL
+    return `http://localhost:5173/invite/${token}`; // Replace with your app's URL
   }
 
   async acceptInvitation(token: string, userId: string): Promise<Workspace> {
@@ -54,6 +54,7 @@ export class WorkspaceService {
       where: { token, isUsed: false },
       relations: ['workspace'],
     });
+
     if (!invitation) {
       throw new Error('Invalid or expired invitation');
     }

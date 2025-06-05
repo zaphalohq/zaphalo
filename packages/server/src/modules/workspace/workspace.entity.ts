@@ -34,7 +34,7 @@ export class Workspace {
   // description: string;
 
   @Field(() => User)
-  @ManyToOne(() => User, { nullable: false })
+  @ManyToOne(() => User, { nullable: true })
   owner: Relation<User>;
 
   @Field(() => String)
