@@ -7390,6 +7390,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sniptt/guards@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "@sniptt/guards@npm:0.2.0"
+  checksum: 10c0/749bb0f550d1ddd4abdb23dc1076cba26e977659922b73d000bceeb253c09270aaced0d18e92f09d4ce2fdaae33e55f60f2142f5359bc90ba505422af0873526
+  languageName: node
+  linkType: hard
+
 "@socket.io/component-emitter@npm:~3.1.0":
   version: 3.1.2
   resolution: "@socket.io/component-emitter@npm:3.1.2"
@@ -9027,6 +9034,13 @@ __metadata:
     jest-matcher-utils: "npm:^27.0.0"
     pretty-format: "npm:^27.0.0"
   checksum: 10c0/29ef3da9b94a15736a67fc13956f385ac2ba2c6297f50d550446842c278f2e0d9f343dcd8e31c321ada5d8a1bd67bc1d79c7b6ff1802d55508c692123b3d9794
+  languageName: node
+  linkType: hard
+
+"@types/js-cookie@npm:^3":
+  version: 3.0.6
+  resolution: "@types/js-cookie@npm:3.0.6"
+  checksum: 10c0/173afaf5ea9d86c22395b9d2a00b6adb0006dcfef165d6dcb0395cdc32f5a5dcf9c3c60f97194119963a15849b8f85121e1ae730b03e40bc0c29b84396ba22f9
   languageName: node
   linkType: hard
 
@@ -17921,6 +17935,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"js-cookie@npm:^3.0.5":
+  version: 3.0.5
+  resolution: "js-cookie@npm:3.0.5"
+  checksum: 10c0/04a0e560407b4489daac3a63e231d35f4e86f78bff9d792011391b49c59f721b513411cd75714c418049c8dc9750b20fcddad1ca5a2ca616c3aca4874cce5b3a
+  languageName: node
+  linkType: hard
+
 "js-string-escape@npm:^1.0.1":
   version: 1.0.1
   resolution: "js-string-escape@npm:1.0.1"
@@ -21994,7 +22015,6 @@ __metadata:
   checksum: 10c0/f5c531e8cecb91b9753fb7d3a526b93a40bb40b2cfe709eb2055bb9b11fc215987fb899320f2ac4e58b8a59b358934fb5ac5e1a33fbd1a13cba2c5200ca3fe0c
   languageName: node
   linkType: hard
-
 
 "react-router@npm:7.6.2":
   version: 7.6.2
@@ -26825,6 +26845,7 @@ __metadata:
     "@nx/web": "npm:20.4.2"
     "@ptc-org/nestjs-query-typeorm": "npm:4.2.1-alpha.2"
     "@sentry/react": "npm:^9.22.0"
+    "@sniptt/guards": "npm:^0.2.0"
     "@storybook/core-server": "npm:^8.4.6"
     "@storybook/jest": "npm:^0.2.3"
     "@storybook/react-vite": "npm:^8.4.6"
@@ -26834,8 +26855,10 @@ __metadata:
     "@swc/core": "npm:~1.5.7"
     "@swc/helpers": "npm:~0.5.11"
     "@tailwindcss/vite": "npm:^4.1.6"
+    "@types/js-cookie": "npm:^3"
     "@types/passport": "npm:^0"
     "@types/passport-google-oauth2": "npm:^0"
+    js-cookie: "npm:^3.0.5"
     nx: "npm:20.4.2"
     passport: "npm:^0.7.0"
     passport-google-oauth20: "npm:^2.0.0"
@@ -26852,6 +26875,7 @@ __metadata:
     typeorm: "npm:^0.3.21"
     typescript: "npm:~5.7.2"
     vite: "npm:^6.3.5"
+    zod: "npm:^3.25.55"
   languageName: unknown
   linkType: soft
 
@@ -27033,6 +27057,13 @@ __metadata:
   version: 0.8.15
   resolution: "zen-observable@npm:0.8.15"
   checksum: 10c0/71cc2f2bbb537300c3f569e25693d37b3bc91f225cefce251a71c30bc6bb3e7f8e9420ca0eb57f2ac9e492b085b8dfa075fd1e8195c40b83c951dd59c6e4fbf8
+  languageName: node
+  linkType: hard
+
+"zod@npm:^3.25.55":
+  version: 3.25.55
+  resolution: "zod@npm:3.25.55"
+  checksum: 10c0/6c6bed4b233e1bd9074e90a1742e98195f9a1112d2ea5b0b7df7227258f024e35fb142c35c662598a3ab19a20163ad9668ac9dfbec8cfaaa31cddea76b27579e
   languageName: node
   linkType: hard
 

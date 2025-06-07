@@ -32,7 +32,6 @@ export class ChannelService {
 
         //----finding channel exist or not ------------------------
         const isChannelExist = await this.findExistingChannelByPhoneNo(memberIds, workspaceId)
-        console.log(isChannelExist, "isChannelExist...................isChannelExist");
 
         if (isChannelExist && isChannelExist.channelName)
             return { channel: isChannelExist, newChannelCreated: false }
@@ -49,8 +48,6 @@ export class ChannelService {
             workspace: workspace,
         })
         await this.channelRepository.save(newChannel)
-        // console.log('thi siis memebrs ids', memberIds);
-        console.log(newChannel, "..................................ds.ds.......................");
 
         return { channel: newChannel, newChannelCreated: true }
     }
@@ -60,15 +57,6 @@ export class ChannelService {
             where: { contacts: memberIds.map((member) => ({ phoneNo: member })), workspace: { id: workspaceId } },
             relations: ['contacts', 'workspace']
         })
-        console.log(channelExist, memberIds, "this is the one channelExistst ");
-        //------------this is for messaging to own number------------
-        // if(memberIds.length === 2 && memberIds[0] === memberIds[1]){
-        //     const defaultChannel = await this.channelRepository.findOne({
-        //         where : { channelName : 'default No'}
-        //     })
-        //     return defaultChannel || undefined
-        // } else { }
-        // console.log(channelExist,"..............channelExist......................");
 
         const membersIdsStr = memberIds.sort((a, b) => a - b).join(',')
         const stillChannelExist = channelExist.find(channel => {
@@ -76,23 +64,19 @@ export class ChannelService {
                 .map(contacts => contacts.phoneNo)
                 .sort((a, b) => a - b)
                 .join(',')
-            // console.log(channelPhoneNoStr);
 
             return channelPhoneNoStr == membersIdsStr;
         })
-        console.log(stillChannelExist, "existing stillChannelExist.....................................................................................");
 
         return stillChannelExist
     }
 
     async createMessage(textMessage: string, channelId: string, senderId: number, workspaceId: string | undefined, unseen?: boolean, attachmentUrl?: string) {
         const sender = await this.contactsservice.findOneContact(senderId, workspaceId);
-        console.log(sender, channelId, "sendersendersendersendersendersendersendersender");
 
         if (!sender) throw new Error('Sender not found');
         const channel = await this.channelRepository.findOne({ where: { id: channelId, workspace: { id: workspaceId } } });
         if (!channel) throw new Error('Channel not found');
-        console.log(channel, "channelchannelchannelchannelchannelchannelchannel");
 
         const message_rec = this.messageRepository.create({
             textMessage,
@@ -102,7 +86,6 @@ export class ChannelService {
             unseen: unseen,
         })
         await this.messageRepository.save(message_rec)
-        // console.log(message_rec);
 
         return message_rec
     }

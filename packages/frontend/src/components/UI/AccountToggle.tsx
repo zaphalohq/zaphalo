@@ -1,9 +1,16 @@
 import { getItem } from "@utils/localStorage"
 import { useState } from "react"
 import { FiBriefcase, FiChevronDown, FiChevronRight, FiChevronsDown } from "react-icons/fi"
+import {
+  useRecoilState,
+} from 'recoil';
+
+import { workspacesState } from 'src/modules/auth/states/workspaces';
+
 
 const AccountToggle = () => {
     const user = getItem('userDetails')
+    const [workspaces, setWorkspacesState]= useRecoilState(workspacesState);
     const workspaceIds = getItem('workspaceIds')
     const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false)
     return (
@@ -20,15 +27,14 @@ const AccountToggle = () => {
             </button>
             {isWorkspaceOpen ?<div className="flex flex-col gap-2 absolute z-1 w-48 rounded bg-white p-2 pt-6 border border-gray-200">
                 <div className="font-semibold text-center">Workspaces</div>
-                {workspaceIds.map((workspaceId: string, index: number) =>
+                {workspaces.map((workspace: string, index: number) =>
 
-                    <div key={workspaceId}
+                    <div key={workspace.id}
                         onClick={() => {
-                            sessionStorage.setItem('workspaceId', workspaceId)
                             window.location.reload()
                         }}
                         className="bg-gray-200 p-2 hover:bg-gray-300 cursor-pointer flex gap-3 items-center"><FiBriefcase />
-                        workspace {index}</div>
+                         {workspace.name}</div>
                 )}
             </div> : <></>}
         </div>

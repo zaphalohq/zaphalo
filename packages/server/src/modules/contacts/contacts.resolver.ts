@@ -26,8 +26,6 @@ export class contactsResolver {
     @Query(() => [Contacts])
     async findAllContacts(@Context('req') req) {
         const workspaceId = req.headers['x-workspace-id']; 
-        console.log(workspaceId,"worspacid...................................");
-        
         return await this.contactsservice.findAllContacts(workspaceId)
     }
 

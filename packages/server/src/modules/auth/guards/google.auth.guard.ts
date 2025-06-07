@@ -8,7 +8,6 @@ export class GoogleOauthGuard extends AuthGuard('google') {
  async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest<Request>();
     // let workspace: Workspace | null = null;
-    console.log("...........................", request.query);
     try {
       // if (
       //   request.query.workspaceId &&

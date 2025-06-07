@@ -4,7 +4,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 export class DomainManagerService {
 
   getFrontUrl() {
-    console.log (".............. process.env.FRONTEND_URL..........",  process.env.FRONTEND_URL);
     return new URL(''
       // process.env.FRONTEND_URL ??
       //   process.env.SERVER_URL
@@ -44,14 +43,23 @@ export class DomainManagerService {
     return baseUrl;
   }
 
+  private appendSearchParams(
+    url: URL,
+    searchParams: Record<string, string | number | boolean>,
+  ) {
+    Object.entries(searchParams).forEach(([key, value]) => {
+      url.searchParams.set(key, value.toString());
+    });
+  }
+
   buildWorkspaceURL({
     // workspace,
     pathname,
-    // searchParams,
+    searchParams,
   }: {
     // workspace: WorkspaceSubdomainCustomDomainAndIsCustomDomainEnabledType;
     pathname?: string;
-    // searchParams?: Record<string, string | number | boolean>;
+    searchParams?: Record<string, string | number | boolean>;
   }) {
     // const workspaceUrls = this.getWorkspaceUrls(workspace);
 
@@ -62,9 +70,9 @@ export class DomainManagerService {
       url.pathname = pathname;
     }
 
-    // if (searchParams) {
-    //   this.appendSearchParams(url, searchParams);
-    // }
+    if (searchParams) {
+      this.appendSearchParams(url, searchParams);
+    }
 
     return url;
   }

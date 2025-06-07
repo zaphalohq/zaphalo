@@ -13,7 +13,6 @@ export class GoogleAuthController {
     return;
   }
 
-
   @Get('redirect')
   @UseGuards(GoogleOauthGuard)
   async googleAuthCallback(@Req() req, @Res() res: Response) {
@@ -23,15 +22,10 @@ export class GoogleAuthController {
       email,
       picture,
       workspaceInviteToken,
-      // workspaceId,
-      // billingCheckoutSessionState,
       locale,
     } = req.user;
 
-
-    console.log("..............workspaceInviteToken...........", workspaceInviteToken);
     var isUserExist = await this.authService.checkUserForSigninUp(email)
-    
 
     const userData = {
       email,
@@ -40,17 +34,8 @@ export class GoogleAuthController {
     }
     if (isUserExist == null){
       isUserExist = await this.authService.Register(req.user);
-      // isUserExist = await this.authService.signInUp({
-      //   // invitation,
-      //   // workspace: workspaceInviteToken,
-      //   userData,
-      //   authParams: {
-      //     provider: 'google',
-      //   },
-      //   // owner: isUserExist,
-      // });
     }
-    console.log("...................isUserExist............", isUserExist);
+
     if (!isUserExist) {
       throw new Error('Invalid or expired invitation');
     }
@@ -61,27 +46,18 @@ export class GoogleAuthController {
       // email,
       // authProvider: 'google',
     });
-    
-    // const user = await this.authService.Register(req.user);
-    // console.log("..............user...............", user);
-    // res.cookie('access_token', token, {
-    //   maxAge: 2592000000,
-    //   sameSite: true,
-    //   secure: false,
-    // });
-    const url = this.authService.computeRedirectURI({
-          // loginToken: loginToken.token,
-          // workspace,
-          // billingCheckoutSessionState,
-        });
-      return res.redirect(
-        this.authService.computeRedirectURI({
-          // loginToken: loginToken.token,
-          // workspace,
-          // billingCheckoutSessionState,
-        }),
-      );
 
-    // return res.status(HttpStatus.OK);
+    const loginToken = await this.authService.generateLoginToken(
+      email,
+      currentWorkspace[0].id,
+    );
+    
+    return res.redirect(
+      this.authService.computeRedirectURI({
+        loginToken: loginToken.token,
+        // workspace,
+        // billingCheckoutSessionState,
+      }),
+    );
   }
 }

@@ -10,13 +10,16 @@ import { error } from "console";
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from "../user/user.entity";
-
+import { addMilliseconds } from 'date-fns';
+import { createHash } from 'crypto';
+import ms from 'ms';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userservice: UserService,
-    private jwtservice: JwtService,
+    private jwtService: JwtService,
     private readonly domainManagerService: DomainManagerService,
     private readonly workspaceService: WorkspaceService,
     @InjectRepository(Workspace, 'core')
@@ -40,11 +43,17 @@ export class AuthService {
   async login(user: any) {
     const workspaces = await this.workspaceService.getOrCreateWorkspaceForUser(user.id);
     const WorkspaceIds = workspaces.map(workspace => workspace.id);
-    const payload = { username: user.username, sub: user.id, workspaceIds: WorkspaceIds, role: user.role};
+    const payload = {
+      username: user.username,
+      email: user.email,
+      sub: user.id,
+      workspaceIds: WorkspaceIds,
+      role: user.role
+    };
     const users = await this.userservice.findByUserId(user.id)
     if(!users) throw error("this is error of")
       return {
-        access_token: this.jwtservice.sign(payload),
+        access_token: this.jwtService.sign(payload),
         workspaceIds: JSON.stringify(WorkspaceIds),
         userDetails : {
           name : users.username,
@@ -54,7 +63,6 @@ export class AuthService {
     }
 
     async Register(register: CreateUserDTO): Promise<any> {
-      console.log(".............register..............", register);
       // const username_validation = await this.userservice.findOneByUsername(register.username);
       const email_validation = await this.userservice.findOneByEmail(register.email);
       if (email_validation) {
@@ -74,21 +82,16 @@ export class AuthService {
 
 
     computeRedirectURI({
-      // loginToken,
-      // workspace,
-      // billingCheckoutSessionState,
+      loginToken,
     }: {
-      // loginToken: string;
-      // workspace: WorkspaceSubdomainCustomDomainAndIsCustomDomainEnabledType;
-      // billingCheckoutSessionState?: string;
+      loginToken: string;
     }) {
       const url = this.domainManagerService.buildWorkspaceURL({
         // workspace,
         pathname: '/verify',
-        // searchParams: {
-        //   loginToken,
-        //   ...(billingCheckoutSessionState ? { billingCheckoutSessionState } : {}),
-        // },
+        searchParams: {
+          loginToken,
+        },
       });
 
       return url.toString();
@@ -96,102 +99,87 @@ export class AuthService {
 
   async findWorkspaceForSignInUp(
     params: {
-      // workspaceId?: string;
       workspaceInviteToken: string;
-      // email: string,
-      // authProvider: string,
       userId: string
     } 
-    // & (
-    //   | {
-    //       authProvider: Exclude<WorkspaceAuthProvider, 'password'>;
-    //       email: string;
-    //     }
-    //   | { authProvider: Extract<WorkspaceAuthProvider, 'password'> }
-    // ),
   ) {
-    // if (params.workspaceInviteToken) {
-    //   return (
-    //     (await this.workspaceRepository.findOne({
-    //       where: {
-    //         inviteHash: params.workspaceInviteHash,
-    //       },
-    //       relations: ['workspaceId'],
-    //     })) ?? undefined
-    //   );
-    // }
     return this.workspaceService.getOrCreateWorkspaceForUser(params.userId, params.workspaceInviteToken)
 
-    // if (params.authProvider !== 'password') {
-    //   console.log(".................findWorkspaceForSignInUp...3...........");
+  }
 
-    //   return (
-    //     (await this.authSsoService.findWorkspaceFromWorkspaceIdOrAuthProvider(
-    //       {
-    //         email: params.email,
-    //         authProvider: params.authProvider,
-    //       },
-    //       params.workspaceId,
-    //     )) ?? undefined
-    //   );
-    // }
-    // console.log(".................findWorkspaceForSignInUp...4...........");
-    // return params.workspaceId
-    //   ? await this.workspaceRepository.findOne({
-    //       // where: {
-    //       //   id: params.workspaceId,
-    //       // },
-    //       // relations: ['approvedAccessDomains'],
-    //     })
-    //   : undefined;
+  generateAppSecret(type: string, workspaceId?: string): string {
+    const appSecret = process.env.APP_SECRET;
+    if (!appSecret) {
+      throw new Error('APP_SECRET is not set');
+    }
 
-    // return await this.workspaceRepository.findOne({
-    //     where: {
-    //       // id: params.workspaceId,
-    //       id: '6153c5ba-b0a0-4f5c-9732-fc2a56e0e4e2',
-    //     },
-    //     // relations: ['id'],
-    //   });
+    return createHash('sha256')
+      .update(`${appSecret}${workspaceId}${type}`)
+      .digest('hex');
   }
 
 
-  // async signInUp(
-  //   params: {
-  //     // invitation: string,
-  //     workspace?: Workspace | null,
-  //     userData: {
-  //       email: string;
-  //       firstName?: string | null;
-  //       lastName?: string | null;
-  //     },
-  //     authParams: {provider: string},
-  //     // owner?: User | null;
-  //   }
-  // ){
-  //   console.log("................................", params);
-  //   // var user = params.owner;
-  //   if (!user){
-  //           const saltRounds = 10;
-  //     const hashedPassword = await bcrypt.hash(params.userData.email, saltRounds);
-  //     const userData = { ...params.userData, username: params.userData.email, password: hashedPassword };
+  async generateLoginToken(
+    email: string,
+    workspaceId: string,
+  ) {
 
-  //     const user = await this.userservice.createUser(userData);
-  //   } 
+      const secret = this.generateAppSecret(
+        'LOGIN',
+        workspaceId,
+      );
 
-  //   return user;
-  //   // if (!user) {
-  //   //   throw new Error('User not found');
-  //   // }
+      const expiresIn = '15m';
 
-  //   // if (params.workspace == null){
-  //   //   const workspace2 = this.workspaceRepository.create({
-  //   //     // name: params.userData.firstName | params.userData.email, // Default name as phoneNo
-  //   //     name: `${params.userData.email}'s Workspace`,
-  //   //     owner: user,
-  //   //   })
-  //   //   await this.workspaceRepository.save(workspace2);
-  //   //   console.log("...............workspace............", workspace2);
-  //   // }
-  // }
+      const expiresAt = addMilliseconds(new Date().getTime(), ms(expiresIn));
+      const jwtPayload = {
+        sub: email,
+        workspaceId,
+      };
+
+      const token = {
+        token: this.jwtService.sign(jwtPayload, {
+          secret,
+          expiresIn,
+        }),
+        expiresAt,
+      };
+
+      return token;
+  }
+  decode<T = any>(payload: string, options?: jwt.DecodeOptions): T {
+    return this.jwtService.decode(payload, options);
+  }
+
+  async verifyToken(loginToken: string){
+
+
+    const decodeToken = this.decode(loginToken, {
+      json: true,
+    });
+
+    const payload = this.jwtService.verify(loginToken, {
+      secret: this.generateAppSecret('LOGIN', decodeToken.workspaceId),
+    });
+
+    const users = await this.userservice.findOneByEmail(payload.sub)
+    if(!users) throw error("this is error of")
+    const payloadfinal = {
+      username: users.username,
+      sub: users.id,
+      email: users.email,
+      workspaceId: payload.workspaceId,
+      workspaceIds: payload.workspaceId
+    };
+
+    return {
+        access_token: this.jwtService.sign(payloadfinal),
+        workspaceIds: JSON.stringify(payload.workspaceId),
+        userDetails: {
+          name : users.username,
+          email : users.email
+        }
+      };
+  }
 
 }

@@ -120,6 +120,7 @@ export class WorkspaceService {
     const workspace = this.workspaceRepository.create({
       name: `${user.username}'s Workspace`,
       owner: user,
+      inviteToken: uuidv4(),
     });
     await this.workspaceRepository.save(workspace);
 

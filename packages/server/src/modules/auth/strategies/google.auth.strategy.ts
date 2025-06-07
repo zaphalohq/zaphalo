@@ -16,18 +16,12 @@ export type GoogleRequest = Omit<
     picture: string | null;
     // locale?: keyof typeof APP_LOCALES | null;
     workspaceInviteToken?: string;
-    // workspacePersonalInviteToken?: string;
-    // workspaceId?: string;
-    // billingCheckoutSessionState?: string;
   };
 };
-
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy) {
   constructor(
-    // @Inject(googleOauthConfig.KEY)
-    // private googleConfiguration: ConfigType<typeof googleOauthConfig>,
     private authService: AuthService,
   ) {
     super({
@@ -44,12 +38,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       ...options,
       state: JSON.stringify({
         workspaceInviteToken: req.query.workspaceInviteToken,
-        workspaceId: req.params.workspaceId,
-        // billingCheckoutSessionState: req.query.billingCheckoutSessionState,
-        // workspacePersonalInviteToken: req.query.workspacePersonalInviteToken,
       }),
     };
-
     return super.authenticate(req, options);
   }
 
@@ -72,10 +62,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       lastName: name.familyName,
       picture: photos?.[0]?.value,
       workspaceInviteToken: state.workspaceInviteToken,
-      // workspacePersonalInviteToken: state.workspacePersonalInviteToken,
-      // workspaceId: state.workspaceId,
-      // billingCheckoutSessionState: state.billingCheckoutSessionState,
-      // locale: state.locale,
     };
 
     done(null, user);

@@ -4,6 +4,8 @@
     "@nestjs/typeorm": "^11.0.0",
     "@ptc-org/nestjs-query-typeorm": "4.2.1-alpha.2",
     "@sentry/react": "^9.22.0",
+    "@sniptt/guards": "^0.2.0",
+    "js-cookie": "^3.0.5",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
@@ -13,7 +15,8 @@
     "react-error-boundary": "^6.0.0",
     "react-router-dom": "^7.6.2",
     "recoil": "^0.7.7",
-    "typeorm": "^0.3.21"
+    "typeorm": "^0.3.21",
+    "zod": "^3.25.55"
   },
   "devDependencies": {
     "@nx/js": "20.4.2",
@@ -27,6 +30,7 @@
     "@swc/core": "~1.5.7",
     "@swc/helpers": "~0.5.11",
     "@tailwindcss/vite": "^4.1.6",
+    "@types/js-cookie": "^3",
     "@types/passport": "^0",
     "@types/passport-google-oauth2": "^0",
     "nx": "20.4.2",
