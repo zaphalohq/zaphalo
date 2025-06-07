@@ -20,7 +20,7 @@ export class MailingListResolver {
   ) { }
 
   @Mutation(() => MailingList)
-  // @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async CreateMailingList(@Context('req') req,@Args('mailingListInput') mailingListInput : MailingListInputDto ): Promise<MailingList> {
     const workspaceId = req.headers['x-workspace-id']
     console.log(mailingListInput,"mailingListInputmailingListInputmailingListInput");
@@ -29,12 +29,9 @@ export class MailingListResolver {
   }
 
    @Query(() => [MailingList])
-  // @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async findAllMailingList(@Context('req') req): Promise<MailingList[]> {
-    // const workspaceId = req.headers['x-workspace-id']
-    console.log(".................................");
-    
-    const workspaceId = "72407694-250e-4c9e-b1aa-480f0afbeb99"
+    const workspaceId = req.headers['x-workspace-id']
     return this.mailingListService.findAllMailingList(workspaceId)
   }
 

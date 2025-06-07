@@ -31,6 +31,6 @@ export class MailingListController {
         const workspaceId : any = req.headers['x-workspace-id'];
         console.log(workspaceId,".................");
         
-        return "this.mailingListService.CreateMailingList({ mailingContacts: mailingListData }, workspaceId)"
+        return this.mailingListService.CreateMailingList({ mailingContacts: mailingListData }, workspaceId);
     }
 }
