@@ -18,6 +18,8 @@ import Chats from 'src/pages/Chats';
 import MainLayout from 'src/pages/MainLayout';
 import Contacts from 'src/pages/Contacts';
 import Template from 'src/pages/Template';
+import SignUpPage from 'src/modules/auth/pages/SignUpPage';
+import VerifyLoginTokenEffect from 'src/modules/auth/pages/VerifySignInPage';
 import Broadcast from 'src/pages/Broadcast';
 import MailingList from 'src/pages/MailingList';
 import LoadingPage from 'src/components/UI/Loadingpage';
@@ -27,7 +29,10 @@ const routes = createRoutesFromElements(
   <Route>
     <Route path="/register" element={<Register />} />
     <Route path="/register/:token" element={<Register />} />
+    <Route path="/invite/:workspaceInviteToken" element={<SignUpPage />} />
+    <Route path="/verify" element={<VerifyLoginTokenEffect />} />
     <Route path='/login' element={<Login />} />
+    <Route path='/login2' element={<SignUpPage />} />
     <Route element={<ProtectedRoute />}>
       <Route path="/" element={<MainLayout />}>
         <Route index element={<Navigate to="dashboard" replace />} />

@@ -15,7 +15,7 @@
     "database:migrate:generate": "nx run server:typeorm migration:generate src/database/typeorm/core/migrations/new -d src/database/typeorm/core/core.datasource.ts",
     "database:migrate:run": "nx run server:typeorm migration:run -d src/database/typeorm/core/core.datasource.ts",
     "typeorm": "../../node_modules/typeorm/cli.js",
-    "database:migrate_revert:pord": "nx run server:typeorm migration:revert -d src/database/typeorm/core/core.datasource.ts"
+    "database:migrate:revert": "nx run server:typeorm migration:revert -d src/database/typeorm/core/core.datasource.ts"
   },
   "dependencies": {
     "@apollo/server": "^4.11.3",

@@ -32,7 +32,6 @@ export class ChannelResolver {
   @UseGuards(GqlAuthGuard)
   @Query(() => [Message])
   async findMsgByChannelId(@Context('req') req, @Args('channelId') channelId: string): Promise<Message[] | Message> {
-    console.log(channelId, "this is channelid");
     const messages = await this.channelService.findMsgByChannelId(channelId);
     await this.channelService.makeUnseenSeen(messages);
     return messages
@@ -47,8 +46,6 @@ export class ChannelResolver {
     const senderId = Number(findTrueInstants?.phoneNumberId)
     const memberIdsJson = JSON.parse(memberIds)
     memberIdsJson.push(senderId)
-    console.log(workspaceId, memberIdsJson, "workspaceId.........................workspaceId");
-    console.log(".....................................................................................");
     return await this.channelService.findExistingChannelByPhoneNo(JSON.parse(memberIds), workspaceId)
   }
 
