@@ -29,6 +29,7 @@ export class BroadcastService {
   onModuleInit() {
     this.sendMessagesInBackground();
   }
+
   async BroadcastTemplate(workspaceId, accessToken, broadcastData, phoneNumberId): Promise<Broadcast> {
     const url = `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`;
 
@@ -122,8 +123,6 @@ export class BroadcastService {
 
   private async cronForPendingBroadcasts() {
     cron.schedule('*/30 * * * *', async () => {
-      console.log(".............................cron the father of the code");
-      
       await this.sendMessagesInBackground()
     })
   }
@@ -143,64 +142,12 @@ export class BroadcastService {
       const language = template.language;
       const workspaceId = workspace.id;
       const findTrueInstants = await this.instantsService.FindSelectedInstants(workspaceId)
-        const accessToken = findTrueInstants?.accessToken
-        const phoneNumberId = findTrueInstants?.phoneNumberId
+      const accessToken = findTrueInstants?.accessToken
+      const phoneNumberId = findTrueInstants?.phoneNumberId
       const url = `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`;
 
-      const headerComponent =
-        headerType === 'IMAGE' && URL
-          ? [
-            {
-              type: 'header',
-              parameters: [
-                {
-                  type: 'image',
-                  image: {
-                    link: URL,
-                  },
-                },
-              ],
-            },
-          ]
-          : headerType === 'VIDEO' && URL
-            ? [
-              {
-                type: 'header',
-                parameters: [
-                  {
-                    type: 'video',
-                    video: {
-                      link: URL,
-                    },
-                  },
-                ],
-              },
-            ]
-            : headerType === 'DOCUMENT' && URL
-              ? [
-                {
-                  type: 'header',
-                  parameters: [
-                    {
-                      type: 'document',
-                      document: {
-                        link: URL,
-                      },
-                    },
-                  ],
-                },
-              ]
-              : [];
 
-      const bodyComponent = {
-        type: 'body',
-        parameters: variables.map((value) => ({
-          type: 'text',
-          text: value,
-        })),
-      };
-
-
+      const { bodyComponent, headerComponent } = await this.templateMeta(headerType, variables)
 
       if (!broadcast) throw new Error('broadcast not found')
       const allBroadcastContacts = await this.broadcastContactsRepository.find({
@@ -250,17 +197,79 @@ export class BroadcastService {
 
         await new Promise((resolve) => setTimeout(resolve, 6000));
       }
-
-      const updateBroadcast = await this.broadcastRepository.findOne({ where: { id: broadcast.id } });
-      if (updateBroadcast) {
-        updateBroadcast.isBroadcastDone = true;
-        await this.broadcastRepository.save(updateBroadcast);
+      const isBroadcastSucceed = await this.broadcastContactsRepository.findOne({
+        where: {
+          broadcast: { id: broadcast.id },
+          status: In(['PENDING', 'FAILED'])
+        }
+      })
+      if (!isBroadcastSucceed?.id) {
+        const updateBroadcast = await this.broadcastRepository.findOne({ where: { id: broadcast.id } });
+        if (updateBroadcast) {
+          updateBroadcast.isBroadcastDone = true;
+          await this.broadcastRepository.save(updateBroadcast);
+        }
       }
-
     });
 
   }
 
+  private async templateMeta(headerType: string, variables) {
+    const headerComponent =
+      headerType === 'IMAGE' && URL
+        ? [
+          {
+            type: 'header',
+            parameters: [
+              {
+                type: 'image',
+                image: {
+                  link: URL,
+                },
+              },
+            ],
+          },
+        ]
+        : headerType === 'VIDEO' && URL
+          ? [
+            {
+              type: 'header',
+              parameters: [
+                {
+                  type: 'video',
+                  video: {
+                    link: URL,
+                  },
+                },
+              ],
+            },
+          ]
+          : headerType === 'DOCUMENT' && URL
+            ? [
+              {
+                type: 'header',
+                parameters: [
+                  {
+                    type: 'document',
+                    document: {
+                      link: URL,
+                    },
+                  },
+                ],
+              },
+            ]
+            : [];
+
+    const bodyComponent = {
+      type: 'body',
+      parameters: variables.map((value) => ({
+        type: 'text',
+        text: value,
+      })),
+    };
+
+    return { bodyComponent, headerComponent }
+  }
 
   async findAllBroadcast(workspaceId: string): Promise<Broadcast[]> {
     return await this.broadcastRepository.find({

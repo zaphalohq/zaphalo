@@ -37,6 +37,7 @@ export class WorkspaceMember {
   @CreateDateColumn()
   joinedAt: Date;
 
+  @Field(() => String)
   @Column({ type: 'enum', enum: Role, default: Role.USER })
   role: Role;
 }

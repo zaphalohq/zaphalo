@@ -32,7 +32,6 @@ export class TypeORMService implements OnModuleInit, OnModuleDestroy {
 
 //   constructor(private readonly environmentService: EnvironmentService) {
  constructor () {
-    // console.log("..............................")
     this.mainDataSource = new DataSource({
       url: process.env.PG_DATABASE_URL,
       type: 'postgres',

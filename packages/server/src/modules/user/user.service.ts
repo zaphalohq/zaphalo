@@ -25,14 +25,14 @@ export class UserService {
   }
 
   async findOneByPassword(password: string) : Promise<User | null> {
-    return this.userRepository.findOne( {
+    return this.userRepository.findOne({
       where : { password }
     })
   }
   
 
   async findOneByEmail(email: string ): Promise<User | null> {
-    const user = this.userRepository.findOne({ 
+    const user = await this.userRepository.findOne({
       where : { email } 
     })
     return user;

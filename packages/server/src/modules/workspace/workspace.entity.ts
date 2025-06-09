@@ -29,12 +29,12 @@ export class Workspace {
   @Column({ type: 'varchar', length: 255 })
   name: string;
 
-  // @Field({ nullable: true })
-  // @Column({ type: 'text', nullable: true })
-  // description: string;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  inviteToken?: string;
 
   @Field(() => User)
-  @ManyToOne(() => User, { nullable: false })
+  @ManyToOne(() => User, { nullable: true })
   owner: Relation<User>;
 
   @Field(() => String)
@@ -48,10 +48,6 @@ export class Workspace {
   @Field(() => [Channel])
   @OneToMany(() => Channel, (channel) => channel.workspace)
   channels: Relation<Channel[]>;
-
-  // @Field(() => [WorkspaceMember])
-  // @ManyToMany(() => WorkspaceMember, (member) => member.workspace)
-  // members: Relation<WorkspaceMember[]>;
 
   @Field(() => [WorkspaceMember],{ nullable: true })
   @OneToMany(() => WorkspaceMember, (member) => member.workspace, { nullable: true })
