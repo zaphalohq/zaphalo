@@ -38,7 +38,7 @@ const routes = createRoutesFromElements(
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="workspace" element={<Workspace />} />
-        <Route path="chats" element={<Chats />} />
+        <Route path="dashboard" element={<Chats />} />
         <Route path="whatsappinstants" element={<WhatsappInstants />} />
         <Route path="contacts" element={<Contacts />} />
         <Route path="template" element={<Template />} />

@@ -33,7 +33,7 @@ const Dashboard: React.FC = () => {
 
   // Simulate data loading with a slight delay
   useEffect(() => {
-    console.log(getItem("workspaceIds")[0]);
+    // console.log(getItem("workspaceIds")[0]);
     refetch()
     const findCountForDash = data?.findWorkspaceByIdForDash;
     const channels = findCountForDash?.workspace?.channels;

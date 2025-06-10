@@ -1,4 +1,4 @@
-import omit from 'lodash.omit';
+import omit from 'lodash/omit';
 import { AtomEffect } from 'recoil';
 import { isDefined } from 'src/utils/validation/isDefined';
 import { z } from 'zod';

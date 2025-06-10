@@ -1,10 +1,17 @@
 // src/components/PrivateRoute.js
 import { Navigate, Outlet } from 'react-router-dom';
 import { cookieStorage } from 'src/utils/cookie-storage';
+import {
+  useRecoilState,
+} from 'recoil';
+import { tokenPairState } from 'src/modules/auth/states/tokenPairState';
+import Cookies from 'js-cookie';
+
 
 const ProtectedRoute = ({ children } : any) => {
-  const isAuthenticated = cookieStorage.getItem('accessToken')
-
+  const isAuthenticated = Cookies.get('accessToken');
+  // const [tokenPair, setTokenPairState]= useRecoilState(tokenPairState);
+console.log(".......................tokenPair.....................", isAuthenticated);
   // return children;
   return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
 };
