@@ -2,8 +2,7 @@ import { UserWorkspace } from 'src/generated/graphql';
 import { createState } from 'src/utils/createState';
 
 export type CurrentUserWorkspace = Pick<
-  UserWorkspace,
-  'settingsPermissions' | 'objectRecordsPermissions'
+  UserWorkspace, 'id' | 'name'
 >;
 
 export const currentUserWorkspaceState =

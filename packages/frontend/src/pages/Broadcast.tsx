@@ -149,7 +149,7 @@ const Broadcast = () => {
                 },
             });
 
-            console.log("Response:", response.data.sendTemplateToWhatssapp);
+            console.log("Response:", response.data);
         } catch (err) {
             console.error("Mutation error:", err);
         }

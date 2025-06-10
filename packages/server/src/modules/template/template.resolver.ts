@@ -77,16 +77,16 @@ export class TemplateResolver {
         return await this.templateService.findAllTemplate(workspaceId)
     }
 
-    @UseGuards(GqlAuthGuard)
-    @Mutation(() => String)
-    async sendTemplateToWhatssapp(@Context('req') req, @Args('broadcastData') broadcastData : TemplateWhatsappReq): Promise<string> {
-        const workspaceId = req.headers['x-workspace-id']
-        const findTrueInstants = await this.instantsService.FindSelectedInstants(workspaceId)
-        const accessToken = findTrueInstants?.accessToken
+    // @UseGuards(GqlAuthGuard)
+    // @Mutation(() => String)
+    // async sendTemplateToWhatssapp(@Context('req') req, @Args('broadcastData') broadcastData : TemplateWhatsappReq): Promise<string> {
+    //     const workspaceId = req.headers['x-workspace-id']
+    //     const findTrueInstants = await this.instantsService.FindSelectedInstants(workspaceId)
+    //     const accessToken = findTrueInstants?.accessToken
         
-        await this.templateService.sendTemplateToWhatssapp(accessToken, broadcastData)
-        return "worked......."
-    }
+    //     await this.templateService.sendTemplateToWhatssapp(accessToken, broadcastData)
+    //     return "worked......."
+    // }
 
 
     //     @Mutation(() => String)

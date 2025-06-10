@@ -163,7 +163,7 @@ export class AuthService {
     });
 
     const users = await this.userservice.findOneByEmail(payload.sub)
-    if(!users) throw error("this is error of")
+    if(!users) throw error("this is error of users")
     const payloadfinal = {
       username: users.username,
       sub: users.id,
@@ -172,8 +172,16 @@ export class AuthService {
       workspaceIds: payload.workspaceId
     };
 
+          const expiresIn = '15m';
+
+      const expiresAt = addMilliseconds(new Date().getTime(), ms(expiresIn));
+
     return {
         access_token: this.jwtService.sign(payloadfinal),
+        accessToken : {
+          token : this.jwtService.sign(payloadfinal),
+          expiresAt
+        },
         workspaceIds: JSON.stringify(payload.workspaceId),
         userDetails: {
           name : users.username,

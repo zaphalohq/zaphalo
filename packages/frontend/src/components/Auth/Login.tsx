@@ -4,6 +4,7 @@ import { LoginMutation } from './AuthMutations/LoginMutation';
 import { useNavigate } from 'react-router-dom';
 import AuthInputLabel from '../UI/AuthInputLabel';
 import { setItem } from '../utils/localStorage';
+import { cookieStorage } from '@src/utils/cookie-storage';
 
 
 function Login() {
@@ -16,7 +17,6 @@ useEffect(() => {
   if(access_token){
     navigate('/dashboard')
   }
-
 }, [navigate])
 
 const [authForm, setAuthForm] = useState({
@@ -45,6 +45,12 @@ const handleSubmit = async (event : any) => {
     console.log('Login Success:', response.data);    
     // Save accessToken in localStorage or cookies
     setItem('access_token', response.data.login.access_token);  
+    cookieStorage.setItem(
+            'accessToken',
+            JSON.stringify(
+              response.data.login.access_token
+            ),
+          );
     const workspaceIds = JSON.parse(response.data.login.workspaceIds)
     setItem('workspaceIds', workspaceIds)
     sessionStorage.setItem('workspaceId', workspaceIds[0]);

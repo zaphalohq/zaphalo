@@ -6,6 +6,7 @@ import { channelModule } from './channel/channel.module';
 import { WorkspaceModule } from './workspace/workspace.module';
 import { TemplateModule } from './template/template.module';
 import { MailingListModule } from './mailingList/mailingList.module';
+import { BroadcastModule } from './broadcast/broadcast.module';
 
 @Module({
   imports: [
@@ -15,7 +16,8 @@ import { MailingListModule } from './mailingList/mailingList.module';
     channelModule,
     WorkspaceModule,
     TemplateModule,
-    MailingListModule
+    MailingListModule,
+    BroadcastModule
   ],
   exports: [
     UserModule,
@@ -24,7 +26,8 @@ import { MailingListModule } from './mailingList/mailingList.module';
     channelModule,
     WorkspaceModule,
     TemplateModule,
-    MailingListModule
+    MailingListModule,
+    BroadcastModule
   ],
 })
 export class CoreModule {}

@@ -40,8 +40,15 @@ export class MailingListService {
         return mailingList
     }
 
+    async findMailingListById(mailingListId: string) : Promise<MailingList | null> {
+        return await this.mailingListRepository.findOne({ where: { id: mailingListId }})
+    }
+
     async findAllMailingList(workspaceId: string): Promise<MailingList[]> {
-        const mailinglist = await this.mailingListRepository.find({ where: { workspace: { id: workspaceId } } })
+        const mailinglist = await this.mailingListRepository.find(
+            { 
+                where: { workspace: { id: workspaceId } },
+            })
         console.log(mailinglist, "........................");
 
         return mailinglist
@@ -57,5 +64,11 @@ export class MailingListService {
         return mailinglist
     }
 
+    async findMailingContactByContactNo(contactNo: string, mailingListId: string){
+        return await this.mailingContactsRepository.findOne({ where: { 
+            contactNo,
+            mailingList: { id: mailingListId}
+        }})
+    }
 
 }
