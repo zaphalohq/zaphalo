@@ -213,7 +213,9 @@ export class BroadcastService {
     });
 
   }
-
+async headerComponent () {
+  
+}
   private async templateMeta(headerType: string, variables) {
     const headerComponent =
       headerType === 'IMAGE' && URL

@@ -10,9 +10,21 @@ export class UserDetails {
 }
 
 @ObjectType()
+export class AuthTokenDto {
+  @Field()
+  token: string;
+
+  @Field()
+  expiresAt: string;
+}
+
+@ObjectType()
 export class AuthResponse {
   @Field()
   access_token: string;
+
+  @Field()
+  accessToken : AuthTokenDto;
 
   @Field()
   workspaceIds: string;
