@@ -31,7 +31,7 @@ export const useAuth = () => {
   const [getAuthTokensFromLoginToken] = useGetAuthTokensFromLoginTokenMutation();
   const [getCurrentUser] = useGetCurrentUserLazyQuery();
 
-  const [TokenPair, setTokenPair]= useRecoilState(tokenPairState);
+  const [TokenPair, setTokenPair] = useRecoilState(tokenPairState);
   const setCurrentUser = useSetRecoilState(currentUserState);
   const setCurrentUserWorkspace = useSetRecoilState(currentUserWorkspaceState);
   const setWorkspaces = useSetRecoilState(workspacesState);
@@ -62,7 +62,7 @@ export const useAuth = () => {
     });
 
     const user = currentUserResult.data?.User;
-    if(!user) throw Error("user not found")
+    if (!user) throw Error("user not found")
     setCurrentUser(user);
 
     // const currentUserWorkspace =  user?.currentUserWorkspace
@@ -82,30 +82,30 @@ export const useAuth = () => {
       setWorkspaces(validWorkspaces);
     }
 
-  },[]);
+  }, []);
 
   const clearSession = useRecoilCallback(
-    ({snapshot}) => async () => {
+    ({ snapshot }) => async () => {
       const initialSnapshot = emptySnapshot.map(({ set }) => {
         return undefined;
       });
 
-       const release = snapshot.retain();
-  try {
-    await goToRecoilSnapshot(initialSnapshot);
+      const release = snapshot.retain();
 
-  } finally {
-    release();
-  }
+      try {
+        await goToRecoilSnapshot(initialSnapshot);
+      } finally {
+        release();
+      }
 
       sessionStorage.clear();
       localStorage.clear();
       await client.clearStore();
       return undefined;
-  });
+    });
 
   const handleSignOut = useCallback(async () => {
-      loadCurrentUser();
+    loadCurrentUser();
 
     await clearSession();
     // navigate('/login');
@@ -114,8 +114,8 @@ export const useAuth = () => {
   const handleGoogleLogin = useCallback(
     (
       params: {
-      workspaceInviteToken?: string;
-    }
+        workspaceInviteToken?: string;
+      }
     ) => {
       redirect(buildRedirectUrl('/google/auth', params));
     },
@@ -123,21 +123,23 @@ export const useAuth = () => {
   );
 
   const handleGetAuthTokensFromLoginToken = useCallback(
-     async (loginToken: string) => {
+    async (loginToken: string) => {
       const response = await getAuthTokensFromLoginToken({
         variables: { loginToken },
       });
       const accessToken = response.data?.getAuthTokensFromLoginToken?.accessToken;
       const token = accessToken?.token;
-      if(!token) throw Error("token doesn't exist");
+      if (!token) throw Error("token doesn't exist");
       const expiresAt = accessToken?.expiresAt;
-      if(!expiresAt) throw Error("expiresAt doesn't exist");
+      if (!expiresAt) throw Error("expiresAt doesn't exist");
 
 
-      setTokenPair({accessToken : {
-        token,
-        expiresAt 
-      }});
+      setTokenPair({
+        accessToken: {
+          token,
+          expiresAt
+        }
+      });
       cookieStorage.setItem(
         'accessToken',
         JSON.stringify(
@@ -148,15 +150,15 @@ export const useAuth = () => {
 
       //to be removed
       const access_token = localStorage.getItem('access_token')
-      const workspaceIds : string | undefined = response.data?.getAuthTokensFromLoginToken?.workspaceIds;
-      if(!workspaceIds) throw Error("workspaceIds doesn't exist")
+      const workspaceIds: string | undefined = response.data?.getAuthTokensFromLoginToken?.workspaceIds;
+      if (!workspaceIds) throw Error("workspaceIds doesn't exist")
       setItem('workspaceIds', workspaceIds);
 
       sessionStorage.setItem('workspaceId', workspaceIds);
-      setItem('userDetails',{ name : response.data?.getAuthTokensFromLoginToken?.userDetails.name, email : response.data?.getAuthTokensFromLoginToken?.userDetails.email })
+      setItem('userDetails', { name: response.data?.getAuthTokensFromLoginToken?.userDetails.name, email: response.data?.getAuthTokensFromLoginToken?.userDetails.email })
       navigate('/dashboard')
     }
-  ,[]);
+    , []);
 
 
   return {
