@@ -1,5 +1,15 @@
 import { Field, ObjectType } from "@nestjs/graphql";
-import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinTable,
+  JoinColumn,
+  ManyToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Relation
+} from "typeorm";
 import { UUIDScalarType } from "../api/scalars/uuid.scalar";
 import { IDField } from "@ptc-org/nestjs-query-graphql";
 import { User } from "../user/user.entity";
@@ -16,22 +26,22 @@ export class WorkspaceMember {
 
   @Field(() => User)
   @ManyToOne(() => User, { nullable: false })
+  @JoinColumn({ name: 'userId' })
   user: Relation<User>
 
-  // @Field(() => [Workspace])
-  // @ManyToMany(() => Workspace, (workspace) => workspace.members, {
-  //   nullable: false,
-  // })
-  // @JoinTable({
-  //   name: 'workspace_member_workspace',
-  //   joinColumn: { name: 'workspaceMemberId', referencedColumnName: 'id' },
-  //   inverseJoinColumn: { name: 'workspaceId', referencedColumnName: 'id' },
-  // })
-  // workspace: Relation<Workspace[]>;
+  @Field({ nullable: false })
+  @Column()
+  userId: string;
   
   @Field(() => Workspace, { nullable: true })
   @ManyToOne(() => Workspace, (workspace) => workspace.members, { nullable: true })
+  @JoinColumn({ name: 'workspaceId' })
   workspace: Relation<Workspace>;
+
+
+  @Field({ nullable: false })
+  @Column()
+  workspaceId: string;
 
   @Field(() => String)
   @CreateDateColumn()

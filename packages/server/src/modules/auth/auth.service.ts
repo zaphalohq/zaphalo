@@ -6,6 +6,9 @@ import { Workspace } from "../workspace/workspace.entity";
 import * as bcrypt from "bcrypt";
 import { CreateUserDTO } from "../user/dto/create-user.dto";
 import { DomainManagerService } from 'src/modules/domain-manager/services/domain-manager.service';
+import { AuthSsoService } from 'src/modules/auth/services/auth-sso.service';
+import { SignInUpService } from 'src/modules/auth/services/sign-in-up.service';
+import { WorkspaceAuthProvider } from 'src/modules/workspace/types/workspace.type';
 import { error } from "console";
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,6 +17,13 @@ import { addMilliseconds } from 'date-fns';
 import { createHash } from 'crypto';
 import ms from 'ms';
 import * as jwt from 'jsonwebtoken';
+import {
+  AuthProviderWithPasswordType,
+  ExistingUserOrNewUser,
+  SignInUpBaseParams,
+  SignInUpNewUserPayload,
+} from 'src/modules/auth/types/signInUp.type';
+
 
 @Injectable()
 export class AuthService {
@@ -22,6 +32,8 @@ export class AuthService {
     private jwtService: JwtService,
     private readonly domainManagerService: DomainManagerService,
     private readonly workspaceService: WorkspaceService,
+    private readonly authSsoService: AuthSsoService,
+    private readonly signInUpService: SignInUpService,
     @InjectRepository(Workspace, 'core')
     private readonly workspaceRepository: Repository<Workspace>,
   ) {}
@@ -33,11 +45,6 @@ export class AuthService {
       return result;
     }
     return null;
-  }
-
-  async checkUserForSigninUp(username: string){
-    const user = this.userservice.findOneByEmail(username);
-    return user;
   }
 
   async login(user: any) {
@@ -83,11 +90,12 @@ export class AuthService {
 
     computeRedirectURI({
       loginToken,
+      workspace,
     }: {
       loginToken: string;
     }) {
       const url = this.domainManagerService.buildWorkspaceURL({
-        // workspace,
+        workspace,
         pathname: '/verify',
         searchParams: {
           loginToken,
@@ -97,14 +105,134 @@ export class AuthService {
       return url.toString();
     }
 
+  formatUserDataPayload(
+    newUserPayload: SignInUpNewUserPayload,
+    existingUser?: User | null,
+  ): ExistingUserOrNewUser {
+    return {
+      userData: existingUser
+        ? { type: 'existingUser', existingUser }
+        : {
+            type: 'newUser',
+            newUserPayload,
+          },
+    };
+  }
+
+
+  private async validatePassword(
+    userData: ExistingUserOrNewUser['userData'],
+    authParams: Extract<
+      AuthProviderWithPasswordType['authParams'],
+      { provider: 'password' }
+    >,
+  ) {
+    if (userData.type === 'newUser') {
+      userData.newUserPayload.passwordHash =
+        await this.signInUpService.generateHash(authParams.password);
+    }
+
+    if (userData.type === 'existingUser') {
+      await this.signInUpService.validatePassword({
+        password: authParams.password,
+        passwordHash: userData.existingUser.password,
+      });
+    }
+  }
+
+  private async isAuthProviderEnabledOrThrow(
+    userData: ExistingUserOrNewUser['userData'],
+    authParams: AuthProviderWithPasswordType['authParams'],
+    workspace: Workspace | undefined | null,
+  ) {
+    if (authParams.provider === 'password') {
+      await this.validatePassword(userData, authParams);
+    }
+
+    // if (isDefined(workspace)) {
+    //   workspaceValidator.isAuthEnabledOrThrow(authParams.provider, workspace);
+    // }
+  }
+
+  async signInUp(
+    params: SignInUpBaseParams &
+      ExistingUserOrNewUser &
+      AuthProviderWithPasswordType,
+  ) {
+    await this.isAuthProviderEnabledOrThrow(
+      params.userData,
+      params.authParams,
+      params.workspace,
+    );
+
+    if (params.userData.type === 'newUser') {
+      const partialUserWithPicture =
+        await this.signInUpService.computeParamsForNewUser(
+          params.userData.newUserPayload,
+          params.authParams,
+        );
+
+      return await this.signInUpService.signInUp({
+        ...params,
+        userData: {
+          type: 'newUserWithPicture',
+          newUserWithPicture: partialUserWithPicture,
+        },
+      });
+    }
+
+    return await this.signInUpService.signInUp({
+      ...params,
+      userData: {
+        type: 'existingUser',
+        existingUser: params.userData.existingUser,
+      },
+    });
+  }
+
   async findWorkspaceForSignInUp(
     params: {
-      workspaceInviteToken: string;
-      userId: string
-    } 
+      workspaceId?: string;
+      workspaceInviteToken?: string;
+    } & (
+      | {
+          authProvider: Exclude<WorkspaceAuthProvider, 'password'>;
+          email: string;
+        }
+      | { authProvider: Extract<WorkspaceAuthProvider, 'password'> }
+    ),
   ) {
-    return this.workspaceService.getOrCreateWorkspaceForUser(params.userId, params.workspaceInviteToken)
+    if (params.workspaceInviteToken) {
+      return (
+        (await this.workspaceRepository.findOne({
+          where: {
+            inviteToken: params.workspaceInviteToken,
+          },
+          relations: ['approvedAccessDomains'],
+        })) ?? undefined
+      );
+    }
 
+    if (params.authProvider !== 'password') {
+
+      return (
+        (await this.authSsoService.findWorkspaceFromWorkspaceIdOrAuthProvider(
+          {
+            email: params.email,
+            authProvider: params.authProvider,
+          },
+          params.workspaceId,
+        )) ?? undefined
+      );
+    }
+    return params.workspaceId
+      ? await this.workspaceRepository.findOne({
+          where: {
+            id: params.workspaceId,
+          },
+          // relations: ['approvedAccessDomains'],
+        })
+      : undefined;
   }
 
   generateAppSecret(type: string, workspaceId?: string): string {

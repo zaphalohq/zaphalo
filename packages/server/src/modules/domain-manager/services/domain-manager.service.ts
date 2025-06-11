@@ -4,9 +4,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 export class DomainManagerService {
 
   getFrontUrl() {
-    return new URL(''
-      // process.env.FRONTEND_URL ??
-      //   process.env.SERVER_URL
+    return new URL(
+      process.env.FRONTEND_URL ??
+        process.env.SERVER_URL
     );
   }
 
@@ -64,7 +64,7 @@ export class DomainManagerService {
     // const workspaceUrls = this.getWorkspaceUrls(workspace);
 
     // const url = new URL(workspaceUrls.customUrl ?? workspaceUrls.subdomainUrl);
-    const url = new URL('http://localhost:5173');
+    const url = new URL(this.getFrontUrl());
 
     if (pathname) {
       url.pathname = pathname;
@@ -75,6 +75,27 @@ export class DomainManagerService {
     }
 
     return url;
+  }
+
+
+  getSubdomainAndCustomDomainFromWorkspaceFallbackOnDefaultSubdomain(
+    workspace?: WorkspaceSubdomainCustomDomainAndIsCustomDomainEnabledType | null,
+  ) {
+    // if (!workspace) {
+    return {
+      subdomain: process.env.DEFAULT_SUBDOMAIN,
+      customDomain: null,
+    };
+    // }
+
+    // if (!workspace.isCustomDomainEnabled) {
+    //   return {
+    //     subdomain: workspace.subdomain,
+    //     customDomain: null,
+    //   };
+    // }
+
+    // return workspace;
   }
 
 }
