@@ -60,7 +60,8 @@ export const useAuth = () => {
       fetchPolicy: 'network-only',
     });
 
-    const user = currentUserResult.data?.User;
+    const user = currentUserResult.data?.currentUser;
+
     if(!user) throw Error("user not found")
     setCurrentUser(user);
 

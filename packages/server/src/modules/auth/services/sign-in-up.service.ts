@@ -46,7 +46,7 @@ export class SignInUpService {
       // );
       throw new Error('Email is required')
     }
-
+    newUserParams.username = newUserParams.email;
     if (authParams.provider === 'password') {
       newUserParams.passwordHash = await this.generateHash(authParams.password);
     }
@@ -120,17 +120,18 @@ export class SignInUpService {
   ) {
     // let canImpersonate = false;
     // let canAccessFullAdminPanel = false;
-    // const email =
-    //   userData.type === 'newUserWithPicture'
-    //     ? userData.newUserWithPicture.email
-    //     : userData.existingUser.email;
+    const email =
+      userData.type === 'newUserWithPicture'
+        ? userData.newUserWithPicture.email
+        : userData.existingUser.email;
 
-    // if (!email) {
-    //   throw new AuthException(
-    //     'Email is required',
-    //     AuthExceptionCode.INVALID_INPUT,
-    //   );
-    // }
+    if (!email) {
+      // throw new AuthException(
+      //   'Email is required',
+      //   AuthExceptionCode.INVALID_INPUT,
+      // );
+      throw new Error('Email is required')
+    }
 
     // if (!this.twentyConfigService.get('IS_MULTIWORKSPACE_ENABLED')) {
     //   const workspacesCount = await this.workspaceRepository.count();
@@ -168,7 +169,7 @@ export class SignInUpService {
       // subdomain: await this.domainManagerService.generateSubdomain(
       //   isWorkEmailFound ? { email } : {},
       // ),
-      name: '',
+      name: email,
       inviteToken: v4(),
       // activationStatus: WorkspaceActivationStatus.PENDING_CREATION,
       // logo,
@@ -198,6 +199,56 @@ export class SignInUpService {
     return { user, workspace };
   }
 
+
+  async signInUpOnExistingWorkspace(
+    params: {
+      workspace: Workspace;
+    } & ExistingUserOrPartialUserWithPicture,
+  ) {
+    // await this.throwIfWorkspaceIsNotReadyForSignInUp(params.workspace, params);
+
+    const isNewUser = params.userData.type === 'newUserWithPicture';
+
+    if (isNewUser) {
+      const userData = params.userData as {
+        type: 'newUserWithPicture';
+        newUserWithPicture: PartialUserWithPicture;
+      };
+
+      const user = await this.saveNewUser(
+        userData.newUserWithPicture,
+        params.workspace.id,
+        // {
+        //   canAccessFullAdminPanel: false,
+        //   canImpersonate: false,
+        // },
+      );
+
+      // await this.activateOnboardingForUser(user, params.workspace);
+
+      await this.workspaceMemberService.addUserToWorkspaceIfUserNotInWorkspace(
+        user,
+        params.workspace,
+      );
+
+      return user;
+    }
+
+    const userData = params.userData as {
+      type: 'existingUser';
+      existingUser: User;
+    };
+
+    const user = userData.existingUser;
+
+    await this.workspaceMemberService.addUserToWorkspaceIfUserNotInWorkspace(
+      user,
+      params.workspace,
+    );
+
+    return user;
+  }
+
   async signInUp(
     params: SignInUpBaseParams &
       ExistingUserOrPartialUserWithPicture &
@@ -212,15 +263,15 @@ export class SignInUpService {
     //     }),
     //   };
     // }
-    // if (params.workspace) {
+    if (params.workspace) {
 
-    //   const updatedUser = await this.signInUpOnExistingWorkspace({
-    //     workspace: params.workspace,
-    //     userData: params.userData,
-    //   });
+      const updatedUser = await this.signInUpOnExistingWorkspace({
+        workspace: params.workspace,
+        userData: params.userData,
+      });
 
-    //   return { user: updatedUser, workspace: params.workspace };
-    // }
+      return { user: updatedUser, workspace: params.workspace };
+    }
     return await this.signUpOnNewWorkspace(params.userData);
   }
 

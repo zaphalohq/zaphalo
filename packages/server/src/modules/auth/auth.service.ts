@@ -90,12 +90,12 @@ export class AuthService {
 
     computeRedirectURI({
       loginToken,
-      workspace,
+      // workspace,
     }: {
       loginToken: string;
     }) {
       const url = this.domainManagerService.buildWorkspaceURL({
-        workspace,
+        // workspace,
         pathname: '/verify',
         searchParams: {
           loginToken,
@@ -202,6 +202,7 @@ export class AuthService {
       | { authProvider: Extract<WorkspaceAuthProvider, 'password'> }
     ),
   ) {
+
     if (params.workspaceInviteToken) {
       return (
         (await this.workspaceRepository.findOne({
@@ -225,6 +226,16 @@ export class AuthService {
         )) ?? undefined
       );
     }
+
+    const workspace = params.workspaceId
+      ? await this.workspaceRepository.findOne({
+          where: {
+            id: params.workspaceId,
+          },
+          // relations: ['approvedAccessDomains'],
+        })
+      : undefined;
+
     return params.workspaceId
       ? await this.workspaceRepository.findOne({
           where: {

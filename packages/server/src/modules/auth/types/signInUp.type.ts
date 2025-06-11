@@ -13,6 +13,7 @@ export type SignInUpNewUserPayload = {
   email: string;
   firstName?: string | null;
   lastName?: string | null;
+  username?: string | null;
   picture?: string | null;
   passwordHash?: string | null;
   // locale?: keyof typeof APP_LOCALES | null;

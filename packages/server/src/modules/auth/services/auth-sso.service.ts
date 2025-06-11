@@ -46,7 +46,7 @@ export class AuthSsoService {
       // so get the first workspace with the current auth method enable
       const workspace = await this.workspaceRepository.findOne({
         where: {
-          [this.getAuthProviderColumnNameByProvider(authProvider)]: true,
+          // [this.getAuthProviderColumnNameByProvider(authProvider)]: true,
           members: {
             user: {
               email,

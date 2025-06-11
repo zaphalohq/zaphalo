@@ -88,13 +88,18 @@ export class GoogleAuthController {
         workspace.id,
       );
 
-      return res.redirect(
-      this.authService.computeRedirectURI({
-        loginToken: loginToken.token,
-        workspace,
+      const url = this.authService.computeRedirectURI({
+          loginToken: loginToken.token,
+        // workspace,
         // billingCheckoutSessionState,
-      }),
-    );
+      })
+
+      return res.redirect(
+        this.authService.computeRedirectURI({
+          loginToken: loginToken.token,
+        // workspace,
+        // billingCheckoutSessionState,
+      }));
     }
     catch(err){
       // return res.redirect(
