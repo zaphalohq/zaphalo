@@ -11,12 +11,10 @@ const ContactsContent = () => {
 		 setIsNewContacts,
 		 HandleContactsFormVisibility,
 		 isContactFormVisible,
-		 contactData,
+		 contactData, 
 		 HandleFetchData
 		} : any = useContext(ContactsContext)
 
-
-	// // handle the fetch for the first time when page load 
 	useEffect(() => {
 		HandleFetchData()
 	}, [contactData])
@@ -43,10 +41,8 @@ const ContactsContent = () => {
 			</div>
 
 			<div>
-				{/* list view your are seeing on the page */}
 				<ContactsTable  />
 			</div> 
-			{/* input and update form */}
 			{isContactFormVisible ? <ContactsForm /> : null}
 		</div>
 	)

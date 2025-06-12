@@ -32,8 +32,6 @@ export class workspaceResolver {
   }
   @Query(() => WorkspaceDashboardOutput)
   async findWorkspaceByIdForDash(@Args('workspaceId') workspaceId : string) {
-    console.log("............................");
-    
     return this.workspaceService.findWorkspaceByIdForDash(workspaceId)
   }
 

@@ -54,8 +54,19 @@ export const Send_Template_Message = gql`
 `;
 
 export const SEND_TEMPLATE_TO_WHATSAPP = gql`
-  mutation SendTemplateToWhatssapp($broadcastData: TemplateWhatsappReq!) {
-    sendTemplateToWhatssapp(broadcastData: $broadcastData)
+  mutation BroadcastTemplate($broadcastData: BroadcastReqDto!) {
+    BroadcastTemplate(broadcastData: $broadcastData){
+    URL
+    broadcastName
+  }
   }
 `;
 
+// mutation MyMutation {
+//   BroadcastTemplate(
+//     broadcastData: {templateId: "", templateName: "", mailingListId: "", mailingListName: "", headerType: "", language: "", variables: ""}
+//   ) {
+//     URL
+//     broadcastName
+//   }
+// }

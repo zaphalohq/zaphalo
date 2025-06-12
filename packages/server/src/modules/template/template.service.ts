@@ -251,7 +251,7 @@ export class TemplateService {
   }
 
   async findTemplateByTemplateId(templateId: string) {
-    return await this.templateRepository.findOne({ where: { templateId: templateId } })
+    return await this.templateRepository.findOne({ where: { id: templateId } })
   }
 
 
@@ -297,126 +297,126 @@ export class TemplateService {
 
 
 
-  async sendTemplateToWhatssapp(accessToken, broadcastData) {
-    const url = `https://graph.facebook.com/v22.0/565830889949112/messages`;
-    console.log(broadcastData, ".........................................................................");
+  // async sendTemplateToWhatssapp(accessToken, broadcastData) {
+  //   const url = `https://graph.facebook.com/v22.0/565830889949112/messages`;
+  //   console.log(broadcastData, ".........................................................................");
 
-    // const payload = {
-    //   messaging_product: 'whatsapp',
-    //   // to: 917202031718,
-    //   type: 'template',
-    //   template: {
-    //     name: broadcastData.templateName,
-    //     language: { code: 'en_US' },
-    //     components: [
-    //       {
-    //         type: 'header',
-    //         parameters: [
-    //           {
-    //             type: 'image',
-    //             image: {
-    //               link: 'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png'
-    //             }
-    //           }
-    //         ]
-    //       },
-    //       {
-    //         type: 'body',
-    //         parameters: [
-    //           {
-    //             type: 'text',
-    //             text: 'Chintan Patel'
-    //           },
-    //           {
-    //             type: 'text',
-    //             text: '50'
-    //           }
-    //         ]
-    //       }
-    //     ]
-    //   }
-    // };
+  //   // const payload = {
+  //   //   messaging_product: 'whatsapp',
+  //   //   // to: 917202031718,
+  //   //   type: 'template',
+  //   //   template: {
+  //   //     name: broadcastData.templateName,
+  //   //     language: { code: 'en_US' },
+  //   //     components: [
+  //   //       {
+  //   //         type: 'header',
+  //   //         parameters: [
+  //   //           {
+  //   //             type: 'image',
+  //   //             image: {
+  //   //               link: 'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png'
+  //   //             }
+  //   //           }
+  //   //         ]
+  //   //       },
+  //   //       {
+  //   //         type: 'body',
+  //   //         parameters: [
+  //   //           {
+  //   //             type: 'text',
+  //   //             text: 'Chintan Patel'
+  //   //           },
+  //   //           {
+  //   //             type: 'text',
+  //   //             text: '50'
+  //   //           }
+  //   //         ]
+  //   //       }
+  //   //     ]
+  //   //   }
+  //   // };
 
-    const { templateName, variables = [], URL, headerType, language } = broadcastData;
-    const headerComponent =
-      headerType === 'IMAGE' && URL
-        ? [
-          {
-            type: 'header',
-            parameters: [
-              {
-                type: 'image',
-                image: {
-                  link: URL,
-                },
-              },
-            ],
-          },
-        ]
-        : headerType === 'VIDEO' && URL
-          ? [
-            {
-              type: 'header',
-              parameters: [
-                {
-                  type: 'video',
-                  video: {
-                    link: URL,
-                  },
-                },
-              ],
-            },
-          ]
-          : headerType === 'DOCUMENT' && URL
-            ? [
-              {
-                type: 'header',
-                parameters: [
-                  {
-                    type: 'document',
-                    document: {
-                      link: URL,
-                    },
-                  },
-                ],
-              },
-            ]
-            : [];
+  //   const { templateName, variables = [], URL, headerType, language } = broadcastData;
+  //   const headerComponent =
+  //     headerType === 'IMAGE' && URL
+  //       ? [
+  //         {
+  //           type: 'header',
+  //           parameters: [
+  //             {
+  //               type: 'image',
+  //               image: {
+  //                 link: URL,
+  //               },
+  //             },
+  //           ],
+  //         },
+  //       ]
+  //       : headerType === 'VIDEO' && URL
+  //         ? [
+  //           {
+  //             type: 'header',
+  //             parameters: [
+  //               {
+  //                 type: 'video',
+  //                 video: {
+  //                   link: URL,
+  //                 },
+  //               },
+  //             ],
+  //           },
+  //         ]
+  //         : headerType === 'DOCUMENT' && URL
+  //           ? [
+  //             {
+  //               type: 'header',
+  //               parameters: [
+  //                 {
+  //                   type: 'document',
+  //                   document: {
+  //                     link: URL,
+  //                   },
+  //                 },
+  //               ],
+  //             },
+  //           ]
+  //           : [];
 
-    // body component
-    const bodyComponent = {
-      type: 'body',
-      parameters: variables.map((value) => ({
-        type: 'text',
-        text: value,
-      })),
-    };
-
-
+  //   // body component
+  //   const bodyComponent = {
+  //     type: 'body',
+  //     parameters: variables.map((value) => ({
+  //       type: 'text',
+  //       text: value,
+  //     })),
+  //   };
 
 
-    const allContacts = await this.mailingListService.findAllContactsOfMailingList(broadcastData.mailingListId)
-    allContacts.forEach(async (constact) => {
-      const payload = {
-        messaging_product: 'whatsapp',
-        to: constact.contactNo,
-        type: 'template',
-        template: {
-          name: templateName,
-          language: { code: language },
-          components: [...headerComponent, bodyComponent],
-        },
-      };
-      const response = await axios.post(url, payload, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        }
-      });
 
-      console.log(response.data);
-    })
-  }
+
+  //   const allContacts = await this.mailingListService.findAllContactsOfMailingList(broadcastData.mailingListId)
+  //   allContacts.forEach(async (constact) => {
+  //     const payload = {
+  //       messaging_product: 'whatsapp',
+  //       to: constact.contactNo,
+  //       type: 'template',
+  //       template: {
+  //         name: templateName,
+  //         language: { code: language },
+  //         components: [...headerComponent, bodyComponent],
+  //       },
+  //     };
+  //     const response = await axios.post(url, payload, {
+  //       headers: {
+  //         Authorization: `Bearer ${accessToken}`,
+  //         'Content-Type': 'application/json'
+  //       }
+  //     });
+
+  //     console.log(response.data);
+  //   })
+  // }
 }
 
 

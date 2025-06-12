@@ -1,11 +1,23 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { PassportStrategy } from '@nestjs/passport';
+import { Repository } from 'typeorm';
+
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UserService } from '../../user/user.service';
+import { User } from '../../user/user.entity';
+import { Workspace } from 'src/modules/workspace/workspace.entity';
+
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly usersService: UserService){
+  constructor(
+    private readonly usersService: UserService,
+      @InjectRepository(Workspace, 'core')
+      private readonly workspaceRepository: Repository<Workspace>,
+      // @InjectRepository(UserWorkspace, 'core')
+      // private readonly userWorkspaceRepository: Repository<UserWorkspace>,
+    ){
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -13,6 +25,22 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
   async validate(payload: any) {
-    return { userId: payload.sub, username: payload.username , role: payload.role, workspaceIds: payload.workspaceIds};
+    let user: User | null = null;
+    const workspace = await this.workspaceRepository.findOneBy({
+      id: payload['workspaceId'],
+    });
+
+
+    if (!workspace) {
+      throw new Error('Workspace not found');
+    }
+
+
+    user = await this.usersService.findByUserId(payload.sub);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    return { user, workspace, userId: payload.sub, username: payload.username , role: payload.role, workspaceIds: payload.workspaceIds};
   }
 }
