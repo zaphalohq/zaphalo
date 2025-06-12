@@ -33,7 +33,6 @@ const HandleChange = (e : any) => {
 
 const handleSubmit = async (event : any) => {
   event.preventDefault();
-  console.log();
   
   try {
     const response = await login({

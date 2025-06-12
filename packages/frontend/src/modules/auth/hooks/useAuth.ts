@@ -120,7 +120,6 @@ export const useAuth = () => {
       const response = await getAuthTokensFromLoginToken({
         variables: { loginToken },
       });
-      console.log("................................response....................", response);
       const accessToken = response.data?.getAuthTokensFromLoginToken?.accessToken;
       const token = accessToken?.token;
       if(!token) throw Error("token doesn't exist");
@@ -137,7 +136,7 @@ export const useAuth = () => {
           token
         ),
       );
-      // loadCurrentUser();
+      loadCurrentUser();
       navigate('/dashboard')
     }
   ,[]);

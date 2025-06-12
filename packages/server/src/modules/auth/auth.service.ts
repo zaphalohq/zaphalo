@@ -316,7 +316,6 @@ export class AuthService {
 
     const expiresIn = '15m';
     const expiresAt = addMilliseconds(new Date().getTime(), ms(expiresIn));
-    console.log("...................res................", users);
 
     const res = {
         accessToken : {
@@ -330,8 +329,6 @@ export class AuthService {
           email : users.email
         }
       };
-
-    console.log("...................res................", res);
 
     return {
         access_token: this.jwtService.sign(payloadfinal),

@@ -3,7 +3,10 @@ import { ObjectType, Field } from '@nestjs/graphql';
 @ObjectType()
 export class UserDetails {
   @Field()
-  name: string;
+  firstName: string;
+
+  @Field()
+  lastName: string;
 
   @Field()
   email: string;
@@ -20,9 +23,6 @@ export class AuthTokenDto {
 
 @ObjectType()
 export class AuthResponse {
-  @Field()
-  access_token: string;
-
   @Field()
   accessToken : AuthTokenDto;
 
