@@ -1,5 +1,6 @@
+import { useGetCurrentUserLazyQuery } from "@src/generated/graphql";
 import { getItem } from "@utils/localStorage"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { FiBriefcase, FiChevronDown, FiChevronRight, FiChevronsDown } from "react-icons/fi"
 import {
   useRecoilState,
@@ -9,6 +10,21 @@ import { workspacesState } from 'src/modules/auth/states/workspaces';
 
 
 const AccountToggle = () => {
+
+  const [getCurrentUser] = useGetCurrentUserLazyQuery();
+
+useEffect(() => {
+    const getCurrentUser1 = async () => {
+    const currentUserResult = await getCurrentUser({
+      fetchPolicy: 'network-only',
+    });
+
+    console.log(currentUserResult,"currentUserResultcurrentUserResultcurrentUserResultcurrentUserResultcurrentUserResultcurrentUserResult");
+    
+}
+getCurrentUser1()
+},[getCurrentUser])
+    
     const user = getItem('userDetails')
     const [workspaces, setWorkspacesState]= useRecoilState(workspacesState);
     const workspaceIds = getItem('workspaceIds')
@@ -27,6 +43,7 @@ const AccountToggle = () => {
             </button>
             {isWorkspaceOpen ?<div className="flex flex-col gap-2 absolute z-1 w-48 rounded bg-white p-2 pt-6 border border-gray-200">
                 <div className="font-semibold text-center">Workspaces</div>
+                {JSON.stringify(workspaces)}
                 {/* {workspaces.map((workspace: string, index: number) =>
 
                     <div key={workspace.id}

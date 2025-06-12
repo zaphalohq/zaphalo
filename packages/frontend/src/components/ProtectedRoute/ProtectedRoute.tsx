@@ -10,9 +10,6 @@ import Cookies from 'js-cookie';
 
 const ProtectedRoute = ({ children } : any) => {
   const isAuthenticated = Cookies.get('accessToken');
-  // const [tokenPair, setTokenPairState]= useRecoilState(tokenPairState);
-console.log(".......................tokenPair.....................", isAuthenticated);
-  // return children;
   return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
 };
 

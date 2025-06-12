@@ -10,7 +10,34 @@ export const LoginMutation = gql`
       email
       name
     }
+    accessToken {
+      expiresAt
+      token
+    }
+    workspaces {
+      id
+      role
+      workspace {
+        id
+        name
+      }
+    }
     }
   }
 `;
+
+//     mutation GetAuthTokensFromLoginToken($loginToken: String!) {
+//   getAuthTokensFromLoginToken(loginToken: $loginToken) {
+//     workspaceIds
+//     userDetails {
+//       email
+//       name
+//     }
+//     access_token
+//     accessToken {
+//       expiresAt
+//       token
+//     }
+//   }
+// }
 

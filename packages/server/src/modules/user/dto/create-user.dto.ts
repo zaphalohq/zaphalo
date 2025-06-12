@@ -6,9 +6,6 @@ import { IsString, IsEmail, IsStrongPassword, IsOptional } from 'class-validator
 @ObjectType()  // Marks the class as a GraphQL object (type that can be queried)
 export class CreateUserDTO {
 
-  // @FilterableField(() => ID)
-  // id!: string
-
   @Field()  // Marks this field as a GraphQL field
   @IsString()  // Optional: validates if the name is a string
   username: string;
@@ -20,6 +17,10 @@ export class CreateUserDTO {
   @Field()
   // @IsStrongPassword()
   password: string;
+
+    @Field()  // Marks this field as a GraphQL field
+  // @IsEmail()  // Optional: validates if the email is in the correct format
+  fullName: string;
 
 
   @Field({ nullable: true })

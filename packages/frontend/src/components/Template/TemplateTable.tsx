@@ -2,9 +2,11 @@ import { useMutation, useQuery } from "@apollo/client"
 import { useContext, useEffect, useState } from "react"
 import { Find_ALL_TEMPLATE, GET_TEMPLATE_STATUS, Send_Template_Message } from "@pages/Mutation/Template"
 import { TemplateContext } from "../Context/TemplateContext"
+import { useNavigate } from "react-router-dom"
 
 const TemplateTable = ({ setIsTemplatePreviewVis }: any) => {
     const { setTemplateFormData }: any = useContext(TemplateContext)
+    const navigate = useNavigate()
     const [templates, setTemplates] = useState([{
         id: '',
         status: '',
@@ -17,8 +19,13 @@ const TemplateTable = ({ setIsTemplatePreviewVis }: any) => {
     const [GetTemplateStatus] = useMutation(GET_TEMPLATE_STATUS)
 
     const [SendTemplateMessage] = useMutation(Send_Template_Message)
-    const HandelSendMessage = () => {
-        SendTemplateMessage()
+    const HandelSendTemplate = (templateId: string, templateName: string) => {
+        navigate("/broadcast", {
+            state: {
+                templateId,
+                templateName
+            },
+        });
     }
 
     const { data: templateData, loading: templateLoading, refetch: templateRefetch }: any = useQuery(Find_ALL_TEMPLATE);
@@ -101,7 +108,7 @@ const TemplateTable = ({ setIsTemplatePreviewVis }: any) => {
                                 >
                                     preview
                                 </td>
-                                <td onClick={HandelSendMessage}
+                                <td onClick={() => HandelSendTemplate(template.id, template.templateName)}
                                     className="px-6 py-4 text-center truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
                                     title="sendTemplate"
                                 >

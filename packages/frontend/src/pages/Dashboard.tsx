@@ -28,7 +28,7 @@ const Dashboard: React.FC = () => {
 
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const { data, refetch, loading } = useQuery(findCountForDash, {
-    variables: { workspaceId: '72407694-250e-4c9e-b1aa-480f0afbeb99' }
+    variables: { workspaceId: sessionStorage.getItem('workspaceId') }
   })
 
   // Simulate data loading with a slight delay

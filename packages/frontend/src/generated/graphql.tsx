@@ -34,13 +34,14 @@ export type UserWorkspace = {
   __typename?: 'UserWorkspace';
   id: Scalars['UUID'];
   name: Scalars['String'];
-  role: Scalars['String'];
 };
 
 export type Workspace = {
   __typename?: 'UserWorkspace';
   id: Scalars['UUID'];
   name: Scalars['String'];
+  role: Scalars['String'];
+  workspace?: Maybe<UserWorkspace>
 };
 
 
@@ -130,18 +131,11 @@ export const GetCurrentUserDocument = gql`
   }
 }
     ${UserQueryFragmentFragmentDoc}`;
-export type GetCurrentUserQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: any, firstName: string, lastName: string, email: string, canAccessFullAdminPanel: boolean, canImpersonate: boolean, supportUserHash?: string | null, userVars: any, workspaceMember?: { __typename?: 'WorkspaceMember', id: any, colorScheme: string, avatarUrl?: string | null, locale?: string | null, userEmail: string, timeZone?: string | null, dateFormat?: any | null, timeFormat?: any | null, name: { __typename?: 'FullName', firstName: string, lastName: string } } | null, workspaceMembers?: Array<{ __typename?: 'WorkspaceMember', id: any, colorScheme: string, avatarUrl?: string | null, locale?: string | null, userEmail: string, timeZone?: string | null, dateFormat?: any | null, timeFormat?: any | null, name: { __typename?: 'FullName', firstName: string, lastName: string } }> | null, deletedWorkspaceMembers?: Array<{ __typename?: 'DeletedWorkspaceMember', id: any, avatarUrl?: string | null, userEmail: string, name: { __typename?: 'FullName', firstName: string, lastName: string } }> | null, currentUserWorkspace?: { __typename?: 'UserWorkspace', settingsPermissions?: Array<any> | null, objectRecordsPermissions?: Array<any> | null } | null, currentWorkspace?: { __typename?: 'Workspace', id: any, displayName?: string | null, logo?: string | null, inviteHash?: string | null, allowImpersonation: boolean, isPublicInviteLinkEnabled: boolean, isGoogleAuthEnabled: boolean, isMicrosoftAuthEnabled: boolean, isPasswordAuthEnabled: boolean, subdomain: string, hasValidEnterpriseKey: boolean, customDomain?: string | null, isCustomDomainEnabled: boolean, metadataVersion: number, workspaceMembersCount?: number | null, workspaceUrls: { __typename?: 'WorkspaceUrls', subdomainUrl: string, customUrl?: string | null }, featureFlags?: Array<{ __typename?: 'FeatureFlagDTO', value: boolean }> | null, currentBillingSubscription?: { __typename?: 'BillingSubscription', id: any, billingSubscriptionItems?: Array<{ __typename?: 'BillingSubscriptionItem', id: any, hasReachedCurrentPeriodCap: boolean, billingProduct?: { __typename?: 'BillingProduct', name: string, description: string, metadata: { __typename?: 'BillingProductMetadata' } } | null }> | null } | null, billingSubscriptions: Array<{ __typename?: 'BillingSubscription', id: any }>, defaultRole?: { __typename?: 'Role', id: string, label: string, description?: string | null, icon?: string | null, canUpdateAllSettings: boolean, isEditable: boolean, canReadAllObjectRecords: boolean, canUpdateAllObjectRecords: boolean, canSoftDeleteAllObjectRecords: boolean, canDestroyAllObjectRecords: boolean } | null } | null, workspaces: Array<{ __typename?: 'UserWorkspace', workspace?: { __typename?: 'Workspace', id: any, logo?: string | null, displayName?: string | null, subdomain: string, customDomain?: string | null, workspaceUrls: { __typename?: 'WorkspaceUrls', subdomainUrl: string, customUrl?: string | null } } | null }> }
- User: {
-  __typename?: 'User';
-  id: string;
-  username: string;
-  email: string;
-  currentWorkspace?: {
-    __typename?: 'Workspace';
-    id: string;
-    name: string;
-  } | null;
-  workspaces: Array<{
+export type GetCurrentUserQuery = { __typename?: 'Query', currentUser: { 
+    __typename?: 'User', 
+    id: any,
+    email: string,
+    workspaces: Array<{
     __typename?: 'WorkspaceMember';
     id: string;
     role: string; // or use enum Role if defined
@@ -149,8 +143,41 @@ export type GetCurrentUserQuery = { __typename?: 'Query', currentUser: { __typen
       __typename?: 'Workspace';
       id: string;
       name: string;
+      role: string;
     };
   }>;
+    // canAccessFullAdminPanel: boolean, 
+    // canImpersonate: boolean, supportUserHash?: string | null, userVars: any, 
+    // workspaceMember?: { __typename?: 'WorkspaceMember', id: any, colorScheme: string, avatarUrl?: string | null, locale?: string | null, userEmail: string, timeZone?: string | null, dateFormat?: any | null, timeFormat?: any | null, name: { __typename?: 'FullName', firstName: string, lastName: string } } | null, workspaceMembers?: Array<{ __typename?: 'WorkspaceMember', id: any, colorScheme: string, avatarUrl?: string | null, locale?: string | null, userEmail: string, timeZone?: string | null, dateFormat?: any | null, timeFormat?: any | null, name: { __typename?: 'FullName', firstName: string, lastName: string } }> | null, deletedWorkspaceMembers?: Array<{ __typename?: 'DeletedWorkspaceMember', id: any, avatarUrl?: string | null, userEmail: string, name: { __typename?: 'FullName', firstName: string, lastName: string } }> | null, 
+    // currentUserWorkspace?: { __typename?: 'UserWorkspace', settingsPermissions?: Array<any> | null,
+  // objectRecordsPermissions?: Array<any> | null } | null,
+  // currentWorkspace?: {
+  // workspaces: any;
+  // // name: string; 
+  // __typename?: 'Workspace',
+  // id: any,
+  // name?: string
+  // // displayName?: string | null, logo?: string | null, 
+  // inviteToken?: string | null,
+  // allowImpersonation: boolean, isPublicInviteLinkEnabled: boolean, isGoogleAuthEnabled: boolean, 
+  // isMicrosoftAuthEnabled: boolean, isPasswordAuthEnabled: boolean, 
+  // subdomain: string, hasValidEnterpriseKey: boolean, customDomain?: string | null, 
+  // isCustomDomainEnabled: boolean, metadataVersion: number, workspaceMembersCount?: number | null, 
+  // workspaceUrls: { __typename?: 'WorkspaceUrls', subdomainUrl: string, customUrl?: string | null }, 
+  // featureFlags?: Array<{ __typename?: 'FeatureFlagDTO', value: boolean }> | null, 
+  // currentBillingSubscription?: { __typename?: 'BillingSubscription', id: any, billingSubscriptionItems?: Array<{ __typename?: 'BillingSubscriptionItem', id: any, hasReachedCurrentPeriodCap: boolean, billingProduct?: { __typename?: 'BillingProduct', name: string, description: string, metadata: { __typename?: 'BillingProductMetadata' } } | null }> | null } | null, billingSubscriptions: Array<{ __typename?: 'BillingSubscription', id: any }>, defaultRole?: { __typename?: 'Role', id: string, label: string, description?: string | null, icon?: string | null, canUpdateAllSettings: boolean, isEditable: boolean, canReadAllObjectRecords: boolean, canUpdateAllObjectRecords: boolean, canSoftDeleteAllObjectRecords: boolean, canDestroyAllObjectRecords: boolean } | null 
+// } | null, workspaces: Array<{ __typename?: 'UserWorkspace', workspace?: { __typename?: 'Workspace', id: any, logo?: string | null, displayName?: string | null, subdomain: string, customDomain?: string | null, workspaceUrls: { __typename?: 'WorkspaceUrls', subdomainUrl: string, customUrl?: string | null } } | null }> }
+//  User: {
+//   __typename?: 'User';
+//   id: string;
+//   username: string;
+//   email: string;
+//   currentWorkspace?: {
+//     __typename?: 'Workspace';
+//     id: string;
+//     name: string;
+//   };
+  
 };
 };
 

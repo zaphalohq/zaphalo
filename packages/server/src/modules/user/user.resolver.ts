@@ -84,6 +84,7 @@ export class UserResolver {
       if (!user) {
         throw new Error('Current user not found');
       }
+      
       const currentUserWorkspace = user.workspaces.find(
         (userWorkspace) => userWorkspace.workspace.id === workspace.id,
       );

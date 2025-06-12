@@ -24,7 +24,7 @@ export class AuthService {
     private readonly workspaceService: WorkspaceService,
     @InjectRepository(Workspace, 'core')
     private readonly workspaceRepository: Repository<Workspace>,
-  ) {}
+  ) { }
 
   async validateUser(username: string, password: string): Promise<any> {
     const user = await this.userservice.findOneByUsername(username);
@@ -35,7 +35,7 @@ export class AuthService {
     return null;
   }
 
-  async checkUserForSigninUp(username: string){
+  async checkUserForSigninUp(username: string) {
     const user = this.userservice.findOneByEmail(username);
     return user;
   }
@@ -50,58 +50,76 @@ export class AuthService {
       workspaceIds: WorkspaceIds,
       role: user.role
     };
-    const users = await this.userservice.findByUserId(user.id)
-    if(!users) throw error("this is error of")
-      return {
-        access_token: this.jwtService.sign(payload),
-        workspaceIds: JSON.stringify(WorkspaceIds),
-        userDetails : {
-          name : users.username,
-          email : users.email
-        }
-      };
-    }
+    const users = await this.userservice.findOneUserWithWorkspaces(user.id)
+    if (!users) throw error("users not found")
 
-    async Register(register: CreateUserDTO): Promise<any> {
-      // const username_validation = await this.userservice.findOneByUsername(register.username);
-      const email_validation = await this.userservice.findOneByEmail(register.email);
-      if (email_validation) {
-        return "User already exists";
-      }
+    const expiresIn = '7d';
+    const expiresAt = addMilliseconds(new Date().getTime(), ms(expiresIn));
+    console.log(users, ".....................................................");
+      const currentWorkspace = users.workspaces.find(
+        (userWorkspace) => userWorkspace.id === users.id,
+      );
+    console.log(currentWorkspace,'......................................');
+    
+    return {
+      access_token: this.jwtService.sign(payload),
+      workspaceIds: JSON.stringify(WorkspaceIds),
+      id: users.id,
+      username: users.username,
+      email: users.email,
+      accessToken: {
+        token: this.jwtService.sign(payload),
+        expiresAt
+      },
+      userDetails: {
+        name: users.username,
+        email: users.email
+      },
+      currentWorkspace,
+      workspaces: users.workspaces,
+    };
+  }
+
+  async Register(register: CreateUserDTO): Promise<any> {
+    // const username_validation = await this.userservice.findOneByUsername(register.username);
+    const email_validation = await this.userservice.findOneByEmail(register.email);
+    if (email_validation) {
+      return "email already exists";
+    }
 
     // Hash the password before saving
-      const saltRounds = 10;
-      const hashedPassword = await bcrypt.hash(register.password || 'Vipul@123', saltRounds);
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(register.password || 'Vipul@123', saltRounds);
 
     // Update the register object with the hashed password
-      const userData = { ...register, password: hashedPassword, username: register.email };
+    const userData = { ...register, password: hashedPassword, username: register.email };
 
-      const user = await this.userservice.createUser(userData);
-      return user;
-    }
+    const user = await this.userservice.createUser(userData);
+    return user;
+  }
 
 
-    computeRedirectURI({
-      loginToken,
-    }: {
-      loginToken: string;
-    }) {
-      const url = this.domainManagerService.buildWorkspaceURL({
-        // workspace,
-        pathname: '/verify',
-        searchParams: {
-          loginToken,
-        },
-      });
+  computeRedirectURI({
+    loginToken,
+  }: {
+    loginToken: string;
+  }) {
+    const url = this.domainManagerService.buildWorkspaceURL({
+      // workspace,
+      pathname: '/verify',
+      searchParams: {
+        loginToken,
+      },
+    });
 
-      return url.toString();
-    }
+    return url.toString();
+  }
 
   async findWorkspaceForSignInUp(
     params: {
       workspaceInviteToken: string;
       userId: string
-    } 
+    }
   ) {
     return this.workspaceService.getOrCreateWorkspaceForUser(params.userId, params.workspaceInviteToken)
 
@@ -124,34 +142,34 @@ export class AuthService {
     workspaceId: string,
   ) {
 
-      const secret = this.generateAppSecret(
-        'LOGIN',
-        workspaceId,
-      );
+    const secret = this.generateAppSecret(
+      'LOGIN',
+      workspaceId,
+    );
 
-      const expiresIn = '15m';
+    const expiresIn = '7d';
 
-      const expiresAt = addMilliseconds(new Date().getTime(), ms(expiresIn));
-      const jwtPayload = {
-        sub: email,
-        workspaceId,
-      };
+    const expiresAt = addMilliseconds(new Date().getTime(), ms(expiresIn));
+    const jwtPayload = {
+      sub: email,
+      workspaceId,
+    };
 
-      const token = {
-        token: this.jwtService.sign(jwtPayload, {
-          secret,
-          expiresIn,
-        }),
-        expiresAt,
-      };
+    const token = {
+      token: this.jwtService.sign(jwtPayload, {
+        secret,
+        expiresIn,
+      }),
+      expiresAt,
+    };
 
-      return token;
+    return token;
   }
   decode<T = any>(payload: string, options?: jwt.DecodeOptions): T {
     return this.jwtService.decode(payload, options);
   }
 
-  async verifyToken(loginToken: string){
+  async verifyToken(loginToken: string) {
 
 
     const decodeToken = this.decode(loginToken, {
@@ -163,7 +181,7 @@ export class AuthService {
     });
 
     const users = await this.userservice.findOneByEmail(payload.sub)
-    if(!users) throw error("this is error of users")
+    if (!users) throw error("this is error of users")
     const payloadfinal = {
       username: users.username,
       sub: users.id,
@@ -172,22 +190,22 @@ export class AuthService {
       workspaceIds: payload.workspaceId
     };
 
-          const expiresIn = '15m';
+    const expiresIn = '7d';
 
-      const expiresAt = addMilliseconds(new Date().getTime(), ms(expiresIn));
+    const expiresAt = addMilliseconds(new Date().getTime(), ms(expiresIn));
 
     return {
-        access_token: this.jwtService.sign(payloadfinal),
-        accessToken : {
-          token : this.jwtService.sign(payloadfinal),
-          expiresAt
-        },
-        workspaceIds: JSON.stringify(payload.workspaceId),
-        userDetails: {
-          name : users.username,
-          email : users.email
-        }
-      };
+      access_token: this.jwtService.sign(payloadfinal),
+      accessToken: {
+        token: this.jwtService.sign(payloadfinal),
+        expiresAt
+      },
+      workspaceIds: JSON.stringify(payload.workspaceId),
+      userDetails: {
+        name: users.username,
+        email: users.email
+      }
+    };
   }
 
 }

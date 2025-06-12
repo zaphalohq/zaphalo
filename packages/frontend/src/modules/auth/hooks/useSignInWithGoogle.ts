@@ -4,7 +4,7 @@ import { useAuth } from '@src/modules/auth/hooks/useAuth';
 // import { BillingCheckoutSession } from '@/auth/types/billingCheckoutSession.type';
 
 export const useSignInWithGoogle = () => {
-  console.log("..........................", useParams());
+  // console.log("..........................", useParams());
   const workspaceInviteToken = useParams().workspaceInviteToken;
   // const [searchParams] = useSearchParams();
   // const workspacePersonalInviteToken =
