@@ -51,7 +51,8 @@ export class AuthService {
     const workspaces = await this.workspaceService.getOrCreateWorkspaceForUser(user.id);
     const WorkspaceIds = workspaces.map(workspace => workspace.id);
     const payload = {
-      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
       email: user.email,
       sub: user.id,
       workspaceIds: WorkspaceIds,
@@ -63,7 +64,8 @@ export class AuthService {
         access_token: this.jwtService.sign(payload),
         workspaceIds: JSON.stringify(WorkspaceIds),
         userDetails : {
-          name : users.username,
+          firstName : users.firstName,
+          lastName : users.lastName,
           email : users.email
         }
       };
@@ -304,16 +306,29 @@ export class AuthService {
     const users = await this.userservice.findOneByEmail(payload.sub)
     if(!users) throw error("this is error of users")
     const payloadfinal = {
-      username: users.username,
+      firstName: users.firstName,
+      lastName: users.lastName,
       sub: users.id,
       email: users.email,
       workspaceId: payload.workspaceId,
       workspaceIds: payload.workspaceId
     };
 
-          const expiresIn = '15m';
+    const expiresIn = '15m';
+    const expiresAt = addMilliseconds(new Date().getTime(), ms(expiresIn));
 
-      const expiresAt = addMilliseconds(new Date().getTime(), ms(expiresIn));
+    const res = {
+        accessToken : {
+          token : this.jwtService.sign(payloadfinal),
+          expiresAt
+        },
+        workspaceIds: JSON.stringify(payload.workspaceId),
+        userDetails: {
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email : users.email
+        }
+      };
 
     return {
         access_token: this.jwtService.sign(payloadfinal),
@@ -323,7 +338,8 @@ export class AuthService {
         },
         workspaceIds: JSON.stringify(payload.workspaceId),
         userDetails: {
-          name : users.username,
+          firstName: users.firstName,
+          lastName: users.lastName,
           email : users.email
         }
       };

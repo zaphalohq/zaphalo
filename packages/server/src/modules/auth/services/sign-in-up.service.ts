@@ -46,7 +46,7 @@ export class SignInUpService {
       // );
       throw new Error('Email is required')
     }
-    newUserParams.username = newUserParams.email;
+    // newUserParams.username = newUserParams.email;
     if (authParams.provider === 'password') {
       newUserParams.passwordHash = await this.generateHash(authParams.password);
     }

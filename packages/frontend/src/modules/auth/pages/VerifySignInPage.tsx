@@ -19,7 +19,6 @@ export default function VerifyLoginTokenEffect() {
     // }
 
     // if (!clientConfigLoaded) return;
-    console.log(".......useEffect...............");
     if (loginToken) {
       verifyLoginToken(loginToken);
     } else if (!isLogged) {
