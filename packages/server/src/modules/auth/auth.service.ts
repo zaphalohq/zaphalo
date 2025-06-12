@@ -3,6 +3,7 @@ import { UserService } from "../user/user.service";
 import { JwtService } from "@nestjs/jwt";
 import { WorkspaceService } from "../workspace/workspace.service";
 import { Workspace } from "../workspace/workspace.entity";
+import { WorkspaceInvitation } from "../workspace/workspaceInvitation.entity";
 import * as bcrypt from "bcrypt";
 import { CreateUserDTO } from "../user/dto/create-user.dto";
 import { DomainManagerService } from 'src/modules/domain-manager/services/domain-manager.service';
@@ -36,6 +37,8 @@ export class AuthService {
     private readonly signInUpService: SignInUpService,
     @InjectRepository(Workspace, 'core')
     private readonly workspaceRepository: Repository<Workspace>,
+    @InjectRepository(Workspace, 'core')
+    private readonly workspaceInvitationRepository: Repository<WorkspaceInvitation>,
   ) {}
 
   async validateUser(username: string, password: string): Promise<any> {
@@ -246,6 +249,12 @@ export class AuthService {
           // relations: ['approvedAccessDomains'],
         })
       : undefined;
+  }
+
+  async findSignInUpInvitation(params: {currentWorkspace: Workspace, email: string}){
+
+    // Need To implements for invitation accepted
+
   }
 
   generateAppSecret(type: string, workspaceId?: string): string {

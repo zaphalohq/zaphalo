@@ -41,14 +41,13 @@ export class GoogleAuthController {
       authProvider: 'google',
     });
     try{
-
-      // const invitation =
-      //   currentWorkspace && email
-      //     ? await this.authService.findInvitationForSignInUp({
-      //         currentWorkspace,
-      //         email,
-      //       })
-      //     : undefined;
+      const invitation =
+        currentWorkspace && email
+          ? await this.authService.findSignInUpInvitation({
+              currentWorkspace,
+              email,
+            })
+          : undefined;
 
       const existingUser = await this.userRepository.findOne({
         where: { email },
@@ -65,7 +64,7 @@ export class GoogleAuthController {
         existingUser,
       );
 
-      // await this.authService.checkAccessForSignIn({
+      // await this.authService.checkSignInAccess({
       //   userData,
       //   invitation,
       //   workspaceInviteHash,
@@ -79,39 +78,20 @@ export class GoogleAuthController {
         authParams: {
           provider: 'google',
         },
-        // billingCheckoutSessionState,
       });
-
 
       const loginToken = await this.authService.generateLoginToken(
         email,
         workspace.id,
       );
-
-      const url = this.authService.computeRedirectURI({
-          loginToken: loginToken.token,
-        // workspace,
-        // billingCheckoutSessionState,
-      })
-
       return res.redirect(
         this.authService.computeRedirectURI({
           loginToken: loginToken.token,
-        // workspace,
-        // billingCheckoutSessionState,
       }));
     }
     catch(err){
-      // return res.redirect(
-      //   this.guardRedirectService.getRedirectErrorUrlAndCaptureExceptions(
-      //     err,
-      //     this.domainManagerService.getSubdomainAndCustomDomainFromWorkspaceFallbackOnDefaultSubdomain(
-      //       currentWorkspace,
-      //     ),
-      //   ),
-      // );
+      return res.redirect('/error'+err);
     }
-    
     
   }
 }
