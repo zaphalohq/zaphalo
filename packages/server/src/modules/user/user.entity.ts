@@ -38,9 +38,9 @@ export class User {
   @Field()
   email: string;
 
-  @Column()
-  @Field()
-  password: string ;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  password: string;
 
   @Field({ nullable: true })
   @IsString()

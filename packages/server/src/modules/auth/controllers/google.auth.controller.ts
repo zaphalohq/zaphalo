@@ -1,11 +1,19 @@
 import { Controller, UseGuards, Get, Req, Res, HttpStatus} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { GoogleOauthGuard } from 'src/modules/auth/guards/google.auth.guard';
 import { AuthService } from '../auth.service';
 import { Response } from 'express';
+import { User } from "src/modules/user/user.entity";
+
 
 @Controller('google/auth')
 export class GoogleAuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    @InjectRepository(User, 'core')
+    private readonly userRepository: Repository<User>,
+  ) {}
 
   @Get()
   @UseGuards(GoogleOauthGuard)
@@ -21,43 +29,89 @@ export class GoogleAuthController {
       lastName,
       email,
       picture,
+      workspaceId,
       workspaceInviteToken,
       locale,
     } = req.user;
 
-    var isUserExist = await this.authService.checkUserForSigninUp(email)
-
-    const userData = {
-      email,
-      firstName,
-      lastName,
-    }
-    if (isUserExist == null){
-      isUserExist = await this.authService.Register(req.user);
-    }
-
-    if (!isUserExist) {
-      throw new Error('Invalid or expired invitation');
-    }
-    const userId = isUserExist.id
     const currentWorkspace = await this.authService.findWorkspaceForSignInUp({
+      workspaceId,
       workspaceInviteToken,
-      userId,
-      // email,
-      // authProvider: 'google',
-    });
-
-    const loginToken = await this.authService.generateLoginToken(
       email,
-      currentWorkspace[0].id,
-    );
-    
-    return res.redirect(
-      this.authService.computeRedirectURI({
-        loginToken: loginToken.token,
+      authProvider: 'google',
+    });
+    try{
+
+      // const invitation =
+      //   currentWorkspace && email
+      //     ? await this.authService.findInvitationForSignInUp({
+      //         currentWorkspace,
+      //         email,
+      //       })
+      //     : undefined;
+
+      const existingUser = await this.userRepository.findOne({
+        where: { email },
+      });
+
+      const { userData } = this.authService.formatUserDataPayload(
+        {
+          firstName,
+          lastName,
+          email,
+          picture,
+          // locale,
+        },
+        existingUser,
+      );
+
+      // await this.authService.checkAccessForSignIn({
+      //   userData,
+      //   invitation,
+      //   workspaceInviteHash,
+      //   workspace: currentWorkspace,
+      // });
+
+      const { user, workspace } = await this.authService.signInUp({
+        // invitation,
+        workspace: currentWorkspace,
+        userData,
+        authParams: {
+          provider: 'google',
+        },
+        // billingCheckoutSessionState,
+      });
+
+
+      const loginToken = await this.authService.generateLoginToken(
+        email,
+        workspace.id,
+      );
+
+      const url = this.authService.computeRedirectURI({
+          loginToken: loginToken.token,
         // workspace,
         // billingCheckoutSessionState,
-      }),
-    );
+      })
+
+      return res.redirect(
+        this.authService.computeRedirectURI({
+          loginToken: loginToken.token,
+        // workspace,
+        // billingCheckoutSessionState,
+      }));
+    }
+    catch(err){
+      // return res.redirect(
+      //   this.guardRedirectService.getRedirectErrorUrlAndCaptureExceptions(
+      //     err,
+      //     this.domainManagerService.getSubdomainAndCustomDomainFromWorkspaceFallbackOnDefaultSubdomain(
+      //       currentWorkspace,
+      //     ),
+      //   ),
+      // );
+    }
+    
+    
   }
 }

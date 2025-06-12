@@ -38,7 +38,6 @@ export const useAuth = () => {
 
   const client = useApolloClient();
   const goToRecoilSnapshot = useGotoRecoilSnapshot();
-  const emptySnapshot = snapshot_UNSTABLE();
 
   const buildRedirectUrl = useCallback(
     (
@@ -61,7 +60,8 @@ export const useAuth = () => {
       fetchPolicy: 'network-only',
     });
 
-    const user = currentUserResult.data?.User;
+    const user = currentUserResult.data?.currentUser;
+
     if(!user) throw Error("user not found")
     setCurrentUser(user);
 
@@ -86,18 +86,13 @@ export const useAuth = () => {
 
   const clearSession = useRecoilCallback(
     ({snapshot}) => async () => {
+      const emptySnapshot = snapshot_UNSTABLE();
+
       const initialSnapshot = emptySnapshot.map(({ set }) => {
         return undefined;
       });
 
-       const release = snapshot.retain();
-  try {
-    await goToRecoilSnapshot(initialSnapshot);
-
-  } finally {
-    release();
-  }
-
+      await goToRecoilSnapshot(initialSnapshot);
       sessionStorage.clear();
       localStorage.clear();
       await client.clearStore();
@@ -105,10 +100,8 @@ export const useAuth = () => {
   });
 
   const handleSignOut = useCallback(async () => {
-      loadCurrentUser();
-
     await clearSession();
-    // navigate('/login');
+    navigate('/login');
   }, [clearSession]);
 
   const handleGoogleLogin = useCallback(
@@ -147,13 +140,13 @@ export const useAuth = () => {
       loadCurrentUser();
 
       //to be removed
-      const access_token = localStorage.getItem('access_token')
-      const workspaceIds : string | undefined = response.data?.getAuthTokensFromLoginToken?.workspaceIds;
-      if(!workspaceIds) throw Error("workspaceIds doesn't exist")
-      setItem('workspaceIds', workspaceIds);
+      // const access_token = localStorage.getItem('access_token')
+      // const workspaceIds : string | undefined = response.data?.getAuthTokensFromLoginToken?.workspaceIds;
+      // if(!workspaceIds) throw Error("workspaceIds doesn't exist")
+      // setItem('workspaceIds', workspaceIds);
 
-      sessionStorage.setItem('workspaceId', workspaceIds);
-      setItem('userDetails',{ name : response.data?.getAuthTokensFromLoginToken?.userDetails.name, email : response.data?.getAuthTokensFromLoginToken?.userDetails.email })
+      // sessionStorage.setItem('workspaceId', workspaceIds);
+      // setItem('userDetails',{ name : response.data?.getAuthTokensFromLoginToken?.userDetails.name, email : response.data?.getAuthTokensFromLoginToken?.userDetails.email })
       navigate('/dashboard')
     }
   ,[]);

@@ -6,6 +6,7 @@ export type CurrentUser = Pick<
   User,
   | 'id'
   | 'email'
+  | 'username'
 >;
 
 export const currentUserState = createState<CurrentUser | null>({
