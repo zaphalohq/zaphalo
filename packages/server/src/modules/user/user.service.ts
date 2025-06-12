@@ -18,9 +18,9 @@ export class UserService {
     return this.userRepository.find();     // SELECT * FROM user
   }
 
-  async findOneByUsername(username: string): Promise<User | null> {
+  async findOneByUsername(email: string): Promise<User | null> {
     return this.userRepository.findOne( {
-      where : { username }
+      where : { email }
     });
   }
 

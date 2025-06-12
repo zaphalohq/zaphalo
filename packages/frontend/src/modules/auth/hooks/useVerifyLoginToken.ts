@@ -10,15 +10,15 @@ export const useVerifyLoginToken = () => {
   // const { t } = useLingui();
 
   const verifyLoginToken = async (loginToken: string) => {
-    try {
+    // try {
       await getAuthTokensFromLoginToken(loginToken);
-    } catch (error) {
-      console.log("..............error..............", error);
+    // } catch (error) {
+      // console.log("..................error.............", error);
       // enqueueSnackBar(t`Authentication failed`, {
       //   variant: SnackBarVariant.Error,
       // });
       // navigate(AppPath.SignInUp);
-    }
+    // }
   };
 
   return { verifyLoginToken };

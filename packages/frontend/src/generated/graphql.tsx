@@ -26,7 +26,8 @@ export type User = {
   __typename?: 'User';
   email: Scalars['String'];
   id: Scalars['UUID'];
-  username: Scalars['String'];
+  firstName: Scalars['String'];
+  lastName: Scalars['String'];
   currentUserWorkspace?: Maybe<UserWorkspace>;
 };
 
@@ -66,9 +67,9 @@ export const GetAuthTokensFromLoginTokenDocument = gql`
     workspaceIds
     userDetails {
       email
-      name
+      firstName
+      lastName
     }
-    access_token
     accessToken {
       expiresAt
       token
@@ -92,7 +93,8 @@ export type GetAuthTokensFromLoginTokenMutation = {
     };
     userDetails: {
       __typename?: 'UserDetails';
-      name: string;
+      firstName: string;
+      lastName: string;
       email: string;
     };
   };
@@ -107,7 +109,8 @@ export function useGetAuthTokensFromLoginTokenMutation(baseOptions?: Apollo.Muta
 export const UserQueryFragmentFragmentDoc = gql`
     fragment UserQueryFragment on User {
   id
-  username
+  firstName
+  lastName
   email
   currentWorkspace {
     id
@@ -134,7 +137,8 @@ export type GetCurrentUserQuery = { __typename?: 'Query', currentUser: { __typen
  User: {
   __typename?: 'User';
   id: string;
-  username: string;
+  firstName: string;
+  lastName: string;
   email: string;
   currentWorkspace?: {
     __typename?: 'Workspace';

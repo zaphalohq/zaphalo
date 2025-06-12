@@ -120,12 +120,12 @@ export const useAuth = () => {
       const response = await getAuthTokensFromLoginToken({
         variables: { loginToken },
       });
+      console.log("................................response....................", response);
       const accessToken = response.data?.getAuthTokensFromLoginToken?.accessToken;
       const token = accessToken?.token;
       if(!token) throw Error("token doesn't exist");
       const expiresAt = accessToken?.expiresAt;
       if(!expiresAt) throw Error("expiresAt doesn't exist");
-
 
       setTokenPair({accessToken : {
         token,
@@ -137,16 +137,7 @@ export const useAuth = () => {
           token
         ),
       );
-      loadCurrentUser();
-
-      //to be removed
-      // const access_token = localStorage.getItem('access_token')
-      // const workspaceIds : string | undefined = response.data?.getAuthTokensFromLoginToken?.workspaceIds;
-      // if(!workspaceIds) throw Error("workspaceIds doesn't exist")
-      // setItem('workspaceIds', workspaceIds);
-
-      // sessionStorage.setItem('workspaceId', workspaceIds);
-      // setItem('userDetails',{ name : response.data?.getAuthTokensFromLoginToken?.userDetails.name, email : response.data?.getAuthTokensFromLoginToken?.userDetails.email })
+      // loadCurrentUser();
       navigate('/dashboard')
     }
   ,[]);
