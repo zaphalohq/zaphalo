@@ -6,6 +6,9 @@ export type CurrentUser = Pick<
   User,
   | 'id'
   | 'email'
+  | 'firstName'
+  | 'lastName'
+  | 'currentUserWorkspace'
 >;
 
 export const currentUserState = createState<CurrentUser | null>({

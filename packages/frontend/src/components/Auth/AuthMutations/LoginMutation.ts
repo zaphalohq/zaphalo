@@ -8,7 +8,8 @@ export const LoginMutation = gql`
       workspaceIds
       userDetails {
       email
-      name
+      firstName
+      lastName
     }
     accessToken {
       expiresAt

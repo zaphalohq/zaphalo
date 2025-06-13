@@ -111,7 +111,7 @@ import { tokenPairState } from '@src/modules/auth/states/tokenPairState';
 import { useAuth } from '@src/modules/auth/hooks/useAuth';
 import { workspacesState } from '@src/modules/auth/states/workspaces';
 
-function Login() {
+function Login() { 
   const [TokenPair, setTokenPair] = useRecoilState(tokenPairState);
   const { signInWithGoogle } = useSignInWithGoogle();
    const setWorkspaces = useSetRecoilState(workspacesState);
@@ -135,7 +135,7 @@ function Login() {
       ...authForm,
       [name]: value
     })
-  }
+}
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();

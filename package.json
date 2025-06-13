@@ -16,6 +16,7 @@
     "react-router-dom": "^7.6.2",
     "recoil": "^0.7.7",
     "typeorm": "^0.3.21",
+    "typescript": "^5.8.3",
     "zod": "^3.25.55"
   },
   "devDependencies": {
@@ -37,7 +38,6 @@
     "storybook": "^8.4.6",
     "ts-node": "10.9.1",
     "tslib": "^2.3.0",
-    "typescript": "~5.7.2",
     "vite": "^6.3.5"
   },
   "engines": {
@@ -49,8 +49,7 @@
   "name": "yaari",
   "resolutions": {
     "graphql": "16.8.0",
-    "type-fest": "4.10.1",
-    "typescript": "5.3.3"
+    "type-fest": "4.10.1"
   },
   "version": "0.2.1",
   "nx": {},

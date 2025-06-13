@@ -7,7 +7,7 @@ import {
 } from 'recoil';
 
 import { workspacesState } from 'src/modules/auth/states/workspaces';
-
+import { currentUserState } from 'src/modules/auth/states/currentUserState';
 
 const AccountToggle = () => {
 
@@ -27,6 +27,8 @@ getCurrentUser1()
     
     const user = getItem('userDetails')
     const [workspaces, setWorkspacesState]= useRecoilState(workspacesState);
+    const [currentUser, setcurrentUserState]= useRecoilState(currentUserState);
+
     const workspaceIds = getItem('workspaceIds')
     const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false)
     return (
@@ -36,15 +38,15 @@ getCurrentUser1()
                     <span className="text-white font-bold text-lg">Y</span>
                 </div>
                 <div className="text-start">
-                    <span className="font-bold text-sm block text-gray-100">{user?.name}</span>
-                    <span className="block text-xs text-stone-500">{user?.email}</span>
+                    <span className="font-bold text-sm block text-gray-100">{currentUser?.username}</span>
+                    <span className="block text-xs text-stone-500">{currentUser?.email}</span>
                 </div>
                 <FiChevronDown onClick={() => setIsWorkspaceOpen(!isWorkspaceOpen)} className="absolute top-3 right-4 w-6 h-6 p-1 rounded cursor-pointer hover:bg-stone-200" />
             </button>
             {isWorkspaceOpen ?<div className="flex flex-col gap-2 absolute z-1 w-48 rounded bg-white p-2 pt-6 border border-gray-200">
                 <div className="font-semibold text-center">Workspaces</div>
                 {JSON.stringify(workspaces)}
-                {/* {workspaces.map((workspace: string, index: number) =>
+             {/* {workspaces.map((workspace: string, index: number) =>
 
                     <div key={workspace.id}
                         onClick={() => {

@@ -73,7 +73,13 @@ export const useAuth = () => {
     console.log(user, currentUserResult, "....currentUserResult.........................");
 
     if (!user) throw Error("user not found")
-    setCurrentUser(user);
+
+    setCurrentUser({
+      id : user.id,
+      email : user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    });
 
     // const currentUserWorkspace =  user?.currentWorkspace
     // if(!currentUserWorkspace) throw Error('currentUserWorkspace doesnt exist in useAuth')
@@ -93,7 +99,15 @@ export const useAuth = () => {
         .map((validWorkspace) => validWorkspace.workspace)
         .filter(isDefined);
 
-      setWorkspaces(validWorkspaces);
+
+        // 'id' | 'name' | 'role' | 'workspace'
+
+      setWorkspaces({
+        id: validWorkspaces
+        name:
+        role:
+        workspace:
+      });
     }
 
   }, []);
@@ -149,28 +163,18 @@ export const useAuth = () => {
       if (!expiresAt) throw Error("expiresAt doesn't exist");
 
 
-      setTokenPair({
-        accessToken: {
-          token,
-          expiresAt
-        }
-      });
+      setTokenPair({accessToken : {
+        token,
+        expiresAt 
+      }});
       cookieStorage.setItem(
         'accessToken',
         JSON.stringify(
           token
         ),
       );
+
       await loadCurrentUser();
-
-
-      // const access_token = localStorage.getItem('access_token')
-      // const workspaceIds : string | undefined = response.data?.getAuthTokensFromLoginToken?.workspaceIds;
-      // if(!workspaceIds) throw Error("workspaceIds doesn't exist")
-      // setItem('workspaceIds', workspaceIds);
-
-      // sessionStorage.setItem('workspaceId', workspaceIds);
-      // setItem('userDetails',{ name : response.data?.getAuthTokensFromLoginToken?.userDetails.name, email : response.data?.getAuthTokensFromLoginToken?.userDetails.email })
       navigate('/dashboard')
     }
     , []);
