@@ -33,7 +33,6 @@ const HandleChange = (e : any) => {
 
 const handleSubmit = async (event : any) => {
   event.preventDefault();
-  console.log();
   
   try {
     const response = await login({
@@ -54,7 +53,7 @@ const handleSubmit = async (event : any) => {
     const workspaceIds = JSON.parse(response.data.login.workspaceIds)
     setItem('workspaceIds', workspaceIds)
     sessionStorage.setItem('workspaceId', workspaceIds[0]);
-    setItem('userDetails',{ name : response.data.login.userDetails.name, email : response.data.login.userDetails.email })
+    // setItem('userDetails',{ name : response.data.login.userDetails.name, email : response.data.login.userDetails.email })
     navigate('/dashboard')
   } catch (err) {
     console.error('Error logging in:', err);

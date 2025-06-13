@@ -17,14 +17,24 @@ import { UserService } from '../user/user.service';
 import { userAutoResolverOpts } from '../user/user.auto-resolver-opts';
 import { GoogleAuthController } from 'src/modules/auth/controllers/google.auth.controller';
 import { DomainManagerModule } from 'src/modules/domain-manager/domain-manager.module';
+import { AuthSsoService } from 'src/modules/auth/services/auth-sso.service';
+import { SignInUpService } from 'src/modules/auth/services/sign-in-up.service';
 import { Workspace } from "../workspace/workspace.entity";
+import { WorkspaceInvitation } from "../workspace/workspaceInvitation.entity";
+import { WorkspaceMember } from "../workspace/workspaceMember.entity";
+import { WorkspaceMemberService } from "src/modules/workspace/workspaceMember.service";
 
 @Module({
   imports: [
     DomainManagerModule,
     NestjsQueryGraphQLModule.forFeature({
       imports: [
-        NestjsQueryTypeOrmModule.forFeature([User, Workspace], 'core'),
+        NestjsQueryTypeOrmModule.forFeature([
+          User,
+          Workspace,
+          WorkspaceMember,
+          WorkspaceInvitation,
+        ], 'core'),
         TypeORMModule,
         UserModule,
         WorkspaceModule,
@@ -48,7 +58,15 @@ import { Workspace } from "../workspace/workspace.entity";
   controllers: [
     GoogleAuthController,
   ],
-  providers: [AuthService, AuthResolver, JwtStrategy, GoogleStrategy],
+  providers: [
+    AuthService,
+    AuthResolver,
+    JwtStrategy,
+    GoogleStrategy,
+    AuthSsoService,
+    SignInUpService,
+    WorkspaceMemberService,
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}

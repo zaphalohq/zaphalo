@@ -60,7 +60,8 @@ export const useAuth = () => {
       fetchPolicy: 'network-only',
     });
 
-    const user = currentUserResult.data?.User;
+    const user = currentUserResult.data?.currentUser;
+
     if(!user) throw Error("user not found")
     setCurrentUser(user);
 
@@ -125,7 +126,6 @@ export const useAuth = () => {
       const expiresAt = accessToken?.expiresAt;
       if(!expiresAt) throw Error("expiresAt doesn't exist");
 
-
       setTokenPair({accessToken : {
         token,
         expiresAt 
@@ -137,15 +137,6 @@ export const useAuth = () => {
         ),
       );
       loadCurrentUser();
-
-      //to be removed
-      // const access_token = localStorage.getItem('access_token')
-      // const workspaceIds : string | undefined = response.data?.getAuthTokensFromLoginToken?.workspaceIds;
-      // if(!workspaceIds) throw Error("workspaceIds doesn't exist")
-      // setItem('workspaceIds', workspaceIds);
-
-      // sessionStorage.setItem('workspaceId', workspaceIds);
-      // setItem('userDetails',{ name : response.data?.getAuthTokensFromLoginToken?.userDetails.name, email : response.data?.getAuthTokensFromLoginToken?.userDetails.email })
       navigate('/dashboard')
     }
   ,[]);

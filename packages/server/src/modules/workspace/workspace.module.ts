@@ -8,6 +8,7 @@ import { UserService } from "../user/user.service";
 import { UserModule } from "../user/user.module";
 import { User } from "../user/user.entity";
 import { WorkspaceService } from "./workspace.service";
+import { WorkspaceMemberService } from "./workspaceMember.service";
 import { Workspace } from "./workspace.entity";
 import { WorkspaceMember } from "./workspaceMember.entity";
 import { workspaceResolver } from "./workspace.resolver";
@@ -31,11 +32,11 @@ import { WorkspaceInvitation } from "./workspaceInvitation.entity";
         TypeORMModule,
         UserModule, // UserService is exported from here
       ],
-      services: [WorkspaceService],
+      services: [WorkspaceService, WorkspaceMemberService],
       
     }),
   ],
-  providers: [WorkspaceService, workspaceResolver],
-  exports: [WorkspaceService, workspaceResolver],
+  providers: [WorkspaceService, workspaceResolver, WorkspaceMemberService],
+  exports: [WorkspaceService, workspaceResolver, WorkspaceMemberService],
 })
 export class WorkspaceModule {}
