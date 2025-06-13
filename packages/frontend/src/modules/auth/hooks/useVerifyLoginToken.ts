@@ -10,7 +10,7 @@ export const useVerifyLoginToken = () => {
     try {
       await getAuthTokensFromLoginToken(loginToken);
     } catch (error) {
-      navigate('/login');
+      navigate('/login'+error);
     }
   };
 

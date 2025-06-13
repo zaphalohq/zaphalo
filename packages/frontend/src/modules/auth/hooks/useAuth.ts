@@ -117,9 +117,11 @@ export const useAuth = () => {
 
   const handleGetAuthTokensFromLoginToken = useCallback(
      async (loginToken: string) => {
+
       const response = await getAuthTokensFromLoginToken({
         variables: { loginToken },
       });
+
       const accessToken = response.data?.getAuthTokensFromLoginToken?.accessToken;
       const token = accessToken?.token;
       if(!token) throw Error("token doesn't exist");
@@ -128,12 +130,16 @@ export const useAuth = () => {
 
       setTokenPair({accessToken : {
         token,
-        expiresAt 
+        expiresAt
       }});
+
       cookieStorage.setItem(
         'accessToken',
         JSON.stringify(
-          token
+          {accessToken : {
+            token,
+            expiresAt
+          }}
         ),
       );
       loadCurrentUser();

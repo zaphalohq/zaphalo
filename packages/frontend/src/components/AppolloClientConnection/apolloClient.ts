@@ -13,14 +13,16 @@ const httpLink = createHttpLink({
 const authLink = setContext((_, { headers }) => {
 
   // Retrieve token from localStorage or cookies
-  const access_token = cookieStorage.getItem('accessToken')
+  const accessToken = cookieStorage.getItem('accessToken')
 
   const workspaceId = sessionStorage.getItem("workspaceId");
+  const authtoken = accessToken ? JSON.parse(accessToken).accessToken : false;
+
   return {
     headers: {
       ...headers,
 
-      Authorization: access_token ? `Bearer ${JSON.parse(access_token)}` : '',  // Attach JWT in Authorization header
+      Authorization: authtoken ? `Bearer ${authtoken.token}` : '',  // Attach JWT in Authorization header
       'x-workspace-id': workspaceId || '',
     }
   };
