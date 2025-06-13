@@ -41,8 +41,8 @@ export class AuthService {
     private readonly workspaceInvitationRepository: Repository<WorkspaceInvitation>,
   ) {}
 
-  async validateUser(username: string, password: string): Promise<any> {
-    const user = await this.userservice.findOneByUsername(username);
+  async validateUser(email: string, password: string): Promise<any> {
+    const user = await this.userservice.findOneByEmail(email);
     if (user && await bcrypt.compare(password, user.password)) {
       const { password, ...result } = user;
       return result;
@@ -214,7 +214,7 @@ export class AuthService {
           where: {
             inviteToken: params.workspaceInviteToken,
           },
-          relations: ['approvedAccessDomains'],
+          // relations: ['approvedAccessDomains'],
         })) ?? undefined
       );
     }
