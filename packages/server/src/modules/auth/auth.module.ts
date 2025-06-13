@@ -20,6 +20,7 @@ import { DomainManagerModule } from 'src/modules/domain-manager/domain-manager.m
 import { AuthSsoService } from 'src/modules/auth/services/auth-sso.service';
 import { SignInUpService } from 'src/modules/auth/services/sign-in-up.service';
 import { Workspace } from "../workspace/workspace.entity";
+import { WorkspaceInvitation } from "../workspace/workspaceInvitation.entity";
 import { WorkspaceMember } from "../workspace/workspaceMember.entity";
 import { WorkspaceMemberService } from "src/modules/workspace/workspaceMember.service";
 
@@ -28,7 +29,12 @@ import { WorkspaceMemberService } from "src/modules/workspace/workspaceMember.se
     DomainManagerModule,
     NestjsQueryGraphQLModule.forFeature({
       imports: [
-        NestjsQueryTypeOrmModule.forFeature([User, Workspace, WorkspaceMember], 'core'),
+        NestjsQueryTypeOrmModule.forFeature([
+          User,
+          Workspace,
+          WorkspaceMember,
+          WorkspaceInvitation,
+        ], 'core'),
         TypeORMModule,
         UserModule,
         WorkspaceModule,
