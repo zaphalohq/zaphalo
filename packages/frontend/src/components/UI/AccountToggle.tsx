@@ -13,17 +13,17 @@ const AccountToggle = () => {
 
   const [getCurrentUser] = useGetCurrentUserLazyQuery();
 
-useEffect(() => {
-    const getCurrentUser1 = async () => {
-    const currentUserResult = await getCurrentUser({
-      fetchPolicy: 'network-only',
-    });
+// useEffect(() => {
+//     const getCurrentUser1 = async () => {
+//     const currentUserResult = await getCurrentUser({
+//       fetchPolicy: 'network-only',
+//     });
 
-    console.log(currentUserResult,"currentUserResultcurrentUserResultcurrentUserResultcurrentUserResultcurrentUserResultcurrentUserResult");
+//     console.log(currentUserResult,"currentUserResultcurrentUserResultcurrentUserResultcurrentUserResultcurrentUserResultcurrentUserResult");
     
-}
-getCurrentUser1()
-},[getCurrentUser])
+// }
+// getCurrentUser1()
+// },[getCurrentUser])
     
     const user = getItem('userDetails')
     const [workspaces, setWorkspacesState]= useRecoilState(workspacesState);

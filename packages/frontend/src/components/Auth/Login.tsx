@@ -149,17 +149,17 @@ function Login() {
         },
       });
       console.log('Login Success:', response.data);
-      setItem('access_token', response.data.login.access_token);
+      setItem('access_token', response.data.login.accessToken);
       cookieStorage.setItem(
         'accessToken',
         JSON.stringify(
-          response.data.login.access_token
+          response.data.login.accessToken
         ),
       );
       const workspaceIds = JSON.parse(response.data.login.workspaceIds)
       setItem('workspaceIds', workspaceIds)
       sessionStorage.setItem('workspaceId', workspaceIds[0]);
-      setItem('userDetails', { name: response.data.login.userDetails.name, email: response.data.login.userDetails.email })
+      setItem('userDetails', { name: response.data.login.userDetails.firstName, email: response.data.login.userDetails.email })
 
 setWorkspaces(response.data.login.workspaces)
 

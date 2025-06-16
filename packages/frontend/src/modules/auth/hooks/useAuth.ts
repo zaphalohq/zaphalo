@@ -102,12 +102,12 @@ export const useAuth = () => {
 
         // 'id' | 'name' | 'role' | 'workspace'
 
-      setWorkspaces({
-        id: validWorkspaces
-        name:
-        role:
-        workspace:
-      });
+      // setWorkspaces({
+      //   id: validWorkspaces.
+      //   name:
+      //   role:
+      //   workspace:
+      // });
     }
 
   }, []);
@@ -142,6 +142,8 @@ export const useAuth = () => {
       }
     ) => {
       redirect(buildRedirectUrl('/google/auth', params));
+      console.log("......................handlegooglelogin");
+      
     },
     [buildRedirectUrl, redirect],
   );
@@ -161,6 +163,7 @@ export const useAuth = () => {
       if (!token) throw Error("token doesn't exist");
       const expiresAt = accessToken?.expiresAt;
       if (!expiresAt) throw Error("expiresAt doesn't exist");
+console.log(token,".........................................................");
 
 
       setTokenPair({accessToken : {
@@ -184,7 +187,7 @@ export const useAuth = () => {
     logOut: handleSignOut,
     signInWithGoogle: handleGoogleLogin,
     getAuthTokensFromLoginToken: handleGetAuthTokensFromLoginToken,
-    loadCurrentUser: loadCurrentUser,
+    // loadCurrentUser: loadCurrentUser,
   };
 }
 

@@ -39,7 +39,7 @@ export class AuthService {
     private readonly workspaceRepository: Repository<Workspace>,
     @InjectRepository(Workspace, 'core')
     private readonly workspaceInvitationRepository: Repository<WorkspaceInvitation>,
-  ) {}
+  ) { }
 
   async validateUser(username: string, password: string): Promise<any> {
     const user = await this.userservice.findOneByUsername(username);
@@ -68,28 +68,28 @@ export class AuthService {
     };
     const users = await this.userservice.findOneUserWithWorkspaces(user.id)
     if (!users) throw error("users not found")
-    
+
     const expiresIn = '7d';
     const expiresAt = addMilliseconds(new Date().getTime(), ms(expiresIn));
     console.log(users, ".....................................................");
-      const currentWorkspace = users.workspaces.find(
-        (userWorkspace) => userWorkspace.id === users.id,
-      );
-    console.log(currentWorkspace,'......................................');
-    
+    const currentWorkspace = users.workspaces.find(
+      (userWorkspace) => userWorkspace.id === users.id,
+    );
+    console.log(currentWorkspace, '......................................');
+
     return {
       access_token: this.jwtService.sign(payload),
       workspaceIds: JSON.stringify(WorkspaceIds),
       id: users.id,
-      username: users.username,
       email: users.email,
       accessToken: {
         token: this.jwtService.sign(payload),
         expiresAt
       },
       userDetails: {
-        name: users.username,
-        email: users.email
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName
       },
       currentWorkspace,
       workspaces: users.workspaces,
@@ -116,19 +116,19 @@ export class AuthService {
 
 
 
-    computeRedirectURI({
-      loginToken,
+  computeRedirectURI({
+    loginToken,
+    // workspace,
+  }: {
+    loginToken: string;
+  }) {
+    const url = this.domainManagerService.buildWorkspaceURL({
       // workspace,
-    }: {
-      loginToken: string;
-    }) {
-      const url = this.domainManagerService.buildWorkspaceURL({
-        // workspace,
-        pathname: '/verify',
-        searchParams: {
-          loginToken,
-        },
-      });
+      pathname: '/verify',
+      searchParams: {
+        loginToken,
+      },
+    });
 
     return url.toString();
   }
@@ -141,9 +141,9 @@ export class AuthService {
       userData: existingUser
         ? { type: 'existingUser', existingUser }
         : {
-            type: 'newUser',
-            newUserPayload,
-          },
+          type: 'newUser',
+          newUserPayload,
+        },
     };
   }
 
@@ -223,15 +223,15 @@ export class AuthService {
       workspaceId?: string;
       workspaceInviteToken?: string;
     } & (
-      | {
+        | {
           authProvider: Exclude<WorkspaceAuthProvider, 'password'>;
           email: string;
         }
-      | { 
+        | {
           authProvider: Extract<WorkspaceAuthProvider, 'password'>;
           email?: string;
         }
-    ),
+      ),
   ) {
 
     if (params.workspaceInviteToken) {
@@ -260,24 +260,24 @@ export class AuthService {
 
     const workspace = params.workspaceId
       ? await this.workspaceRepository.findOne({
-          where: {
-            id: params.workspaceId,
-          },
-          // relations: ['approvedAccessDomains'],
-        })
+        where: {
+          id: params.workspaceId,
+        },
+        // relations: ['approvedAccessDomains'],
+      })
       : undefined;
 
     return params.workspaceId
       ? await this.workspaceRepository.findOne({
-          where: {
-            id: params.workspaceId,
-          },
-          // relations: ['approvedAccessDomains'],
-        })
+        where: {
+          id: params.workspaceId,
+        },
+        // relations: ['approvedAccessDomains'],
+      })
       : undefined;
   }
 
-  async findSignInUpInvitation(params: {currentWorkspace: Workspace, email: string}){
+  async findSignInUpInvitation(params: { currentWorkspace: Workspace, email: string }) {
 
     // Need To implements for invitation accepted
 
@@ -353,31 +353,31 @@ export class AuthService {
     const expiresAt = addMilliseconds(new Date().getTime(), ms(expiresIn));
 
     const res = {
-        accessToken : {
-          token : this.jwtService.sign(payloadfinal),
-          expiresAt
-        },
-        workspaceIds: JSON.stringify(payload.workspaceId),
-        userDetails: {
-          firstName: users.firstName,
-          lastName: users.lastName,
-          email : users.email
-        }
-      };
+      accessToken: {
+        token: this.jwtService.sign(payloadfinal),
+        expiresAt
+      },
+      workspaceIds: JSON.stringify(payload.workspaceId),
+      userDetails: {
+        firstName: users.firstName,
+        lastName: users.lastName,
+        email: users.email
+      }
+    };
 
     return {
-        access_token: this.jwtService.sign(payloadfinal),
-        accessToken : {
-          token : this.jwtService.sign(payloadfinal),
-          expiresAt
-        },
-        workspaceIds: JSON.stringify(payload.workspaceId),
-        userDetails: {
-          firstName: users.firstName,
-          lastName: users.lastName,
-          email : users.email
-        }
-      };
+      access_token: this.jwtService.sign(payloadfinal),
+      accessToken: {
+        token: this.jwtService.sign(payloadfinal),
+        expiresAt
+      },
+      workspaceIds: JSON.stringify(payload.workspaceId),
+      userDetails: {
+        firstName: users.firstName,
+        lastName: users.lastName,
+        email: users.email
+      }
+    };
   }
 
 }

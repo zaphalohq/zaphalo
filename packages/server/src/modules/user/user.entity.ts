@@ -24,11 +24,11 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({default: ''})
+  @Column({nullable : true})
   @Field()
   firstName: string
 
-  @Column({default: ''})
+  @Column({nullable : true})
   @Field()
   lastName: string
 
