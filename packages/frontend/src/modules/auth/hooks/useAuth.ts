@@ -149,7 +149,8 @@ export const useAuth = () => {
   );
 
   const handleGetAuthTokensFromLoginToken = useCallback(
-    async (loginToken: string) => {
+     async (loginToken: string) => {
+
       const response = await getAuthTokensFromLoginToken({
         variables: { loginToken },
       });
@@ -168,12 +169,16 @@ console.log(token,".........................................................");
 
       setTokenPair({accessToken : {
         token,
-        expiresAt 
+        expiresAt
       }});
+
       cookieStorage.setItem(
         'accessToken',
         JSON.stringify(
-          token
+          {accessToken : {
+            token,
+            expiresAt
+          }}
         ),
       );
 

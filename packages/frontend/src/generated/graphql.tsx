@@ -63,19 +63,19 @@ export type currentUserWorkspace = {
 }
 
 export const GetAuthTokensFromLoginTokenDocument = gql`
-    mutation GetAuthTokensFromLoginToken($loginToken: String!) {
-  getAuthTokensFromLoginToken(loginToken: $loginToken) {
-    workspaceIds
-    userDetails {
-      email
-      firstName
-      lastName
+  mutation GetAuthTokensFromLoginToken($loginToken: String!) {
+    getAuthTokensFromLoginToken(loginToken: $loginToken) {
+      workspaceIds
+      userDetails {
+        email
+        firstName
+        lastName
+      }
+      accessToken {
+        expiresAt
+        token
+      }
     }
-    accessToken {
-      expiresAt
-      token
-    }
-  }
 }`;
 
 export type GetAuthTokensFromLoginTokenMutationVariables = Exact<{
@@ -109,23 +109,24 @@ export function useGetAuthTokensFromLoginTokenMutation(baseOptions?: Apollo.Muta
 
 export const UserQueryFragmentFragmentDoc = gql`
     fragment UserQueryFragment on User {
-  id
-  firstName
-  lastName
-  email
-  currentWorkspace {
     id
-    name
-  }
-  workspaces {
-    id
-    role
-    workspace {
+    email
+    firstName
+    inviteToken
+    lastName
+    currentWorkspace {
       id
       name
     }
-  }
-}`;
+    workspaces {
+      id
+      role
+      workspace {
+        id
+        name
+      }
+    }
+  }`;
 
 export const GetCurrentUserDocument = gql`
     query GetCurrentUser {

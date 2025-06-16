@@ -12,7 +12,7 @@ export const useVerifyLoginToken = () => {
       console.log(token,".................................token......token");
       
     } catch (error) {
-      navigate('/login');
+      navigate('/login'+error);
     }
   };
 
