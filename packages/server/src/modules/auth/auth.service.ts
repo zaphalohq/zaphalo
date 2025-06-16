@@ -72,26 +72,33 @@ export class AuthService {
     const expiresIn = '7d';
     const expiresAt = addMilliseconds(new Date().getTime(), ms(expiresIn));
     console.log(users, ".....................................................");
-    const currentWorkspace = users.workspaces.find(
-      (userWorkspace) => userWorkspace.id === users.id,
-    );
-    console.log(currentWorkspace, '......................................');
+    // const currentWorkspace = users.workspaces.find(
+    //   (userWorkspace) => userWorkspace.id === users.id,
+    // );
 
+
+    console.log(workspaces[0].id, '....workspaces..................................');
+// if(!currentWorkspace) throw Error("current Workspace not found")
+    const loginToken = await this.generateLoginToken(
+        user.email,
+        workspaces[0].id
+      );
+      console.log(loginToken,"...................");
+      
     return {
       access_token: this.jwtService.sign(payload),
       workspaceIds: JSON.stringify(WorkspaceIds),
       id: users.id,
       email: users.email,
       accessToken: {
-        token: this.jwtService.sign(payload),
-        expiresAt
+        token: loginToken.token,
+        expiresAt: loginToken.expiresAt
       },
       userDetails: {
         email: users.email,
         firstName: users.firstName,
         lastName: users.lastName
       },
-      currentWorkspace,
       workspaces: users.workspaces,
     };
   }
@@ -312,6 +319,7 @@ export class AuthService {
       sub: email,
       workspaceId,
     };
+    
 
     const token = {
       token: this.jwtService.sign(jwtPayload, {
