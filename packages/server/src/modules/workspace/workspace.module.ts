@@ -14,7 +14,6 @@ import { WorkspaceMember } from "./workspaceMember.entity";
 import { workspaceResolver } from "./workspace.resolver";
 import { WorkspaceInvitation } from "./workspaceInvitation.entity";
 
-
 @Module({
   imports: [
     NestjsQueryGraphQLModule.forFeature({
