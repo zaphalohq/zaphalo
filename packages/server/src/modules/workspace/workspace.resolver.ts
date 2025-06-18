@@ -30,6 +30,7 @@ export class workspaceResolver {
     const userId = context.req.user.id;
     return this.workspaceService.generateInvitationLink(workspaceId, userId);
   }
+  
   @Query(() => WorkspaceDashboardOutput)
   async findWorkspaceByIdForDash(@Args('workspaceId') workspaceId : string) {
     return this.workspaceService.findWorkspaceByIdForDash(workspaceId)

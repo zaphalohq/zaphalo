@@ -50,4 +50,13 @@ export class UserService {
     })
   }
 
+  async findOneUserWithWorkspaces(userId : string) {
+    return await this.userRepository.findOne({
+        where: {
+          id: userId,
+        },
+        relations: ['workspaces', 'workspaces.workspace'],
+      })
+  }
+
 }

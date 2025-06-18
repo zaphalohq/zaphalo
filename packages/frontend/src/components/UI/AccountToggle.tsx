@@ -1,5 +1,6 @@
+import { useGetCurrentUserLazyQuery } from "@src/generated/graphql";
 import { getItem } from "@utils/localStorage"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { FiBriefcase, FiChevronDown, FiChevronRight, FiChevronsDown } from "react-icons/fi"
 import {
   useRecoilState,
@@ -9,11 +10,24 @@ import { workspacesState } from 'src/modules/auth/states/workspaces';
 import { currentUserState } from 'src/modules/auth/states/currentUserState';
 
 const AccountToggle = () => {
-    const user = getItem('userDetails')
+
+  const [getCurrentUser] = useGetCurrentUserLazyQuery();
+
+// useEffect(() => {
+//     const getCurrentUser1 = async () => {
+//     const currentUserResult = await getCurrentUser({
+//       fetchPolicy: 'network-only',
+//     });
+
+//     console.log(currentUserResult,"currentUserResultcurrentUserResultcurrentUserResultcurrentUserResultcurrentUserResultcurrentUserResult");
+    
+// }
+// getCurrentUser1()
+// },[getCurrentUser])
+    
     const [workspaces, setWorkspacesState]= useRecoilState(workspacesState);
     const [currentUser, setcurrentUserState]= useRecoilState(currentUserState);
 
-    const workspaceIds = getItem('workspaceIds')
     const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false)
     return (
         <div className="border-b mt-2 mb-4 pb-4 border-gray-700 relative ">
@@ -22,20 +36,21 @@ const AccountToggle = () => {
                     <span className="text-white font-bold text-lg">Y</span>
                 </div>
                 <div className="text-start">
-                    <span className="font-bold text-sm block text-gray-100">{currentUser?.username}</span>
+                    <span className="font-bold text-sm block text-gray-100">{currentUser?.firstName}{' '}{currentUser?.lastName}</span>
                     <span className="block text-xs text-stone-500">{currentUser?.email}</span>
                 </div>
-                <FiChevronDown onClick={() => setIsWorkspaceOpen(!isWorkspaceOpen)} className="absolute top-3 right-4 w-6 h-6 p-1 rounded cursor-pointer hover:bg-stone-200" />
+                <FiChevronDown onClick={() => setIsWorkspaceOpen(!isWorkspaceOpen)} 
+                className="absolute top-3 right-4 w-6 h-6 p-1 rounded cursor-pointer text-white hover-blacky" />
             </button>
-            {isWorkspaceOpen ?<div className="flex flex-col gap-2 absolute z-1 w-48 rounded bg-white p-2 pt-6 border border-gray-200">
-                <div className="font-semibold text-center">Workspaces</div>
-                 {workspaces.map((workspace: string, index: number) =>
-
+            {isWorkspaceOpen ?<div className="flex flex-col bg-blacky-100 absolute z-1 w-48 rounded pt-6 pb-4 p-1 shadow shadow-gray-600">
+                <div className="font-semibold text-center text-gray-200 pb-4">Workspaces</div>
+             {workspaces.map((workspace: any, index: number) =>
                     <div key={workspace.id}
                         onClick={() => {
                             window.location.reload()
                         }}
-                        className="bg-gray-200 p-2 hover:bg-gray-300 cursor-pointer flex gap-3 items-center"><FiBriefcase />
+                        className="p-2 hover:bg-gray-900 bg-black rounded text-gray-300  cursor-pointer flex gap-3 items-center border-b border-gray-600">
+                            <div className="text-violet-500"><FiBriefcase /></div>
                          {workspace.name}</div>
                 )}
             </div> : <></>}

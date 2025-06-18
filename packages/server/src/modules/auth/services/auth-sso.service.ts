@@ -40,7 +40,8 @@ export class AuthSsoService {
   ) {
     if (
       process.env.IS_MULTIWORKSPACE_ENABLED &&
-      !workspaceId
+      !workspaceId &&
+      email !== undefined
     ) {
       // Multi-workspace enable mode but on non workspace url.
       // so get the first workspace with the current auth method enable

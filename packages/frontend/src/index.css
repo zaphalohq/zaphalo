@@ -25,6 +25,10 @@
   background-color: #151718; 
 }
 
+.bg-blacky-100 {
+    background-color: #323337;
+  }
+
 .hover-blacky:hover {
     background-color: #323337;
   }
