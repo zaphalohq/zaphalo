@@ -1,11 +1,10 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { VITE_BACKEND_URL } from '@src/config';
 import { ApolloError, useApolloClient } from '@apollo/client';
 import { useRedirect } from '@src/modules/domain-manager/hooks/useRedirect';
 import {
   useGetAuthTokensFromLoginTokenMutation,
   useGetCurrentUserLazyQuery,
-  Workspace,
 } from 'src/generated/graphql';
 import { useNavigate } from 'react-router-dom';
 import { setItem } from 'src/components/utils/localStorage';
@@ -23,7 +22,6 @@ import {
   useRecoilState,
   useSetRecoilState,
 } from 'recoil';
-import { log } from 'console';
 
 
 export const useAuth = () => {
@@ -33,20 +31,13 @@ export const useAuth = () => {
   const [getAuthTokensFromLoginToken] = useGetAuthTokensFromLoginTokenMutation();
   const [getCurrentUser] = useGetCurrentUserLazyQuery();
 
-  const [TokenPair, setTokenPair] = useRecoilState(tokenPairState);
+  const [TokenPair, setTokenPair]= useRecoilState(tokenPairState);
   const setCurrentUser = useSetRecoilState(currentUserState);
   const setCurrentUserWorkspace = useSetRecoilState(currentUserWorkspaceState);
   const setWorkspaces = useSetRecoilState(workspacesState);
-  const [workspacesState1, setworkspacesState1] = useRecoilState(workspacesState);
 
   const client = useApolloClient();
   const goToRecoilSnapshot = useGotoRecoilSnapshot();
-
-
-  useEffect(() => {
-    console.log(workspacesState1, "workspacesState1workspacesState1.........................................");
-
-  }, [])
 
   const buildRedirectUrl = useCallback(
     (
@@ -61,7 +52,7 @@ export const useAuth = () => {
       }
       return url.toString();
     },
-    [],
+    [], //workspacePublicData
   );
 
   const loadCurrentUser = useCallback(async () => {
@@ -70,26 +61,15 @@ export const useAuth = () => {
     });
 
     const user = currentUserResult.data?.currentUser;
-    console.log(user, currentUserResult, "....currentUserResult.........................");
 
-    if (!user) throw Error("user not found")
+    if(!user) throw Error("user not found")
+    setCurrentUser(user);
 
-    setCurrentUser({
-      id : user.id,
-      email : user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-    });
-
-    // const currentUserWorkspace =  user?.currentWorkspace
+    // const currentUserWorkspace =  user?.currentUserWorkspace
     // if(!currentUserWorkspace) throw Error('currentUserWorkspace doesnt exist in useAuth')
-    // if (isDefined(currentUserWorkspace)) {
-    //   setCurrentUserWorkspace({
-    //     id : currentUserWorkspace.id,
-    //     name : currentUserWorkspace.name
-    //   });
-    // }
-    console.log("..........validWorkspaces..............workspaces................");
+    if (isDefined(user?.currentWorkspace)) {
+      setCurrentUserWorkspace(user?.currentWorkspace);
+    }
 
     if (isDefined(user.workspaces)) {
       const validWorkspaces = user.workspaces
@@ -99,38 +79,27 @@ export const useAuth = () => {
         .map((validWorkspace) => validWorkspace.workspace)
         .filter(isDefined);
 
-
-        // 'id' | 'name' | 'role' | 'workspace'
-
-      // setWorkspaces({
-      //   id: validWorkspaces.
-      //   name:
-      //   role:
-      //   workspace:
-      // });
+      setWorkspaces(validWorkspaces);
     }
 
-  }, []);
+  },[]);
 
   const clearSession = useRecoilCallback(
-
-    ({ snapshot }) => async () => {
+    ({snapshot}) => async () => {
       const emptySnapshot = snapshot_UNSTABLE();
 
       const initialSnapshot = emptySnapshot.map(({ set }) => {
         return undefined;
       });
 
-
       await goToRecoilSnapshot(initialSnapshot);
       sessionStorage.clear();
       localStorage.clear();
       await client.clearStore();
       return undefined;
-    });
+  });
 
   const handleSignOut = useCallback(async () => {
-
     await clearSession();
     navigate('/login');
   }, [clearSession]);
@@ -138,12 +107,10 @@ export const useAuth = () => {
   const handleGoogleLogin = useCallback(
     (
       params: {
-        workspaceInviteToken?: string;
-      }
+      workspaceInviteToken?: string;
+    }
     ) => {
       redirect(buildRedirectUrl('/google/auth', params));
-      console.log("......................handlegooglelogin");
-      
     },
     [buildRedirectUrl, redirect],
   );
@@ -154,18 +121,13 @@ export const useAuth = () => {
       const response = await getAuthTokensFromLoginToken({
         variables: { loginToken },
       });
-
+      console.log(response,'..........................................................dsds.................');
+      
       const accessToken = response.data?.getAuthTokensFromLoginToken?.accessToken;
-      const userDetails = response.data?.getAuthTokensFromLoginToken?.userDetails;
-
-      setItem('userDetails', userDetails)
-
       const token = accessToken?.token;
-      if (!token) throw Error("token doesn't exist");
+      if(!token) throw Error("token doesn't exist");
       const expiresAt = accessToken?.expiresAt;
-      if (!expiresAt) throw Error("expiresAt doesn't exist");
-console.log(token,".........................................................");
-
+      if(!expiresAt) throw Error("expiresAt doesn't exist");
 
       setTokenPair({accessToken : {
         token,
@@ -182,17 +144,17 @@ console.log(token,".........................................................");
         ),
       );
 
-      await loadCurrentUser();
+      
+      loadCurrentUser();
       navigate('/dashboard')
     }
-    , []);
+  ,[]);
 
 
   return {
     logOut: handleSignOut,
     signInWithGoogle: handleGoogleLogin,
     getAuthTokensFromLoginToken: handleGetAuthTokensFromLoginToken,
-    // loadCurrentUser: loadCurrentUser,
+    loadCurrentUser: loadCurrentUser
   };
 }
-

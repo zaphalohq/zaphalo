@@ -238,8 +238,9 @@ const Register = () => {
 
   };
 
+  // bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-blacky-900  flex items-center justify-center p-4 relative overflow-hidden">
       <div className="relative w-full max-w-lg">
         <div className="backdrop-blur-xl bg-white/10 p-8 rounded-3xl border border-white/20 shadow-2xl relative overflow-hidden">
           <div className="relative z-10">

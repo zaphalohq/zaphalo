@@ -110,23 +110,27 @@ import { useRecoilState, useSetRecoilState } from 'recoil';
 import { tokenPairState } from '@src/modules/auth/states/tokenPairState';
 import { useAuth } from '@src/modules/auth/hooks/useAuth';
 import { workspacesState } from '@src/modules/auth/states/workspaces';
+import { useVerifyLoginToken } from '@src/modules/auth/hooks/useVerifyLoginToken';
 
-function Login() { 
+function Login() {
   const [TokenPair, setTokenPair] = useRecoilState(tokenPairState);
   const { signInWithGoogle } = useSignInWithGoogle();
-   const setWorkspaces = useSetRecoilState(workspacesState);
+  const setWorkspaces = useSetRecoilState(workspacesState);
   const [login, { data, loading, error }] = useMutation(LoginMutation);
   const navigate = useNavigate();
+      const { verifyLoginToken } = useVerifyLoginToken();
+
 
   useEffect(() => {
-    const access_token = localStorage.getItem('access_token')
-    if (access_token) {
+    // const accessToken = Cookies.get('accessToken');
+    const accessToken = cookieStorage.getItem('accessToken')
+    if (accessToken) {
       navigate('/dashboard')
     }
   }, [navigate])
 
   const [authForm, setAuthForm] = useState({
-    username: '',
+    email: '',
     password: ''
   })
   const HandleChange = (e: any) => {
@@ -135,7 +139,7 @@ function Login() {
       ...authForm,
       [name]: value
     })
-}
+  }
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
@@ -144,7 +148,7 @@ function Login() {
     try {
       const response = await login({
         variables: {
-          username: authForm.username,
+          email: authForm.email,
           password: authForm.password,
         },
       });
@@ -159,26 +163,28 @@ function Login() {
       const workspaceIds = JSON.parse(response.data.login.workspaceIds)
       setItem('workspaceIds', workspaceIds)
       sessionStorage.setItem('workspaceId', workspaceIds[0]);
-      setItem('userDetails', { name: response.data.login.userDetails.firstName, email: response.data.login.userDetails.email })
+      // setItem('userDetails', { name: response.data.login.userDetails.firstName, email: response.data.login.userDetails.email })
 
-setWorkspaces(response.data.login.workspaces)
+      setWorkspaces(response.data.login.workspaces)
 
-      const token = response.data.login.accessToken.token;
-      const expiresAt = response.data.login.accessToken.expiresAt;
+      const token : string = response.data.login.accessToken.token;
+      // const expiresAt = response.data.login.accessToken.expiresAt;
+console.log(token,'tokentokentoken....................');
 
+      verifyLoginToken(token)
 
-      setTokenPair({
-          accessToken: {
-            token,
-            expiresAt
-          }
-        });
-        cookieStorage.setItem(
-          'accessToken',
-          JSON.stringify(
-            token
-          ),
-        );
+      // setTokenPair({
+      //     accessToken: {
+      //       token,
+      //       expiresAt
+      //     }
+      //   });
+      // cookieStorage.setItem(
+      //   'accessToken',
+      //   JSON.stringify(
+      //     token
+      //   ),
+      // );
       navigate('/dashboard')
     } catch (err) {
       console.error('Error logging in:', err);
@@ -189,7 +195,7 @@ setWorkspaces(response.data.login.workspaces)
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-blacky-900 flex items-center justify-center p-4 relative overflow-hidden">
       <div className="relative w-full max-w-md">
         <div className="backdrop-blur-xl bg-white/10 p-8 rounded-3xl border border-white/20 shadow-2xl relative overflow-hidden">
           <div className="relative z-10">
@@ -217,12 +223,12 @@ setWorkspaces(response.data.login.workspaces)
               <div className="space-y-6">
                 <div className="space-y-4">
                   <div className="group">
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Username</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
                     <input
                       type="text"
-                      name="username"
-                      placeholder="Enter your username"
-                      value={authForm.username}
+                      name="email"
+                      placeholder="Enter your email"
+                      value={authForm.email}
                       onChange={HandleChange}
                       className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 
                              focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent 

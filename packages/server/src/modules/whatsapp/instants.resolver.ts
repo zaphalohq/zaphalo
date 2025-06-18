@@ -21,7 +21,7 @@ export class instantsResolver {
     @Mutation(() => WhatsappInstants)
     async CreateInstants(@Context('req') req , @Args('InstantsData'
     ) WhatsappInstantsData: CreateFormDataInput): Promise<WhatsappInstants | null> {   
-        const workspaceId = req.user.workspaceIds[0];      
+        const workspaceId = req.headers['x-workspace-id']
        return await this.instantsservice.CreateInstants(WhatsappInstantsData, workspaceId);
     }
 

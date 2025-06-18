@@ -7,7 +7,7 @@ import Logout from '../../Auth/Logout'
 
 const Sidebar = ({ isToggleActivated, HandleToggleButton }: any) => {
   return (
-    <div className='bg-blacky-900 px-4'>
+    <div className='px-4'>
         <AccountToggle />
       <div className={`${isToggleActivated ? '' : 'hidden md:block'} overflow-y-scroll custom-scrollbox custom-scroll sticky top-4 h-[calc(100vh-150px)]`}>
         <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiGrid} to='/dashboard' title={"Dashboard"} />

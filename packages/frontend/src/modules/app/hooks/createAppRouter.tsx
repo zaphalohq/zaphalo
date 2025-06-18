@@ -1,17 +1,13 @@
 import {
   Navigate,
   Route,
-  RouterProvider,
   createBrowserRouter,
   createRoutesFromElements,
 } from 'react-router-dom';
-import * as React from 'react';
-
 import Register from 'src/components/Auth/Register';
 import Login from 'src/components/Auth/Login';
 import ProtectedRoute from 'src/components/ProtectedRoute/ProtectedRoute';
 import Dashboard from 'src/pages/Dashboard';
-import { Settings } from 'lucide-react';
 import Workspace from 'src/pages/Workspace';
 import WhatsappInstants from 'src/pages/WhatsappInstants';
 import Chats from 'src/pages/Chats';

@@ -26,8 +26,11 @@ export class AuthTokenDto {
 
 @ObjectType()
 export class AuthResponse {
-  @Field()
 
+   @Field()
+  access_token: string;
+
+  @Field()
   accessToken : AuthTokenDto;
 
   @Field()
