@@ -39,7 +39,7 @@ export class WorkspaceMember {
   workspace: Relation<Workspace>;
 
 
-  @Field({ nullable: false })
+  @Field({ nullable: true })
   @Column()
   workspaceId: string;
 

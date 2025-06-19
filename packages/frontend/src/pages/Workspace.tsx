@@ -29,7 +29,7 @@ const Workspace = () => {
     try{
        const inviteLinkRes = await InviteLink({
         variables : { 
-          workspaceId : currentUserWorkspace.id,
+          workspaceId : currentUserWorkspace?.id,
         } })
         await data
        console.log(inviteLinkRes.data.generateWorkspaceInvitation);

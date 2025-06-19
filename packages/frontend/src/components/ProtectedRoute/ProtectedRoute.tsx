@@ -10,7 +10,6 @@ import Cookies from 'js-cookie';
 
 const ProtectedRoute = ({ children } : any) => {
   const isAuthenticated = Cookies.get('accessToken');
-
   return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
 };
 

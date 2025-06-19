@@ -10,7 +10,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { ContactsService } from "../contacts/contacts.service";
 import { Contacts } from "../contacts/contacts.entity";
 import { Role } from 'src/enums/role.enum';
-import { CreateWorkspaceDto } from './dto/workspace.create.dto';
 import { TypeORMService } from 'src/database/typeorm/typeorm.service';
 
 

@@ -32,7 +32,7 @@ const MainLayout = () => {
   }
   const location = useLocation();
   return (
-    <div className="grid md:grid-cols-[260px_1fr] min-h-screen w-full bg-blacky-900 p-5 overflow-hidden">
+    <div className="grid md:grid-cols-[260px_1fr] min-h-screen w-full bg-blacky-900 p-5 overflow-hidden ">
       {/* Sidebar */}
       <Sidebar HandleToggleButton={HandleToggleButton} isToggleActivated={isToggleActivated} />
       

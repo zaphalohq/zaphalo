@@ -31,8 +31,9 @@ export class GoogleAuthController {
       picture,
       workspaceId,
       workspaceInviteToken,
-      locale,
+      local,
     } = req.user;
+console.log("..................................................................");
 
     const currentWorkspace = await this.authService.findWorkspaceForSignInUp({
       workspaceId,
