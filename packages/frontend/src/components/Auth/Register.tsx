@@ -1,200 +1,11 @@
-// // import React, { useState } from 'react';
-// // import { useMutation } from '@apollo/client';
-// // import { useNavigate } from 'react-router-dom';
-// // import { RegisterMutation } from './AuthMutations/RegisterMutation';
-
-// // const Register = () => {
-// //   const [username, setUsername] = useState('');
-// //   const [email, setEmail] = useState('');
-// //   const [password, setPassword] = useState('');
-// //   const [register, { data, loading, error }] = useMutation(RegisterMutation);
-// //   const navigate = useNavigate();
-
-// //   const handleSubmit = async (e : any) => {
-// //     e.preventDefault();
-// //     try {
-// //       const response = await register({ variables: { username, email, password } });
-// //       console.log('Registration successful', response.data.Register);
-// //       navigate('/login');
-// //     } catch (err) {
-// //       console.error('Error registering', err);
-// //     }
-// //   };
-
-// //   return (
-// //     <div className="flex items-center justify-center min-h-screen bg-gray-50">
-// //       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-// //         <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
-// //         {error && <p className="text-red-500">Error: {error.message}</p>}
-// //         <form onSubmit={handleSubmit}>
-// //           <div className="mb-4">
-// //             <label className="block text-gray-700 mb-2">Name</label>
-// //             <input
-// //               type="text"
-// //               className="w-full p-3 border border-gray-300 rounded-lg"
-// //               placeholder="Enter your username"
-// //               value={username}
-// //               onChange={(e) => setUsername(e.target.value)}
-// //               required
-// //             />
-// //           </div>
-// //           <div className="mb-4">
-// //             <label className="block text-gray-700 mb-2">Email</label>
-// //             <input
-// //               type="email"
-// //               className="w-full p-3 border border-gray-300 rounded-lg"
-// //               placeholder="Enter your email"
-// //               value={email}
-// //               onChange={(e) => setEmail(e.target.value)}
-// //               required
-// //             />
-// //           </div>
-// //           <div className="mb-6">
-// //             <label className="block text-gray-700 mb-2">Password</label>
-// //             <input
-// //               type="password"
-// //               className="w-full p-3 border border-gray-300 rounded-lg"
-// //               placeholder="Enter your password"
-// //               value={password}
-// //               onChange={(e) => setPassword(e.target.value)}
-// //               required
-// //             />
-// //           </div>
-// //           <button
-// //             type="submit"
-// //             className="w-full bg-violet-500 text-white p-3 rounded-lg hover:bg-violet-600"
-// //             disabled={loading}
-// //           >
-// //             {loading ? 'Registering...' : 'Register'}
-// //           </button>
-// //         </form>
-// //       </div>
-// //     </div>
-// //   );
-// // };
-
-// // export default Register;
-
-
-// import React, { useState } from 'react';
-// import { useMutation, gql } from '@apollo/client';
-// import { useNavigate, useParams } from 'react-router-dom';
-// import { RegisterMutation } from './AuthMutations/RegisterMutation';
-
-
-// const Register = () => {
-//   const [username, setUsername] = useState('');
-//   const [email, setEmail] = useState('');
-//   const [password, setPassword] = useState('');
-//   const [register, { data, loading, error }] = useMutation(RegisterMutation);
-//   const navigate = useNavigate();
-//   const { token } = useParams<{ token: string }>(); // Extract token from URL
-
-//   const handleSubmit = async (e: React.FormEvent) => {
-//     e.preventDefault();
-//     try {
-//       const response = await register({
-//         variables: {
-//             username,
-//             email,
-//             password,
-//             inviteToken: token, // Include token
-//         },
-//       });
-//       console.log('Registration successful', response.data.Register);
-//       // localStorage.setItem('authToken', response.data.Register.access_token); // Store JWT
-//       navigate('/login'); // Redirect to workspaces
-//     } catch (err) {
-//       console.error('Error registering', err);
-//     }
-//   };
-
-//   return (
-//     <div className="flex items-center justify-center min-h-screen bg-gray-50">
-//       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-//         <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
-//         {error && <p className="text-red-500">Error: {error.message}</p>}
-//         <form onSubmit={handleSubmit}>
-//           <div className="mb-4">
-//             <label className="block text-gray-700 mb-2">Full Name</label>
-//             <input
-//               type="text"
-//               className="w-full p-3 border border-gray-300 rounded-lg"
-//               placeholder="Full name"
-//               value={name}
-//               onChange={(e) => setUsername(e.target.value)}
-//               required
-//             />
-//           </div>
-//           <div className="mb-4">
-//             <label className="block text-gray-700 mb-2">Email</label>
-//             <input
-//               type="email"
-//               className="w-full p-3 border border-gray-300 rounded-lg"
-//               placeholder="Email"
-//               value={email}
-//               onChange={(e) => setEmail(e.target.value)}
-//               required
-//             />
-//           </div>
-//           <div className="mb-4">
-//             <label className="block text-gray-700 mb-2">Username</label>
-//             <input
-//               type="text"
-//               className="w-full p-3 border border-gray-300 rounded-lg"
-//               placeholder="Username"
-//               value={username}
-//               onChange={(e) => setUsername(e.target.value)}
-//               required
-//             />
-//           </div>
-//           <div className="mb-6">
-//             <label className="block text-gray-700 mb-2">Password</label>
-//             <input
-//               type="password"
-//               className="w-full p-3 border border-gray-300 rounded-lg"
-//               placeholder="Password"
-//               value={password}
-//               onChange={(e) => setPassword(e.target.value)}
-//               required
-//             />
-//           </div>
-//           <div className="mb-6">
-//             <label className="block text-gray-700 mb-2">Confirm Password</label>
-//             <input
-//               type="confirm_password"
-//               className="w-full p-3 border border-gray-300 rounded-lg"
-//               placeholder="Confirm password"
-//               value={password}
-//               onChange={(e) => setPassword(e.target.value)}
-//               required
-//             />}
-//           </div>
-//           <button
-//             type="submit"
-//             className="w-full bg-violet-500 text-white p-3 rounded-lg hover:bg-violet-600"
-//             disabled={loading}
-//           >
-//             {loading ? 'Registering...' : 'Register'}
-//           </button>
-//         </form>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Register;
-
-
-
 import { useMutation } from '@apollo/client';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { RegisterMutation } from './AuthMutations/RegisterMutation';
 
 const Register = () => {
-  const [username, setUsername] = useState('');
-  const [fullName, setFullName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [firstName, setFirstName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -203,7 +14,7 @@ const Register = () => {
     message : ''
   });
   const navigate = useNavigate()
-  const { token } = useParams<{ token: string }>()
+  const { workspaceInviteToken } = useParams();
   const [register, { data, loading: registerLoading, error: registerError }] = useMutation(RegisterMutation);
 
 
@@ -217,11 +28,11 @@ const Register = () => {
     try {
       const response = await register({
         variables: {
-          username,
+          firstName,
+          lastName,
           email,
           password,
-          fullName,
-          inviteToken: token,
+          inviteToken: workspaceInviteToken,
         },
       });
       console.log('Registration successful', response.data.Register);
@@ -238,8 +49,7 @@ const Register = () => {
 
   };
 
-  // bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700
-  return (
+    return (
     <div className="min-h-screen bg-blacky-900  flex items-center justify-center p-4 relative overflow-hidden">
       <div className="relative w-full max-w-lg">
         <div className="backdrop-blur-xl bg-white/10 p-8 rounded-3xl border border-white/20 shadow-2xl relative overflow-hidden">
@@ -267,12 +77,12 @@ const Register = () => {
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="group">
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">First Name</label>
                     <input
                       type="text"
                       placeholder="Enter your full name"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
                       required
                       className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 
                              focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent 
@@ -281,12 +91,12 @@ const Register = () => {
                   </div>
 
                   <div className="group">
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Username</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Last Name</label>
                     <input
                       type="text"
                       placeholder="Choose a username"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
                       required
                       className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 
                              focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent 

@@ -1,103 +1,3 @@
-// import { useMutation } from '@apollo/client';
-// import { useEffect, useState } from 'react';
-// import { LoginMutation } from './AuthMutations/LoginMutation';
-// import { useNavigate } from 'react-router-dom';
-// import AuthInputLabel from '../UI/AuthInputLabel';
-// import { setItem } from '../utils/localStorage';
-// import { cookieStorage } from '@src/utils/cookie-storage';
-// import { useSignInWithGoogle } from '@src/modules/auth/hooks/useSignInWithGoogle';
-
-// function Login() {
-
-//   const { signInWithGoogle } = useSignInWithGoogle();
-// const [login, { data, loading, error }] = useMutation(LoginMutation);
-// const navigate = useNavigate();
-
-// useEffect(() => {
-//   const access_token = localStorage.getItem('access_token')
-//   if(access_token){
-//     navigate('/dashboard')
-//   }
-// }, [navigate])
-
-// const [authForm, setAuthForm] = useState({
-//   username : '',
-//   password : ''
-// })  
-// const HandleChange = (e : any) => {
-//   const { name, value } = e.target
-//   setAuthForm({
-//     ...authForm,
-//      [name] : value
-//   })
-// }
-
-// const handleSubmit = async (event : any) => {
-//   event.preventDefault();
-//   console.log();
-
-//   try {
-//     const response = await login({
-//       variables: {
-//         username : authForm.username,
-//         password : authForm.password,
-//       },
-//     });
-//     console.log('Login Success:', response.data);    
-//     // Save accessToken in localStorage or cookies
-//     setItem('access_token', response.data.login.access_token);  
-//     cookieStorage.setItem(
-//             'accessToken',
-//             JSON.stringify(
-//               response.data.login.access_token
-//             ),
-//           );
-//     const workspaceIds = JSON.parse(response.data.login.workspaceIds)
-//     setItem('workspaceIds', workspaceIds)
-//     sessionStorage.setItem('workspaceId', workspaceIds[0]);
-//     setItem('userDetails',{ name : response.data.login.userDetails.name, email : response.data.login.userDetails.email })
-//     navigate('/dashboard')
-//   } catch (err) {
-//     console.error('Error logging in:', err);
-//   }
-// }
-
-//   return (
-//     <div className="flex items-center justify-center min-h-screen bg-gray-50">
-//       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-//         <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-//         {error && <p className="text-red-500">Error: {error.message}</p>}
-//         <form onSubmit={handleSubmit}>
-//           <div className="mb-4">
-//           <AuthInputLabel type='text' title="Username" name="username" placeholder="Enter your username" HandleChange={HandleChange} />
-//           </div>
-//           <div className="mb-6">
-//           <AuthInputLabel type='password' title="password" name="password" placeholder="Enter your password" HandleChange={HandleChange} />
-//           </div>
-//           <button
-//             type="submit"
-//             className="w-full bg-violet-500 text-white p-3 rounded-lg hover:bg-violet-600"
-//           >
-//             {loading ? 'Logging in...' : 'Login'}
-//           </button>
-//         </form>
-//             <button
-//       type="button"
-//       className="text-white bg-[#4285F4] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#4285F4]/55 me-2 mb-2"
-//       onClick={signInWithGoogle}>
-//       <svg className="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 19">
-//       <path fill-rule="evenodd" d="M8.842 18.083a8.8 8.8 0 0 1-8.65-8.948 8.841 8.841 0 0 1 8.8-8.652h.153a8.464 8.464 0 0 1 5.7 2.257l-2.193 2.038A5.27 5.27 0 0 0 9.09 3.4a5.882 5.882 0 0 0-.2 11.76h.124a5.091 5.091 0 0 0 5.248-4.057L14.3 11H9V8h8.34c.066.543.095 1.09.088 1.636-.086 5.053-3.463 8.449-8.4 8.449l-.186-.002Z" clip-rule="evenodd"/>
-//       </svg>
-//       Sign in with Google
-//     </button>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default Login;
-
-
 import { useMutation } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import { LoginMutation } from './AuthMutations/LoginMutation';
@@ -106,11 +6,13 @@ import AuthInputLabel from '../UI/AuthInputLabel';
 import { setItem } from '../utils/localStorage';
 import { cookieStorage } from '@src/utils/cookie-storage';
 import { useSignInWithGoogle } from '@src/modules/auth/hooks/useSignInWithGoogle';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { tokenPairState } from '@src/modules/auth/states/tokenPairState';
 import { useAuth } from '@src/modules/auth/hooks/useAuth';
 import { workspacesState } from '@src/modules/auth/states/workspaces';
 import { useVerifyLoginToken } from '@src/modules/auth/hooks/useVerifyLoginToken';
+import { useAtomValue } from 'jotai';
+import { currentWorkspaceIdState } from '@src/modules/auth/states/currentWorkspaceIdState';
 
 function Login() {
   const [TokenPair, setTokenPair] = useRecoilState(tokenPairState);
@@ -118,16 +20,18 @@ function Login() {
   const setWorkspaces = useSetRecoilState(workspacesState);
   const [login, { data, loading, error }] = useMutation(LoginMutation);
   const navigate = useNavigate();
-      const { verifyLoginToken } = useVerifyLoginToken();
+  const { verifyLoginToken } = useVerifyLoginToken();
+  const workspaceId = useRecoilValue(currentWorkspaceIdState);
+  
 
 
   useEffect(() => {
     // const accessToken = Cookies.get('accessToken');
     const accessToken = cookieStorage.getItem('accessToken')
-    if (accessToken) {
-      navigate('/dashboard')
+    if (accessToken && workspaceId) {
+      navigate(`/w/${workspaceId}/dashboard`)
     }
-  }, [navigate])
+  }, [workspaceId])
 
   const [authForm, setAuthForm] = useState({
     email: '',
@@ -167,11 +71,11 @@ function Login() {
 
       setWorkspaces(response.data.login.workspaces)
 
-      const token : string = response.data.login.accessToken.token;
+      const token: string = response.data.login.accessToken.token;
       // const expiresAt = response.data.login.accessToken.expiresAt;
-console.log(token,'tokentokentoken....................');
+      console.log(token, 'tokentokentoken....................');
 
-      verifyLoginToken(token)
+      await verifyLoginToken(token)
 
       // setTokenPair({
       //     accessToken: {
@@ -185,7 +89,6 @@ console.log(token,'tokentokentoken....................');
       //     token
       //   ),
       // );
-      navigate('/dashboard')
     } catch (err) {
       console.error('Error logging in:', err);
     }

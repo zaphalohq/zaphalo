@@ -24,13 +24,13 @@ import LoadingPage from 'src/components/UI/Loadingpage';
 const routes = createRoutesFromElements(
   <Route>
     <Route path="/register" element={<Register />} />
-    <Route path="/register/:token" element={<Register />} />
+    <Route path="/register/:workspaceInviteToken" element={<Register />} />
     <Route path="/invite/:workspaceInviteToken" element={<SignUpPage />} />
     <Route path="/verify" element={<VerifyLoginTokenEffect />} />
     <Route path='/login' element={<Login />} />
     <Route path='/login2' element={<SignUpPage />} />
     <Route element={<ProtectedRoute />}>
-      <Route path="/" element={<MainLayout />}>
+      <Route path="/w/:workspaceId" element={<MainLayout />}>
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="workspace" element={<Workspace />} />

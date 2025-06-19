@@ -5,7 +5,13 @@ import { getRequest } from 'src/utils/extract-request';
 export const AuthWorkspace = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     const request = getRequest(ctx);
-
-    return request.user.workspace;
+    const user = request.user
+    const workspaceId = request.headers['x-workspace-id'];
+    const currentUserWorkspace = user.user.workspaces.find(
+      (userWorkspace) => userWorkspace.workspace.id === workspaceId,
+    );
+    console.log("...........................user.user....................", currentUserWorkspace ? currentUserWorkspace.workspace : user.user.workspaces[0].workspace);
+    
+    return  currentUserWorkspace ? currentUserWorkspace.workspace : user.user.workspaces[0].workspace;
   },
 );

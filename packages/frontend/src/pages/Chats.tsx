@@ -50,7 +50,6 @@ const Chats = () => {
   useEffect(() => {
     console.log(location.pathname, "..........................................................................................");
     if (location.pathname == './chats') navigate(0)
-
   }, [])
   return (
     <div className="bg-[#DDDCD1] border-stone-50 border-b-2 md:mt-0 mt-4 flex flex-col">
