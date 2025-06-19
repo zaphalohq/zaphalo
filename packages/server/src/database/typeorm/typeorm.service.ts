@@ -8,21 +8,10 @@ import { User } from 'src/modules/user/user.entity';
 import { WhatsappInstants } from 'src/modules/whatsapp/Instants.entity';
 import { Workspace } from 'src/modules/workspace/workspace.entity';
 import { WorkspaceMember } from 'src/modules/workspace/workspaceMember.entity';
+import { DataSource, Connection, createConnection, getConnectionManager } from 'typeorm';
+import { typeORMWorkspaceModuleOptions } from 'src/database/typeorm/workspace/workspace.datasource';
+import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
-
-
-import { DataSource } from 'typeorm';
-
-// import { EnvironmentService } from 'src/constro/integrations/environment/environment.service';
-// import { DataSourceEntity } from 'src/constro/metadata-modules/data-source/data-source.entity';
-// import { User } from 'src/constro/modules/user/user.entity';
-
-// import { Workspace } from 'src/engine/core-modules/workspace/workspace.entity';
-// import { AppToken } from 'src/engine/core-modules/app-token/app-token.entity';
-// import { FeatureFlagEntity } from 'src/engine/core-modules/feature-flag/feature-flag.entity';
-// import { BillingSubscription } from 'src/engine/core-modules/billing/entities/billing-subscription.entity';
-// import { BillingSubscriptionItem } from 'src/engine/core-modules/billing/entities/billing-subscription-item.entity';
-// import { UserWorkspace } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
 
 @Injectable()
 export class TypeORMService implements OnModuleInit, OnModuleDestroy {
@@ -67,62 +56,23 @@ export class TypeORMService implements OnModuleInit, OnModuleDestroy {
     return this.mainDataSource;
   }
 
-//   public async connectToDataSource(
-//     dataSource: DataSourceEntity,
-//   ): Promise<DataSource | undefined> {
-//     const isMultiDatasourceEnabled = false;
+  public async getWorkspaceConnection(
+    schema: string,
+  ): Promise<DataSource> {
+    const connectionName = schema;
+    const connectionManager = getConnectionManager();
 
-//     if (isMultiDatasourceEnabled) {
-//       // Wait for a bit before trying again if another initialization is in progress
-//       while (this.isDatasourceInitializing.get(dataSource.id)) {
-//         await new Promise((resolve) => setTimeout(resolve, 10));
-//       }
+    if (connectionManager.has(connectionName)) {
+      const connection = connectionManager.get(connectionName);
+      return Promise.resolve(connection.isConnected ? connection : connection.connect());
+    }
 
-//       if (this.dataSources.has(dataSource.id)) {
-//         return this.dataSources.get(dataSource.id);
-//       }
-
-//       this.isDatasourceInitializing.set(dataSource.id, true);
-
-//       try {
-//         const dataSourceInstance =
-//           await this.createAndInitializeDataSource(dataSource);
-
-//         this.dataSources.set(dataSource.id, dataSourceInstance);
-
-//         return dataSourceInstance;
-//       } finally {
-//         this.isDatasourceInitializing.delete(dataSource.id);
-//       }
-//     }
-
-//     return this.mainDataSource;
-//   }
-
-//   private async createAndInitializeDataSource(
-//     dataSource: DataSourceEntity,
-//   ): Promise<DataSource> {
-//     const schema = dataSource.schema;
-
-//     const workspaceDataSource = new DataSource({
-//       url: dataSource.url ?? 'postgres://vipul-patel:123@localhost:5433/default',
-//       type: 'postgres',
-//       // logging: this.environmentService.get('DEBUG_MODE')
-//       //   ? ['query', 'error']
-//       //   : ['error'],
-//       schema,
-//       // ssl: this.environmentService.get('PG_SSL_ALLOW_SELF_SIGNED')
-//       //   ? {
-//       //       rejectUnauthorized: false,
-//       //     }
-//       //   : undefined,
-//       ssl: undefined,
-//     });
-
-//     await workspaceDataSource.initialize();
-
-//     return workspaceDataSource;
-//   }
+    return createConnection({
+      ...(typeORMWorkspaceModuleOptions as PostgresConnectionOptions),
+      name: connectionName,
+      schema: connectionName,
+    });
+  }
 
   public async disconnectFromDataSource(dataSourceId: string) {
     if (!this.dataSources.has(dataSourceId)) {

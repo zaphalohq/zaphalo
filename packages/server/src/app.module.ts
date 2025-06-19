@@ -9,6 +9,7 @@ import { GraphQLConfigService } from './modules/api/graphql-config/graphql-confi
 import { CoreModule } from './modules/core.module';
 import { instantsModule } from './modules/whatsapp/instants.module';
 
+
 @Module({
   imports: [
     GraphQLModule.forRootAsync<YogaDriverConfig>({
