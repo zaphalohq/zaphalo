@@ -13,25 +13,25 @@ import { workspacesState } from '@src/modules/auth/states/workspaces';
 import { useVerifyLoginToken } from '@src/modules/auth/hooks/useVerifyLoginToken';
 import { useAtomValue } from 'jotai';
 import { currentWorkspaceIdState } from '@src/modules/auth/states/currentWorkspaceIdState';
+import { currentUserWorkspaceState } from '@src/modules/auth/states/currentUserWorkspaceState';
 
 function Login() {
-  const [TokenPair, setTokenPair] = useRecoilState(tokenPairState);
+  const [ currentUserWorkspace ] = useRecoilState(currentUserWorkspaceState);
   const { signInWithGoogle } = useSignInWithGoogle();
   const setWorkspaces = useSetRecoilState(workspacesState);
   const [login, { data, loading, error }] = useMutation(LoginMutation);
   const navigate = useNavigate();
   const { verifyLoginToken } = useVerifyLoginToken();
-  const workspaceId = useRecoilValue(currentWorkspaceIdState);
   
 
 
   useEffect(() => {
     // const accessToken = Cookies.get('accessToken');
     const accessToken = cookieStorage.getItem('accessToken')
-    if (accessToken && workspaceId) {
-      navigate(`/w/${workspaceId}/dashboard`)
+    if (accessToken && currentUserWorkspace) {
+      navigate(`/w/${currentUserWorkspace.id}/dashboard`)
     }
-  }, [workspaceId])
+  }, [currentUserWorkspace])
 
   const [authForm, setAuthForm] = useState({
     email: '',
