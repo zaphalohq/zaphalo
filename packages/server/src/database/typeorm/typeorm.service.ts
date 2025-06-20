@@ -8,9 +8,11 @@ import { User } from 'src/modules/user/user.entity';
 import { WhatsappInstants } from 'src/modules/whatsapp/Instants.entity';
 import { Workspace } from 'src/modules/workspace/workspace.entity';
 import { WorkspaceMember } from 'src/modules/workspace/workspaceMember.entity';
-import { DataSource, Connection, createConnection, getConnectionManager } from 'typeorm';
+import { DataSource, Connection, createConnection, getConnectionManager, DataSourceOptions } from 'typeorm';
 import { typeORMWorkspaceModuleOptions } from 'src/database/typeorm/workspace/workspace.datasource';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
+
+// export const workspaceConnections: { [schemaName: string]: DataSource } = {};
 
 
 @Injectable()
@@ -67,11 +69,15 @@ export class TypeORMService implements OnModuleInit, OnModuleDestroy {
       return Promise.resolve(connection.isConnected ? connection : connection.connect());
     }
 
-    return createConnection({
-      ...(typeORMWorkspaceModuleOptions as PostgresConnectionOptions),
+    const dataSource = new DataSource({
+      ...typeORMWorkspaceModuleOptions,
       name: connectionName,
       schema: connectionName,
-    });
+      // poolSize: MAX_CONNECTION_POOL_SIZE,
+    } as DataSourceOptions);
+
+    return await dataSource.initialize();
+
   }
 
   public async disconnectFromDataSource(dataSourceId: string) {

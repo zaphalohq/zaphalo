@@ -10,7 +10,7 @@ export const typeORMWorkspaceModuleOptions: TypeOrmModuleOptions = {
   type: 'postgres',
   logging: ['error'],
   entities: [
-    `${isJest ? '' : 'dist/'}/workspace-modules/**/*.entity{.ts,.js}`,
+    `${isJest ? '' : 'dist/'}/customer-modules/**/*.entity{.ts,.js}`,
   ],
   synchronize: false,
   migrationsRun: false,
@@ -27,6 +27,6 @@ export const typeORMWorkspaceModuleOptions: TypeOrmModuleOptions = {
       : undefined,
 };
 
-// export const connectionSource = new DataSource(
+// export const workspaceConnectionSource = new DataSource(
 //   typeORMWorkspaceModuleOptions as DataSourceOptions,
 // );
