@@ -3,6 +3,8 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 import { typeORMCoreModuleOptions } from './core/core.datasource';
 import { TypeORMService } from './typeorm.service';
+import { typeORMWorkspaceModuleOptions } from 'src/database/typeorm/workspace/workspace.datasource';
+
 // import { EnvironmentModule } from 'src/constro/integrations/environment/environment.module';
 
 // import { TypeORMService } from './typeorm.service';
@@ -19,9 +21,9 @@ const coreTypeORMFactory = async (): Promise<TypeOrmModuleOptions> => ({
 });
 
 
-
 @Module({
   imports: [
+    TypeOrmModule.forRoot(typeORMWorkspaceModuleOptions),
     TypeOrmModule.forRootAsync({
       useFactory: coreTypeORMFactory,
       name: 'core',
