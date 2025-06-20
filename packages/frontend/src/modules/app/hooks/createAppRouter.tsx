@@ -19,10 +19,30 @@ import VerifyLoginTokenEffect from 'src/modules/auth/pages/VerifySignInPage';
 import Broadcast from 'src/pages/Broadcast';
 import MailingList from 'src/pages/MailingList';
 import LoadingPage from 'src/components/UI/Loadingpage';
+import { ApolloProvider } from '@apollo/client'
+import client from 'src/components/AppolloClientConnection/apolloClient'
+import GetCurrentUserWrapper from 'src/modules/customWrapper/GetCurrentUserWrapper';
+import { Outlet, useLocation } from 'react-router-dom';
+import { PageTitle } from 'src/modules/ui/components/PageTitle';
+
+
+export const AppRouterProviders = () => {
+  // const { pathname } = useLocation();
+  // const pageTitle = getPageTitleFromPath(pathname);
+  const pageTitle = "YaariAPI";
+
+  return (
+      <ApolloProvider client={client}>
+        <GetCurrentUserWrapper/>
+        <PageTitle title={pageTitle} />
+        <Outlet />
+      </ApolloProvider>
+  );
+};
 
 
 const routes = createRoutesFromElements(
-  <Route>
+  <Route element={<AppRouterProviders />} loader={async () => Promise.resolve(null)}>
     <Route index element={<Navigate to="/login" replace />} />
     <Route path="/register" element={<Register />} />
     <Route path="/register/:workspaceInviteToken" element={<Register />} />
