@@ -3,6 +3,7 @@ import { Outlet, useLocation } from "react-router-dom"
 import { useState } from "react"
 import Sidebar from "@components/MainLayout/Sidebar/Sidebar"
 import Navbar from "@components/MainLayout/Navbar/Navbar"
+import WorkspaceSetup from "@src/components/UI/WorkspaceSetup"
 
 // const MainLayout = () => {
 //   const [isToggleActivated, setIsToggleActivated] = useState(false)
@@ -33,18 +34,10 @@ const MainLayout = () => {
   const location = useLocation();
   return (
     <div className="grid md:grid-cols-[260px_1fr] min-h-screen w-full bg-blacky-900 p-5 overflow-hidden ">
-      {/* Sidebar */}
       <Sidebar HandleToggleButton={HandleToggleButton} isToggleActivated={isToggleActivated} />
-      
-      {/* Main Content */}
+      {/* <WorkspaceSetup /> */}
       <div className="w-full overflow-hidden  rounded-2xl">
         <div className={`${isToggleActivated ? 'hidden md:block' : 'md:block'} md:block w-full h-full`}>
-        {/* <Navbar HandleToggleButton={HandleToggleButton} location={location} />
-          {location.pathname !== '/chats' ? <Navbar HandleToggleButton={HandleToggleButton} location={location} />
-           : <div className="md:hidden"><Navbar HandleToggleButton={HandleToggleButton} location={location} /></div>
-           }
-           */}
-          {/* Outlet takes full width and prevents overflow */}
           <div className="w-full h-full overflow-hidden bg-white">
             <Outlet />
           </div>

@@ -67,8 +67,7 @@
   "type": "module",
   "workspaces": [
     "packages/frontend",
-    "packages/server",
-    "packages/front"
+    "packages/server"
   ],
   "packageManager": "yarn@4.7.0"
 }

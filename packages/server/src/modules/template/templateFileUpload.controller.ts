@@ -9,7 +9,7 @@ import { Template } from './template.entity';
 import { TemplateService } from './template.service';
 import { Context } from '@nestjs/graphql';
 import { GqlAuthGuard } from '../auth/guards/gql-auth.guard';
-import { instantsService } from '../whatsapp/instants.service';
+import { instantsService } from '../instants/instants.service';
 
 
 @Controller('templateFileUpload')

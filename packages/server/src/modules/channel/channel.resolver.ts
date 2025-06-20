@@ -7,7 +7,7 @@ import { Message } from "./message.entity";
 import { Request, UseGuards } from "@nestjs/common";
 import { GqlAuthGuard } from "../auth/guards/gql-auth.guard";
 import { SendMessageInput, SendMessageResponse } from "./dto/SendMessageInputDto";
-import { instantsService } from "../whatsapp/instants.service";
+import { instantsService } from "../instants/instants.service";
 
 @Resolver(() => Channel)
 export class ChannelResolver {

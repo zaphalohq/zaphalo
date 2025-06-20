@@ -2,7 +2,7 @@ import { UserWorkspace } from 'src/generated/graphql';
 import { createState } from 'src/utils/createState';
 
 export type CurrentUserWorkspace = Pick<
-  UserWorkspace, 'id' | 'name'
+  UserWorkspace, 'id' | 'name'| 'isWorkspaceSetup'
 >;
 
 export const currentUserWorkspaceState =

@@ -17,7 +17,6 @@ import { User } from '../user/user.entity';
 import { Channel } from '../channel/channel.entity';
 import { WorkspaceMember } from './workspaceMember.entity';
 
-// Workspace Entity
 @Entity({ name: 'workspace', schema: 'core' })
 @ObjectType('Workspace')
 export class Workspace {
@@ -40,6 +39,14 @@ export class Workspace {
   @Field(() => String)
   @CreateDateColumn()
   createdAt: Date;
+
+  @Field(() => Boolean)
+  @Column({type: 'boolean', nullable: true, default : false})
+  isWorkspaceSetup: boolean;
+
+  @Field(() => String)
+  @Column({nullable: true})
+  profileImg: string;
 
   @Field(() => String)
   @UpdateDateColumn()

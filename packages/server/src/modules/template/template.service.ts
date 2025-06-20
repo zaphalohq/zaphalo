@@ -6,7 +6,7 @@ import { WorkspaceService } from "../workspace/workspace.service";
 import { Template } from "./template.entity";
 import cron from 'node-cron';
 import { TemplateRequestInput } from "./dto/TemplateRequestInputDto";
-import { instantsService } from "../whatsapp/instants.service";
+import { instantsService } from "../instants/instants.service";
 import fs from 'fs/promises';
 import { log } from "console";
 import { MailingListService } from "../mailingList/mailingList.service";

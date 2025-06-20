@@ -9,7 +9,7 @@ import axios from 'axios';
 import { TemplateService } from "../template/template.service";
 import { BroadcastContacts } from "./broadcastContacts.entity";
 import cron from 'node-cron';
-import { instantsService } from "../whatsapp/instants.service";
+import { instantsService } from "../instants/instants.service";
 
 
 

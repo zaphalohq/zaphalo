@@ -5,7 +5,7 @@ import { Message } from 'src/modules/channel/message.entity';
 import { Contacts } from 'src/modules/contacts/contacts.entity';
 import { Template } from 'src/modules/template/template.entity';
 import { User } from 'src/modules/user/user.entity';
-import { WhatsappInstants } from 'src/modules/whatsapp/Instants.entity';
+import { WhatsappInstants } from 'src/modules/instants/Instants.entity';
 import { Workspace } from 'src/modules/workspace/workspace.entity';
 import { WorkspaceMember } from 'src/modules/workspace/workspaceMember.entity';
 
