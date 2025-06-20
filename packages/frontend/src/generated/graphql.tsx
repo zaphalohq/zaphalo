@@ -234,6 +234,7 @@ export type User = {
   id: Scalars['UUID'];
   firstName: Scalars['String'];
   lastName: Scalars['String'];
+  isWorkspaceSetup: Scalars['Boolean']
   currentUserWorkspace?: Maybe<UserWorkspace>;
 };
 
@@ -242,6 +243,7 @@ export type UserWorkspace = {
   id: Scalars['UUID'];
   name: Scalars['String'];
   role: Scalars['String'];
+  isWorkspaceSetup: Scalars['Boolean']
 };
 
 export type Workspace = {
@@ -322,6 +324,7 @@ export const UserQueryFragmentFragmentDoc = gql`
     currentWorkspace {
       id
       name
+      isWorkspaceSetup
     }
     workspaces {
       id

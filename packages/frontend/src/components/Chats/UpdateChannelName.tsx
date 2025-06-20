@@ -12,7 +12,7 @@ const UpdateChannelName = () => {
   const { isUpdateChannelName, setIsUpdateChannelName }: any = useContext(ChatsContext)
   const [channelNameChange, setChannelNameChange] = useState("")
   const [UpdateChannel] = useMutation(updateChannelNameById)
-  const { chatsDetails, setChatsDetails } : any = useContext(ChatsContext)
+  const { chatsDetails } : any = useContext(ChatsContext)
   const HandleUpdateChannelName = async (event : FormEvent) => {
     // event.preventDefault();
     console.log(channelNameChange);

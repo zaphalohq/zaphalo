@@ -7,7 +7,7 @@ import { TemplateService } from "./template.service";
 import { TemplateResolver } from "./template.resolver";
 import { WorkspaceModule } from "../workspace/workspace.module";
 import { TemplateFileUpload } from "./templateFileUpload.controller";
-import { instantsModule } from "../whatsapp/instants.module";
+import { instantsModule } from "../instants/instants.module";
 import { TypeORMModule } from "../../database/typeorm/typeorm.module";
 import { MailingListModule } from "../mailingList/mailingList.module";
 

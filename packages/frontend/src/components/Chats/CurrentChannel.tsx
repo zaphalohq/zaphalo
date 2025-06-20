@@ -38,8 +38,8 @@ const CurrentChannel = ({ channelName, channelId, memberIds, unseen, setIsChanne
       channelName,
       channelId,
       memberIds: allMemberNumbers,
-      receiverId: receiverNumbers,
-      phoneNo: receiverNumbers[0]
+      receiverId: allMemberNumbers,
+      phoneNo: receiverNumbers
     }
 
     await setChatsDetails(currentChannel)

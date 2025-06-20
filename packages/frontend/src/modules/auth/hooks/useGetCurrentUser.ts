@@ -7,12 +7,14 @@ import { currentUserWorkspaceState } from '../states/currentUserWorkspaceState';
 import { workspacesState } from '../states/workspaces';
 import { isDefined } from 'src/utils/validation/isDefined';
 import { useSetRecoilState } from 'recoil';
+import { currentWorkspaceIdState } from '../states/currentWorkspaceIdState';
 
 
 export const useGetCurrentUser = () => {
   const [getCurrentUser] = useGetCurrentUserLazyQuery();
   const setCurrentUser = useSetRecoilState(currentUserState);
   const setCurrentUserWorkspace = useSetRecoilState(currentUserWorkspaceState);
+  const setCurrentWorkspaceId = useSetRecoilState(currentWorkspaceIdState)
   const setWorkspaces = useSetRecoilState(workspacesState);
   const loadCurrentUser = useCallback(async () => {
     const currentUserResult = await getCurrentUser({
@@ -21,13 +23,20 @@ export const useGetCurrentUser = () => {
 
     const user = currentUserResult.data?.currentUser;
 
-    if(!user) throw Error("user not found")
+    if (!user) throw Error("user not found")
     setCurrentUser(user);
 
     // const currentUserWorkspace =  user?.currentUserWorkspace
     // if(!currentUserWorkspace) throw Error('currentUserWorkspace doesnt exist in useAuth')
     if (isDefined(user?.currentWorkspace)) {
       setCurrentUserWorkspace(user?.currentWorkspace);
+      // const path = window.location.pathname;
+      // const segments : string[] = path.split('/');
+      // if (segments.length > 2 && segments[1] === 'w') {
+        // setCurrentWorkspaceId(segments[2] ?? null)
+      // } else {
+        // setCurrentWorkspaceId(user?.currentWorkspace?.id)
+      // }
     }
 
     if (isDefined(user.workspaces)) {
@@ -41,7 +50,7 @@ export const useGetCurrentUser = () => {
       setWorkspaces(validWorkspaces);
     }
 
-  },[]);
+  }, []);
 
 
 

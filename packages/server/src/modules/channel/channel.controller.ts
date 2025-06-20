@@ -10,7 +10,7 @@ import { ContactsService } from '../contacts/contacts.service';
 import { GqlAuthGuard } from '../auth/guards/gql-auth.guard';
 import axios from 'axios'
 import { Context } from '@nestjs/graphql';
-import { instantsService } from '../whatsapp/instants.service';
+import { instantsService } from '../instants/instants.service';
 
 const token = 'my-token'
 

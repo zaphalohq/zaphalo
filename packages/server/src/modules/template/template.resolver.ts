@@ -9,7 +9,7 @@ import { TemplateResponseDto } from "./dto/TemplateResponseDto";
 import { TemplateRequestInput } from "./dto/TemplateRequestInputDto";
 import { Template } from "./template.entity";
 import { TemplateService } from "./template.service";
-import { instantsService } from "../whatsapp/instants.service";
+import { instantsService } from "../instants/instants.service";
 import { TemplateWhatsappReq } from "./dto/TemplateWhatsappReq";
 
 @Resolver(() => Template)

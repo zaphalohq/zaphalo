@@ -6,7 +6,7 @@ import { BroadcastService } from "./broadcast.service";
 import { BroadcastResolver } from "./broadcast.resolver";
 import { WorkspaceModule } from "../workspace/workspace.module";
 import { Broadcast } from "./broadcast.entity";
-import { instantsModule } from "../whatsapp/instants.module";
+import { instantsModule } from "../instants/instants.module";
 import { MailingListModule } from "../mailingList/mailingList.module";
 import { TemplateModule } from "../template/template.module";
 import { BroadcastContacts } from "./broadcastContacts.entity";

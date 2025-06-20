@@ -7,7 +7,7 @@ import { TypeORMModule } from './database/typeorm/typeorm.module';
 import { GraphQLConfigModule } from './modules/api/graphql-config/graphql-config.module';
 import { GraphQLConfigService } from './modules/api/graphql-config/graphql-config.service';
 import { CoreModule } from './modules/core.module';
-import { instantsModule } from './modules/whatsapp/instants.module';
+import { instantsModule } from './modules/instants/instants.module';
 import { CustomerModule } from 'src/customer-modules/customer.module';
 
 @Module({

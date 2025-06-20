@@ -4,8 +4,8 @@ import { MessageSquare, Users2, Layout, TrendingUp, Workflow } from 'lucide-reac
 import MetricsCards from '@components/UI/MetricsCards';
 import { useQuery } from '@apollo/client';
 import { findCountForDash } from './Mutation/Dashboard';
-import Workspace from './Workspace';
-import { getItem } from '@components/utils/localStorage';
+import { useRecoilState } from 'recoil';
+import { currentUserWorkspaceState } from '@src/modules/auth/states/currentUserWorkspaceState';
 
 interface MetricsData {
   totalChannels: number;
@@ -20,6 +20,7 @@ interface ChartDataPoint {
 }
 
 const Dashboard: React.FC = () => {
+  const [ currentUserWorkspace ] = useRecoilState(currentUserWorkspaceState);
   const [metrics, setMetrics] = useState<MetricsData>({
     totalChannels: 0,
     totalMessages: 0,
@@ -28,7 +29,7 @@ const Dashboard: React.FC = () => {
 
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const { data, refetch, loading } = useQuery(findCountForDash, {
-    variables: { workspaceId: sessionStorage.getItem('workspaceId') }
+    variables: { workspaceId: currentUserWorkspace?.id }
   })
 
   // Simulate data loading with a slight delay

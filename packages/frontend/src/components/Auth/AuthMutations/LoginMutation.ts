@@ -2,8 +2,8 @@
 import { gql } from '@apollo/client';
 
 export const LoginMutation = gql`
-  mutation Login($email: String!, $password: String!) {
-    login(authInput: { email: $email, password: $password }) {
+  mutation Login($email: String!, $password: String!, $inviteToken: String) {
+    login(authInput: { email: $email, password: $password, inviteToken: $inviteToken }) {
       workspaceIds
     accessToken {
       expiresAt

@@ -7,4 +7,7 @@ export class AuthInput {
 
   @Field()
   password: string;
+
+  @Field({ nullable : true })
+  inviteToken?: string;
 }

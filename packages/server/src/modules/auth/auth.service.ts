@@ -55,7 +55,7 @@ export class AuthService {
     return user;
   }
 
-  async login(user: any) {
+  async login(user: any, inviteToken?: string) {
     const workspaces = await this.workspaceService.getOrCreateWorkspaceForUser(user.id);
     const WorkspaceIds = workspaces.map(workspace => workspace.id);
     const payload = {
@@ -78,13 +78,22 @@ export class AuthService {
 
 
     console.log(workspaces[0].id, '....workspaces..................................');
-// if(!currentWorkspace) throw Error("current Workspace not found")
+    // if(!currentWorkspace) throw Error("current Workspace not found")
     const loginToken = await this.generateLoginToken(
-        user.email,
-        workspaces[0].id
-      );
-      console.log(loginToken,"...................");
+      user.email,
+      workspaces[0].id
+    );
+    console.log(loginToken, "...................");
+
+
+    if (inviteToken) {
+      const userId = await user.id
+      const workspace = await this.workspaceService.getOrCreateWorkspaceForUser(userId, inviteToken)
+      console.log(workspace,'getOrCreateWorkspaceForUsergetOrCreateWorkspaceForUsergetOrCreateWorkspaceForUser');
       
+      
+    }
+
     return {
       access_token: this.jwtService.sign(payload),
       workspaceIds: JSON.stringify(WorkspaceIds),
@@ -319,7 +328,7 @@ export class AuthService {
       sub: email,
       workspaceId,
     };
-    
+
 
     const token = {
       token: this.jwtService.sign(jwtPayload, {

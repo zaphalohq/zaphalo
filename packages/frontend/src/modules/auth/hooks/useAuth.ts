@@ -20,9 +20,10 @@ import {
   useGotoRecoilSnapshot,
   useRecoilCallback,
   useRecoilState,
+  useRecoilValue,
   useSetRecoilState,
 } from 'recoil';
-
+import { currentWorkspaceIdState } from '../states/currentWorkspaceIdState';
 
 export const useAuth = () => {
   const { redirect } = useRedirect();
@@ -38,6 +39,10 @@ export const useAuth = () => {
 
   const client = useApolloClient();
   const goToRecoilSnapshot = useGotoRecoilSnapshot();
+
+  const setCurrentWorkspaceId = useSetRecoilState(currentWorkspaceIdState)
+
+    const workspaceId = useRecoilValue(currentWorkspaceIdState);
 
   const buildRedirectUrl = useCallback(
     (
@@ -69,6 +74,7 @@ export const useAuth = () => {
     // if(!currentUserWorkspace) throw Error('currentUserWorkspace doesnt exist in useAuth')
     if (isDefined(user?.currentWorkspace)) {
       setCurrentUserWorkspace(user?.currentWorkspace);
+      setCurrentWorkspaceId(user?.currentWorkspace?.id)
     }
 
     if (isDefined(user.workspaces)) {
@@ -145,8 +151,9 @@ export const useAuth = () => {
       );
 
       
-      loadCurrentUser();
-      navigate('/dashboard')
+      await loadCurrentUser();
+
+      navigate('/login')
     }
   ,[]);
 

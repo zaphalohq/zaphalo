@@ -23,8 +23,9 @@ export class AuthResolver {
     if (!user) {
       throw new Error('Invalid credentials');
     }
+    console.log(authInput?.inviteToken,'.................................');
     
-    return this.authService.login(user);
+    return this.authService.login(user, authInput?.inviteToken);
   }
 
   @Mutation(() => User)
@@ -36,6 +37,7 @@ export class AuthResolver {
     }
 
     const inviteToken = Register.inviteToken
+    console.log(inviteToken, user,"inviteTokeninviteTokeninviteTokeninviteTokeninviteTokeninviteToken");
 
     if (inviteToken) {
       const userId = await user.id

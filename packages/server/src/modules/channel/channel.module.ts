@@ -15,7 +15,7 @@ import { UserModule } from "../user/user.module";
 import { User } from "../user/user.entity";
 import { fileupload } from "./fileupload.controller";
 import { WorkspaceModule } from "../workspace/workspace.module";
-import { instantsModule } from "../whatsapp/instants.module";
+import { instantsModule } from "../instants/instants.module";
 import { TypeORMModule } from "../../database/typeorm/typeorm.module";
 
 @Module({
