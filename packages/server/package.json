@@ -11,7 +11,7 @@
     "start:prod": "node dist/src/main",
     "command:prod": "node dist/src/command/command",
     "worker:prod": "node dist/src/queue-worker/queue-worker",
-    "database:init:prod": "yarn ts-node ./scripts/setup-db.ts && yarn database:migrate:prod",
+    "database:init:prod": "yarn ts-node ./scripts/setup-db.ts && yarn database:migrate:run",
     "database:migrate:generate": "nx run server:typeorm migration:generate src/database/typeorm/core/migrations/new -d src/database/typeorm/core/core.datasource.ts",
     "database:migrate:run": "nx run server:typeorm migration:run -d src/database/typeorm/core/core.datasource.ts",
     "typeorm": "../../node_modules/typeorm/cli.js",
