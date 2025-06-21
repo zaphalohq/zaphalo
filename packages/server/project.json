@@ -4,6 +4,15 @@
   "projectType": "application",
   "tags": ["scope:backend"],
   "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "options": {
+        "cwd": "packages/twenty-server",
+        "commands": ["rimraf dist", "nest build --path ./tsconfig.build.json"]
+      },
+      "dependsOn": ["^build"]
+    },
     "build:packageJson": {
       "executor": "@nx/js:tsc",
       "options": {
