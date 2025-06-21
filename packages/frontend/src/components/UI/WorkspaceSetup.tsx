@@ -238,7 +238,6 @@ const WorkspaceSetup = () => {
 
     return (
         <>
-            {!currentUserWorkspace?.isWorkspaceSetup ?
                 <div className={`fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4`}>
                     <div className='bg-gray-900 border border-gray-700 max-w-lg w-full rounded-2xl shadow-2xl overflow-hidden'>
                         <div className='relative bg-gradient-to-br from-violet-600/80 via-purple-600/80 to-indigo-600/80 p-8 text-center'>
@@ -329,10 +328,6 @@ const WorkspaceSetup = () => {
                         </div>
                     </div>
                 </div>
-
-                :
-                <></>
-            }
         </>
     )
 }
