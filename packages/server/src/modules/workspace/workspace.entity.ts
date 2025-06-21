@@ -41,7 +41,7 @@ export class Workspace {
   createdAt: Date;
 
   @Field(() => Boolean)
-  @Column({type: 'boolean', nullable: true, default : false})
+  @Column({ nullable: true, default : false})
   isWorkspaceSetup: boolean;
 
   @Field(() => String)

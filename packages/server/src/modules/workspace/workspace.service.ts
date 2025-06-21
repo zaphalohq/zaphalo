@@ -170,8 +170,17 @@ export class WorkspaceService {
     return workspace
   }
 
-  async findAll(): Promise<Workspace[]> {
-    return this.workspaceRepository.find();
+
+  async updateWorkspaceDetails ( workspaceId: string , workspaceName: string, profileImg: string) {
+    const workspace = await this.workspaceRepository.findOne({ where: { id: workspaceId }})
+    console.log(workspace, workspaceId, '.........................................');
+    
+    if(!workspace) throw Error('workspace not found');
+    workspace.name = workspaceName;
+    workspace.profileImg = profileImg;
+    workspace.isWorkspaceSetup = true;
+    await this.workspaceRepository.save(workspace)
+    return workspace
   }
 
 }
