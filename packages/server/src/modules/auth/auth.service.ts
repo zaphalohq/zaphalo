@@ -24,13 +24,14 @@ import {
   SignInUpBaseParams,
   SignInUpNewUserPayload,
 } from 'src/modules/auth/types/signInUp.type';
-
+import { EmailService } from 'src/modules/email/email.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userservice: UserService,
     private jwtService: JwtService,
+    private emailService: EmailService,
     private readonly domainManagerService: DomainManagerService,
     private readonly workspaceService: WorkspaceService,
     private readonly authSsoService: AuthSsoService,
@@ -71,20 +72,16 @@ export class AuthService {
 
     const expiresIn = '7d';
     const expiresAt = addMilliseconds(new Date().getTime(), ms(expiresIn));
-    console.log(users, ".....................................................");
     // const currentWorkspace = users.workspaces.find(
     //   (userWorkspace) => userWorkspace.id === users.id,
     // );
 
 
-    console.log(workspaces[0].id, '....workspaces..................................');
     // if(!currentWorkspace) throw Error("current Workspace not found")
     const loginToken = await this.generateLoginToken(
       user.email,
       workspaces[0].id
     );
-    console.log(loginToken, "...................");
-
 
     if (inviteToken) {
       const userId = await user.id
@@ -216,13 +213,15 @@ export class AuthService {
           params.authParams,
         );
 
-      return await this.signInUpService.signInUp({
+      const { user, workspace } = await this.signInUpService.signInUp({
         ...params,
         userData: {
           type: 'newUserWithPicture',
           newUserWithPicture: partialUserWithPicture,
         },
       });
+      this.emailService.sendUserWelcome(user, '123');
+      return { user, workspace }
     }
 
     return await this.signInUpService.signInUp({
@@ -345,8 +344,6 @@ export class AuthService {
   }
 
   async verifyToken(loginToken: string) {
-
-
     const decodeToken = this.decode(loginToken, {
       json: true,
     });
@@ -355,13 +352,13 @@ export class AuthService {
       secret: this.generateAppSecret('LOGIN', decodeToken.workspaceId),
     });
 
-    const users = await this.userservice.findOneByEmail(payload.sub)
-    if (!users) throw error("this is error of users")
+    const user = await this.userservice.findOneByEmail(payload.sub)
+    if (!user) throw error("this is error of users")
     const payloadfinal = {
-      firstName: users.firstName,
-      lastName: users.lastName,
-      sub: users.id,
-      email: users.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      sub: user.id,
+      email: user.email,
       workspaceId: payload.workspaceId,
       workspaceIds: payload.workspaceId
     };
@@ -376,9 +373,9 @@ export class AuthService {
       },
       workspaceIds: JSON.stringify(payload.workspaceId),
       userDetails: {
-        firstName: users.firstName,
-        lastName: users.lastName,
-        email: users.email
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email
       }
     };
 
@@ -390,9 +387,9 @@ export class AuthService {
       },
       workspaceIds: JSON.stringify(payload.workspaceId),
       userDetails: {
-        firstName: users.firstName,
-        lastName: users.lastName,
-        email: users.email
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email
       }
     };
   }

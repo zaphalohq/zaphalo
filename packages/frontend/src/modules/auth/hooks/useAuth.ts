@@ -127,8 +127,7 @@ export const useAuth = () => {
       const response = await getAuthTokensFromLoginToken({
         variables: { loginToken },
       });
-      console.log(response,'..........................................................dsds.................');
-      
+
       const accessToken = response.data?.getAuthTokensFromLoginToken?.accessToken;
       const token = accessToken?.token;
       if(!token) throw Error("token doesn't exist");
