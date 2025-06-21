@@ -23,6 +23,8 @@ import { Workspace } from "../workspace/workspace.entity";
 import { WorkspaceInvitation } from "../workspace/workspaceInvitation.entity";
 import { WorkspaceMember } from "../workspace/workspaceMember.entity";
 import { WorkspaceMemberService } from "src/modules/workspace/workspaceMember.service";
+import { EmailModule } from "src/modules/email/email.module";
+
 
 @Module({
   imports: [
@@ -39,6 +41,7 @@ import { WorkspaceMemberService } from "src/modules/workspace/workspaceMember.se
         UserModule,
         WorkspaceModule,
         PassportModule,
+        EmailModule,
         JwtModule.register({
           secret: 'secretKey',
           signOptions: { expiresIn: '7d' },

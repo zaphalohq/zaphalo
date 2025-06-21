@@ -10,7 +10,6 @@ export const AuthWorkspace = createParamDecorator(
     const currentUserWorkspace = user.user.workspaces.find(
       (userWorkspace) => userWorkspace.workspace.id === workspaceId,
     );
-    console.log("...........................user.user....................", currentUserWorkspace ? currentUserWorkspace.workspace : user.user.workspaces[0].workspace);
     
     return  currentUserWorkspace ? currentUserWorkspace.workspace : user.user.workspaces[0].workspace;
   },
