@@ -5,6 +5,8 @@ import { Workspace } from "./workspace.entity";
 import { WorkspaceService } from "./workspace.service";
 import { Contacts } from "../contacts/contacts.entity";
 import { WorkspaceDashboardOutput } from "./dto/WorkspaceDashboardOutput";
+import { WorkspaceUpdateInputDto } from "./dto/WorkspaceUpdateInputDto";
+import { WorkspaceResponceDTO } from "./dto/workspaceResponceDTO";
 
 // WorkspaceResolver
 @Resolver(() => Workspace)
@@ -34,6 +36,14 @@ export class workspaceResolver {
   @Query(() => WorkspaceDashboardOutput)
   async findWorkspaceByIdForDash(@Args('workspaceId') workspaceId : string) {
     return this.workspaceService.findWorkspaceByIdForDash(workspaceId)
+  }
+
+  @Mutation(() => WorkspaceResponceDTO)
+  @UseGuards(GqlAuthGuard)
+  async updateWorkspaceDetails(
+    @Args('WorkspaceUpdateInput') WorkspaceUpdateInput: WorkspaceUpdateInputDto,
+  ): Promise<WorkspaceResponceDTO> {
+    return this.workspaceService.updateWorkspaceDetails(WorkspaceUpdateInput.workspaceId, WorkspaceUpdateInput.workspaceName, WorkspaceUpdateInput.profileImg);
   }
 
 }

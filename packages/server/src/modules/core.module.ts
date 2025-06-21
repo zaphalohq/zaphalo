@@ -8,6 +8,7 @@ import { TemplateModule } from './template/template.module';
 import { MailingListModule } from './mailingList/mailingList.module';
 import { BroadcastModule } from './broadcast/broadcast.module';
 import { WorkspaceManagerModule } from 'src/modules/workspace-manager/workspace.manager.module';
+import { FileUploadModule } from './file-upload/fileUpload.module';
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { WorkspaceManagerModule } from 'src/modules/workspace-manager/workspace.
     TemplateModule,
     MailingListModule,
     BroadcastModule,
-    WorkspaceManagerModule
+    WorkspaceManagerModule,
+    FileUploadModule
   ],
   exports: [
     UserModule,
@@ -30,7 +32,8 @@ import { WorkspaceManagerModule } from 'src/modules/workspace-manager/workspace.
     TemplateModule,
     MailingListModule,
     BroadcastModule,
-    WorkspaceManagerModule
+    WorkspaceManagerModule,
+    FileUploadModule
   ],
 })
 export class CoreModule {}

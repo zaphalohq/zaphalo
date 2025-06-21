@@ -10,7 +10,7 @@ import { diskStorage } from 'multer';
 import { log } from 'console';
 import axios from 'axios';
 
-@Controller('fileupload')
+@Controller('fileupload1')
 export class fileupload {
   constructor(
     @InjectRepository(Channel, 'core')
