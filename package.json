@@ -30,6 +30,7 @@
     "zod": "^3.25.55"
   },
   "devDependencies": {
+    "@nestjs-modules/mailer": "^2.0.2",
     "@nx/js": "20.4.2",
     "@nx/web": "20.4.2",
     "@storybook/core-server": "^8.4.6",
