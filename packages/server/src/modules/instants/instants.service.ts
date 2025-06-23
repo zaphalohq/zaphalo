@@ -17,13 +17,17 @@ export class instantsService {
         private readonly contactsService: ContactsService,
     ) { }
 
-    async CreateInstants(WhatsappInstantsData: CreateFormDataInput, workspaceId: string): Promise<WhatsappInstants | null> {
+    async CreateInstants(WhatsappInstantsData: CreateFormDataInput, workspaceId: string): Promise<WhatsappInstants | null | string> {
         console.log(WhatsappInstantsData);
         const workspace = await this.workspaceService.findWorkspaceById(workspaceId)
         if (!workspace) throw new Error("workspace doesnt found")
 
+        const instant = await this.findInstantsByPhoneNoId(WhatsappInstantsData.phoneNumberId)
+        if (instant) {
+            return "Instants already exist with same PhoneNoId"
+        }
+
         const instants = await this.instantsRepository.find({ where: { id: workspaceId } });
-        console.log(instants.length, "...............................");
 
         let defaultSelected = false;
         if (instants.length < 1) {
@@ -47,6 +51,26 @@ export class instantsService {
         await this.instantsRepository.save(whatappInstants)
         return whatappInstants;
     }
+
+    async SyncInstants(phoneNumberId: string, accessToken: string): Promise<any> {
+        try {
+            const url = `https://graph.facebook.com/v22.0/${phoneNumberId}?access_token=${accessToken}`;
+
+            const response = await axios.get(url);
+
+            return {
+                success: true,
+                data: response.data
+            };
+        } catch (error: any) {
+            console.log(error);
+            
+            return {
+                success: false,
+                error: error?.response?.data?.error?.message || error.message
+            };
+        }
+    };
 
     async findAllInstants(workspaceId: string): Promise<WhatsappInstants[]> {
         return await this.instantsRepository.find({
@@ -100,15 +124,15 @@ export class instantsService {
 
     async findInstantsByPhoneNoId(phoneNoId: string): Promise<WhatsappInstants | null> {
         return await this.instantsRepository.findOne({
-            where: { phoneNumberId : phoneNoId },
-            relations: ['workspace'] 
+            where: { phoneNumberId: phoneNoId },
+            relations: ['workspace']
         });
     }
 
-      async findInstantsByInstantsId(instantsId: string): Promise<WhatsappInstants | null> {
+    async findInstantsByInstantsId(instantsId: string): Promise<WhatsappInstants | null> {
         return await this.instantsRepository.findOne({
-            where: { id : instantsId },
-            relations: ['workspace'] 
+            where: { id: instantsId },
+            relations: ['workspace']
         });
     }
 
@@ -154,7 +178,7 @@ export class instantsService {
                                 type: 'image',
                                 image: {
                                     link: 'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png'
-                                  }
+                                }
                             }
                         ]
                     },
@@ -163,7 +187,7 @@ export class instantsService {
                         parameters: [
                             {
                                 type: 'text',
-                                text: 'Chintan Patel' 
+                                text: 'Chintan Patel'
                             }
                         ]
                     }
@@ -233,11 +257,11 @@ export class instantsService {
         // form.append('file', String(fs.createReadStream('uploads\\1746617752805-abc.png')));
         form.append('type', 'image/png');
         form.append('messaging_product', 'whatsapp');
-        console.log(form,"...................................");
-        
-      
+        console.log(form, "...................................");
+
+
         // try {
-          const response = await axios({
+        const response = await axios({
             url: 'https://graph.facebook.com/v22.0/565830889949112/media',
             method: 'POST',
             headers: {
@@ -245,10 +269,10 @@ export class instantsService {
                 'Content-Type': 'multipart/form-data',
             },
             data: form,
-          });
+        });
 
-      
-          return "response.data.id";
+
+        return "response.data.id";
         // } catch (error) {
         //   throw new Error(`Failed to upload file to WhatsApp: ${error.response?.data?.error?.message || error.message}`);
         // }

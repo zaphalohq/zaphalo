@@ -30,7 +30,7 @@
     ],
     "paths": {
       "src/*": [
-        "./src/*"
+        "packages/server/src/*"
       ]
     }
   },

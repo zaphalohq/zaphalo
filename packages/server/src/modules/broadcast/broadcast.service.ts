@@ -2,14 +2,14 @@ import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { In, Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { error, log } from "console";
-import { WorkspaceService } from "../workspace/workspace.service";
+import { WorkspaceService } from "src/modules/workspace/workspace.service";
 import { Broadcast } from "./broadcast.entity";
-import { MailingListService } from "../mailingList/mailingList.service";
+import { MailingListService } from "src/modules/mailingList/mailingList.service";
 import axios from 'axios';
-import { TemplateService } from "../template/template.service";
+import { TemplateService } from "src/modules/template/template.service";
 import { BroadcastContacts } from "./broadcastContacts.entity";
 import cron from 'node-cron';
-import { instantsService } from "../instants/instants.service";
+import { instantsService } from "src/modules/instants/instants.service";
 
 
 

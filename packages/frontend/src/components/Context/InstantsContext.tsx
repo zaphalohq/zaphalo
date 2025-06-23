@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { ChangeEvent, createContext, ReactNode, useState } from "react";
-import { DeleteInstantsMutation, findAllInstants, UpdatedInstants, WhatsappInstantsCreation } from "@pages/Mutation/WhatsappInstants";
+import { DeleteInstantsMutation, findAllInstants, UpdatedInstants, WhatsappInstantsCreation, WhatsappInstantsSyncAndSave } from "@pages/Mutation/WhatsappInstants";
 
 export interface InstantsContectProps {
     instantsData : any,
@@ -13,7 +13,7 @@ export interface InstantsContectProps {
     UpdateInstants : any,
     DeleteInstants : any,
     HandleInputChange : any,
-    HandleFormData : any,
+    HandleCreateInstants : any,
     HandleFormVisibility : any, 
     HandaleFeatchData : any,
     HandleDeleteInstants : any,
@@ -21,6 +21,7 @@ export interface InstantsContectProps {
     loading : any,
     isFormVisible : any,
     refetch : any,
+    HandleSyncAndSaveInstants : any
 }
 
 export const InstantsContext = createContext<InstantsContectProps | undefined>(undefined)
@@ -42,11 +43,12 @@ export const InstantsProvider = ({children} : { children: ReactNode }) => {
 
 	//------------------------Handle Created Instants-------------------
 	const [CreateInstants] = useMutation(WhatsappInstantsCreation);
+	const [SyncAndSaveInstants] = useMutation(WhatsappInstantsSyncAndSave);
+
 	//-----------------------Submitting the data to backend----------------------------
- const HandleFormData = async () => {
-    console.log("......................", formData);
+ const HandleCreateInstants = async () => {
     if (isNewInstants) {
-        // try {
+        try {
             await CreateInstants({
                 variables: {
                     ...formData
@@ -54,9 +56,9 @@ export const InstantsProvider = ({children} : { children: ReactNode }) => {
             })
             HandaleFeatchData()
 
-        // } catch (err) {
-        //     console.error('Error submitting form', err);
-        // }
+        } catch (err) {
+            console.error('Error submitting form', err);
+        }
 
     }
     else {
@@ -73,6 +75,19 @@ export const InstantsProvider = ({children} : { children: ReactNode }) => {
     }
 }
 
+ const HandleSyncAndSaveInstants = async () => {
+        try {
+            await SyncAndSaveInstants({
+                variables: {
+                    ...formData
+                }
+            })
+            HandaleFeatchData()
+
+        } catch (err) {
+            console.error('Error submitting form', err);
+        }
+    }
 	//------------------------Handle Updated Instants-------------------
 	const [UpdateInstants] = useMutation(UpdatedInstants);
 
@@ -136,13 +151,14 @@ export const InstantsProvider = ({children} : { children: ReactNode }) => {
                 UpdateInstants,
                 DeleteInstants,
                 HandleInputChange,
-                HandleFormData,
+                HandleCreateInstants,
                 HandleFormVisibility,
                 HandaleFeatchData,
                 HandleDeleteInstants,
                 data,
                 loading,
                 refetch,
+                HandleSyncAndSaveInstants
             }}>
                 {children}
             </InstantsContext.Provider>

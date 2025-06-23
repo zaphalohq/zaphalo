@@ -39,6 +39,20 @@ export const ContactsProvider = ({ children }: { children: ReactNode }) => {
     const [CreateContact] = useMutation(CreateContactMute);
     //-----------------------Submitting the data to backend----------------------------
     const HandleContactsFormData = async (event: React.FormEvent<HTMLFormElement>) => {
+        console.log({
+                    variables: {
+                        contactName: contactFormData.contactName,
+                        phoneNo: parseFloat(contactFormData.phoneNo),
+                        profileImg: contactFormData.profileImg
+                    }
+                },`{
+                    variables: {
+                        contactName: contactFormData.contactName,
+                        phoneNo: parseFloat(contactFormData.phoneNo),
+                        profileImg: contactFormData.profileImg
+                    }
+                }`);
+        
         event.preventDefault()
         if (isNewContacts) {
             try {
@@ -87,7 +101,9 @@ export const ContactsProvider = ({ children }: { children: ReactNode }) => {
 
     //---------------------------Handle Input Data from form-------------------------
     const HandleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target
+        const { name, value } = e.target;
+        console.log(contactFormData,'/................');
+        
         setContactFormData({
             ...contactFormData,
             [name]: value

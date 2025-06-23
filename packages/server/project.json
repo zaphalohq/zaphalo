@@ -80,7 +80,7 @@
           "commands": [
             "nx ts-node-no-deps-transpile-only -- ./scripts/truncate-db.ts",
             "nx ts-node-no-deps-transpile-only -- ./scripts/setup-db.ts",
-            "nx database:migrate",
+            "nx database:migrate"
           ],
           "parallel": false
         },
@@ -89,13 +89,13 @@
           "commands": [
             "nx ts-node-no-deps-transpile-only -- ./scripts/truncate-db.ts",
             "nx ts-node-no-deps-transpile-only -- ./scripts/setup-db.ts",
-            "nx database:migrate",
+            "nx database:migrate"
           ],
           "parallel": false
         }
       },
       "defaultConfiguration": "seed"
-    },
+    }
     
   }
 }
