@@ -7,16 +7,16 @@ import { ChannelService } from "./channel.service";
 import { channelController } from './channel.controller'
 import { Message } from "./message.entity";
 import { Contacts } from "../contacts/contacts.entity";
-import { ContactsModule } from "../contacts/contacts.module";
+import { ContactsModule } from "src/modules/contacts/contacts.module";
 import { WebSocketService } from "./chat-socket";
 import { ChannelResolver } from "./channel.resolver";
-import { UserService } from "../user/user.service";
-import { UserModule } from "../user/user.module";
-import { User } from "../user/user.entity";
+import { UserService } from "src/modules/user/user.service";
+import { UserModule } from "src/modules/user/user.module";
+import { User } from "src/modules/user/user.entity";
 import { fileupload } from "./fileupload.controller";
-import { WorkspaceModule } from "../workspace/workspace.module";
-import { instantsModule } from "../instants/instants.module";
-import { TypeORMModule } from "../../database/typeorm/typeorm.module";
+import { WorkspaceModule } from "src/modules/workspace/workspace.module";
+import { instantsModule } from "src/modules/instants/instants.module";
+import { TypeORMModule } from "src/database/typeorm/typeorm.module";
 
 @Module({
   imports : [

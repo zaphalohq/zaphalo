@@ -113,14 +113,17 @@
 
 import { useState } from "react";
 import axios from 'axios';
-import { getItem } from "@src/components/utils/localStorage";
 import excel from "@src/assets/excel.png"
 import { FiUpload } from "react-icons/fi";
+import { cookieStorage } from "@src/utils/cookie-storage";
+import { useRecoilState } from "recoil";
+import { currentUserWorkspaceState } from "@src/modules/auth/states/currentUserWorkspaceState";
 // import fdf from "../../public/"
 // import fdf from "../assets/sample_contacts.xlsx"
 const FileUpload = () => {
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState<string>("");
+  const [currentUserWorkspace] = useRecoilState(currentUserWorkspaceState);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -135,12 +138,18 @@ const FileUpload = () => {
 
     const formData = new FormData();
     formData.append("file", file);
-    const workspaceId = sessionStorage.getItem("workspaceId");
+
+    const  workspaceId = currentUserWorkspace?.id;
+    
+    const accessToken = cookieStorage.getItem('accessToken')
+    const authtoken = accessToken ? JSON.parse(accessToken).accessToken : false;
+console.log(authtoken,'accessTokenaccessTokenaccessToken');
+
     try {
       const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/uploadExcel`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          "Authorization": `Bearer ${getItem('access_token')}`,
+          "Authorization": `Bearer ${authtoken.token}`,
           "x-workspace-id": workspaceId,
         },
       });

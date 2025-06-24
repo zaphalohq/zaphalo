@@ -12,7 +12,7 @@ const httpLink = createHttpLink({
 const authLink = setContext((_, { headers }) => {
   const accessToken = cookieStorage.getItem('accessToken')
 
-  let workspaceId = ''
+  let workspaceId = '';
   const path = window.location.pathname;
   const segments = path.split('/');
   if(segments.length > 2 && segments[1] === 'w'){

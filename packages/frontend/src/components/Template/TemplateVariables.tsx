@@ -1,23 +1,32 @@
 import { useContext, useEffect, useState } from "react"
 import { TemplateContext } from "../Context/TemplateContext"
 
-const TemplateVariables = ({ setTemplateData } : any) => {
-  const { templateFormData }: any = useContext(TemplateContext)
-  const [variables, setVariables] = useState([{
-    name: '',
-    value: '',
-  }])
+const TemplateVariables = ({ setTemplateData }: any) => {
+  const { templateFormData, setTemplateFormData }: any = useContext(TemplateContext)
+  const [variables, setVariables] = useState(() => {
+    if (templateFormData.variables?.length > 0) {
+      return [...templateFormData.variables];
+    } else {
+      return [{ name: '', value: '' }];
+    }
+  })
 
-  useEffect(() => {
-    const variableMatches = templateFormData.bodyText.match(/{{\d+}}/g) || [];
-    const newVariables = variableMatches.map((variableName: any) => ({
+useEffect(() => {
+  const variableMatches = templateFormData.bodyText.match(/{{\d+}}/g) || [];
+
+  const newVariables = variableMatches.map((variableName: string) => {
+    const matchedVariable = templateFormData.variables?.find(
+      (v: any) => v.name === variableName
+    );
+
+    return {
       name: variableName,
-      value: '',
-    }));
+      value: matchedVariable ? matchedVariable.value : '',
+    };
+  });
 
-    setVariables(newVariables);
-  }, [templateFormData.bodyText]);
-
+  setVariables(newVariables);
+}, [templateFormData.bodyText]);
 
   const HandleVariableChange = (event: any, index: number) => {
     const variablesCopy = [...variables]
@@ -26,10 +35,11 @@ const TemplateVariables = ({ setTemplateData } : any) => {
     variablesCopy[index] = variableObjChange
     setVariables(variablesCopy)
   }
-  
+
   useEffect(() => {
     setTemplateData((prev: any) => ({ ...prev, variables: variables }))
-  },[variables])
+    setTemplateFormData((prev: any) => ({ ...prev, variables: variables }))
+  }, [variables])
 
   return (
     <div>
@@ -42,12 +52,12 @@ const TemplateVariables = ({ setTemplateData } : any) => {
           </tr>
         </thead>
         <tbody>
-          {variables.map((variable: any, index) =>
+          {variables.map((variable: any, index: number) =>
             <tr key={index} className="border-b border-gray-300">
               <td className="px-4 py-1">Body--{variable.name}</td>
               <td className="px-4 py-1">Yaari{Math.floor(100000 + Math.random() * 900000).toString().slice(0, 3)}</td>
               <td className="px-4 py-1">
-                <input onChange={(event: any) => HandleVariableChange(event, index)} name="value" type="text" placeholder="enter your value" className="px-2 appearance-none outline-none p-1 border-b border-gray-400  bg-transparent" />
+                <input onChange={(event: any) => HandleVariableChange(event, index)} value={variables[index]?.value} name="value" type="text" placeholder="enter your value" className="px-2 appearance-none outline-none p-1 border-b border-gray-400  bg-transparent" />
               </td>
             </tr>)}
         </tbody>

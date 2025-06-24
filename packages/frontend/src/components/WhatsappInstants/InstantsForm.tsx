@@ -5,15 +5,18 @@ import SubmitButton from "@UI/SubmitButton"
 import { FaSyncAlt } from "react-icons/fa"
 import { FiX } from "react-icons/fi"
 import CloseButton from "@UI/CloseButton"
+import { FaSave } from "react-icons/fa";
+import { SiTestrail } from "react-icons/si";
 
 const InstantsForm = () => {
     const {
         setIsNewInstants,
         HandleFormVisibility,
-        HandleFormData,
+        HandleCreateInstants,
         HandaleFeatchData,
         formData,
-        HandleInputChange
+        HandleInputChange,
+		HandleSyncAndSaveInstants
     } : any = useContext(InstantsContext)
   return (
     <div className="fixed inset-0 bg-stone-900/30 flex items-center justify-center">
@@ -28,12 +31,26 @@ const InstantsForm = () => {
 					<InputLabel type="text" name='businessAccountId' value={formData.businessAccountId} HandleInputChange={HandleInputChange} title="Business Account ID" placeholder="Business Account ID" />
 					<InputLabel type="text" name='accessToken' value={formData.accessToken} HandleInputChange={HandleInputChange} title="Access Token" placeholder="Access Token" />
 					<InputLabel type="password" name='appSecret' value={formData.appSecret} HandleInputChange={HandleInputChange} title="App Secret" placeholder="App Secret" />
+					<div className="grid grid-cols-3 col-span-2 gap-4">
 					<SubmitButton type="button" onClick={async () => {
-						await HandleFormData()
+						await HandleCreateInstants()
 						HandleFormVisibility()
 						HandaleFeatchData()
 						setIsNewInstants(false)
-					}} Icon={FaSyncAlt} title='Sync Template' />
+					}} Icon={FaSave} title='Save Template' />
+					<SubmitButton type="button" onClick={async () => {
+						await HandleSyncAndSaveInstants()
+						HandleFormVisibility()
+						HandaleFeatchData()
+						setIsNewInstants(false)
+					}} Icon={FaSyncAlt} title='Save & Sync Template' />
+					<SubmitButton type="button" onClick={async () => {
+						await HandleCreateInstants()
+						HandleFormVisibility()
+						HandaleFeatchData()
+						setIsNewInstants(false)
+					}} Icon={SiTestrail} title='Test Template' />
+					</div>
 				</form>
 			</div>
   )

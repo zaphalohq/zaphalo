@@ -23,7 +23,7 @@ const Sidebar = ({ isToggleActivated, HandleToggleButton }: any) => {
       <AccountToggle />
       <div className={`${isToggleActivated ? '' : 'hidden md:block'} overflow-y-scroll custom-scrollbox custom-scroll sticky top-4 h-[calc(100vh-230px)]`}>
         <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiGrid} to={`/w/${workspaceId}/dashboard`} title={"Dashboard"} />
-        <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiLayers} to={`/w/${workspaceId}/workspace`} title={"Workspace"} />
+        {/* <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiLayers} to={`/w/${workspaceId}/workspace`} title={"Workspace"} /> */}
         <SidebarElement HandleToggleButton={HandleToggleButton} Icon={IoChatbubbleEllipsesOutline} to={`/w/${workspaceId}/chats`} title={"Chats"} />
         <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiRadio} to={`/w/${workspaceId}/broadcast`} title={"Broadcast"} />
         <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiUsers} to={`/w/${workspaceId}/contacts`} title={"Contacts"} />
@@ -35,7 +35,8 @@ const Sidebar = ({ isToggleActivated, HandleToggleButton }: any) => {
           title={"Settings"}
           subItems={[
             { title: "Whatsapp Instants", to: `/w/${workspaceId}/whatsappinstants`, Icon: FiLink },
-            { title: "Template", to: `/w/${workspaceId}/template`, Icon: FiMap }
+            { title: "Template", to: `/w/${workspaceId}/template`, Icon: FiMap },
+            { title: "Workspace", to: `/w/${workspaceId}/workspace`, Icon: FiLayers }
           ]}
         />
       </div>

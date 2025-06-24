@@ -21,7 +21,6 @@ const AccountSelection = ({ templateData, handleInputChange} : any) => {
                 setAllInstants(data?.findAllInstants)
                 refetch();
                 const currentInstants = data?.findAllInstants.filter((instants : any) => instants.defaultSelected == true)
-                console.log(data?.findAllInstants,"currentInstantscurrentInstantscurrentInstantscurrentInstants");
                 
                 
               } 

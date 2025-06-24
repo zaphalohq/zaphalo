@@ -13,10 +13,14 @@ type ButtonData = {
 type ButtonType = 'URL' | 'QUICK_REPLY' | 'PHONE_NUMBER';
 
 const TemplateButton = ({ setTemplateData }: any) => {
-  const { setTemplateFormData }: any = useContext(TemplateContext)
-  const [addButtonData, setAddButtonData] = useState<ButtonData[]>([
-    { type: "URL", text: "" }
-  ]);
+  const { templateFormData,setTemplateFormData }: any = useContext(TemplateContext)
+  const [addButtonData, setAddButtonData] = useState<ButtonData[]>(() => {
+    if(templateFormData.button?.length > 0){
+      return [...templateFormData.button]
+    }else{
+      return [{ type: "URL", text: "" }]
+    }
+  });
 
   const HandelAddButton = () => {
     setAddButtonData([...addButtonData, { text: "", type: "" }])
@@ -30,7 +34,7 @@ const TemplateButton = ({ setTemplateData }: any) => {
   useEffect(() => {
     setTemplateData((prev: any) => ({ ...prev, button: addButtonData }))
     setTemplateFormData((prev: any) => ({ ...prev, button: addButtonData }))
-    // console.log(addButtonData);
+    console.log(templateFormData, '..................from button');
 
   }, [addButtonData])
 

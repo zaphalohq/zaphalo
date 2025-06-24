@@ -4,6 +4,7 @@ import TemplateFooter from "./TemplateFooter"
 import TemplateHeader from "./TemplateHeader"
 
 const TemplateBasic = ({ templateData, handleInputChange, handleFileChange }: any) => {
+  
   return (
     <div>
       <AccountSelection templateData={templateData} handleInputChange={handleInputChange} />
