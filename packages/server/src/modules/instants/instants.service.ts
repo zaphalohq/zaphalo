@@ -24,7 +24,7 @@ export class instantsService {
 
         const instant = await this.findInstantsByPhoneNoId(WhatsappInstantsData.phoneNumberId)
         if (instant) {
-            return "Instants already exist with same PhoneNoId"
+            return instant
         }
 
         const instants = await this.instantsRepository.find({ where: { id: workspaceId } });
@@ -52,25 +52,43 @@ export class instantsService {
         return whatappInstants;
     }
 
-    async SyncInstants(phoneNumberId: string, accessToken: string): Promise<any> {
-        try {
-            const url = `https://graph.facebook.com/v22.0/${phoneNumberId}?access_token=${accessToken}`;
+    // async SyncTemplate(appId: string, accessToken: string): Promise<any> {
+    //     try {
+    //         const response = await axios.get(
+    //             `https://graph.facebook.com/v22.0/${appId}/message_templates`,
+    //             {
+    //                 params: { access_token: accessToken },
+    //             }
+    //         );
+    //         console.log(response.data,'..........rd......................');
 
-            const response = await axios.get(url);
+    //         return response.data.data;
+    //     } catch (err) {
+    //         console.error('Error fetching templates:', err.response?.data || err.message);
+    //         return [];
+    //     }
+    // };
 
-            return {
-                success: true,
-                data: response.data
-            };
-        } catch (error: any) {
-            console.log(error);
-            
-            return {
-                success: false,
-                error: error?.response?.data?.error?.message || error.message
-            };
-        }
-    };
+
+    // async TestInstants(phoneNumberId: string, accessToken: string) {
+    //     try {
+    //         const url = `https://graph.facebook.com/v22.0/${phoneNumberId}?access_token=${accessToken}`;
+
+    //         const response = await axios.get(url);
+
+    //         return {
+    //             success: true,
+    //             data: response.data
+    //         };
+    //     } catch (error: any) {
+    //         console.log(error);
+
+    //         return {
+    //             success: false,
+    //             error: error?.response?.data?.error?.message || error.message
+    //         };
+    //     }
+    // };
 
     async findAllInstants(workspaceId: string): Promise<WhatsappInstants[]> {
         return await this.instantsRepository.find({

@@ -35,8 +35,8 @@ export class instantsResolver {
         console.log(instants && typeof instants !== 'string');
         
         if (instants && typeof instants !== 'string') {
-        const syncinstants =  await this.instantsservice.SyncInstants(instants?.phoneNumberId, instants?.accessToken)
-        console.log(syncinstants,"..............................");
+        // const syncTemplate =  await this.instantsservice.SyncTemplate(instants?.appId, instants?.accessToken)
+        // console.log(syncTemplate,"..............................");
         
         }
         return instants;
