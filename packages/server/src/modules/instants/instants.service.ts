@@ -7,12 +7,16 @@ import axios from 'axios';
 import { WorkspaceService } from '../workspace/workspace.service';
 import { ContactsService } from '../contacts/contacts.service';
 import fs from 'fs';
+import { TemplateService } from '../template/template.service';
+import { Template } from '../template/template.entity';
 
 @Injectable()
 export class instantsService {
     constructor(
-        @InjectRepository(WhatsappInstants, 'core')                // Inject User repository
+        @InjectRepository(WhatsappInstants, 'core')
         private instantsRepository: Repository<WhatsappInstants>,
+        @InjectRepository(Template, 'core')
+        private templateRepository: Repository<Template>,
         private readonly workspaceService: WorkspaceService,
         private readonly contactsService: ContactsService,
     ) { }
@@ -22,7 +26,7 @@ export class instantsService {
         const workspace = await this.workspaceService.findWorkspaceById(workspaceId)
         if (!workspace) throw new Error("workspace doesnt found")
 
-        const instant = await this.findInstantsByPhoneNoId(WhatsappInstantsData.phoneNumberId)
+        const instant = await this.instantsRepository.findOne({ where: {phoneNumberId : WhatsappInstantsData.phoneNumberId, workspace : {id : workspaceId}}});
         if (instant) {
             return instant
         }
@@ -52,43 +56,85 @@ export class instantsService {
         return whatappInstants;
     }
 
-    // async SyncTemplate(appId: string, accessToken: string): Promise<any> {
-    //     try {
-    //         const response = await axios.get(
-    //             `https://graph.facebook.com/v22.0/${appId}/message_templates`,
-    //             {
-    //                 params: { access_token: accessToken },
-    //             }
-    //         );
-    //         console.log(response.data,'..........rd......................');
+    async SyncTemplate(instants: any,workspaceId: string, businessAccountId: string, accessToken: string): Promise<any> {
+        const response = await axios.get(
+      `https://graph.facebook.com/v22.0/${businessAccountId}/message_templates`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }
+    );
+    const templates = response.data?.data;
+    
+    const workspace = await this.workspaceService.findWorkspaceById(workspaceId);
+    if (!workspace) throw new Error('Workspace not found');
 
-    //         return response.data.data;
-    //     } catch (err) {
-    //         console.error('Error fetching templates:', err.response?.data || err.message);
-    //         return [];
-    //     }
-    // };
+    for (const template of templates) {
+    console.log(template.components,'.........................remplates,,,,,,,,,,,,,,,,,,,');
+      const components = template.components || [];
+      const header = components.find((component) => component.type === 'HEADER');
+      const body = components.find((component) => component.type === 'BODY');
+      const footer = components.find((component) => component.type === 'FOOTER');
+      const buttonsComponent = components.find((component) => component.type === 'BUTTONS');
+
+      const variableList: { name: string; value: string }[] = [];
+      if (body?.example?.body_text?.[0]) {
+        body.example.body_text?.[0].forEach((variable, index) => {
+          variableList.push({ name: `{{${index + 1}}}`, value: variable });
+        });
+      }
+
+      const buttons = buttonsComponent?.buttons?.map((btn) => ({
+        type: btn.type,
+        text: btn.text,
+        url: btn.url,
+        phone_number: btn.phone_number
+      }));
+
+      const newTemplate = this.templateRepository.create({
+        account: instants?.id,
+        templateName: template.name,
+        status: template.status,
+        templateId: template.id,
+        category: template.category,
+        language: template.language,
+        headerType: header?.format,
+        bodyText: body?.text,
+        footerText: footer?.text,
+        header_handle: header?.example?.header_handle?.[0]?.handle || null,
+        button: buttons,
+        variables: variableList,
+        workspace
+      });
+      await this.templateRepository.save(newTemplate);
+    }
+
+    return {
+      success: true,
+      message: 'Templates imported successfully',
+      count: templates.length
+    };
+    };
 
 
-    // async TestInstants(phoneNumberId: string, accessToken: string) {
-    //     try {
-    //         const url = `https://graph.facebook.com/v22.0/${phoneNumberId}?access_token=${accessToken}`;
+    async TestInstants(phoneNumberId: string, accessToken: string) {
+        try {
+            const url = `https://graph.facebook.com/v22.0/${phoneNumberId}?access_token=${accessToken}`;
 
-    //         const response = await axios.get(url);
+            const response = await axios.get(url);
 
-    //         return {
-    //             success: true,
-    //             data: response.data
-    //         };
-    //     } catch (error: any) {
-    //         console.log(error);
+            return {
+                success: true,
+                data: response.data
+            };
+        } catch (error: any) {
+            console.log(error);
 
-    //         return {
-    //             success: false,
-    //             error: error?.response?.data?.error?.message || error.message
-    //         };
-    //     }
-    // };
+            return {
+                success: false,
+                error: error?.response?.data?.error?.message || error.message
+            };
+        }
+    };
 
     async findAllInstants(workspaceId: string): Promise<WhatsappInstants[]> {
         return await this.instantsRepository.find({
@@ -140,9 +186,9 @@ export class instantsService {
         });
     }
 
-    async findInstantsByPhoneNoId(phoneNoId: string): Promise<WhatsappInstants | null> {
+    async findInstantsByPhoneNoId(phoneNumberId: string): Promise<WhatsappInstants | null> {
         return await this.instantsRepository.findOne({
-            where: { phoneNumberId: phoneNoId },
+            where: { phoneNumberId: phoneNumberId},
             relations: ['workspace']
         });
     }

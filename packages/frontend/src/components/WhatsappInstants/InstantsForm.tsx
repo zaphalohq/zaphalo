@@ -16,7 +16,8 @@ const InstantsForm = () => {
         HandaleFeatchData,
         formData,
         HandleInputChange,
-		HandleSyncAndSaveInstants
+		HandleSyncAndSaveInstants,
+		HandleTestAndSaveInstants
     } : any = useContext(InstantsContext)
   return (
     <div className="fixed inset-0 bg-stone-900/30 flex items-center justify-center">
@@ -43,13 +44,13 @@ const InstantsForm = () => {
 						HandleFormVisibility()
 						HandaleFeatchData()
 						setIsNewInstants(false)
-					}} Icon={FaSyncAlt} title='Save & Sync Template' />
+					}} Icon={FaSyncAlt} title='Sync & Save Template' />
 					<SubmitButton type="button" onClick={async () => {
-						await HandleCreateInstants()
+						await HandleTestAndSaveInstants()
 						HandleFormVisibility()
 						HandaleFeatchData()
 						setIsNewInstants(false)
-					}} Icon={SiTestrail} title='Test Template' />
+					}} Icon={SiTestrail} title='Test & Save Template' />
 					</div>
 				</form>
 			</div>
