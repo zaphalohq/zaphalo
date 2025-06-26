@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { ChangeEvent, createContext, ReactNode, useState } from "react";
-import { DeleteInstantsMutation, findAllInstants, UpdatedInstants, WhatsappInstantsCreation, WhatsappInstantsSyncAndSave } from "@pages/Mutation/WhatsappInstants";
+import { DeleteInstantsMutation, findAllInstants, UpdatedInstants, WhatsappInstantsCreation, WhatsappInstantsSyncAndSave, WhatsappInstantsTestAndSave } from "@pages/Mutation/WhatsappInstants";
 
 export interface InstantsContectProps {
     instantsData : any,
@@ -21,7 +21,8 @@ export interface InstantsContectProps {
     loading : any,
     isFormVisible : any,
     refetch : any,
-    HandleSyncAndSaveInstants : any
+    HandleSyncAndSaveInstants : any,
+    HandleTestAndSaveInstants : any
 }
 
 export const InstantsContext = createContext<InstantsContectProps | undefined>(undefined)
@@ -44,6 +45,7 @@ export const InstantsProvider = ({children} : { children: ReactNode }) => {
 	//------------------------Handle Created Instants-------------------
 	const [CreateInstants] = useMutation(WhatsappInstantsCreation);
 	const [SyncAndSaveInstants] = useMutation(WhatsappInstantsSyncAndSave);
+	const [TestAndSaveInstants] = useMutation(WhatsappInstantsTestAndSave);
 
 	//-----------------------Submitting the data to backend----------------------------
  const HandleCreateInstants = async () => {
@@ -88,14 +90,25 @@ export const InstantsProvider = ({children} : { children: ReactNode }) => {
             console.error('Error submitting form', err);
         }
     }
-	//------------------------Handle Updated Instants-------------------
+
+     const HandleTestAndSaveInstants = async () => {
+        try {
+            await TestAndSaveInstants({
+                variables: {
+                    ...formData
+                }
+            })
+            HandaleFeatchData()
+
+        } catch (err) {
+            console.error('Error submitting form', err);
+        }
+    }
+
+
+
 	const [UpdateInstants] = useMutation(UpdatedInstants);
-
-	//-----------------------------Handle Deleted Instants------------------------
 	const [DeleteInstants] = useMutation(DeleteInstantsMutation);
-
-
-	//-----------------------Handle form Visibility----------------------
 	const [isFormVisible, setFormVisibility] = useState(false);
 	const HandleFormVisibility = () => {
         console.log("..............");
@@ -158,7 +171,8 @@ export const InstantsProvider = ({children} : { children: ReactNode }) => {
                 data,
                 loading,
                 refetch,
-                HandleSyncAndSaveInstants
+                HandleSyncAndSaveInstants,
+                HandleTestAndSaveInstants
             }}>
                 {children}
             </InstantsContext.Provider>

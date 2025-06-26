@@ -48,6 +48,28 @@ mutation SyncAndSaveInstants(
 }
 `;
 
+export const WhatsappInstantsTestAndSave = gql(`
+  mutation TestAndSaveInstants(
+  $name: String!,
+  $appId: String!,
+  $phoneNumberId: String!,
+  $businessAccountId: String!,
+  $accessToken: String!,
+  $appSecret: String!
+) {
+  TestAndSaveInstants(InstantsData: {
+    name: $name,
+    appId: $appId,
+    phoneNumberId: $phoneNumberId,
+    businessAccountId: $businessAccountId,
+    accessToken: $accessToken,
+    appSecret: $appSecret
+  }) {
+    id
+    name
+  }
+}`)
+
 
 export const findAllInstants = gql`
   query findAllInstants{

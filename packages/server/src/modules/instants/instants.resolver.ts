@@ -32,11 +32,20 @@ export class instantsResolver {
     ) WhatsappInstantsData: CreateFormDataInput): Promise<WhatsappInstants | null | string> {
         const workspaceId = req.headers['x-workspace-id']
         const instants = await this.instantsservice.CreateInstants(WhatsappInstantsData, workspaceId);
-        console.log(instants && typeof instants !== 'string');
-        
         if (instants && typeof instants !== 'string') {
-        // const syncTemplate =  await this.instantsservice.SyncTemplate(instants?.appId, instants?.accessToken)
-        // console.log(syncTemplate,"..............................");
+        const syncTemplate =  await this.instantsservice.SyncTemplate(instants, workspaceId, instants?.businessAccountId, instants?.accessToken)
+        
+        }
+        return instants;
+    }
+    @UseGuards(GqlAuthGuard)
+    @Mutation(() => WhatsappInstants)
+    async TestAndSaveInstants(@Context('req') req, @Args('InstantsData'
+    ) WhatsappInstantsData: CreateFormDataInput): Promise<WhatsappInstants | null | string> {
+        const workspaceId = req.headers['x-workspace-id']
+        const instants = await this.instantsservice.CreateInstants(WhatsappInstantsData, workspaceId);
+        if (instants && typeof instants !== 'string') {
+        const syncTemplate =  await this.instantsservice.TestInstants(instants?.businessAccountId, instants?.accessToken)
         
         }
         return instants;

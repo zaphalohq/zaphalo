@@ -23,7 +23,6 @@ export class AuthResolver {
     if (!user) {
       throw new Error('Invalid credentials');
     }
-    console.log(authInput?.inviteToken,'.................................');
     
     return this.authService.login(user, authInput?.inviteToken);
   }
@@ -37,7 +36,6 @@ export class AuthResolver {
     }
 
     const inviteToken = Register.inviteToken
-    console.log(inviteToken, user,"inviteTokeninviteTokeninviteTokeninviteTokeninviteTokeninviteToken");
 
     if (inviteToken) {
       const userId = await user.id
@@ -53,25 +51,5 @@ export class AuthResolver {
     // @OriginHeader() origin: string,
   ) {
     return this.authService.verifyToken(loginToken)
-    // const workspace =
-    //   await this.domainManagerService.getWorkspaceByOriginOrDefaultWorkspace(
-    //     origin,
-    //   );
-
-    // workspaceValidator.assertIsDefinedOrThrow(workspace);
-
-    // const { sub: email, workspaceId } =
-    //   await this.loginTokenService.verifyLoginToken(
-    //     getAuthTokensFromLoginTokenInput.loginToken,
-    //   );
-
-    // if (workspaceId !== workspace.id) {
-    //   throw new AuthException(
-    //     'Token is not valid for this workspace',
-    //     AuthExceptionCode.FORBIDDEN_EXCEPTION,
-    //   );
-    // }
-
-    // return await this.authService.verify(email, workspace.id);
   }
 }

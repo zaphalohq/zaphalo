@@ -18,7 +18,7 @@ const TemplateTable = ({ setIsTemplatePreviewVis }: any) => {
     const [templateId, setTemplateId] = useState("")
     const [GetTemplateStatus] = useMutation(GET_TEMPLATE_STATUS)
 
-    const [SendTemplateMessage] = useMutation(Send_Template_Message)
+    // const [SendTemplateMessage] = useMutation(Send_Template_Message)
     const HandelSendTemplate = (templateId: string, templateName: string) => {
         navigate("/broadcast", {
             state: {
@@ -96,7 +96,7 @@ const TemplateTable = ({ setIsTemplatePreviewVis }: any) => {
                                 <td onClick={() => HandleTempalteStatus(template.templateId)}
                                     className="px-6 py-4 text-center truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
                                     title="sendTemplate"
-                                >
+                                > 
                                     Check Template Status
                                 </td>
                                 <td onClick={() => {
