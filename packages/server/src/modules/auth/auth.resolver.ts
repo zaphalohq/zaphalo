@@ -19,12 +19,12 @@ export class AuthResolver {
 
   @Mutation(() => AuthResponse)
   async login(@Args('authInput') authInput: AuthInput) {
-    const user = await this.authService.validateUser(authInput.username, authInput.password);
+    const user = await this.authService.validateUser(authInput.email, authInput.password);
     if (!user) {
       throw new Error('Invalid credentials');
     }
     
-    return this.authService.login(user);
+    return this.authService.login(user, authInput?.inviteToken);
   }
 
   @Mutation(() => User)
@@ -51,25 +51,5 @@ export class AuthResolver {
     // @OriginHeader() origin: string,
   ) {
     return this.authService.verifyToken(loginToken)
-    // const workspace =
-    //   await this.domainManagerService.getWorkspaceByOriginOrDefaultWorkspace(
-    //     origin,
-    //   );
-
-    // workspaceValidator.assertIsDefinedOrThrow(workspace);
-
-    // const { sub: email, workspaceId } =
-    //   await this.loginTokenService.verifyLoginToken(
-    //     getAuthTokensFromLoginTokenInput.loginToken,
-    //   );
-
-    // if (workspaceId !== workspace.id) {
-    //   throw new AuthException(
-    //     'Token is not valid for this workspace',
-    //     AuthExceptionCode.FORBIDDEN_EXCEPTION,
-    //   );
-    // }
-
-    // return await this.authService.verify(email, workspace.id);
   }
 }

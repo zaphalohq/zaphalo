@@ -46,10 +46,8 @@ const WhatsappInstantsContent = () => {
 			</div>
 
 			<div>
-				{/* list view your are seeing on the page */}
 				<TableListView  />
 			</div> 
-			{/* input and update form */}
 			{isFormVisible ? <InstantsForm /> : null}
 		</div>
 	)

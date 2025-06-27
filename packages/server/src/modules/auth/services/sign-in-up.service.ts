@@ -6,6 +6,8 @@ import { Repository } from 'typeorm';
 import { Workspace } from 'src/modules/workspace/workspace.entity';
 import { User } from 'src/modules/user/user.entity';
 import { WorkspaceMemberService } from 'src/modules/workspace/workspaceMember.service';
+import { WorkspaceService } from 'src/modules/workspace/workspace.service';
+
 import {
   PASSWORD_REGEX,
   compareHash,
@@ -30,6 +32,7 @@ export class SignInUpService {
     @InjectRepository(User, 'core')
     private readonly userRepository: Repository<User>,
     private readonly workspaceMemberService: WorkspaceMemberService,
+    private readonly workspaceService: WorkspaceService,
   ) {}
 
   async computeParamsForNewUser(
@@ -176,6 +179,7 @@ export class SignInUpService {
     });
 
     const workspace = await this.workspaceRepository.save(workspaceToCreate);
+    this.workspaceService.createWorkspaceSchema(workspace);
 
     const user =
       userData.type === 'existingUser'

@@ -46,8 +46,18 @@ export class UserService {
 
   async findByUserId(userId): Promise<User | null>{
     return await this.userRepository.findOne({
-      where : { id : userId}
+      where : { id : userId},
+      relations: ['workspaces', 'workspaces.workspace'],
     })
+  }
+
+  async findOneUserWithWorkspaces(userId : string) {
+    return await this.userRepository.findOne({
+        where: {
+          id: userId,
+        },
+        relations: ['workspaces', 'workspaces.workspace'],
+      })
   }
 
 }

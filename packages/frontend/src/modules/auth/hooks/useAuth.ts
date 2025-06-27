@@ -20,9 +20,10 @@ import {
   useGotoRecoilSnapshot,
   useRecoilCallback,
   useRecoilState,
+  useRecoilValue,
   useSetRecoilState,
 } from 'recoil';
-
+import { currentWorkspaceIdState } from '../states/currentWorkspaceIdState';
 
 export const useAuth = () => {
   const { redirect } = useRedirect();
@@ -38,6 +39,10 @@ export const useAuth = () => {
 
   const client = useApolloClient();
   const goToRecoilSnapshot = useGotoRecoilSnapshot();
+
+  const setCurrentWorkspaceId = useSetRecoilState(currentWorkspaceIdState)
+
+    const workspaceId = useRecoilValue(currentWorkspaceIdState);
 
   const buildRedirectUrl = useCallback(
     (
@@ -69,6 +74,7 @@ export const useAuth = () => {
     // if(!currentUserWorkspace) throw Error('currentUserWorkspace doesnt exist in useAuth')
     if (isDefined(user?.currentWorkspace)) {
       setCurrentUserWorkspace(user?.currentWorkspace);
+      setCurrentWorkspaceId(user?.currentWorkspace?.id)
     }
 
     if (isDefined(user.workspaces)) {
@@ -117,9 +123,11 @@ export const useAuth = () => {
 
   const handleGetAuthTokensFromLoginToken = useCallback(
      async (loginToken: string) => {
+
       const response = await getAuthTokensFromLoginToken({
         variables: { loginToken },
       });
+
       const accessToken = response.data?.getAuthTokensFromLoginToken?.accessToken;
       const token = accessToken?.token;
       if(!token) throw Error("token doesn't exist");
@@ -128,16 +136,23 @@ export const useAuth = () => {
 
       setTokenPair({accessToken : {
         token,
-        expiresAt 
+        expiresAt
       }});
+
       cookieStorage.setItem(
         'accessToken',
         JSON.stringify(
-          token
+          {accessToken : {
+            token,
+            expiresAt
+          }}
         ),
       );
-      loadCurrentUser();
-      navigate('/dashboard')
+
+      
+      await loadCurrentUser();
+
+      navigate('/login')
     }
   ,[]);
 
@@ -146,5 +161,6 @@ export const useAuth = () => {
     logOut: handleSignOut,
     signInWithGoogle: handleGoogleLogin,
     getAuthTokensFromLoginToken: handleGetAuthTokensFromLoginToken,
+    loadCurrentUser: loadCurrentUser
   };
 }

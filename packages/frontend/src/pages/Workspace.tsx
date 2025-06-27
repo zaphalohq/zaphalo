@@ -4,12 +4,16 @@ import { FiRefreshCw } from 'react-icons/fi';
 import { useMutation } from '@apollo/client';
 import { GenerateInviteLink } from './Mutation/Chats';
 import { getItem } from '@components/utils/localStorage';
+import { useRecoilState } from 'recoil';
+import { currentUserWorkspaceState } from 'src/modules/auth/states/currentUserWorkspaceState';
+import { workspacesState } from 'src/modules/auth/states/workspaces';
+
 
 const Workspace = () => {
   const [copied, setCopied] = useState(false);
   const [InviteLink,{ data }] = useMutation(GenerateInviteLink);
   const [ inviteLink, setInviteLink ] = useState("")
-
+  const [ currentUserWorkspace, setCurrentUserWorkspace ] = useRecoilState(currentUserWorkspaceState);
 
   const HandleCopy = async () => {
     try {
@@ -23,11 +27,9 @@ const Workspace = () => {
 
   const HandleInviteLink = async () => {
     try{
-      const workspaceIds = getItem("workspaceIds")
-      
        const inviteLinkRes = await InviteLink({
         variables : { 
-          workspaceId : workspaceIds && workspaceIds[0]
+          workspaceId : currentUserWorkspace?.id,
         } })
         await data
        console.log(inviteLinkRes.data.generateWorkspaceInvitation);

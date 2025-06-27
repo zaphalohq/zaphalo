@@ -1,16 +1,12 @@
-import { Body, Controller, Get, Post, Query, Request, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { Controller, Get, Post, Query, Request } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Channel } from './channel.entity';
 import { Message } from './message.entity';
 import { ChannelService } from './channel.service';
 import { WebSocketService } from './chat-socket';
-import { ContactsService } from '../contacts/contacts.service';
-import { GqlAuthGuard } from '../auth/guards/gql-auth.guard';
-import axios from 'axios'
-import { Context } from '@nestjs/graphql';
-import { instantsService } from '../whatsapp/instants.service';
+import { ContactsService } from 'src/modules/contacts/contacts.service';
+import { instantsService } from 'src/modules/instants/instants.service';
 
 const token = 'my-token'
 

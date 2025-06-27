@@ -54,23 +54,19 @@ const ContactsForm = () => {
 
 	return (
 		<div className="fixed inset-0 bg-stone-900/30 flex items-center justify-center">
-
-
-
 			<div className='fixed inset-0 h-screen w-screen top-0 left-0 right-0 bottom-0 z-11 bg-stone-900/30'>
 				<div className='bg-white  m-[10%] mx-[30%] p-6 pb-12 rounded-lg'>
-					{/* --------------Close Button (X) when the create contact is popup--------- */}
 					<CloseButton onClick={HandleContactsFormVisibility} top="top-30" right="right-100" />
 					<div className='text-2xl font-semibold p-4 text-center'>Create Contact</div>
 					<div className='px-6'>
-						{/* -------------Create Contact form-------------------------- */}
 						<form onSubmit={HandleContactsFormData}>
 							<InputLabel type="text" value={contactFormData.contactName} HandleInputChange={HandleInputChange} name="contactName" title="Contact name" placeholder="Enter contact name" />
 							<InputLabel type="number" value={contactFormData.phoneNo} HandleInputChange={HandleInputChange} name="phoneNo" title="Phone number" placeholder="Enter phone number" />
-							<div onClick={() => {
-								setContactFormData(contactData);
-								setIsNewContacts(true);
-							}}
+							<div 
+							// onClick={() => {
+							// 	setContactFormData(contactData);
+							// 	setIsNewContacts(true);
+							// }}
 								className='bg-stone-200 flex gap-2 mt-4 rounded-2xl'>
 								<label className="cursor-pointer bg-violet-500 hover:bg-violet-600 p-2  rounded-l-2xl text-stone-50" htmlFor="file_input">Upload Image</label>
 								<input required accept="image/*" onChange={HandleUploadImg} className="cursor-pointer p-2 text-stone-950 " type="file" name="file_input" id="file_input" />

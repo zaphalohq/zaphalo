@@ -7,10 +7,7 @@ import { Message } from "./message.entity";
 import { Request, UseGuards } from "@nestjs/common";
 import { GqlAuthGuard } from "../auth/guards/gql-auth.guard";
 import { SendMessageInput, SendMessageResponse } from "./dto/SendMessageInputDto";
-import axios from 'axios'
-import { instantsService } from "../whatsapp/instants.service";
-import { throwError } from "rxjs";
-import { log } from "console";
+import { instantsService } from "../instants/instants.service";
 
 @Resolver(() => Channel)
 export class ChannelResolver {
@@ -24,8 +21,10 @@ export class ChannelResolver {
 
   @Query(() => [Channel])
   // @UseGuards(GqlAuthGuard)
-  async findAllChannel(@Context('req') req): Promise<Channel[]> {
+  async findAllChannel(
+    @Context('req') req): Promise<Channel[]> {
     const workspaceId = req.headers['x-workspace-id']
+    console.log(":.....................................workspaceId.............", workspaceId)
     return await this.channelService.findAllChannel(workspaceId);
   }
 
@@ -66,12 +65,14 @@ export class ChannelResolver {
     @Args('input') input: SendMessageInput,
   ): Promise<SendMessageResponse> {
     const { receiverId, textMessage, channelName, channelId, uploadedFiles } = input;
+    
     const userId = req.user.userId;
     const workspaceId = req.headers['x-workspace-id']
     const findTrueInstants = await this.instantsService.FindSelectedInstants(workspaceId)
     if (!findTrueInstants) throw new Error('findTrueInstants not found');
     const senderId = Number(findTrueInstants?.phoneNumberId)
     const accessToken = findTrueInstants?.accessToken
+    // const receiverNumbers = allMemberNumbers.filter((number : any) => number != import.meta.env.VITE_SENDER_PHONENO)
 
     // Send WhatsApp message via Facebook Graph API
     // const response = await axios({
@@ -92,23 +93,24 @@ export class ChannelResolver {
     // });
 
 
+    const receiverId1 = receiverId.filter((number : any) => number != senderId)
+console.log(receiverId, '[[[[[[', receiverId1,'receiverId1receiverId1', uploadedFiles);
 
 
  if ((!uploadedFiles || uploadedFiles.length === 0) && textMessage) {
-    // Send plain text message
-    const messageType = 'text'
-    await this.channelService.sendWhatsappMessage({
-      accessToken,
-      senderId,
-      receiverId,
-      messageType,
-      textMessage,
-      attachmentUrl: null,
-    });
+    // const messageType = 'text'
+    // await this.channelService.sendWhatsappMessage({
+    //   accessToken,
+    //   senderId,
+    //   receiverId : receiverId1,
+    //   messageType,
+    //   textMessage,
+    //   attachmentUrl: null,
+    // });
 
-    // Save message to DB
     if (!channelId || channelId === '') {
-      const memberIds = [...receiverId, senderId];
+      // const memberIds = [...receiverId, senderId];
+      const memberIds = receiverId;
       const channel: any = await this.channelService.findOrCreateChannel(
         senderId,
         memberIds,
@@ -116,6 +118,8 @@ export class ChannelResolver {
         channelName,
         userId,
       );
+      console.log(channel,"channelchannelchannelchannelchannel.............");
+      
       if (!channel.channel.id) throw new Error('Channel not found');
       await this.channelService.createMessage(textMessage, channel.channel.id, senderId, workspaceId, true);
     } else {
@@ -123,7 +127,6 @@ export class ChannelResolver {
     }
   }
 
-  //Handle uploaded files (with or without textMessage)
   if (uploadedFiles && uploadedFiles.length > 0) {
     for (const uploadedFile of uploadedFiles) {
       const attachmentUrl = uploadedFile.fileUrl;
@@ -170,37 +173,6 @@ export class ChannelResolver {
   async updateChannelNameById(@Args('channelId') channelId: string, @Args('updatedValue') updatedValue: string): Promise<Channel> {
     return await this.channelService.updateChannelNameById(channelId, updatedValue)
   }
-
-
-  // @Mutation(() => TemplateResponseDto)
-  // async submitTemplate(
-  //   @Args('template') template: TemplateRequestInput,
-  // ): Promise<TemplateResponseDto> {
-  //   const result = await this.channelService.submitTemplate(template);
-  //   return {
-  //     success: result.success,
-  //     data: result.data ? JSON.stringify(result.data) : undefined,
-  //     error: result.error ? JSON.stringify(result.error) : undefined,
-  //   };
-  // }
-
-  // @Query(() => TemplateResponseDto)
-  // async getTemplateStatus(
-  //   @Args('templateId') templateId: string,
-  // ): Promise<TemplateResponseDto> {
-  //   const result = await this.channelService.getTemplateStatus(templateId);
-  //   return {
-  //     success: result.success,
-  //     data: result.data ? JSON.stringify(result.data) : undefined,
-  //     error: result.error ? JSON.stringify(result.error) : undefined,
-  //   };
-  // }
-
-
-  // @Query(() => String)
-  // async getAllTemplates(){
-  // await this.channelService.getAllTemplates()
-  // }
 
 }
 

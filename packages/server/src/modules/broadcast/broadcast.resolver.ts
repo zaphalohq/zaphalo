@@ -4,8 +4,8 @@ import { Repository } from "typeorm";
 import { UseGuards } from "@nestjs/common";
 import { Broadcast } from "./broadcast.entity";
 import { BroadcastService } from "./broadcast.service";
-import { GqlAuthGuard } from "../auth/guards/gql-auth.guard";
-import { instantsService } from "../whatsapp/instants.service";
+import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
+import { instantsService } from "src/modules/instants/instants.service";
 import { BroadcastReqDto } from "./dto/BroadcastReqDto";
 
 @Resolver(() => Broadcast)

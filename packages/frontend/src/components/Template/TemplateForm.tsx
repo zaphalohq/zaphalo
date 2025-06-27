@@ -125,10 +125,10 @@ Thank you.`,
         <div>
           <div className="space-y-4">
             {currentComponent == "Body" ?
-              <TemplateBody templateData={templateData} handleInputChange={handleInputChange} />
+              <TemplateBody templateData={templateFormData} handleInputChange={handleInputChange} />
               : <></>}
             {currentComponent == "Buttons" ?
-              <TemplateButton templateData={templateData} setTemplateData={setTemplateData} />
+              <TemplateButton templateData={templateFormData} setTemplateData={setTemplateData} />
               : <></>}
 
             {currentComponent == "Variables" ?

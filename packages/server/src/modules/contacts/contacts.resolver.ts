@@ -18,7 +18,11 @@ export class contactsResolver {
     @UseGuards(GqlAuthGuard)
     @Mutation(() => Contacts)
     async CreateContacts(@Context('req') req, @Args('CreateContacts') CreateContacts: createContactsDto): Promise<Contacts | undefined> {
+        console.log(CreateContacts,'.....................createcontacts ..............');
+        
         const workspaceId = req.headers['x-workspace-id']
+        console.log(workspaceId);
+        
         return await this.contactsservice.createContacts(CreateContacts, workspaceId)
     }
 

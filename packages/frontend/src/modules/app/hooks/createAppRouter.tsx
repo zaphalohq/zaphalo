@@ -1,17 +1,13 @@
 import {
   Navigate,
   Route,
-  RouterProvider,
   createBrowserRouter,
   createRoutesFromElements,
 } from 'react-router-dom';
-import * as React from 'react';
-
 import Register from 'src/components/Auth/Register';
 import Login from 'src/components/Auth/Login';
 import ProtectedRoute from 'src/components/ProtectedRoute/ProtectedRoute';
 import Dashboard from 'src/pages/Dashboard';
-import { Settings } from 'lucide-react';
 import Workspace from 'src/pages/Workspace';
 import WhatsappInstants from 'src/pages/WhatsappInstants';
 import Chats from 'src/pages/Chats';
@@ -23,22 +19,43 @@ import VerifyLoginTokenEffect from 'src/modules/auth/pages/VerifySignInPage';
 import Broadcast from 'src/pages/Broadcast';
 import MailingList from 'src/pages/MailingList';
 import LoadingPage from 'src/components/UI/Loadingpage';
+import { ApolloProvider } from '@apollo/client'
+import client from 'src/components/AppolloClientConnection/apolloClient'
+import GetCurrentUserWrapper from 'src/modules/customWrapper/GetCurrentUserWrapper';
+import { Outlet, useLocation } from 'react-router-dom';
+import { PageTitle } from 'src/modules/ui/components/PageTitle';
+
+
+export const AppRouterProviders = () => {
+  // const { pathname } = useLocation();
+  // const pageTitle = getPageTitleFromPath(pathname);
+  const pageTitle = "YaariAPI";
+
+  return (
+      <ApolloProvider client={client}>
+        <GetCurrentUserWrapper/>
+        <PageTitle title={pageTitle} />
+        <Outlet />
+      </ApolloProvider>
+  );
+};
 
 
 const routes = createRoutesFromElements(
-  <Route>
+  <Route element={<AppRouterProviders />} loader={async () => Promise.resolve(null)}>
+    <Route index element={<Navigate to="/login" replace />} />
     <Route path="/register" element={<Register />} />
-    <Route path="/register/:token" element={<Register />} />
+    <Route path="/register/:workspaceInviteToken" element={<Register />} />
     <Route path="/invite/:workspaceInviteToken" element={<SignUpPage />} />
     <Route path="/verify" element={<VerifyLoginTokenEffect />} />
-    <Route path='/login' element={<Login />} />
+    <Route index path='/login' element={<Login />} />
     <Route path='/login2' element={<SignUpPage />} />
     <Route element={<ProtectedRoute />}>
-      <Route path="/" element={<MainLayout />}>
+      <Route  path="/w/:workspaceId" element={<MainLayout />}>
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="workspace" element={<Workspace />} />
-        <Route path="dashboard" element={<Chats />} />
+        <Route path="chats" element={<Chats />} />
         <Route path="whatsappinstants" element={<WhatsappInstants />} />
         <Route path="contacts" element={<Contacts />} />
         <Route path="template" element={<Template />} />

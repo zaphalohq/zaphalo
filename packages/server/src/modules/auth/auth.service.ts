@@ -24,13 +24,14 @@ import {
   SignInUpBaseParams,
   SignInUpNewUserPayload,
 } from 'src/modules/auth/types/signInUp.type';
-
+import { EmailService } from 'src/modules/email/email.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userservice: UserService,
     private jwtService: JwtService,
+    private emailService: EmailService,
     private readonly domainManagerService: DomainManagerService,
     private readonly workspaceService: WorkspaceService,
     private readonly authSsoService: AuthSsoService,
@@ -39,10 +40,10 @@ export class AuthService {
     private readonly workspaceRepository: Repository<Workspace>,
     @InjectRepository(Workspace, 'core')
     private readonly workspaceInvitationRepository: Repository<WorkspaceInvitation>,
-  ) {}
+  ) { }
 
-  async validateUser(username: string, password: string): Promise<any> {
-    const user = await this.userservice.findOneByUsername(username);
+  async validateUser(email: string, password: string): Promise<any> {
+    const user = await this.userservice.findOneByEmail(email);
     if (user && await bcrypt.compare(password, user.password)) {
       const { password, ...result } = user;
       return result;
@@ -50,7 +51,12 @@ export class AuthService {
     return null;
   }
 
-  async login(user: any) {
+  async checkUserForSigninUp(username: string) {
+    const user = this.userservice.findOneByEmail(username);
+    return user;
+  }
+
+  async login(user: any, inviteToken?: string) {
     const workspaces = await this.workspaceService.getOrCreateWorkspaceForUser(user.id);
     const WorkspaceIds = workspaces.map(workspace => workspace.id);
     const payload = {
@@ -61,54 +67,84 @@ export class AuthService {
       workspaceIds: WorkspaceIds,
       role: user.role
     };
-    const users = await this.userservice.findByUserId(user.id)
-    if(!users) throw error("this is error of")
-      return {
-        access_token: this.jwtService.sign(payload),
-        workspaceIds: JSON.stringify(WorkspaceIds),
-        userDetails : {
-          firstName : users.firstName,
-          lastName : users.lastName,
-          email : users.email
-        }
-      };
+    const users = await this.userservice.findOneUserWithWorkspaces(user.id)
+    if (!users) throw error("users not found")
+
+    const expiresIn = '7d';
+    const expiresAt = addMilliseconds(new Date().getTime(), ms(expiresIn));
+    // const currentWorkspace = users.workspaces.find(
+    //   (userWorkspace) => userWorkspace.id === users.id,
+    // );
+
+
+    // if(!currentWorkspace) throw Error("current Workspace not found")
+    const loginToken = await this.generateLoginToken(
+      user.email,
+      workspaces[0].id
+    );
+
+    if (inviteToken) {
+      const userId = await user.id
+      const workspace = await this.workspaceService.getOrCreateWorkspaceForUser(userId, inviteToken)
+      console.log(workspace,'getOrCreateWorkspaceForUsergetOrCreateWorkspaceForUsergetOrCreateWorkspaceForUser');
+      
+      
     }
 
-    async Register(register: CreateUserDTO): Promise<any> {
-      // const username_validation = await this.userservice.findOneByUsername(register.username);
-      const email_validation = await this.userservice.findOneByEmail(register.email);
-      if (email_validation) {
-        return "User already exists";
-      }
+    return {
+      access_token: this.jwtService.sign(payload),
+      workspaceIds: JSON.stringify(WorkspaceIds),
+      id: users.id,
+      email: users.email,
+      accessToken: {
+        token: loginToken.token,
+        expiresAt: loginToken.expiresAt
+      },
+      userDetails: {
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName
+      },
+      workspaces: users.workspaces,
+    };
+  }
+
+  async Register(register: CreateUserDTO): Promise<any> {
+    // const username_validation = await this.userservice.findOneByUsername(register.username);
+    const email_validation = await this.userservice.findOneByEmail(register.email);
+    if (email_validation) {
+      return "email already exists";
+    }
 
     // Hash the password before saving
-      const saltRounds = 10;
-      const hashedPassword = await bcrypt.hash(register.password || 'Vipul@123', saltRounds);
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(register.password || 'Vipul@123', saltRounds);
 
     // Update the register object with the hashed password
-      const userData = { ...register, password: hashedPassword, username: register.email };
+    const userData = { ...register, password: hashedPassword, username: register.email };
 
-      const user = await this.userservice.createUser(userData);
-      return user;
-    }
+    const user = await this.userservice.createUser(userData);
+    return user;
+  }
 
 
-    computeRedirectURI({
-      loginToken,
+
+  computeRedirectURI({
+    loginToken,
+    // workspace,
+  }: {
+    loginToken: string;
+  }) {
+    const url = this.domainManagerService.buildWorkspaceURL({
       // workspace,
-    }: {
-      loginToken: string;
-    }) {
-      const url = this.domainManagerService.buildWorkspaceURL({
-        // workspace,
-        pathname: '/verify',
-        searchParams: {
-          loginToken,
-        },
-      });
+      pathname: '/verify',
+      searchParams: {
+        loginToken,
+      },
+    });
 
-      return url.toString();
-    }
+    return url.toString();
+  }
 
   formatUserDataPayload(
     newUserPayload: SignInUpNewUserPayload,
@@ -118,9 +154,9 @@ export class AuthService {
       userData: existingUser
         ? { type: 'existingUser', existingUser }
         : {
-            type: 'newUser',
-            newUserPayload,
-          },
+          type: 'newUser',
+          newUserPayload,
+        },
     };
   }
 
@@ -177,13 +213,15 @@ export class AuthService {
           params.authParams,
         );
 
-      return await this.signInUpService.signInUp({
+      const { user, workspace } = await this.signInUpService.signInUp({
         ...params,
         userData: {
           type: 'newUserWithPicture',
           newUserWithPicture: partialUserWithPicture,
         },
       });
+      this.emailService.sendUserWelcome(user, '123');
+      return { user, workspace }
     }
 
     return await this.signInUpService.signInUp({
@@ -200,12 +238,15 @@ export class AuthService {
       workspaceId?: string;
       workspaceInviteToken?: string;
     } & (
-      | {
+        | {
           authProvider: Exclude<WorkspaceAuthProvider, 'password'>;
           email: string;
         }
-      | { authProvider: Extract<WorkspaceAuthProvider, 'password'> }
-    ),
+        | {
+          authProvider: Extract<WorkspaceAuthProvider, 'password'>;
+          email?: string;
+        }
+      ),
   ) {
 
     if (params.workspaceInviteToken) {
@@ -214,7 +255,7 @@ export class AuthService {
           where: {
             inviteToken: params.workspaceInviteToken,
           },
-          relations: ['approvedAccessDomains'],
+          // relations: ['approvedAccessDomains'],
         })) ?? undefined
       );
     }
@@ -234,24 +275,24 @@ export class AuthService {
 
     const workspace = params.workspaceId
       ? await this.workspaceRepository.findOne({
-          where: {
-            id: params.workspaceId,
-          },
-          // relations: ['approvedAccessDomains'],
-        })
+        where: {
+          id: params.workspaceId,
+        },
+        // relations: ['approvedAccessDomains'],
+      })
       : undefined;
 
     return params.workspaceId
       ? await this.workspaceRepository.findOne({
-          where: {
-            id: params.workspaceId,
-          },
-          // relations: ['approvedAccessDomains'],
-        })
+        where: {
+          id: params.workspaceId,
+        },
+        // relations: ['approvedAccessDomains'],
+      })
       : undefined;
   }
 
-  async findSignInUpInvitation(params: {currentWorkspace: Workspace, email: string}){
+  async findSignInUpInvitation(params: { currentWorkspace: Workspace, email: string }) {
 
     // Need To implements for invitation accepted
 
@@ -274,36 +315,35 @@ export class AuthService {
     workspaceId: string,
   ) {
 
-      const secret = this.generateAppSecret(
-        'LOGIN',
-        workspaceId,
-      );
+    const secret = this.generateAppSecret(
+      'LOGIN',
+      workspaceId,
+    );
 
-      const expiresIn = '15m';
+    const expiresIn = '7d';
 
-      const expiresAt = addMilliseconds(new Date().getTime(), ms(expiresIn));
-      const jwtPayload = {
-        sub: email,
-        workspaceId,
-      };
+    const expiresAt = addMilliseconds(new Date().getTime(), ms(expiresIn));
+    const jwtPayload = {
+      sub: email,
+      workspaceId,
+    };
 
-      const token = {
-        token: this.jwtService.sign(jwtPayload, {
-          secret,
-          expiresIn,
-        }),
-        expiresAt,
-      };
 
-      return token;
+    const token = {
+      token: this.jwtService.sign(jwtPayload, {
+        secret,
+        expiresIn,
+      }),
+      expiresAt,
+    };
+
+    return token;
   }
   decode<T = any>(payload: string, options?: jwt.DecodeOptions): T {
     return this.jwtService.decode(payload, options);
   }
 
-  async verifyToken(loginToken: string){
-
-
+  async verifyToken(loginToken: string) {
     const decodeToken = this.decode(loginToken, {
       json: true,
     });
@@ -312,46 +352,46 @@ export class AuthService {
       secret: this.generateAppSecret('LOGIN', decodeToken.workspaceId),
     });
 
-    const users = await this.userservice.findOneByEmail(payload.sub)
-    if(!users) throw error("this is error of users")
+    const user = await this.userservice.findOneByEmail(payload.sub)
+    if (!user) throw error("this is error of users")
     const payloadfinal = {
-      firstName: users.firstName,
-      lastName: users.lastName,
-      sub: users.id,
-      email: users.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      sub: user.id,
+      email: user.email,
       workspaceId: payload.workspaceId,
       workspaceIds: payload.workspaceId
     };
 
-    const expiresIn = '15m';
+    const expiresIn = '7d';
     const expiresAt = addMilliseconds(new Date().getTime(), ms(expiresIn));
 
     const res = {
-        accessToken : {
-          token : this.jwtService.sign(payloadfinal),
-          expiresAt
-        },
-        workspaceIds: JSON.stringify(payload.workspaceId),
-        userDetails: {
-          firstName: users.firstName,
-          lastName: users.lastName,
-          email : users.email
-        }
-      };
+      accessToken: {
+        token: this.jwtService.sign(payloadfinal),
+        expiresAt
+      },
+      workspaceIds: JSON.stringify(payload.workspaceId),
+      userDetails: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email
+      }
+    };
 
     return {
-        access_token: this.jwtService.sign(payloadfinal),
-        accessToken : {
-          token : this.jwtService.sign(payloadfinal),
-          expiresAt
-        },
-        workspaceIds: JSON.stringify(payload.workspaceId),
-        userDetails: {
-          firstName: users.firstName,
-          lastName: users.lastName,
-          email : users.email
-        }
-      };
+      access_token: this.jwtService.sign(payloadfinal),
+      accessToken: {
+        token: this.jwtService.sign(payloadfinal),
+        expiresAt
+      },
+      workspaceIds: JSON.stringify(payload.workspaceId),
+      userDetails: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email
+      }
+    };
   }
 
 }

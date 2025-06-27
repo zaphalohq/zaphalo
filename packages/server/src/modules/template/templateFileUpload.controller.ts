@@ -9,7 +9,7 @@ import { Template } from './template.entity';
 import { TemplateService } from './template.service';
 import { Context } from '@nestjs/graphql';
 import { GqlAuthGuard } from '../auth/guards/gql-auth.guard';
-import { instantsService } from '../whatsapp/instants.service';
+import { instantsService } from '../instants/instants.service';
 
 
 @Controller('templateFileUpload')
@@ -43,7 +43,7 @@ export class TemplateFileUpload {
 console.log(file);
 
         const file_handle = await this.templateService.uploadFile(file, appId, accessToken);
-        return { file_handle, fileUrl : `http://localhost:3000/${file.filename}` }
+        return { file_handle, fileUrl : `${process.env.SERVER_URL}/${file.filename}` }
 
     }
 

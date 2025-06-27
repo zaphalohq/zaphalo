@@ -8,16 +8,17 @@ import { TypeORMModule } from 'src/database/typeorm/typeorm.module';
 import { whatappinstanstsAutoResolverOpts } from './instants.auto-resolver-opts';
 import { WorkspaceModule } from '../workspace/workspace.module';
 import { ContactsModule } from '../contacts/contacts.module';
+import { Template } from '../template/template.entity';
 
 @Module({
   imports: [
     NestjsQueryGraphQLModule.forFeature({
       imports: [
-        NestjsQueryTypeOrmModule.forFeature([WhatsappInstants], 'core'),
+        NestjsQueryTypeOrmModule.forFeature([WhatsappInstants, Template], 'core'),
         TypeORMModule,
         // TypeOrmModule.forFeature([WhatsappInstants]),
         WorkspaceModule,
-        ContactsModule
+        ContactsModule,
       ],
       services: [instantsService],
       resolvers: whatappinstanstsAutoResolverOpts,

@@ -73,7 +73,6 @@ export class UserResolver {
     @AuthUser() { id: userId}: User,
     @AuthWorkspace() workspace: Workspace,
   ): Promise<User> {
-
       const user = await this.userRepository.findOne({
         where: {
           id: userId,
@@ -84,6 +83,7 @@ export class UserResolver {
       if (!user) {
         throw new Error('Current user not found');
       }
+      
       const currentUserWorkspace = user.workspaces.find(
         (userWorkspace) => userWorkspace.workspace.id === workspace.id,
       );

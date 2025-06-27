@@ -8,9 +8,11 @@ export const useVerifyLoginToken = () => {
 
   const verifyLoginToken = async (loginToken: string) => {
     try {
-      await getAuthTokensFromLoginToken(loginToken);
+      const token = await getAuthTokensFromLoginToken(loginToken);
+      console.log(token,".................................token......token");
+      
     } catch (error) {
-      navigate('/login');
+      navigate('/login'+error);
     }
   };
 

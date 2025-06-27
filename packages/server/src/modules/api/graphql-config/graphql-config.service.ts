@@ -11,7 +11,7 @@ import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 import { GraphQLSchemaWithContext, YogaInitialContext } from 'graphql-yoga';
 import * as Sentry from '@sentry/node';
 import { CoreModule } from 'src/modules/core.module';
-import { instantsModule } from 'src/modules/whatsapp/instants.module';
+import { instantsModule } from 'src/modules/instants/instants.module';
 
 
 @Injectable()

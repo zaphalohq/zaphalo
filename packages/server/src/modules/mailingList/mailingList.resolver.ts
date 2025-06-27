@@ -5,10 +5,6 @@ import { Repository } from "typeorm";
 import { MailingListService } from "./mailingList.service";
 import { Request, UseGuards } from "@nestjs/common";
 import { GqlAuthGuard } from "../auth/guards/gql-auth.guard";
-import axios from 'axios'
-import { instantsService } from "../whatsapp/instants.service";
-import { throwError } from "rxjs";
-import { log } from "console";
 import { MailingListInputDto } from "./DTO/MailingListReqDto";
 
 @Resolver(() => MailingList)

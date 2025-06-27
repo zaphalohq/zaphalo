@@ -7,23 +7,31 @@ import axios from 'axios';
 import { WorkspaceService } from '../workspace/workspace.service';
 import { ContactsService } from '../contacts/contacts.service';
 import fs from 'fs';
+import { TemplateService } from '../template/template.service';
+import { Template } from '../template/template.entity';
 
 @Injectable()
 export class instantsService {
     constructor(
-        @InjectRepository(WhatsappInstants, 'core')                // Inject User repository
+        @InjectRepository(WhatsappInstants, 'core')
         private instantsRepository: Repository<WhatsappInstants>,
+        @InjectRepository(Template, 'core')
+        private templateRepository: Repository<Template>,
         private readonly workspaceService: WorkspaceService,
         private readonly contactsService: ContactsService,
     ) { }
 
-    async CreateInstants(WhatsappInstantsData: CreateFormDataInput, workspaceId: string): Promise<WhatsappInstants | null> {
+    async CreateInstants(WhatsappInstantsData: CreateFormDataInput, workspaceId: string): Promise<WhatsappInstants | null | string> {
         console.log(WhatsappInstantsData);
         const workspace = await this.workspaceService.findWorkspaceById(workspaceId)
         if (!workspace) throw new Error("workspace doesnt found")
 
+        const instant = await this.instantsRepository.findOne({ where: {phoneNumberId : WhatsappInstantsData.phoneNumberId, workspace : {id : workspaceId}}});
+        if (instant) {
+            return instant
+        }
+
         const instants = await this.instantsRepository.find({ where: { id: workspaceId } });
-        console.log(instants.length, "...............................");
 
         let defaultSelected = false;
         if (instants.length < 1) {
@@ -47,6 +55,86 @@ export class instantsService {
         await this.instantsRepository.save(whatappInstants)
         return whatappInstants;
     }
+
+    async SyncTemplate(instants: any,workspaceId: string, businessAccountId: string, accessToken: string): Promise<any> {
+        const response = await axios.get(
+      `https://graph.facebook.com/v22.0/${businessAccountId}/message_templates`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }
+    );
+    const templates = response.data?.data;
+    
+    const workspace = await this.workspaceService.findWorkspaceById(workspaceId);
+    if (!workspace) throw new Error('Workspace not found');
+
+    for (const template of templates) {
+    console.log(template.components,'.........................remplates,,,,,,,,,,,,,,,,,,,');
+      const components = template.components || [];
+      const header = components.find((component) => component.type === 'HEADER');
+      const body = components.find((component) => component.type === 'BODY');
+      const footer = components.find((component) => component.type === 'FOOTER');
+      const buttonsComponent = components.find((component) => component.type === 'BUTTONS');
+
+      const variableList: { name: string; value: string }[] = [];
+      if (body?.example?.body_text?.[0]) {
+        body.example.body_text?.[0].forEach((variable, index) => {
+          variableList.push({ name: `{{${index + 1}}}`, value: variable });
+        });
+      }
+
+      const buttons = buttonsComponent?.buttons?.map((btn) => ({
+        type: btn.type,
+        text: btn.text,
+        url: btn.url,
+        phone_number: btn.phone_number
+      }));
+
+      const newTemplate = this.templateRepository.create({
+        account: instants?.id,
+        templateName: template.name,
+        status: template.status,
+        templateId: template.id,
+        category: template.category,
+        language: template.language,
+        headerType: header?.format,
+        bodyText: body?.text,
+        footerText: footer?.text,
+        header_handle: header?.example?.header_handle?.[0]?.handle || null,
+        button: buttons,
+        variables: variableList,
+        workspace
+      });
+      await this.templateRepository.save(newTemplate);
+    }
+
+    return {
+      success: true,
+      message: 'Templates imported successfully',
+      count: templates.length
+    };
+    };
+
+
+    async TestInstants(phoneNumberId: string, accessToken: string) {
+        try {
+            const url = `https://graph.facebook.com/v22.0/${phoneNumberId}?access_token=${accessToken}`;
+
+            const response = await axios.get(url);
+
+            return {
+                success: true,
+                data: response.data
+            };
+        } catch (error: any) {
+            console.log(error);
+
+            return {
+                success: false,
+                error: error?.response?.data?.error?.message || error.message
+            };
+        }
+    };
 
     async findAllInstants(workspaceId: string): Promise<WhatsappInstants[]> {
         return await this.instantsRepository.find({
@@ -98,17 +186,17 @@ export class instantsService {
         });
     }
 
-    async findInstantsByPhoneNoId(phoneNoId: string): Promise<WhatsappInstants | null> {
+    async findInstantsByPhoneNoId(phoneNumberId: string): Promise<WhatsappInstants | null> {
         return await this.instantsRepository.findOne({
-            where: { phoneNumberId : phoneNoId },
-            relations: ['workspace'] 
+            where: { phoneNumberId: phoneNumberId},
+            relations: ['workspace']
         });
     }
 
-      async findInstantsByInstantsId(instantsId: string): Promise<WhatsappInstants | null> {
+    async findInstantsByInstantsId(instantsId: string): Promise<WhatsappInstants | null> {
         return await this.instantsRepository.findOne({
-            where: { id : instantsId },
-            relations: ['workspace'] 
+            where: { id: instantsId },
+            relations: ['workspace']
         });
     }
 
@@ -154,7 +242,7 @@ export class instantsService {
                                 type: 'image',
                                 image: {
                                     link: 'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png'
-                                  }
+                                }
                             }
                         ]
                     },
@@ -163,7 +251,7 @@ export class instantsService {
                         parameters: [
                             {
                                 type: 'text',
-                                text: 'Chintan Patel' 
+                                text: 'Chintan Patel'
                             }
                         ]
                     }
@@ -233,11 +321,11 @@ export class instantsService {
         // form.append('file', String(fs.createReadStream('uploads\\1746617752805-abc.png')));
         form.append('type', 'image/png');
         form.append('messaging_product', 'whatsapp');
-        console.log(form,"...................................");
-        
-      
+        console.log(form, "...................................");
+
+
         // try {
-          const response = await axios({
+        const response = await axios({
             url: 'https://graph.facebook.com/v22.0/565830889949112/media',
             method: 'POST',
             headers: {
@@ -245,10 +333,10 @@ export class instantsService {
                 'Content-Type': 'multipart/form-data',
             },
             data: form,
-          });
+        });
 
-      
-          return "response.data.id";
+
+        return "response.data.id";
         // } catch (error) {
         //   throw new Error(`Failed to upload file to WhatsApp: ${error.response?.data?.error?.message || error.message}`);
         // }
