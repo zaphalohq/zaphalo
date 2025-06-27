@@ -11,14 +11,14 @@ export const typeORMCoreModuleOptions: TypeOrmModuleOptions = {
   logging: ['error'],
   schema: 'core',
   entities: [
-    `${isJest ? '' : 'dist/'}/modules/**/*.entity{.ts,.js}`,
+    `${isJest ? '' : 'dist/'}/src/modules/**/*.entity{.ts,.js}`,
   ],
   synchronize: false,
   migrationsRun: false,
   migrationsTableName: '_typeorm_migrations',
   metadataTableName: '_typeorm_generated_columns_and_materialized_views',
   migrations: [
-    `${isJest ? '' : 'dist/'}/database/typeorm/core/migrations/*{.ts,.js}`,
+    `${isJest ? '' : 'dist/'}/src/database/typeorm/core/migrations/*{.ts,.js}`,
   ],
   ssl:
     process.env.PG_SSL_ALLOW_SELF_SIGNED === 'true'

@@ -8,7 +8,7 @@ import { channelController } from './channel.controller'
 import { Message } from "./message.entity";
 import { Contacts } from "../contacts/contacts.entity";
 import { ContactsModule } from "src/modules/contacts/contacts.module";
-import { WebSocketService } from "./chat-socket";
+import { WebSocketService } from "./web.socket.service";
 import { ChannelResolver } from "./channel.resolver";
 import { UserService } from "src/modules/user/user.service";
 import { UserModule } from "src/modules/user/user.module";

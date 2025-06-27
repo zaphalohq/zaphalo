@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Channel } from './channel.entity';
 import { Message } from './message.entity';
 import { ChannelService } from './channel.service';
-import { WebSocketService } from './chat-socket';
+import { WebSocketService } from './web.socket.service';
 import { ContactsService } from 'src/modules/contacts/contacts.service';
 import { instantsService } from 'src/modules/instants/instants.service';
 

@@ -12,8 +12,6 @@ import { instantsService } from "../instants/instants.service";
 @Resolver(() => Channel)
 export class ChannelResolver {
   constructor(
-    @InjectRepository(Channel, 'core')
-    private readonly channelRepository: Repository<Channel>,
     @InjectRepository(Message, 'core')
     private readonly messageRepository: Repository<Message>,
     private readonly channelService: ChannelService,
@@ -24,7 +22,6 @@ export class ChannelResolver {
   async findAllChannel(
     @Context('req') req): Promise<Channel[]> {
     const workspaceId = req.headers['x-workspace-id']
-    console.log(":.....................................workspaceId.............", workspaceId)
     return await this.channelService.findAllChannel(workspaceId);
   }
 

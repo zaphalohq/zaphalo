@@ -1,20 +1,15 @@
-import { Body, Controller, Get, Post, UploadedFiles, Request, UseGuards, UseInterceptors, UploadedFile, Delete, Param } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Controller, Get, Post, UploadedFiles, Request, UseGuards, UseInterceptors, UploadedFile, Delete, Param } from '@nestjs/common';
 import { Channel } from './channel.entity';
 import { Message } from './message.entity';
 import { ChannelService } from './channel.service';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { log } from 'console';
-import axios from 'axios';
+
 
 @Controller('fileupload1')
 export class fileupload {
   constructor(
-    @InjectRepository(Channel, 'core')
-    private readonly channelRepository: Repository<Channel>,
     private readonly channelservice: ChannelService,
   ) { }
 

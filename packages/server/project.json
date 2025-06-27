@@ -8,7 +8,7 @@
       "executor": "nx:run-commands",
       "cache": true,
       "options": {
-        "cwd": "packages/twenty-server",
+        "cwd": "packages/server",
         "commands": ["rimraf dist", "nest build --path ./tsconfig.build.json"]
       },
       "dependsOn": ["^build"]
