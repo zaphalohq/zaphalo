@@ -1,0 +1,15 @@
+{
+  "name": "@yaari-api/frontend",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "tags": ["scope:frontend"],
+  "targets": {
+    "start": {
+      "executor": "@nx/vite:dev-server",
+      "options": {
+        "buildTarget": "@yaari-api/frontend:build",
+        "hmr": true
+      }
+    }
+  }
+}

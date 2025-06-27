@@ -6,7 +6,7 @@ import { WorkspaceService } from "./workspace.service";
 import { Contacts } from "../contacts/contacts.entity";
 import { WorkspaceDashboardOutput } from "./dto/WorkspaceDashboardOutput";
 import { WorkspaceUpdateInputDto } from "./dto/WorkspaceUpdateInputDto";
-import { WorkspaceResponceDTO } from "./dto/workspaceResponceDTO";
+import { WorkspaceResponceDTO } from "./dto/WorkspaceResponceDTO";
 
 // WorkspaceResolver
 @Resolver(() => Workspace)

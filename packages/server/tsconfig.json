@@ -1,46 +1,26 @@
-
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "jsx": "react-jsx",
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "allowUnreachableCode": false,
-    "esModuleInterop": true,
-    "target": "es2017",
+    "target": "ES2023",
     "sourceMap": true,
-    "inlineSources": true,
     "outDir": "./dist",
+    "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
-    "alwaysStrict": true,
+    "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "resolveJsonModule": true,
-    "types": [
-      "jest",
-      "node"
-    ],
     "paths": {
-      "src/*": [
-        "packages/server/src/*"
-      ]
-    }
-  },
-  "ts-node": {
-    "files": true,
-    "require": [
-      "tsconfig-paths/register"
-    ]
-  },
-  "exclude": [
-    "dist"
-  ]
+      "src/*": ["./src/*"],
+    },
+    "esModuleInterop": true,
+  }
 }
