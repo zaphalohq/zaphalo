@@ -7,9 +7,6 @@ import { UserService } from "../user/user.service";
 import { UserModule } from "../user/user.module";
 import { User } from "../user/user.entity";
 import { FileUploadController } from "./fileUpload.controller";
-import { WorkspaceModule } from "../workspace/workspace.module";
-import { instantsModule } from "../instants/instants.module";
-import { TypeORMModule } from "../../database/typeorm/typeorm.module";
 import { FileUploadService } from "./fileUpload.service";
 
 @Module({

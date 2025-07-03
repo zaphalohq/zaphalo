@@ -305,7 +305,7 @@ const WorkspaceSetup = () => {
                                             </div>
                                         </label>
                                         <input
-                                            required
+                                            // required
                                             accept="image/*"
                                             onChange={HandleUploadImg}
                                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"

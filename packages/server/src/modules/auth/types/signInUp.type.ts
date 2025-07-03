@@ -14,7 +14,7 @@ export type SignInUpNewUserPayload = {
   firstName?: string | null;
   lastName?: string | null;
   picture?: string | null;
-  passwordHash?: string | null;
+  password?: string | null;
   // locale?: keyof typeof APP_LOCALES | null;
 };
 

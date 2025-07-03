@@ -19,7 +19,10 @@ export class CreateUserDTO {
   password: string;
 
   @Field({ nullable: true })
+  workspaceId?: string;
+
+  @Field({ nullable: true })
   @IsString()
   @IsOptional()
-  inviteToken?: string;
+  workspaceInviteToken?: string;
 }

@@ -4,6 +4,7 @@ import { Request as ExpressRequest } from 'express';
 import { getWorkspaceConnection } from './workspace.manager.utils';
 
 import { CONNECTION } from './workspace.manager.symbols';
+import { workspaceConnectionSource } from 'src/database/typeorm/workspace/workspace.datasource';
 
 /**
  * Note that because of Scope Hierarchy, all injectors of this
@@ -15,8 +16,13 @@ import { CONNECTION } from './workspace.manager.symbols';
 const connectionFactory = {
   provide: CONNECTION,
   scope: Scope.REQUEST,
-  useFactory: (request: ExpressRequest) => {
-    const { workspaceId } = request;
+  // useValue: workspaceConnectionSource,
+  useFactory:(request: any) => {
+    let { workspaceId } = request;
+    if(!workspaceId){
+      workspaceId = request?.req.headers['x-workspace-id']
+    }
+    console.log("...................workspaceId...............",workspaceId);
     if (workspaceId) {
       return getWorkspaceConnection(workspaceId);
     }

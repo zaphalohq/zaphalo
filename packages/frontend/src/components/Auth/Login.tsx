@@ -1,28 +1,22 @@
 import { useMutation } from '@apollo/client';
 import { useEffect, useState } from 'react';
-import { LoginMutation } from './AuthMutations/LoginMutation';
+import { LoginMutation } from 'src/generated/graphql';
 import { useNavigate } from 'react-router-dom';
-import AuthInputLabel from '../UI/AuthInputLabel';
-import { setItem } from '../utils/localStorage';
 import { cookieStorage } from '@src/utils/cookie-storage';
 import { useSignInWithGoogle } from '@src/modules/auth/hooks/useSignInWithGoogle';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { tokenPairState } from '@src/modules/auth/states/tokenPairState';
-import { useAuth } from '@src/modules/auth/hooks/useAuth';
 import { workspacesState } from '@src/modules/auth/states/workspaces';
 import { useVerifyLoginToken } from '@src/modules/auth/hooks/useVerifyLoginToken';
-import { useAtomValue } from 'jotai';
-import { currentWorkspaceIdState } from '@src/modules/auth/states/currentWorkspaceIdState';
 import { currentUserWorkspaceState } from '@src/modules/auth/states/currentUserWorkspaceState';
 
 function Login() {
-  const [ currentUserWorkspace ] = useRecoilState(currentUserWorkspaceState);
+  const [currentUserWorkspace] = useRecoilState(currentUserWorkspaceState);
   const { signInWithGoogle } = useSignInWithGoogle();
   const setWorkspaces = useSetRecoilState(workspacesState);
   const [login, { data, loading, error }] = useMutation(LoginMutation);
   const navigate = useNavigate();
   const { verifyLoginToken } = useVerifyLoginToken();
-  
+
 
 
   useEffect(() => {
@@ -47,8 +41,6 @@ function Login() {
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
-    console.log();
-
     try {
       const response = await login({
         variables: {
@@ -56,45 +48,12 @@ function Login() {
           password: authForm.password,
         },
       });
-      console.log('Login Success:', response.data);
-      cookieStorage.setItem(
-        'accessToken',
-        JSON.stringify(
-          response.data.login.accessToken
-        ),
-      );
-      // const workspaceIds = JSON.parse(response.data.login.workspaceIds)
-      // setItem('workspaceIds', workspaceIds)
-      // sessionStorage.setItem('workspaceId', workspaceIds[0]);
-      // setItem('userDetails', { name: response.data.login.userDetails.firstName, email: response.data.login.userDetails.email })
-
-      // setWorkspaces(response.data.login.workspaces)
-
-      const token: string = response.data.login.accessToken.token;
-      // const expiresAt = response.data.login.accessToken.expiresAt;
-      console.log(token, 'tokentokentoken....................');
-
-      await verifyLoginToken(token)
-
-      // setTokenPair({
-      //     accessToken: {
-      //       token,
-      //       expiresAt
-      //     }
-      //   });
-      // cookieStorage.setItem(
-      //   'accessToken',
-      //   JSON.stringify(
-      //     token
-      //   ),
-      // );
+      const token: string = response.data.login;
+      navigate(`/verify?loginToken=${token}`);
     } catch (err) {
       console.error('Error logging in:', err);
     }
   }
-
-
-
 
   return (
     <div className="min-h-screen bg-blacky-900 flex items-center justify-center p-4 relative overflow-hidden">

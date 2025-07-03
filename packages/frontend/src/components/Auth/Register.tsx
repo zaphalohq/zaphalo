@@ -16,8 +16,6 @@ const Register = () => {
   const navigate = useNavigate()
   const { workspaceInviteToken } = useParams();
   const [register, { data, loading: registerLoading, error: registerError }] = useMutation(RegisterMutation);
-
-
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     if (password !== confirmPassword) {
@@ -32,7 +30,8 @@ const Register = () => {
           lastName,
           email,
           password,
-          inviteToken: workspaceInviteToken,
+
+          workspaceInviteToken: workspaceInviteToken,
         },
       });
       console.log('Registration successful', response.data.Register);

@@ -33,7 +33,8 @@ export class UserService {
 
   async findOneByEmail(email: string ): Promise<User | null> {
     const user = await this.userRepository.findOne({
-      where : { email } 
+      where : { email } ,
+      relations: ['workspaces', 'workspaces.workspace'],
     })
     return user;
   }

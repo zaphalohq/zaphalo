@@ -7,11 +7,6 @@ import { WorkspaceMember } from "./workspaceMember.entity";
 import { UserService } from "../user/user.service";
 import { User } from "../user/user.entity";
 import { WorkspaceService } from "./workspace.service";
-import { WorkspaceInvitation } from "./workspaceInvitation.entity";
-import { v4 as uuidv4 } from 'uuid';
-import { ContactsService } from "../contacts/contacts.service";
-import { Contacts } from "../contacts/contacts.entity";
-import { Role } from 'src/enums/role.enum';
 
 @Injectable()
 export class WorkspaceMemberService {
@@ -33,8 +28,8 @@ export class WorkspaceMemberService {
   }
 
   async create(userId: string, workspaceId: string): Promise<WorkspaceMember> {
-    // const user = userId;
-    // const workspace = this.workspaceService.findWorkspaceById(workspaceId);
+    const user = userId;
+    const workspace = this.workspaceService.findWorkspaceById(workspaceId);
     const userWorkspace = this.workspaceMemberRepository.create({
       userId,
       workspaceId,
