@@ -14,7 +14,7 @@ import {
 } from 'typeorm';
 import { UUIDScalarType } from '../api/scalars/uuid.scalar';
 import { User } from '../user/user.entity';
-import { Channel } from '../channel/channel.entity';
+// import { Channel } from '../channel/channel.entity';
 import { WorkspaceMember } from './workspaceMember.entity';
 
 @Entity({ name: 'workspace', schema: 'core' })
@@ -52,9 +52,9 @@ export class Workspace {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Field(() => [Channel])
-  @OneToMany(() => Channel, (channel) => channel.workspace)
-  channels: Relation<Channel[]>;
+  // @Field(() => [Channel])
+  // @OneToMany(() => Channel, (channel) => channel.workspace)
+  // channels: Relation<Channel[]>;
 
   @Field(() => [WorkspaceMember],{ nullable: true })
   @OneToMany(() => WorkspaceMember, (member) => member.workspace, { nullable: true })

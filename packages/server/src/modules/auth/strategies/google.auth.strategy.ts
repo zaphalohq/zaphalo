@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback } from 'passport-google-oauth20';
 import { ConfigType } from '@nestjs/config';
-import { AuthService } from '../auth.service';
+import { AuthService } from 'src/modules/auth/services/auth.service';
 import { Request } from 'express';
 
 export type GoogleRequest = Omit<

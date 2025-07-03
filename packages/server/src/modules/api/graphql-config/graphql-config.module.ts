@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { GraphQLConfigService } from './graphql-config.service';
 import { CoreModule } from 'src/modules/core.module';
-import { instantsModule } from 'src/modules/instants/instants.module';
+import { CustomerModule } from 'src/customer-modules/customer.module';
 
 @Module({
-  imports: [CoreModule, instantsModule],
+  imports: [CoreModule, CustomerModule],
   providers: [GraphQLConfigService],
-  exports: [CoreModule, instantsModule],
+  exports: [CoreModule, CustomerModule],
 })
 export class GraphQLConfigModule {}

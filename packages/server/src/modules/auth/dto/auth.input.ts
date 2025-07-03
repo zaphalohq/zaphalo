@@ -9,5 +9,5 @@ export class AuthInput {
   password: string;
 
   @Field({ nullable : true })
-  inviteToken?: string;
+  workspaceInviteToken?: string;
 }

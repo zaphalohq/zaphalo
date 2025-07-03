@@ -66,6 +66,7 @@ export const useAuth = () => {
     });
 
     const user = currentUserResult.data?.currentUser;
+console.log(currentUserResult,'...................currentUserResult       ');
 
     if(!user) throw Error("user not found")
     setCurrentUser(user);
@@ -149,6 +150,7 @@ export const useAuth = () => {
         ),
       );
 
+      console.log("...............response.........",response);
       
       await loadCurrentUser();
 

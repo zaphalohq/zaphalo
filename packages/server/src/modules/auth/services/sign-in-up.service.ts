@@ -51,7 +51,7 @@ export class SignInUpService {
     }
     // newUserParams.username = newUserParams.email;
     if (authParams.provider === 'password') {
-      newUserParams.passwordHash = await this.generateHash(authParams.password);
+      newUserParams.password = await this.generateHash(authParams.password);
     }
 
     return newUserParams as PartialUserWithPicture;
@@ -179,7 +179,10 @@ export class SignInUpService {
     });
 
     const workspace = await this.workspaceRepository.save(workspaceToCreate);
-    this.workspaceService.createWorkspaceSchema(workspace);
+    console.log(workspace,'......................................workspace.......');
+    
+    await this.workspaceService.createWorkspaceSchema(workspace);
+    
 
     const user =
       userData.type === 'existingUser'

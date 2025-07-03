@@ -4,7 +4,8 @@
   "license": "MIT",
   "nx": {},
   "scripts": {
-    "start": "npx concurrently --kill-others 'npx nx run-many -t start -p server frontend'"
+    "start": "npx concurrently --kill-others 'npx nx run-many -t start -p server frontend'",
+    "start:window": "nx run-many -t start -p server frontend"
   },
   "private": true,
   "devDependencies": {

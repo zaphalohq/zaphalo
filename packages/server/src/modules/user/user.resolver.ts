@@ -73,6 +73,8 @@ export class UserResolver {
     @AuthUser() { id: userId}: User,
     @AuthWorkspace() workspace: Workspace,
   ): Promise<User> {
+    console.log("............................",userId);
+    
       const user = await this.userRepository.findOne({
         where: {
           id: userId,

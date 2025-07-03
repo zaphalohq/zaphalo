@@ -30,7 +30,7 @@ import { useVerifyLoginToken } from '@src/modules/auth/hooks/useVerifyLoginToken
 import { useAtomValue } from 'jotai';
 import { currentWorkspaceIdState } from '@src/modules/auth/states/currentWorkspaceIdState';
 import { setItem } from '@src/components/utils/localStorage';
-import { LoginMutation } from '@src/components/Auth/AuthMutations/LoginMutation';
+import { LoginMutation } from '@src/generated/graphql';
 
 function Invite() {
     const { workspaceInviteToken } = useParams()
@@ -86,16 +86,13 @@ function Invite() {
       );
       const workspaceIds = JSON.parse(response.data.login.workspaceIds)
       setItem('workspaceIds', workspaceIds)
-      sessionStorage.setItem('workspaceId', workspaceIds[0]);
-      // setItem('userDetails', { name: response.data.login.userDetails.firstName, email: response.data.login.userDetails.email })
 
       setWorkspaces(response.data.login.workspaces)
 
       const token: string = response.data.login.accessToken.token;
-      // const expiresAt = response.data.login.accessToken.expiresAt;
-      console.log(token, 'tokentokentoken....................');
+      navigate(`/verify/${token}`);
 
-      await verifyLoginToken(token)
+      // await verifyLoginToken(token)
 
       // setTokenPair({
       //     accessToken: {

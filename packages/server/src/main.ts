@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as bodyParser from 'body-parser';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { join } from "path";
+import path from 'path';
 import { WorkspaceMiddleware } from 'src/modules/workspace-manager/workspace.manager.middleware';
 
 async function bootstrap() {
@@ -20,9 +20,10 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
+ app.use(new WorkspaceMiddleware().use);
   app.enableCors();
-  app.useStaticAssets(join(__dirname, "../uploads"))
+  app.useStaticAssets(path.join(__dirname, "../uploads"))
 
-  await app.listen(Number(process.env.PORT) || 3000);
+  await app.listen(Number(process.env.PORT));
 }
 bootstrap();

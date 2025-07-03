@@ -3,7 +3,6 @@ import { Args, Context, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { GqlAuthGuard } from "../auth/guards/gql-auth.guard";
 import { Workspace } from "./workspace.entity";
 import { WorkspaceService } from "./workspace.service";
-import { Contacts } from "../contacts/contacts.entity";
 import { WorkspaceDashboardOutput } from "./dto/WorkspaceDashboardOutput";
 import { WorkspaceUpdateInputDto } from "./dto/WorkspaceUpdateInputDto";
 import { WorkspaceResponceDTO } from "./dto/WorkspaceResponceDTO";
@@ -35,7 +34,7 @@ export class workspaceResolver {
   
   @Query(() => WorkspaceDashboardOutput)
   async findWorkspaceByIdForDash(@Args('workspaceId') workspaceId : string) {
-    return this.workspaceService.findWorkspaceByIdForDash(workspaceId)
+    // return this.workspaceService.findWorkspaceByIdForDash(workspaceId)
   }
 
   @Mutation(() => WorkspaceResponceDTO)

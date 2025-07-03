@@ -1,11 +1,6 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { Channel } from 'src/modules/channel/channel.entity';
-import { Message } from 'src/modules/channel/message.entity';
 
-import { Contacts } from 'src/modules/contacts/contacts.entity';
-import { Template } from 'src/modules/template/template.entity';
 import { User } from 'src/modules/user/user.entity';
-import { WhatsappInstants } from 'src/modules/instants/Instants.entity';
 import { Workspace } from 'src/modules/workspace/workspace.entity';
 import { WorkspaceMember } from 'src/modules/workspace/workspaceMember.entity';
 import { DataSource, Connection, createConnection, getConnectionManager, DataSourceOptions } from 'typeorm';
@@ -30,13 +25,13 @@ export class TypeORMService implements OnModuleInit, OnModuleDestroy {
       schema: 'core',
       entities: [
         User,
-        WhatsappInstants,
-        Contacts,
-        Channel,
-        Message,
+        // WhatsappInstants,
+        // Contacts,
+        // Channel,
+        // Message,
+        // Template,
         Workspace,
         WorkspaceMember,
-        Template
         // Workspace,
         // UserWorkspace,
         // AppToken,

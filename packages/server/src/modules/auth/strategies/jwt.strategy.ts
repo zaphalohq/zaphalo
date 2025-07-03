@@ -28,7 +28,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       id: payload['workspaceId'],
     });
 
-
+    console.log(workspace,'......workspace....................');
+    
     if (!workspace) {
       throw new Error('Workspace not found');
     }
@@ -38,6 +39,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user) {
       throw new Error('User not found');
     }
+console.log(user,"......................user.........");
 
     return { user, workspace, userId: payload.sub, role: payload.role, workspaceIds: payload.workspaceIds};
   }

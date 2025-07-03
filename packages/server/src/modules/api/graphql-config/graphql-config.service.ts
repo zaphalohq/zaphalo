@@ -11,7 +11,7 @@ import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 import { GraphQLSchemaWithContext, YogaInitialContext } from 'graphql-yoga';
 import * as Sentry from '@sentry/node';
 import { CoreModule } from 'src/modules/core.module';
-import { instantsModule } from 'src/modules/instants/instants.module';
+import { CustomerModule } from 'src/customer-modules/customer.module';
 
 
 @Injectable()
@@ -19,7 +19,7 @@ export class GraphQLConfigService implements GqlOptionsFactory<YogaDriverConfig<
   createGqlOptions(): YogaDriverConfig {
     const config: YogaDriverConfig = {
       autoSchemaFile: true,
-      include: [CoreModule, instantsModule],
+      include: [CoreModule, CustomerModule],
       cors: {
         credentials: false,
       },

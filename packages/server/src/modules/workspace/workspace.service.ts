@@ -7,8 +7,7 @@ import { WorkspaceMember } from "./workspaceMember.entity";
 import { UserService } from "../user/user.service";
 import { WorkspaceInvitation } from "./workspaceInvitation.entity";
 import { v4 as uuidv4 } from 'uuid';
-import { ContactsService } from "../contacts/contacts.service";
-import { Contacts } from "../contacts/contacts.entity";
+
 import { Role } from 'src/enums/role.enum';
 import { TypeORMService } from 'src/database/typeorm/typeorm.service';
 
@@ -23,8 +22,8 @@ export class WorkspaceService {
     private workspaceMemberRepository: Repository<WorkspaceMember>,
     @InjectRepository(WorkspaceInvitation, 'core')
     private invitationRepository: Repository<WorkspaceInvitation>,
-    @InjectRepository(Contacts, 'core')
-    private contactsRepository: Repository<Contacts>,
+    // @InjectRepository(Contacts)
+    // private contactsRepository: Repository<Contacts>,
     private readonly userService: UserService,
     private readonly typeormService: TypeORMService,
   ) { }
@@ -144,19 +143,21 @@ export class WorkspaceService {
     return await this.workspaceRepository.findOne({ where: { id: workspaceId } });
   }
 
-  async findWorkspaceByIdForDash(workspaceId) {
-    const workspace = await this.workspaceRepository.findOne({
-      where: { id: workspaceId, channels: { workspace: { id: workspaceId } } },
-      relations: ['channels', 'channels.contacts', 'channels.messages']
-    });
+  // async findWorkspaceByIdForDash(workspaceId) {
+  //   const workspace = await this.workspaceRepository.findOne({
+  //     where: { id: workspaceId,
+  //       //  channels: { workspace: { id: workspaceId } }
+  //        },
+  //     relations: ['channels', 'channels.contacts', 'channels.messages']
+  //   });
 
-    const contacts = this.contactsRepository.find({ where : { workspace : { id : workspaceId}}})
-    return {
-      workspace, 
-      contacts
-    }
+  //   // const contacts = this.contactsRepository.find({ where : { workspace : { id : workspaceId}}})
+  //   return {
+  //     workspace, 
+  //     // contacts
+  //   }
 
-  }
+  // }
 
   async createWorkspaceSchema(workspace: Workspace): Promise<Workspace> {
     const schemaName = `workspace_${workspace.id}`;

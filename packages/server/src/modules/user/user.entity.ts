@@ -12,13 +12,16 @@ import {
 import { IDField } from '@ptc-org/nestjs-query-graphql';
 import { UUIDScalarType } from '../api/scalars/uuid.scalar';
 import { IsOptional, IsString } from 'class-validator';
-import { Role } from 'src/enums/role.enum';
-import { Workspace } from 'src/modules/workspace/workspace.entity';
-import { WorkspaceMember } from 'src/modules/workspace/workspaceMember.entity';
+import { Role } from '../../enums/role.enum';
+import { WorkspaceMember } from '../workspace/workspaceMember.entity';
+import { Workspace } from '../workspace/workspace.entity';
+// import { Role } from 'src/enums/role.enum';
+// import { Workspace } from 'src/modules/workspace/workspace.entity';
+// import { WorkspaceMember } from 'src/modules/workspace/workspaceMember.entity';
 
 
 @Entity({ name: 'user', schema: 'core' })
-@ObjectType('User')
+@ObjectType('user')
 export class User {
   @IDField(() => UUIDScalarType)
   @PrimaryGeneratedColumn('uuid')

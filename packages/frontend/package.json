@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start:prod": "NODE_ENV=production npx vite --host"
+    "start:prod": "NODE_ENV=production npx vite --host",
+    "start": "npx vite --host"
   }
 }

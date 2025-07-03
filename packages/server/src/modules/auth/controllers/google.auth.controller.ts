@@ -2,7 +2,7 @@ import { Controller, UseGuards, Get, Req, Res, HttpStatus} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { GoogleOauthGuard } from 'src/modules/auth/guards/google.auth.guard';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../services/auth.service';
 import { Response } from 'express';
 import { User } from "src/modules/user/user.entity";
 
@@ -40,6 +40,8 @@ export class GoogleAuthController {
       email,
       authProvider: 'google',
     });
+    console.log(currentWorkspace,"currentWorkspace..................currentWorkspace",req.user);
+    
     try{
       const invitation =
         currentWorkspace && email
