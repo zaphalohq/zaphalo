@@ -1,10 +1,8 @@
-import ChatsNav from "./CurrentChannelNav"
 import MessageArea from "./Messagingbot"
+import ChatsNav from "./CurrentChannelNav"
 import MessageDisplay from "./MessageDisplay"
 
 const ChatsMain = () => {
-  // const { messages }: any = useWebSocket()
-  // w-[117.5vh]
   return (
     <div className="mt-4">
       <div className='bg-white w-full'>

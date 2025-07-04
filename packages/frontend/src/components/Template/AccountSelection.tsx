@@ -1,10 +1,9 @@
-import { useQuery } from '@apollo/client'
-import { findAllInstants } from '@src/pages/Mutation/WhatsappInstants'
 import { useEffect, useState } from 'react'
+import { useQuery } from '@apollo/client'
+import { findAllInstants } from '@src/generated/graphql'
 
 const AccountSelection = ({ templateData, handleInputChange} : any) => {
      const { data : instantsData, loading, refetch } = useQuery(findAllInstants)
-    
         const [allInstants, setAllInstants] = useState([{
             id: "",
             name: "",
@@ -15,14 +14,10 @@ const AccountSelection = ({ templateData, handleInputChange} : any) => {
         const HandleFetchInstants = async () => {
             try {
                 const data = await instantsData
-                
-                // Check if data exists and has the expected structure
               if (data?.findAllInstants) {
                 setAllInstants(data?.findAllInstants)
                 refetch();
                 const currentInstants = data?.findAllInstants.filter((instants : any) => instants.defaultSelected == true)
-                
-                
               } 
             } catch (err) {
                 console.error('Error fetching data', err)

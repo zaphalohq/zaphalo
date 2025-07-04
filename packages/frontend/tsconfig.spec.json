@@ -5,9 +5,9 @@
     "types": ["jest", "node"],
     "module": "esnext",
     "moduleResolution": "bundler",
-    "baseUrl": "../..",
+    "baseUrl": "./src",
     "paths": {
-      "@src/*": ["./packages/frontend/src/*"]
+      "@src/*": ["packages/frontend/src/*"]
     }
   },
   "files": ["src/test-setup.ts"],

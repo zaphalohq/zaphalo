@@ -1,11 +1,11 @@
-import { Controller, UseGuards, Get, Req, Res, HttpStatus} from '@nestjs/common';
+
+import { Response } from 'express';
+import { Controller, UseGuards, Get, Req, Res } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { GoogleOauthGuard } from 'src/modules/auth/guards/google.auth.guard';
-import { AuthService } from '../services/auth.service';
-import { Response } from 'express';
+import { AuthService } from 'src/modules/auth/services/auth.service';
 import { User } from "src/modules/user/user.entity";
-
 
 @Controller('google/auth')
 export class GoogleAuthController {
@@ -13,7 +13,7 @@ export class GoogleAuthController {
     private authService: AuthService,
     @InjectRepository(User, 'core')
     private readonly userRepository: Repository<User>,
-  ) {}
+  ) { }
 
   @Get()
   @UseGuards(GoogleOauthGuard)
@@ -31,7 +31,6 @@ export class GoogleAuthController {
       picture,
       workspaceId,
       workspaceInviteToken,
-      local,
     } = req.user;
 
     const currentWorkspace = await this.authService.findWorkspaceForSignInUp({
@@ -40,15 +39,14 @@ export class GoogleAuthController {
       email,
       authProvider: 'google',
     });
-    console.log(currentWorkspace,"currentWorkspace..................currentWorkspace",req.user);
-    
-    try{
+
+    try {
       const invitation =
         currentWorkspace && email
           ? await this.authService.findSignInUpInvitation({
-              currentWorkspace,
-              email,
-            })
+            currentWorkspace,
+            email,
+          })
           : undefined;
 
       const existingUser = await this.userRepository.findOne({
@@ -61,20 +59,11 @@ export class GoogleAuthController {
           lastName,
           email,
           picture,
-          // locale,
         },
         existingUser,
       );
 
-      // await this.authService.checkSignInAccess({
-      //   userData,
-      //   invitation,
-      //   workspaceInviteHash,
-      //   workspace: currentWorkspace,
-      // });
-
       const { user, workspace } = await this.authService.signInUp({
-        // invitation,
         workspace: currentWorkspace,
         userData,
         authParams: {
@@ -89,11 +78,11 @@ export class GoogleAuthController {
       return res.redirect(
         this.authService.computeRedirectURI({
           loginToken: loginToken.token,
-      }));
+        }));
     }
-    catch(err){
-      return res.redirect('/error'+err);
+    catch (err) {
+      return res.redirect('/error' + err);
     }
-    
+
   }
 }

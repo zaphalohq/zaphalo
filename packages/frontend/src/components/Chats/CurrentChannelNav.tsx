@@ -1,35 +1,36 @@
-import { useContext, useEffect, useRef, useState } from 'react'
-import { ChatsContext } from '@Context/ChatsContext'
 import { FiArrowLeft, FiEdit2 } from 'react-icons/fi'
+import { useContext, useEffect, useRef, useState } from 'react'
+import { ChatsContext } from '@components/Context/ChatsContext'
 
 const CurrentChannelNav = () => {
     const { chatsDetails }: any = useContext(ChatsContext)
     const { setIsUpdateChannelName }: any = useContext(ChatsContext)
     const [isChannelDetails, setIsChannelDetails] = useState(false)
     const menuref = useRef<HTMLDivElement | null>(null);
-      useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-          if (menuref.current && !menuref.current.contains(event.target as Node)) {
-            setIsChannelDetails(false);
-          }
-        };
-    
-        document.addEventListener("mousedown", handleClickOutside);
-    
-        return () => {
-          document.removeEventListener("mousedown", handleClickOutside);
-        };
-      }, []);
+    const { setIsChatOpen }: any = useContext(ChatsContext)
 
-      const { setIsChatOpen } : any = useContext(ChatsContext)
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuref.current && !menuref.current.contains(event.target as Node)) {
+                setIsChannelDetails(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     return (
         <div className="px-4 py-1 pr-4 flex items-center justify-between border-b border-gray-300">
             <div onClick={() => setIsChannelDetails(!isChannelDetails)} className="flex items-center hover:cursor-pointer gap-4 p-[7px]">
-            <div onClick={() => setIsChatOpen(false)} className='text-2xl md:hidden'><FiArrowLeft /></div>
+                <div onClick={() => setIsChatOpen(false)} className='text-2xl md:hidden'>
+                    <FiArrowLeft />
+                </div>
                 {chatsDetails.profileImg ?
                     <img className="w-8 h-8 p-0.5 object-cover rounded-full" src={chatsDetails.profileImg} alt="cdsdcsd" />
-                    : <div className='w-8 h-8 p-0.5 rounded-full bg-blue-200 flex items-center justify-center text-sm font-bold text-blue-500'>{chatsDetails.channelName.slice(0, 1).toUpperCase()}</div>
+                    : <div className='w-8 h-8 p-0.5 rounded-full bg-blue-200 flex items-center justify-center text-sm font-bold text-blue-500'>{chatsDetails?.channelName?.slice(0, 1).toUpperCase()}</div>
                 }
                 <div className="font-bold tex-lg">{chatsDetails.contactName ? chatsDetails.contactName : chatsDetails.channelName}</div>
             </div>
@@ -37,31 +38,20 @@ const CurrentChannelNav = () => {
                 <div className='text-lg font-semibold text-center rounded  p-2'>Channel Details</div>
                 <ul >
                     <li className='w-full bg-gray-200 px-4 p-2 border-b border-gray-300'>
-                        Name :  
+                        Name :
                         <span className='font-semibold text-violet-700'>{`  ${chatsDetails.channelName}`}</span></li>
                     <li className='w-full bg-gray-200 px-4 p-2'>
                         phone no :
                         <span className='font-semibold text-violet-700'>{`  ${chatsDetails.receiverId[0]}`} </span>
                     </li>
                 </ul>
-            </div> : <></> }
+            </div> : <></>}
             <div className="flex gap-4 text-[1.3rem] ">
-                {/* <button className="p-2 cursor-pointer rounded hover:bg-stone-300 text-lg"></button> */}
                 <button onClick={() => setIsUpdateChannelName(true)}
-                    className="p-2 cursor-pointer rounded hover:bg-gray-300 text-base font-normal text-violet-600"><FiEdit2 /></button>
-                {/* {/* <div className='text-violet-600'><FiEdit2 /></div> */}
+                    className="p-2 cursor-pointer rounded hover:bg-gray-300 text-base font-normal text-violet-600">
+                    <FiEdit2 />
+                </button>
             </div>
-            {/* ------------------------this is delete if we want to delete channel now it is commented out */}
-            {/* { isDeleteUpdateVis ?
-                <div className='absolute right-14 top-12 rounded-sm  bg-white z-11 py-2'>
-                <ul onClick={() => {
-                    setIsUpdateChannelName(true)
-                    }} className=' text-lg font-semibold'>
-                    <ul className='flex gap-4 items-center bg-gray-100 px-4 p-2  border-b border-stone-300 cursor-pointer hover:bg-gray-300'>
-                        <li className='text-red-500'><FiTrash2 /></li>
-                    </ul>
-                </ul>
-            </div> : <></>} */}
         </div>
     )
 }

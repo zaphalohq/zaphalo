@@ -23,12 +23,8 @@ export default defineConfig(() => ({
   resolve: {
     alias: {
       '@src': path.resolve(__dirname, './src'),
-      'src': path.resolve(__dirname, './src'),
       '@components': path.resolve(__dirname, './src/components'),
       '@pages': path.resolve(__dirname, './src/pages'),
-      '@UI': path.resolve(__dirname, './src/components/UI'),
-      '@Context': path.resolve(__dirname, './src/components/Context'),
-      '@utils': path.resolve(__dirname, './src/components/utils'),
     },
   },
   // Uncomment this if you are using workers.

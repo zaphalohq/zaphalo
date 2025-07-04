@@ -1,13 +1,12 @@
 import { UseGuards } from "@nestjs/common";
 import { Args, Context, Mutation, Query, Resolver } from "@nestjs/graphql";
-import { GqlAuthGuard } from "../auth/guards/gql-auth.guard";
 import { Workspace } from "./workspace.entity";
 import { WorkspaceService } from "./workspace.service";
-import { WorkspaceDashboardOutput } from "./dto/WorkspaceDashboardOutput";
-import { WorkspaceUpdateInputDto } from "./dto/WorkspaceUpdateInputDto";
 import { WorkspaceResponceDTO } from "./dto/WorkspaceResponceDTO";
+import { WorkspaceUpdateInputDto } from "./dto/WorkspaceUpdateInputDto";
+import { WorkspaceDashboardOutput } from "./dto/WorkspaceDashboardOutput";
+import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
 
-// WorkspaceResolver
 @Resolver(() => Workspace)
 export class workspaceResolver {
   constructor(private workspaceService: WorkspaceService) { }

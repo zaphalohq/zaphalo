@@ -4,10 +4,10 @@ import { instantsResolver } from './instants.resolver';
 import { NestjsQueryGraphQLModule } from '@ptc-org/nestjs-query-graphql';
 import { WhatsappInstants } from './Instants.entity';
 import { NestjsQueryTypeOrmModule } from '@ptc-org/nestjs-query-typeorm';
-import { TypeORMModule } from 'src/database/typeorm/typeorm.module';
 import { whatappinstanstsAutoResolverOpts } from './instants.auto-resolver-opts';
-import { ContactsModule } from '../contacts/contacts.module';
-import { Template } from '../template/template.entity';
+import { ContactsModule } from 'src/customer-modules/contacts/contacts.module';
+import { Template } from 'src/customer-modules/template/template.entity';
+import { TypeORMModule } from 'src/database/typeorm/typeorm.module';
 import { WorkspaceModule } from 'src/modules/workspace/workspace.module';
 
 @Module({
@@ -16,7 +16,6 @@ import { WorkspaceModule } from 'src/modules/workspace/workspace.module';
       imports: [
         NestjsQueryTypeOrmModule.forFeature([WhatsappInstants, Template]),
         TypeORMModule,
-        // TypeOrmModule.forFeature([WhatsappInstants]),
         WorkspaceModule,
         ContactsModule,
       ],

@@ -1,9 +1,8 @@
 import { useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import AuthLayout from "src/modules/ui/layouts/AuthLayout";
 import { Typography, Link as MuiLink } from "@mui/material";
+import AuthLayout from "@src/modules/ui/layouts/AuthLayout";
 import { useVerifyLoginToken } from '@src/modules/auth/hooks/useVerifyLoginToken';
-
 
 export default function VerifyLoginTokenEffect() {
   const [searchParams] = useSearchParams();
@@ -11,24 +10,10 @@ export default function VerifyLoginTokenEffect() {
   const { verifyLoginToken } = useVerifyLoginToken();
 
   useEffect(() => {
-    // if (isDefined(errorMessage)) {
-    //   enqueueSnackBar(errorMessage, {
-    //     dedupeKey: 'get-auth-tokens-from-login-token-failed-dedupe-key',
-    //     variant: SnackBarVariant.Error,
-    //   });
-    // }
-
-    // if (!clientConfigLoaded) return;
     if (loginToken) {
       verifyLoginToken(loginToken);
     }
-    // else if (!isLogged) {
-    //   navigate(AppPath.SignInUp);
-    // }
-    // Verify only needs to run once at mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   return (<>
     <AuthLayout
       title="Sign up"

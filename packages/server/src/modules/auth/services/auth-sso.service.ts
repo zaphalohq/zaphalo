@@ -1,17 +1,15 @@
+import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-
-import { Repository } from 'typeorm';
-
-import { WorkspaceAuthProvider } from 'src/modules/workspace/types/workspace.type';
 import { Workspace } from 'src/modules/workspace/workspace.entity';
+import { WorkspaceAuthProvider } from 'src/modules/workspace/types/workspace.type';
 
 @Injectable()
 export class AuthSsoService {
   constructor(
     @InjectRepository(Workspace, 'core')
     private readonly workspaceRepository: Repository<Workspace>,
-  ) {}
+  ) { }
 
   private getAuthProviderColumnNameByProvider(
     authProvider: WorkspaceAuthProvider,
@@ -43,22 +41,14 @@ export class AuthSsoService {
       !workspaceId &&
       email !== undefined
     ) {
-      // Multi-workspace enable mode but on non workspace url.
-      // so get the first workspace with the current auth method enable
       const workspace = await this.workspaceRepository.findOne({
         where: {
-          // [this.getAuthProviderColumnNameByProvider(authProvider)]: true,
           members: {
             user: {
               email,
             },
           },
         },
-        // relations: [
-        //   'workspaceUsers',
-        //   'workspaceUsers.user',
-        //   'approvedAccessDomains',
-        // ],
       });
       return workspace ?? undefined;
     }
@@ -66,7 +56,6 @@ export class AuthSsoService {
       where: {
         id: workspaceId,
       },
-      // relations: ['approvedAccessDomains'],
     });
   }
 }

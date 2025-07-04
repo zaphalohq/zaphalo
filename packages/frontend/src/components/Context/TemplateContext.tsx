@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useState } from "react";
 
 interface TemplateContextProps {
   templateFormData: any,
@@ -8,7 +8,6 @@ interface TemplateContextProps {
 }
 
 export const TemplateContext = createContext<TemplateContextProps | undefined>(undefined)
-
 
 export const TemplateProvider = ({ children }: any) => {
   const [templateFormData, setTemplateFormData] = useState({
@@ -44,12 +43,6 @@ Thank you.`,
     header_handle: '',
     fileUrl: ''
   });
-
-  //   useEffect(() => {
-  //     console.log(templateFormData,".............................................");
-
-  //       },[templateFormData])
-
 
   return (
     <TemplateContext.Provider value={{

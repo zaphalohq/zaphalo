@@ -1,11 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class DomainManagerService {
-
   getFrontUrl() {
     const url = process.env.FRONTEND_URL ??
-        process.env.SERVER_URL ?? ''
+      process.env.SERVER_URL ?? ''
     return new URL(url);
   }
 
@@ -21,24 +20,11 @@ export class DomainManagerService {
     if (pathname) {
       url.pathname = pathname;
     }
-
-    // if (searchParams) {
-    //   this.appendSearchParams(url, searchParams);
-    // }
-
     return url;
   }
 
   getBaseUrl(): URL {
     const baseUrl = this.getFrontUrl();
-
-    // if (
-    //   this.twentyConfigService.get('IS_MULTIWORKSPACE_ENABLED') &&
-    //   this.twentyConfigService.get('DEFAULT_SUBDOMAIN')
-    // ) {
-    //   baseUrl.hostname = `${this.twentyConfigService.get('DEFAULT_SUBDOMAIN')}.${baseUrl.hostname}`;
-    // }
-
     return baseUrl;
   }
 
@@ -52,19 +38,13 @@ export class DomainManagerService {
   }
 
   buildWorkspaceURL({
-    // workspace,
     pathname,
     searchParams,
   }: {
-    // workspace: WorkspaceSubdomainCustomDomainAndIsCustomDomainEnabledType;
     pathname?: string;
     searchParams?: Record<string, string | number | boolean>;
   }) {
-    // const workspaceUrls = this.getWorkspaceUrls(workspace);
-
-    // const url = new URL(workspaceUrls.customUrl ?? workspaceUrls.subdomainUrl);
     const url = new URL(this.getFrontUrl());
-
     if (pathname) {
       url.pathname = pathname;
     }
@@ -76,23 +56,11 @@ export class DomainManagerService {
 
 
   getSubdomainAndCustomDomainFromWorkspaceFallbackOnDefaultSubdomain(
-    // workspace?: WorkspaceSubdomainCustomDomainAndIsCustomDomainEnabledType | null,
   ) {
-    // if (!workspace) {
     return {
       subdomain: process.env.DEFAULT_SUBDOMAIN,
       customDomain: null,
     };
-    // }
-
-    // if (!workspace.isCustomDomainEnabled) {
-    //   return {
-    //     subdomain: workspace.subdomain,
-    //     customDomain: null,
-    //   };
-    // }
-
-    // return workspace;
   }
 
 }

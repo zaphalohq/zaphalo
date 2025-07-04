@@ -1,34 +1,29 @@
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { error, log } from "console";
-import { WorkspaceService } from "src/modules/workspace/workspace.service";
-import { Broadcast } from "./broadcast.entity";
 import axios from 'axios';
-import { BroadcastContacts } from "./broadcastContacts.entity";
 import cron from 'node-cron';
-import { MailingListService } from "../mailingList/mailingList.service";
-import { TemplateService } from "../template/template.service";
-import { instantsService } from "../instants/instants.service";
-import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
+import { Inject, Injectable } from "@nestjs/common";
 import { Connection, Repository, In } from 'typeorm';
-
-
+import { Broadcast } from "./broadcast.entity";
+import { BroadcastContacts } from "./broadcastContacts.entity";
+import { MailingListService } from "src/customer-modules/mailingList/mailingList.service";
+import { TemplateService } from "src/customer-modules/template/template.service";
+import { instantsService } from "src/customer-modules/instants/instants.service";
+import { WorkspaceService } from "src/modules/workspace/workspace.service";
+import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 
 @Injectable()
 export class BroadcastService {
-    private broadcastRepository: Repository<Broadcast>
-    private broadcastContactsRepository: Repository<BroadcastContacts>
+  private broadcastRepository: Repository<Broadcast>
+  private broadcastContactsRepository: Repository<BroadcastContacts>
   constructor(
-      @Inject(CONNECTION) connection: Connection,
+    @Inject(CONNECTION) connection: Connection,
     private readonly mailingListService: MailingListService,
     private readonly templateService: TemplateService,
     private readonly workspaceService: WorkspaceService,
     private readonly instantsService: instantsService
-    ) {
-      this.broadcastRepository = connection.getRepository(Broadcast);
-      this.broadcastContactsRepository = connection.getRepository(BroadcastContacts);
-
-    }
+  ) {
+    this.broadcastRepository = connection.getRepository(Broadcast);
+    this.broadcastContactsRepository = connection.getRepository(BroadcastContacts);
+  }
 
   onModuleInit() {
     this.sendMessagesInBackground();
@@ -36,7 +31,6 @@ export class BroadcastService {
 
   async BroadcastTemplate(workspaceId, accessToken, broadcastData, phoneNumberId): Promise<Broadcast> {
     const url = `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`;
-
     const { templateName, variables = [], URL, headerType, language } = broadcastData;
     // const headerComponent =
     //   headerType === 'IMAGE' && URL
@@ -91,7 +85,6 @@ export class BroadcastService {
     //   })),
     // };
 
-
     const workspace = await this.workspaceService.findWorkspaceById(workspaceId)
     if (!workspace) throw new Error('workspace not found');
     const mailingList = await this.mailingListService.findMailingListById(broadcastData.mailingListId)
@@ -120,7 +113,6 @@ export class BroadcastService {
     });
 
     this.cronForPendingBroadcasts()
-    // this.sendMessagesInBackground();
     return broadcast
   }
 
@@ -131,7 +123,6 @@ export class BroadcastService {
   }
 
   private async sendMessagesInBackground() {
-
     const broadcasts = await this.broadcastRepository.find({
       where: {
         isBroadcastDone: false
@@ -147,7 +138,6 @@ export class BroadcastService {
       const accessToken = findTrueInstants?.accessToken
       const phoneNumberId = findTrueInstants?.phoneNumberId
       const url = `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`;
-
 
       const { bodyComponent, headerComponent } = await this.templateMeta(headerType, variables)
 
@@ -215,9 +205,7 @@ export class BroadcastService {
     });
 
   }
-async headerComponent () {
-  
-}
+
   private async templateMeta(headerType: string, variables) {
     const headerComponent =
       headerType === 'IMAGE' && URL
@@ -277,7 +265,6 @@ async headerComponent () {
 
   async findAllBroadcast(workspaceId: string): Promise<Broadcast[]> {
     return await this.broadcastRepository.find({
-      // where: { workspace: { id: workspaceId } },
       order: { createdAt: 'ASC' },
     });
 

@@ -1,13 +1,14 @@
 import { useContext, useState } from "react";
-import { useMutation, useQuery } from "@apollo/client";
-import { GET_TEMPLATE_STATUS, SUBMIT_TEMPLATE } from "@pages/Mutation/Template";
-import { TemplateContext } from "@Context/TemplateContext";
 import axios from 'axios';
-import { getItem } from "@utils/localStorage";
 import TemplateBasic from "./TemplateBasic";
 import TemplateBody from "./TemplateBody";
 import TemplateButton from "./TemplateButton";
 import TemplateVariables from "./TemplateVariables";
+import { useMutation } from "@apollo/client";
+import { cookieStorage } from '@src/utils/cookie-storage';
+import { SUBMIT_TEMPLATE } from "@src/generated/graphql";
+import { TemplateContext } from "@components/Context/TemplateContext";
+
 
 const TemplateForm = () => {
   const [templateData, setTemplateData] = useState({
@@ -21,7 +22,7 @@ To track the shipping: {{4}}
 Thank you.`,
     footerText: '',
     button: [],
-    variables : [],
+    variables: [],
     headerType: 'NONE',
     header_handle: '',
     fileUrl: ''
@@ -37,19 +38,18 @@ Thank you.`,
   const handleInputChange = (e: any) => {
     setTemplateData({ ...templateData, [e.target.name]: e.target.value });
     setTemplateFormData({ ...templateFormData, [e.target.name]: e.target.value });
-    console.log(templateData);
-
   };
 
   const handleFileUpload = async () => {
     let updatedTemplateData = { ...templateData };
+    const accessToken = cookieStorage.getItem('accessToken')
     if (file !== null) {
       const formData = new FormData();
       formData.append('file', file);
       try {
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/templateFileUpload`, formData, {
           headers: {
-            Authorization: `Bearer ${getItem('access_token')}`,
+            Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'multipart/form-data'
           },
         });
@@ -57,7 +57,6 @@ Thank you.`,
         updatedTemplateData['header_handle'] = response.data.file_handle;
         updatedTemplateData['fileUrl'] = response.data.fileUrl;
         setTemplateData(updatedTemplateData);
-        console.log('File uploaded successfully:', response.data);
         return updatedTemplateData
       } catch (error) {
         console.error('Error uploading file:', error);
@@ -83,20 +82,16 @@ Thank you.`,
     setError(null);
     setStatus(null);
     const updatedTemplateData = await handleFileUpload()
-    console.log(templateData);
-    
     try {
       const response = await submitTemplate({ variables: { templateData: updatedTemplateData } });
       const result = response.data;
-      console.log(response.data);
-
       setStatus(result);
       if (result.success) {
         setTemplateId(JSON.parse(result.data).id);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to submit template');
-      console.log(err);
+      console.error(err);
 
     } finally {
       setIsSubmitting(false);
@@ -133,7 +128,7 @@ Thank you.`,
 
             {currentComponent == "Variables" ?
               <TemplateVariables setTemplateData={setTemplateData} />
-              : <></>} 
+              : <></>}
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
@@ -153,7 +148,6 @@ Thank you.`,
           </pre>
           {templateId && (
             <button
-              // onClick={() => checkStatus(templateId)}
               className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
             >
               Refresh Status

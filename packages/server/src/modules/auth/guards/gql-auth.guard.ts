@@ -1,7 +1,6 @@
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { GqlExecutionContext } from '@nestjs/graphql';
-import { log } from 'node:console';
 
 
 @Injectable()

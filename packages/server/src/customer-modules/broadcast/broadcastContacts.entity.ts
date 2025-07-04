@@ -1,11 +1,18 @@
 import { Field, ObjectType } from "@nestjs/graphql";
 import { IDField } from "@ptc-org/nestjs-query-graphql";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
-import { UUIDScalarType } from "src/modules/api/scalars/uuid.scalar";
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    PrimaryGeneratedColumn,
+    Relation
+} from "typeorm";
 import { Broadcast } from "./broadcast.entity";
+import { UUIDScalarType } from "src/modules/api/scalars/uuid.scalar";
 
-
-@Entity({ name: 'broadcastContacts'})
+@Entity({ name: 'broadcastContacts' })
 @ObjectType('broadcastContacts')
 export class BroadcastContacts {
     @IDField(() => UUIDScalarType)
@@ -24,7 +31,6 @@ export class BroadcastContacts {
     @Column({ default: 'PENDING' })
     @Field(() => String)
     status: string;
-
 
     @CreateDateColumn()
     @Field()

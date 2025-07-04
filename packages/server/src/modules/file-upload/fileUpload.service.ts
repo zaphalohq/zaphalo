@@ -18,15 +18,7 @@ export class FileUploadService {
         return fileUrl;
     }
 
-
-
     async deleteFile(filename: string): Promise<void> {
-        // const filePath = join(this.uploadDir, filename);
-
-        // if (!existsSync(filePath)) {
-        //     throw new NotFoundException(`File ${filename} not found`);
-        // }
-
         try {
             unlinkSync(`uploads\\${filename}`);
             console.log('File deleted: ${filePath}');

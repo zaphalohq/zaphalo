@@ -2,9 +2,9 @@ import React from 'react'
 
 const SubmitButton = ({ title, type, onClick, Icon } : {
   title: string;
-  type?: 'button' | 'submit' | 'reset' | undefined; // Optional 'type' prop, defaulting to 'button'
-  onClick?: () => void; // Optional onClick handler
-  Icon?: React.ComponentType<any>; // Optional icon component
+  type?: 'button' | 'submit' | 'reset' | undefined;
+  onClick?: () => void;
+  Icon?: React.ComponentType<any>;
 }) => {
   return (
     <div>
@@ -18,9 +18,9 @@ const SubmitButton = ({ title, type, onClick, Icon } : {
 
 export const CloseButton = ({ title, type, onClick, Icon } : {
   title: string;
-  type?: 'button' | 'submit' | 'reset' | undefined; // Optional 'type' prop, defaulting to 'button'
-  onClick?: () => void; // Optional onClick handler
-  Icon?: React.ComponentType<any>; // Optional icon component
+  type?: 'button' | 'submit' | 'reset' | undefined;
+  onClick?: () => void;
+  Icon?: React.ComponentType<any>;
 }) => {
   return (
     <div>

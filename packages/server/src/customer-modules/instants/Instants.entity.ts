@@ -1,24 +1,27 @@
 import { Field, ObjectType } from "@nestjs/graphql";
 import { IDField } from "@ptc-org/nestjs-query-graphql";
-import { GraphQLScalarType, Kind } from "graphql";
 import { UUIDScalarType } from "src/modules/api/scalars/uuid.scalar";
-import { Workspace } from "src/modules/workspace/workspace.entity";
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn
+} from "typeorm";
 
 
-@Entity({ name: 'instants'})
+@Entity({ name: 'instants' })
 @ObjectType('Instants')
 export class WhatsappInstants {
   @IDField(() => UUIDScalarType)
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()                                // Regular database column
-  @Field()                                 // GraphQL field
+  @Column()
+  @Field()
   name: string;
 
-  @Column()                                // Regular database column
-  @Field()                                 // GraphQL field
+  @Column()
+  @Field()
   appId: string;
 
   @Column()
@@ -27,25 +30,21 @@ export class WhatsappInstants {
 
   @Column()
   @Field()
-  businessAccountId: string ;
+  businessAccountId: string;
 
   @Column()
   @Field()
-  accessToken: string ;
+  accessToken: string;
 
   @Column()
   @Field()
-  appSecret: string ;
+  appSecret: string;
 
   @CreateDateColumn()
-  @Field() // If using GraphQL
+  @Field()
   createdAt: Date;
 
-    // @Field(() => Workspace)
-    // @ManyToOne(() => Workspace)
-    // workspace : Relation<Workspace>
-
-    @Column({ nullable : true })
-    @Field({ nullable : true })
-    defaultSelected: boolean;
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  defaultSelected: boolean;
 }

@@ -1,5 +1,4 @@
 import { createContext, useState } from "react";
-import { getItem } from "@utils/localStorage"
 export interface ChatsContectProps {
     chatsDetails: any,
     setChatsDetails: Function,
@@ -15,40 +14,32 @@ export interface ChatsContectProps {
     setIsChatOpen : Function,
 }
 
-
 export const ChatsContext = createContext<ChatsContectProps | undefined>(undefined)
 
 export const ChatsProvider = ({ children }: any) => {
 
-    const [chatsDetails, setChatsDetails] = useState(() => {
-        const item = getItem("chatsDetails")
-        return item || {
+    const [chatsDetails, setChatsDetails] = useState(async () => {
+        const item = localStorage.getItem("chatsDetails");
+        let chatsDetails = {
             receiverId: [],
             profileImg: '',
             channelName: '',
             memberIds: '',
             channelId: '',
             phoneNo: '',
-        }
+        };
+        if(item) chatsDetails = await JSON.parse(item);
+        return chatsDetails 
     })
 
     const [newMessage, setNewMessage] = useState([{
             channelId: '',
             phoneNo: '',
-            textMessage: [], // Array of messages
+            textMessage: [],
             unseen: 0,
         }])
 
-    // const [ newMessage, setNewMessage ] = useState([{
-    //     channelId: '',
-    //     phoneNo: '',
-    //     message: {},
-    //     unseen: 0
-    // }])
-
-    //---------------it handles boolean when new channel is created wite websocket--------------
     const [ isNewChannelCreated, setIsNewChannelCreated ] = useState(false);
-
 
     const [myCurrentMessage, setMyCurrentMessage] = useState({
         message: '',
@@ -58,7 +49,6 @@ export const ChatsProvider = ({ children }: any) => {
 
     const [ isUpdateChannelName, setIsUpdateChannelName] = useState(false)
 
-    //---------Handle responsiveness of chat----------------
     const [ isChatOpen, setIsChatOpen ] = useState(false)
 
     return (

@@ -1,25 +1,19 @@
-import { GraphQLISODateTime, Field, ID, ObjectType } from '@nestjs/graphql'
-import { IsString, IsStrongPassword, isStrongPassword } from "class-validator";
-import { FilterableField, FilterableRelation, KeySet, QueryOptions } from '@ptc-org/nestjs-query-graphql'
-
+import { Field, ObjectType } from '@nestjs/graphql'
+import { IsString, IsStrongPassword } from "class-validator";
+import { QueryOptions } from '@ptc-org/nestjs-query-graphql'
 
 @ObjectType('User')
-// @KeySet(['id'])
 @QueryOptions({ enableTotalCount: true })
 export class userDTO {
-
-  // @FilterableField(() => ID)
-  // id!: string
+  @Field()
+  @IsString()
+  username: string
 
   @Field()
   @IsString()
-  username : string
+  email: string
 
   @Field()
-  @IsString()
-  email : string
-
-  @Field()
-  // @IsStrongPassword()
-  password : string
+  @IsStrongPassword()
+  password: string
 }

@@ -1,10 +1,9 @@
-import AccountSelection from "./AccountSelection"
 import LanguageCode from "./LanguageCode"
 import TemplateFooter from "./TemplateFooter"
 import TemplateHeader from "./TemplateHeader"
+import AccountSelection from "./AccountSelection"
 
 const TemplateBasic = ({ templateData, handleInputChange, handleFileChange }: any) => {
-  
   return (
     <div>
       <AccountSelection templateData={templateData} handleInputChange={handleInputChange} />
@@ -20,8 +19,6 @@ const TemplateBasic = ({ templateData, handleInputChange, handleFileChange }: an
           required
         />
       </div>
-
-
       <div className="grid grid-cols-2 gap-8 my-4">
         <div>
           <label className="block text-sm font-medium text-gray-700">Category</label>

@@ -2,8 +2,6 @@ import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { instantsService } from './instants.service';
 import { WhatsappInstants } from './Instants.entity';
 import { CreateFormDataInput } from './DTO/create-form-data.input';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { UseGuards } from '@nestjs/common';
 import { UpdatedInstantsDTO } from './DTO/updated-instants';
 import { DeleteInstantsDTO } from './DTO/Delete-instants';
@@ -19,19 +17,17 @@ export class instantsResolver {
     @Mutation(() => WhatsappInstants)
     async CreateInstants(@Context('req') req, @Args('InstantsData'
     ) WhatsappInstantsData: CreateFormDataInput): Promise<WhatsappInstants | null | string> {
-        const workspaceId = req.headers['x-workspace-id']
-        return await this.instantsservice.CreateInstants(WhatsappInstantsData, workspaceId);
+        return await this.instantsservice.CreateInstants(WhatsappInstantsData);
     }
 
     @UseGuards(GqlAuthGuard)
     @Mutation(() => WhatsappInstants)
-    async SyncAndSaveInstants(@Context('req') req, @Args('InstantsData'
-    ) WhatsappInstantsData: CreateFormDataInput): Promise<WhatsappInstants | null | string> {
-        const workspaceId = req.headers['x-workspace-id']
-        const instants = await this.instantsservice.CreateInstants(WhatsappInstantsData, workspaceId);
+    async SyncAndSaveInstants(
+        @Args('InstantsData') WhatsappInstantsData: CreateFormDataInput): Promise<WhatsappInstants | null | string> {
+        const instants = await this.instantsservice.CreateInstants(WhatsappInstantsData);
         if (instants && typeof instants !== 'string') {
-        const syncTemplate =  await this.instantsservice.SyncTemplate(instants, workspaceId, instants?.businessAccountId, instants?.accessToken)
-        
+            const syncTemplate = await this.instantsservice.SyncTemplate(instants, instants?.businessAccountId, instants?.accessToken)
+
         }
         return instants;
     }
@@ -40,10 +36,10 @@ export class instantsResolver {
     async TestAndSaveInstants(@Context('req') req, @Args('InstantsData'
     ) WhatsappInstantsData: CreateFormDataInput): Promise<WhatsappInstants | null | string> {
         const workspaceId = req.headers['x-workspace-id']
-        const instants = await this.instantsservice.CreateInstants(WhatsappInstantsData, workspaceId);
+        const instants = await this.instantsservice.CreateInstants(WhatsappInstantsData);
         if (instants && typeof instants !== 'string') {
-        const syncTemplate =  await this.instantsservice.TestInstants(instants?.businessAccountId, instants?.accessToken)
-        
+            const syncTemplate = await this.instantsservice.TestInstants(instants?.businessAccountId, instants?.accessToken)
+
         }
         return instants;
     }
@@ -52,9 +48,8 @@ export class instantsResolver {
 
     @UseGuards(GqlAuthGuard)
     @Query(() => [WhatsappInstants])
-    async findAllInstants(@Context('req') req): Promise<WhatsappInstants[]> {
-        const workspaceId = req.headers['x-workspace-id']
-        return await this.instantsservice.findAllInstants(workspaceId);
+    async findAllInstants(): Promise<WhatsappInstants[]> {
+        return await this.instantsservice.findAllInstants();
     }
 
     @UseGuards(GqlAuthGuard)
@@ -71,24 +66,8 @@ export class instantsResolver {
 
     @UseGuards(GqlAuthGuard)
     @Mutation(() => [WhatsappInstants])
-    async InstantsSelection(@Context('req') req, @Args('instantsId') instantsId: string): Promise<WhatsappInstants[]> {
-        const workspaceId = req.headers['x-workspace-id']
-        return await this.instantsservice.InstantsSelection(instantsId, workspaceId);
+    async InstantsSelection(@Args('instantsId') instantsId: string): Promise<WhatsappInstants[]> {
+        return await this.instantsservice.InstantsSelection(instantsId);
     }
 
-
-    @Query(() => String)
-    async sendTemplateMessage() {
-        return this.instantsservice.sendTemplateMessage();
-    }
-
-    @Query(() => String)
-    async sendTextMessage() {
-        return this.instantsservice.sendTextMessage();
-    }
-
-    @Query(() => String)
-    async sendMediaMessage() {
-        return this.instantsservice.sendMediaMessage();
-    }
 }

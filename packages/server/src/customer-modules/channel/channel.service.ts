@@ -20,7 +20,6 @@ export class ChannelService {
     @Inject(CONNECTION) connection: Connection,
         private readonly contactsservice: ContactsService,
         private readonly userService: UserService,
-        private readonly workspaceService: WorkspaceService,
     ) { 
     this.channelRepository = connection.getRepository(Channel);
     this.messageRepository = connection.getRepository(Message);
@@ -28,8 +27,8 @@ export class ChannelService {
     }
 
 
-    async findOrCreateChannel(phoneNo: any, memberIds: number[], workspaceId?: string, channelName?: string, userId?: any,) {
-        const contacts = await this.contactsservice.findContactsByPhoneNoArr(memberIds, workspaceId)
+    async findOrCreateChannel(phoneNo: any, memberIds: number[], channelName?: string, userId?: any,) {
+        const contacts = await this.contactsservice.findContactsByPhoneNoArr(memberIds)
 
         //----finding channel exist or not ------------------------
         const isChannelExist = await this.findExistingChannelByPhoneNo(memberIds,
@@ -40,25 +39,22 @@ export class ChannelService {
             return { channel: isChannelExist, newChannelCreated: false }
         const user = await this.userService.findByUserId(userId)
         if (!user) throw new Error("user doesnt found")
-        const workspace = await this.workspaceService.findWorkspaceById(workspaceId)
-        if (!workspace) throw new Error("workspace doesnt found")
         const newChannel = this.channelRepository.create({
-            channelName: channelName || phoneNo, // Default name as phoneNo
+            channelName: channelName || phoneNo, 
             contacts: contacts,
             // writeUser: user,
             // createUser: user,
             membersidsss: JSON.stringify(memberIds),
-            // workspace: workspace,
         })
         await this.channelRepository.save(newChannel)
 
         return { channel: newChannel, newChannelCreated: true }
     }
 
-    async findExistingChannelByPhoneNo(memberIds: any, workspaceId?: string): Promise<Channel | undefined> {
+    async findExistingChannelByPhoneNo(memberIds: any): Promise<Channel | undefined> {
         const channelExist = await this.channelRepository.find({
             where: { contacts: memberIds.map((member) => ({ phoneNo: member }))},
-            relations: ['contacts', 'workspace']
+            relations: ['contacts']
         })
 
         const membersIdsStr = memberIds.sort((a, b) => a - b).join(',')
@@ -74,8 +70,8 @@ export class ChannelService {
         return stillChannelExist
     }
 
-    async createMessage(textMessage: string, channelId: string, senderId: number, workspaceId?: string | undefined, unseen?: boolean, attachmentUrl?: string) {
-        const sender = await this.contactsservice.findOneContact(senderId, workspaceId);
+    async createMessage(textMessage: string, channelId: string, senderId: number, unseen?: boolean, attachmentUrl?: string) {
+        const sender = await this.contactsservice.findOneContact(senderId);
 
         if (!sender) throw new Error('Sender not found');
         const channel = await this.channelRepository.findOne({ where: { id: channelId} });

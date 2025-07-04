@@ -1,7 +1,5 @@
-// src/components/PrivateRoute.js
-import { Navigate, Outlet } from 'react-router-dom';
 import Cookies from 'js-cookie';
-
+import { Navigate, Outlet } from 'react-router-dom';
 
 const ProtectedRoute = ({ children } : any) => {
   const isAuthenticated = Cookies.get('accessToken');

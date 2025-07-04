@@ -1,7 +1,7 @@
-import { ObjectType, Field } from '@nestjs/graphql';
-import { WorkspaceMember } from '../../workspace/workspaceMember.entity';
 import { OneToMany, Relation } from 'typeorm';
-import { Workspace } from '../../workspace/workspace.entity';
+import { ObjectType, Field } from '@nestjs/graphql';
+import { WorkspaceMember } from 'src/modules/workspace/workspaceMember.entity';
+import { Workspace } from 'src/modules/workspace/workspace.entity';
 
 @ObjectType()
 export class UserDetails {
@@ -27,11 +27,11 @@ export class AuthTokenDto {
 @ObjectType()
 export class AuthResponse {
 
-   @Field()
+  @Field()
   access_token: string;
 
   @Field()
-  accessToken : AuthTokenDto;
+  accessToken: AuthTokenDto;
 
   @Field()
   workspaceIds: string;

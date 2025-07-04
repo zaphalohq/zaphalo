@@ -1,6 +1,5 @@
-import { User } from 'src/generated/graphql';
-import { createState } from 'src/utils/createState';
-
+import { createState } from '@src/utils/createState';
+import { User } from '@src/generated/graphql';
 
 export type CurrentUser = Pick<
   User,

@@ -1,13 +1,21 @@
-import { Field, Float, Int, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType } from '@nestjs/graphql';
 import { IDField } from '@ptc-org/nestjs-query-graphql';
-import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn, Relation } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+  Relation
+} from 'typeorm';
 import { Message } from './message.entity';
-import { User } from 'src/modules/user/user.entity';
 import { UUIDScalarType } from 'src/modules/api/scalars/uuid.scalar';
-import { Workspace } from 'src/modules/workspace/workspace.entity';
-import { Contacts } from '../contacts/contacts.entity';
+import { Contacts } from 'src/customer-modules/contacts/contacts.entity';
 
-@Entity({ name: 'channel'})
+@Entity({ name: 'channel' })
 @ObjectType()
 export class Channel {
   @IDField(() => UUIDScalarType)
@@ -35,23 +43,11 @@ export class Channel {
   @UpdateDateColumn()
   writeDate: Date;
 
-  // @Field(() => [User], { nullable : false})
-  // @ManyToOne(() => User, { nullable : false})
-  // writeUser: Relation<User>;
-
-  // @Field(() => User, { nullable : true})
-  // @ManyToOne(() => User, { nullable : true})
-  // createUser: Relation<User>
-
   @Field(() => [Message])
   @OneToMany(() => Message, message => message.channel)
-  messages : Relation<Message[]>
-  
-  @Field(() => String)
-  @Column({ nullable : true })
-  membersidsss : string
+  messages: Relation<Message[]>
 
-  // @Field(() => Workspace)
-  // @ManyToOne(() => Workspace)
-  // workspace : Relation<Workspace>
+  @Field(() => String)
+  @Column({ nullable: true })
+  membersidsss: string
 }

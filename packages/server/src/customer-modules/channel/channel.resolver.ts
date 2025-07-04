@@ -12,10 +12,6 @@ import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
 @Resolver(() => Channel)
 export class ChannelResolver {
   constructor(
-    // @InjectRepository(Channel)
-    // private readonly channelRepository: Repository<Channel>,
-    // @InjectRepository(Message)
-    // private readonly messageRepository: Repository<Message>,
     private readonly channelService: ChannelService,
     private readonly instantsService: instantsService) { }
 
@@ -45,7 +41,7 @@ export class ChannelResolver {
     const senderId = Number(findTrueInstants?.phoneNumberId)
     const memberIdsJson = JSON.parse(memberIds)
     memberIdsJson.push(senderId)
-    return await this.channelService.findExistingChannelByPhoneNo(JSON.parse(memberIds), workspaceId)
+    return await this.channelService.findExistingChannelByPhoneNo(JSON.parse(memberIds))
   }
 
 
@@ -65,7 +61,7 @@ export class ChannelResolver {
     @Args('input') input: SendMessageInput,
   ): Promise<SendMessageResponse> {
     const { receiverId, textMessage, channelName, channelId, uploadedFiles } = input;
-    
+
     const userId = req.user.userId;
     const workspaceId = req.headers['x-workspace-id']
     const findTrueInstants = await this.instantsService.FindSelectedInstants(workspaceId)
@@ -93,70 +89,66 @@ export class ChannelResolver {
     // });
 
 
-    const receiverId1 = receiverId.filter((number : any) => number != senderId)
-console.log(receiverId, '[[[[[[', receiverId1,'receiverId1receiverId1', uploadedFiles);
+    const receiverId1 = receiverId.filter((number: any) => number != senderId)
+    console.log(receiverId, '[[[[[[', receiverId1, 'receiverId1receiverId1', uploadedFiles);
 
 
- if ((!uploadedFiles || uploadedFiles.length === 0) && textMessage) {
-    // const messageType = 'text'
-    // await this.channelService.sendWhatsappMessage({
-    //   accessToken,
-    //   senderId,
-    //   receiverId : receiverId1,
-    //   messageType,
-    //   textMessage,
-    //   attachmentUrl: null,
-    // });
-
-    if (!channelId || channelId === '') {
-      // const memberIds = [...receiverId, senderId];
-      const memberIds = receiverId;
-      const channel: any = await this.channelService.findOrCreateChannel(
-        senderId,
-        memberIds,
-        workspaceId,
-        channelName,
-        userId,
-      );
-      console.log(channel,"channelchannelchannelchannelchannel.............");
-      
-      if (!channel.channel.id) throw new Error('Channel not found');
-      await this.channelService.createMessage(textMessage, channel.channel.id, senderId, workspaceId, true);
-    } else {
-      await this.channelService.createMessage(textMessage, channelId, senderId, workspaceId, true);
-    }
-  }
-
-  if (uploadedFiles && uploadedFiles.length > 0) {
-    for (const uploadedFile of uploadedFiles) {
-      const attachmentUrl = uploadedFile.fileUrl;
-      const messageType = await this.channelService.findMessageType(attachmentUrl);
-
-      await this.channelService.sendWhatsappMessage({
-        accessToken,
-        senderId,
-        receiverId,
-        messageType,
-        textMessage,
-        attachmentUrl,
-      });
+    if ((!uploadedFiles || uploadedFiles.length === 0) && textMessage) {
+      // const messageType = 'text'
+      // await this.channelService.sendWhatsappMessage({
+      //   accessToken,
+      //   senderId,
+      //   receiverId : receiverId1,
+      //   messageType,
+      //   textMessage,
+      //   attachmentUrl: null,
+      // });
 
       if (!channelId || channelId === '') {
-        const memberIds = [...receiverId, senderId];
+        // const memberIds = [...receiverId, senderId];
+        const memberIds = receiverId;
         const channel: any = await this.channelService.findOrCreateChannel(
           senderId,
           memberIds,
-          workspaceId,
           channelName,
           userId,
         );
         if (!channel.channel.id) throw new Error('Channel not found');
-        await this.channelService.createMessage(textMessage, channel.channel.id, senderId, workspaceId, true, attachmentUrl);
+        await this.channelService.createMessage(textMessage, channel.channel.id, senderId, true);
       } else {
-        await this.channelService.createMessage(textMessage, channelId, senderId, workspaceId, true, attachmentUrl);
+        await this.channelService.createMessage(textMessage, channelId, senderId, true);
       }
     }
-  }
+
+    if (uploadedFiles && uploadedFiles.length > 0) {
+      for (const uploadedFile of uploadedFiles) {
+        const attachmentUrl = uploadedFile.fileUrl;
+        const messageType = await this.channelService.findMessageType(attachmentUrl);
+
+        await this.channelService.sendWhatsappMessage({
+          accessToken,
+          senderId,
+          receiverId,
+          messageType,
+          textMessage,
+          attachmentUrl,
+        });
+
+        if (!channelId || channelId === '') {
+          const memberIds = [...receiverId, senderId];
+          const channel: any = await this.channelService.findOrCreateChannel(
+            senderId,
+            memberIds,
+            channelName,
+            userId,
+          );
+          if (!channel.channel.id) throw new Error('Channel not found');
+          await this.channelService.createMessage(textMessage, channel.channel.id, senderId, true, attachmentUrl);
+        } else {
+          await this.channelService.createMessage(textMessage, channelId, senderId, true, attachmentUrl);
+        }
+      }
+    }
 
     return { success: 'Message sent' };
 

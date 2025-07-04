@@ -1,14 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CreateCatDto } from './dto/create-cat.dto';
-import { Cat } from './cat.entity';
-import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 import { DataSource, Repository } from 'typeorm';
-
+import { Cat } from './cat.entity';
+import { CreateCatDto } from './dto/create-cat.dto';
+import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 
 @Injectable()
 export class CatsService {
   private readonly catsRepository: Repository<Cat>;
-
   constructor(
     @Inject(CONNECTION) connection: DataSource,
   ) {

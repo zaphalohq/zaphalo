@@ -1,22 +1,15 @@
 import { useContext, useEffect } from 'react'
 import { FiEdit2 } from 'react-icons/fi'
 import { MdDelete } from 'react-icons/md'
-import { ContactsContext } from '@Context/ContactsContext'
-// import { HandleDeleteInstants } from '../Logic/WhatsappInstants/delete';
+import { ContactsContext } from '@components/Context/ContactsContext'
 
 const ContactsTable = () => {
   const {
-    setContactsData,
-    contactFormData,
     contactsData,
     setContactFormData,
-    HandleContactsFormData,
-
     HandleDeleteContacts,
-    HandleFetchData,
     HandleContactsFormVisibility
   } : any = useContext(ContactsContext)
-
 
   return (
     <div>
@@ -46,12 +39,6 @@ const ContactsTable = () => {
                 >
                   {contactData.phoneNo}
                 </td>
-                {/* <td 
-                  className="px-6 py-4 text-center truncate max-w-[150px]"
-                  title={contactData.phoneNumberId}
-                >
-                  {contactData.phoneNumberId}
-                </td> */}
                 <td className="px-4 py-2 text-center">
                   <button 
                     onClick={() => {

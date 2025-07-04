@@ -1,15 +1,19 @@
-import { Field, Float, Int, ObjectType } from "@nestjs/graphql";
+import { Field, ObjectType } from "@nestjs/graphql";
 import { IDField } from "@ptc-org/nestjs-query-graphql";
-import { GraphQLScalarType, Kind } from "graphql";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  Relation
+} from "typeorm";
 import { UUIDScalarType } from "src/modules/api/scalars/uuid.scalar";
-import { Workspace } from "src/modules/workspace/workspace.entity";
 import { Template } from "src/customer-modules/template/template.entity";
 import { MailingList } from "src/customer-modules/mailingList/mailingList.entity";
 
-
-
-@Entity({ name: 'broadcast'})
+@Entity({ name: 'broadcast' })
 @ObjectType('broadcast')
 export class Broadcast {
   @IDField(() => UUIDScalarType)
@@ -34,7 +38,7 @@ export class Broadcast {
   @Field(() => [String], { nullable: true })
   variables?: string[];
 
-   @Column()
+  @Column()
   @Field({ nullable: true })
   URL?: string;
 
@@ -45,10 +49,5 @@ export class Broadcast {
   @CreateDateColumn()
   @Field()
   createdAt: Date;
-
-  // @Field(() => Workspace)
-  // @ManyToOne(() => Workspace)
-  // workspace: Relation<Workspace>
-
 
 }

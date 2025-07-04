@@ -1,9 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Request } from 'express';
+import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback } from 'passport-google-oauth20';
-import { ConfigType } from '@nestjs/config';
 import { AuthService } from 'src/modules/auth/services/auth.service';
-import { Request } from 'express';
 
 export type GoogleRequest = Omit<
   Request,
@@ -14,7 +13,6 @@ export type GoogleRequest = Omit<
     lastName?: string | null;
     email: string;
     picture: string | null;
-    // locale?: keyof typeof APP_LOCALES | null;
     workspaceInviteToken?: string;
   };
 };
@@ -22,7 +20,6 @@ export type GoogleRequest = Omit<
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy) {
   constructor(
-    private authService: AuthService,
   ) {
     super({
       clientID: process.env.GOOGLE_AUTH_CLIENT_ID,
@@ -63,7 +60,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       picture: photos?.[0]?.value,
       workspaceInviteToken: state.workspaceInviteToken,
     };
-
     done(null, user);
   }
 }

@@ -1,10 +1,6 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { config } from 'dotenv';
-import { User } from '../../../modules/user/user.entity';
-import { Workspace } from '../../../modules/workspace/workspace.entity';
-import { WorkspaceMember } from '../../../modules/workspace/workspaceMember.entity';
 import { DataSource, DataSourceOptions } from 'typeorm';
-import { Broadcast } from '../../../customer-modules/broadcast/broadcast.entity';
 config({ path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env' });
 
 const isJest = process.argv.some((arg) => arg.includes('jest'));

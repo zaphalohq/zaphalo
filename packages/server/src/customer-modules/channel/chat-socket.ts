@@ -1,5 +1,4 @@
 import {
-  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
