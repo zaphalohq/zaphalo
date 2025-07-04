@@ -27,7 +27,6 @@ export class AuthResolver {
     if (!user) {
       throw new Error('Invalid credentials');
     }
-    console.log("......................user.workspaces..................", user.workspaces);
     const workspace = user.workspaces ? user.workspaces[0].workspace : null
     if (!workspace){
       throw new Error("User workspace does not setup.");
@@ -53,6 +52,10 @@ export class AuthResolver {
       // local,
     } = UserInput;
 
+      const existingUser = await this.userRepository.findOne({
+        where: { email },
+      });
+      if(existingUser) throw Error("email already exist")
 
     const currentWorkspace = await this.authService.findWorkspaceForSignInUp({
       workspaceId,
@@ -60,7 +63,7 @@ export class AuthResolver {
       email,
       authProvider: 'password',
     });
-    // try {
+    try {
       const invitation =
         currentWorkspace && email
           ? await this.authService.findSignInUpInvitation({
@@ -78,21 +81,10 @@ export class AuthResolver {
           firstName,
           lastName,
           email,
-          // picture,
-          // locale,
         },
         existingUser,
       );
-
-      // await this.authService.checkSignInAccess({
-      //   userData,
-      //   invitation,
-      //   workspaceInviteHash,
-      //   workspace: currentWorkspace,
-      // });
-
       const { user, workspace } = await this.authService.signInUp({
-        // invitation,
         workspace: currentWorkspace,
         userData,
         authParams: {
@@ -108,10 +100,10 @@ export class AuthResolver {
 
       return user
 
-    // }
-    // catch (err) {
-    //   throw new Error('workspace creation error');
-    // }
+    }
+    catch (err) {
+      throw new Error('workspace creation error');
+    }
   }
 
 

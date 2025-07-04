@@ -10,9 +10,6 @@ export class TemplateResponseDto {
 
   @Field(() => String, { nullable: true })
   error?: string;
-
-//   @Field(() => String, { nullable: true })
-//   status?: string;
 }
 
 

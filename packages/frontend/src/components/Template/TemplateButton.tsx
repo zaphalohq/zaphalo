@@ -1,4 +1,3 @@
-import { log } from "console";
 import { useContext, useEffect, useState } from "react"
 import { FiPlus, FiTrash2 } from "react-icons/fi";
 import { TemplateContext } from "../Context/TemplateContext";
@@ -9,7 +8,6 @@ type ButtonData = {
   url?: string;
   phone_number?: string;
 };
-
 type ButtonType = 'URL' | 'QUICK_REPLY' | 'PHONE_NUMBER';
 
 const TemplateButton = ({ setTemplateData }: any) => {
@@ -34,22 +32,9 @@ const TemplateButton = ({ setTemplateData }: any) => {
   useEffect(() => {
     setTemplateData((prev: any) => ({ ...prev, button: addButtonData }))
     setTemplateFormData((prev: any) => ({ ...prev, button: addButtonData }))
-    console.log(templateFormData, '..................from button');
-
   }, [addButtonData])
 
   const HandleButtonChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
-    // console.log(e.target.value);
-
-    // const copyaddButtonData = [...addButtonData];
-    // const updatedButtonObj = {
-    //   ...copyaddButtonData[index],
-    //   [e.target.name]: e.target.value,
-    // };
-
-    // copyaddButtonData[index] = updatedButtonObj;
-    // setAddButtonData(copyaddButtonData);
-
     const updatedButtons = [...addButtonData];
     const currentButton = updatedButtons[index];
     const field = e.target.name;
@@ -65,14 +50,11 @@ const TemplateButton = ({ setTemplateData }: any) => {
         updatedButtons[index] = { type: 'QUICK_REPLY', text: currentButton.text };
       }
     } else {
-      // Update other fields (text, url, phone_number)
       updatedButtons[index] = { ...currentButton, [field]: value };
     }
 
     setAddButtonData(updatedButtons);
   };
-
-
 
   return (
     <div>
@@ -82,9 +64,6 @@ const TemplateButton = ({ setTemplateData }: any) => {
           <span>Add Button</span>
         </div>
       </div>
-      {/* <button onClick={handelAddButton} className="bg-gray-200 p-2 rounded cursor-pointer hover:bg-violet-600 text-gray-800 ">Add New Button</button>
-      <button onClick={handelDeleteButton} className="bg-violet-500 p-2 rounded cursor-pointer hover:bg-violet-600 text-white ">Delete Button</button> */}
-
 
       <div className="flex flex-col gap-10 mt-6">
         {addButtonData.map((currentButton, index) =>
@@ -131,7 +110,6 @@ const TemplateButton = ({ setTemplateData }: any) => {
               />
             </div> : <></>}
 
-
             {currentButton.type === 'PHONE_NUMBER' ? <div>
               <label className="block text-sm font-medium text-gray-700">Phone Number</label>
               <input
@@ -143,39 +121,6 @@ const TemplateButton = ({ setTemplateData }: any) => {
                 placeholder="https://chatgpt.com/"
               />
             </div> : <></>}
-
-
-            {/* 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Button Text (Optional)</label>
-              <input
-                key={index}
-                type="text"
-                name="buttonText"
-                value={templateData[index].buttonText}
-                // name="a1"
-                // value={abc[1].a1}
-                // onChange={handleInputChange}
-                onChange={(e : any ) => handleChange(1, e)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2"
-                placeholder="Learn More"
-              />
-            </div> */}
-            {/* 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Button URL (Optional)</label>
-              <input
-                type="text"
-                name="a2"
-                onChange={(e : any ) => handleChange(1, e)}
-                value={abc.a2}
-                // name={button.buttonUrl}
-                // value={templateData.buttonUrl}
-                // onChange={handleInputChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2"
-                placeholder="https://chatgpt.com/"
-              />
-            </div> */}
           </div>
         )}
       </div>

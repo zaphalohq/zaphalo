@@ -1,6 +1,6 @@
 import { FiX } from "react-icons/fi"
 
-const CloseButton = ({onClick, top, right} : any) => {
+const CloseButton = ({ onClick, top, right }: any) => {
     return (
         <div className={`absolute ${right} ${top} p-0.5 `}>
             <button onClick={onClick} className="cursor-pointer hover:bg-stone-200 text-3xl 

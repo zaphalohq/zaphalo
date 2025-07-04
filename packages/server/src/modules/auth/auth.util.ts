@@ -4,9 +4,7 @@ import {
   createHash,
   randomBytes,
 } from 'crypto';
-
 import * as bcrypt from 'bcrypt';
-
 export const PASSWORD_REGEX = /^.{8,}$/;
 
 const saltRounds = 10;
@@ -24,11 +22,8 @@ export const encryptText = (textToEncrypt: string, key: string): string => {
     .update(key)
     .digest('hex')
     .substring(0, 32);
-
   const iv = randomBytes(16);
-
   const cipher = createCipheriv('aes-256-ctr', keyHash, iv);
-
   return Buffer.concat([
     iv,
     cipher.update(textToEncrypt),
@@ -45,8 +40,6 @@ export const decryptText = (textToDecrypt: string, key: string): string => {
     .update(key)
     .digest('hex')
     .substring(0, 32);
-
   const decipher = createDecipheriv('aes-256-ctr', keyHash, iv);
-
   return Buffer.concat([decipher.update(text), decipher.final()]).toString();
 };

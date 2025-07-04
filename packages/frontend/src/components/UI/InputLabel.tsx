@@ -1,9 +1,9 @@
 
-const InputLabel = ({ name, value, title, type, placeholder, HandleInputChange} : any) => {
+const InputLabel = ({ name, value, title, type, placeholder, HandleInputChange }: any) => {
   return (
     <div>
       <label className="block text-stone-600 font-semibold pb-1" htmlFor="">{title}</label>
-      <input name={name} type={type?type:undefined} value={value? value : undefined} onChange={HandleInputChange} className="block w-full bg-stone-200 p-2  outline-none rounded-lg"  placeholder={placeholder} required/>
+      <input name={name} type={type ? type : undefined} value={value ? value : undefined} onChange={HandleInputChange} className="block w-full bg-stone-200 p-2  outline-none rounded-lg" placeholder={placeholder} required />
     </div>
   )
 }

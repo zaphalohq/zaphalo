@@ -13,7 +13,7 @@ interface DecoratorOptions {
 export const AuthUser = createParamDecorator(
   (options: DecoratorOptions | undefined, ctx: ExecutionContext) => {
     const request = getRequest(ctx);
-    
+
 
     if (!options?.allowUndefined && !request.user.user) {
       throw new ForbiddenException(

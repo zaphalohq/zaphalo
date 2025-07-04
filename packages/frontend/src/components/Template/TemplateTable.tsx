@@ -1,8 +1,8 @@
-import { useMutation, useQuery } from "@apollo/client"
-import { useContext, useEffect, useState } from "react"
-import { Find_ALL_TEMPLATE, GET_TEMPLATE_STATUS, Send_Template_Message } from "@pages/Mutation/Template"
-import { TemplateContext } from "../Context/TemplateContext"
 import { useNavigate } from "react-router-dom"
+import { useContext, useEffect, useState } from "react"
+import { useMutation, useQuery } from "@apollo/client"
+import { TemplateContext } from "@components/Context/TemplateContext"
+import { Find_ALL_TEMPLATE, GET_TEMPLATE_STATUS } from "@src/generated/graphql"
 
 const TemplateTable = ({ setIsTemplatePreviewVis }: any) => {
     const { setTemplateFormData }: any = useContext(TemplateContext)
@@ -16,9 +16,8 @@ const TemplateTable = ({ setIsTemplatePreviewVis }: any) => {
     }])
 
     const [templateId, setTemplateId] = useState("")
-    const [GetTemplateStatus] = useMutation(GET_TEMPLATE_STATUS)
+    const [GetTemplateStatus] = useMutation(GET_TEMPLATE_STATUS);
 
-    // const [SendTemplateMessage] = useMutation(Send_Template_Message)
     const HandelSendTemplate = (templateId: string, templateName: string) => {
         navigate("/broadcast", {
             state: {
@@ -30,10 +29,8 @@ const TemplateTable = ({ setIsTemplatePreviewVis }: any) => {
 
     const { data: templateData, loading: templateLoading, refetch: templateRefetch }: any = useQuery(Find_ALL_TEMPLATE);
     useEffect(() => {
-        console.log(templateData, "...........................teddd..............................");
         templateRefetch()
         if (templateData && !templateLoading) {
-            console.log(templateData.findAllTemplate);
             setTemplates(templateData.findAllTemplate)
         }
     }, [templateData])
@@ -96,7 +93,7 @@ const TemplateTable = ({ setIsTemplatePreviewVis }: any) => {
                                 <td onClick={() => HandleTempalteStatus(template.templateId)}
                                     className="px-6 py-4 text-center truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
                                     title="sendTemplate"
-                                > 
+                                >
                                     Check Template Status
                                 </td>
                                 <td onClick={() => {

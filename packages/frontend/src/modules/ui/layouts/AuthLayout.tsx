@@ -1,6 +1,4 @@
-import { useAtom } from "jotai";
 import { use100vh } from "react-div-100vh";
-
 import {
   alpha,
   Box,
@@ -11,13 +9,8 @@ import {
   Link,
   LinkProps,
 } from "@mui/material";
-// import Logo from "@src/assets/Logo";
-// import bgTableLight from "@src/assets/bg-table-light.webp";
-import bgTableDark from "src/assets/bg-table-dark.webp";
-
-// import { projectScope, projectIdAtom } from "@src/atoms/projectScope";
-// import { EXTERNAL_LINKS } from "@src/constants/externalLinks";
-const EXTERNAL_LINKS = {'homepage': ''}
+import bgTableDark from "@src/assets/bg-table-dark.webp";
+const EXTERNAL_LINKS = { 'homepage': '' }
 
 export interface IAuthLayoutProps {
   hideLogo?: boolean;
@@ -86,7 +79,6 @@ export default function AuthLayout({
           target="_blank"
           rel="noopener noreferrer"
         >
-          {/*<Logo size={2} />*/}
         </a>
       </div>
 

@@ -20,8 +20,6 @@ export type Scalars = {
   Upload: any;
 };
 
-
-
 export type User = {
   __typename?: 'User';
   email: Scalars['String'];
@@ -56,7 +54,6 @@ export type AuthToken = {
 export type AuthTokenPair = {
   __typename?: 'AuthTokenPair';
   accessToken: AuthToken;
-  // refreshToken: AuthToken;
 };
 
 export type currentUserWorkspace = {
@@ -91,7 +88,7 @@ export type GetAuthTokensFromLoginTokenMutation = {
     accessToken: {
       __typename?: 'AuthToken';
       token: string;
-      expiresAt: string; // or Date, depending on your setup
+      expiresAt: string;
     };
     userDetails: {
       __typename?: 'UserDetails';
@@ -152,7 +149,7 @@ export type GetCurrentUserQuery = { __typename?: 'Query', currentUser: { __typen
   workspaces: Array<{
     __typename?: 'WorkspaceMember';
     id: string;
-    role: string; // or use enum Role if defined
+    role: string;
     workspace: {
       __typename?: 'Workspace';
       id: string;
@@ -164,15 +161,412 @@ export type GetCurrentUserQuery = { __typename?: 'Query', currentUser: { __typen
 
 export type GetCurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
-
 export function useGetCurrentUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCurrentUserQuery, GetCurrentUserQueryVariables>) {
   const options = { ...defaultOptions, ...baseOptions }
   return Apollo.useLazyQuery<GetCurrentUserQuery, GetCurrentUserQueryVariables>(GetCurrentUserDocument, options);
 }
-
 
 export const LoginMutation = gql`
   mutation Login($email: String!, $password: String!, $workspaceInviteToken: String) {
     login(authInput: { email: $email, password: $password, workspaceInviteToken: $workspaceInviteToken })
   }
 `
+
+export const RegisterMutation = gql`
+mutation Register($firstName: String!, $lastName: String!, $email: String!, $password: String!, $workspaceInviteToken: String) {
+  Register(Register: {
+    firstName: $firstName,
+    lastName: $lastName,
+    email: $email,
+    password: $password,
+    workspaceInviteToken: $workspaceInviteToken,
+  }) {
+    id
+  }
+}
+`;
+
+
+export const CreateContactMute = gql`
+mutation CreateContacts(
+  $contactName: String!,
+  $phoneNo: Float!,
+  $profileImg: String,
+  $defaultContact: Boolean,
+) {
+  CreateContacts(CreateContacts: {
+  contactName: $contactName, 
+  phoneNo: $phoneNo, 
+  profileImg: $profileImg,
+  defaultContact: $defaultContact
+  }) {
+    id
+  }
+}`
+
+export const findAllContacts = gql`
+query findAllContacts {
+  findAllContacts {
+    contactName
+    createdAt
+    id
+    phoneNo
+    profileImg
+    }
+}
+`
+
+export const findAllChannel = gql`
+query findAllChannel {
+  findAllChannel {
+    channelName
+    id
+    contacts {
+      id
+      phoneNo
+    }
+    messages {
+      unseen
+    }
+  }
+}
+`
+
+export const findChannelByPhoneNo = gql`
+  query MyQuery($memberIds: String!) {
+    findExistingChannelByPhoneNo(memberIds: $memberIds) {
+      channelName
+      id
+      contacts {
+        id
+        phoneNo
+      }
+    }
+  }
+`;
+
+export const findAllUnseen = gql`query MyQuery {
+  findAllUnseen {
+    unseen
+    message
+    channel {
+      id
+    }
+    sender {
+      phoneNo
+    }
+  }
+}`
+
+export const findMsgByChannelId = gql`query GetMessagesByChannel($channelId: String!) {
+  findMsgByChannelId(channelId: $channelId) {
+    textMessage
+    sender {
+      id
+      phoneNo
+    }
+    createdAt
+    attachmentUrl
+  },
+}`
+
+export const SEND_MESSAGE = gql`
+  mutation SendMessage($input: SendMessageInput!) {
+  sendMessage(input: $input) {
+    success
+  }
+}
+`;
+
+export const updateChannelNameById = gql`
+  mutation updateChannelNameById($channelId: String!, $updatedValue: String!) {
+    updateChannelNameById(channelId: $channelId, updatedValue: $updatedValue) {
+      channelName
+    }
+  }
+`
+
+export const GenerateInviteLink =  gql`
+  mutation GenerateInviteLink($workspaceId: String!) {
+    generateWorkspaceInvitation(workspaceId: $workspaceId)
+  }
+`;
+
+export const InstantsSelection = gql`mutation InstantsSelection($instantsId: String!) {
+  InstantsSelection(instantsId: $instantsId) {
+        id
+        name
+        phoneNumberId
+        businessAccountId
+        defaultSelected
+    }
+}`
+
+
+export const DeleteContact = gql`
+mutation DeleteContact(
+  $contactId : String!,
+  ){
+    DeleteContact(contactId: $contactId) {
+    contactName
+    createdAt
+    phoneNo
+    profileImg
+    }
+  }
+`
+
+
+export const WhatsappInstantsCreation = gql`
+mutation CreateInstants(
+  $name: String!,
+  $appId: String!,
+  $phoneNumberId: String!,
+  $businessAccountId: String!,
+  $accessToken: String!,
+  $appSecret: String!
+) {
+  CreateInstants(InstantsData: {
+    name: $name,
+    appId: $appId,
+    phoneNumberId: $phoneNumberId,
+    businessAccountId: $businessAccountId,
+    accessToken: $accessToken,
+    appSecret: $appSecret
+  }) {
+    id
+    name
+  }
+}
+`;
+
+export const WhatsappInstantsSyncAndSave = gql`
+mutation SyncAndSaveInstants(
+  $name: String!,
+  $appId: String!,
+  $phoneNumberId: String!,
+  $businessAccountId: String!,
+  $accessToken: String!,
+  $appSecret: String!
+) {
+  SyncAndSaveInstants(InstantsData: {
+    name: $name,
+    appId: $appId,
+    phoneNumberId: $phoneNumberId,
+    businessAccountId: $businessAccountId,
+    accessToken: $accessToken,
+    appSecret: $appSecret
+  }) {
+    id
+    name
+  }
+}
+`;
+
+export const WhatsappInstantsTestAndSave = gql(`
+  mutation TestAndSaveInstants(
+  $name: String!,
+  $appId: String!,
+  $phoneNumberId: String!,
+  $businessAccountId: String!,
+  $accessToken: String!,
+  $appSecret: String!
+) {
+  TestAndSaveInstants(InstantsData: {
+    name: $name,
+    appId: $appId,
+    phoneNumberId: $phoneNumberId,
+    businessAccountId: $businessAccountId,
+    accessToken: $accessToken,
+    appSecret: $appSecret
+  }) {
+    id
+    name
+  }
+}`)
+
+
+export const findAllInstants = gql`
+  query findAllInstants{
+    findAllInstants {
+      id
+      name
+      appId
+      phoneNumberId
+      businessAccountId
+      accessToken
+      appSecret
+      defaultSelected
+    }
+  }
+`;
+
+export const UpdatedInstants = gql`
+mutation updateInstants(
+  $id: String!,
+  $name: String!,
+  $appId: String!,
+  $phoneNumberId: String!,
+  $businessAccountId: String!,
+  $accessToken: String!,
+  $appSecret: String!
+) {
+  updateInstants(
+    updateInstants: {
+    id: $id
+    name: $name, 
+    appId: $appId, 
+    phoneNumberId: $phoneNumberId, 
+    businessAccountId: $businessAccountId, 
+    accessToken: $accessToken, 
+    appSecret: $appSecret
+    }) {
+    id
+  }
+}`
+
+export const DeleteInstantsMutation = gql`
+mutation DeleteInstants(
+  $id : String!,
+  ){
+    DeleteInstants(DeleteInstants: {id: $id}) {
+      accessToken
+      appId
+      createdAt
+      appSecret
+      businessAccountId
+    }
+  }
+`
+
+
+
+export const findCountForDash = gql`query findWorkspaceByIdForDash($workspaceId: String!) {
+    findWorkspaceByIdForDash(workspaceId: $workspaceId) {
+    contacts {
+      contactName
+    }
+    workspace {
+      channels {
+        channelName
+        messages {
+          textMessage
+        }
+      }
+    }
+  }
+  }`
+
+export const CREATE_MAILING_LIST = gql`
+  mutation CreateMailingList($mailingListInput: MailingListInputDto!) {
+    CreateMailingList(mailingListInput: $mailingListInput) {
+    id
+    createdAt
+    mailingListName
+    }
+  }
+`;
+
+
+export const FindAll_Mailing_List = gql`query findAllMailingList {
+  findAllMailingList {
+    id
+    mailingListName
+  }
+}`
+
+
+export const SUBMIT_TEMPLATE = gql`
+mutation SubmitTemplate($templateData: TemplateRequestInput!) {
+  submitTemplate(templateData: $templateData) {
+    success
+    data
+    error
+  }
+}
+`;
+
+export const GET_TEMPLATE_STATUS = gql`
+mutation getTemplateStatus($templateId: String!) {
+  getTemplateStatus(templateId: $templateId) {
+    success
+    data
+    error
+  }
+}
+`;
+
+
+export const Find_ALL_TEMPLATE = gql`
+query findAllTemplate {
+    findAllTemplate {
+      account
+      bodyText
+      button {
+        phone_number
+        text
+        type
+        url
+      }
+      category
+      footerText
+      headerType
+      header_handle
+      id
+      language
+      status
+      templateId
+      templateName
+      fileUrl
+  }
+}
+`
+
+
+export const Send_Template_Message = gql`
+  mutation sendTemplateMessage {
+  sendTemplateToWhatssapp
+}
+`;
+
+export const SEND_TEMPLATE_TO_WHATSAPP = gql`
+  mutation BroadcastTemplate($broadcastData: BroadcastReqDto!) {
+    BroadcastTemplate(broadcastData: $broadcastData){
+    URL
+    broadcastName
+  }
+  }
+`;
+
+// mutation MyMutation {
+//   BroadcastTemplate(
+//     broadcastData: {templateId: "", templateName: "", mailingListId: "", mailingListName: "", headerType: "", language: "", variables: ""}
+//   ) {
+//     URL
+//     broadcastName
+//   }
+// }
+
+
+
+export const UpdateWorkspaceDetails = gql`
+mutation UpdateWorkspaceDetails(
+  $workspaceId: String!,
+  $workspaceName: String!,
+  $profileImg: String!
+) {
+  updateWorkspaceDetails(
+    WorkspaceUpdateInput: {
+      workspaceId: $workspaceId,
+      workspaceName: $workspaceName,
+      profileImg: $profileImg
+    }
+  ) {
+    id
+    name
+    profileImg
+  }
+}
+`
+
+

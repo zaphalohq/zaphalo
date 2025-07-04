@@ -8,7 +8,7 @@ import { BroadcastModule } from './broadcast/broadcast.module';
 
 @Module({
   imports: [
-    CatsModule, 
+    CatsModule,
     ContactsModule,
     channelModule,
     TemplateModule,
@@ -17,11 +17,11 @@ import { BroadcastModule } from './broadcast/broadcast.module';
   ],
   exports: [
     CatsModule,
-            ContactsModule,
+    ContactsModule,
     channelModule,
     TemplateModule,
     MailingListModule,
     BroadcastModule,
   ],
 })
-export class CustomerModule {}
+export class CustomerModule { }

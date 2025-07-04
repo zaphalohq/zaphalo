@@ -1,6 +1,6 @@
-import { AuthTokenPair } from 'src/generated/graphql';
-import { cookieStorageEffect } from 'src/utils/recoil-effects';
-import { createState } from 'src/utils/createState';
+import { createState } from '@src/utils/createState';
+import { AuthTokenPair } from '@src/generated/graphql';
+import { cookieStorageEffect } from '@src/utils/recoil-effects';
 
 export const tokenPairState = createState<AuthTokenPair | null>({
   key: 'tokenPairState',

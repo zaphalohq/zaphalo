@@ -1,9 +1,8 @@
-import { Controller, Get, Post, UseInterceptors, UploadedFile, Delete, Param } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { Controller, Get, Post, UseInterceptors, UploadedFile, Delete, Param, UseGuards } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { FileUploadService } from './fileUpload.service';
-import { Channel } from 'diagnostics_channel';
+import { AuthGuard } from '@nestjs/passport';
 
 
 @Controller('fileupload')
@@ -25,10 +24,8 @@ export class FileUploadController {
   )
 
   @Post()
-    // @UseGuards(AuthGuard("jwt"))
+  @UseGuards(AuthGuard("jwt"))
   async FileUpload(@UploadedFile() file: Express.Multer.File): Promise<string> {
-    console.log(file);
-
     return this.fileUploadService.handleFileUpload(file);
   }
 
@@ -37,7 +34,7 @@ export class FileUploadController {
     return "messages"
   }
 
-  // @UseGuards(AuthGuard("jwt"))
+  @UseGuards(AuthGuard("jwt"))
   @Delete(':deleteFileName')
   async deleteFile(@Param('deleteFileName') deleteFileName: string) {
     await this.fileUploadService.deleteFile(deleteFileName);

@@ -2,10 +2,10 @@ import { InputType, Field } from '@nestjs/graphql';
 
 @InputType()
 export class UpdatedInstantsDTO {
-  
-    @Field()
+  @Field()
   id: string;
-    @Field()
+
+  @Field()
   name: string;
 
   @Field()

@@ -1,38 +1,3 @@
-// import { useEffect, useState } from "react"
-// import { NavLink, useLocation } from "react-router-dom"
-
-// const SidebarElement = ({ title , to, Icon, HandleToggleButton } : any) => {
-//   const location = useLocation();
-//   const [isPageActive, setIsPageActive] = useState(false);
-
-//   useEffect(() => {
-//     // Compare the current location path with the 'to' prop to determine if it's active
-//     if (location.pathname === to) {
-//       setIsPageActive(true);
-//     } else {
-//       setIsPageActive(false);
-//     }
-//   }, [location.pathname, to]); // This runs whenever location or 'to' changes
-
-//   return (
-//     <div >
-//       <NavLink
-//       onClick={HandleToggleButton}
-//       to={to}
-//       className={`flex pl-4 hover:bg-stone-200 w-full rounded p-1 text-sm text-stone-950 gap-2 items-center ${
-//           isPageActive ? 'bg-white text-white shadow hover:' : ''
-//         }`}
-//     >
-//       <Icon className={`${isPageActive ? 'text-violet-500' : 'text-gray-500'}`
-//       }/>
-
-//       {title}
-//     </NavLink>
-
-//     </div>
-//   )
-// }
-
 import { useEffect, useState } from "react"
 import { FiChevronDown } from "react-icons/fi";
 import { NavLink, useLocation } from "react-router-dom"
@@ -45,7 +10,7 @@ interface SubItem {
 
 interface SidebarElementProps {
   title: string;
-  to?: string; // Make 'to' optional for parent items with sub-items
+  to?: string;
   Icon: any;
   HandleToggleButton: () => void;
   subItems?: SubItem[];
@@ -57,10 +22,8 @@ const SidebarElement = ({ title, to, Icon, HandleToggleButton, subItems = [] }: 
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
 
   useEffect(() => {
-    // Check if any sub-item's 'to' matches the current path or if the parent's 'to' matches
     const isActive = (to && location.pathname === to) || subItems.some((item) => location.pathname === item.to);
     setIsPageActive(isActive);
-    // Auto-open submenu if a sub-item is active
     if (isActive && subItems.length > 0) {
       setIsSubMenuOpen(true);
     }
@@ -74,17 +37,16 @@ const SidebarElement = ({ title, to, Icon, HandleToggleButton, subItems = [] }: 
 
   return (
     <div>
-      <div 
-        className={`flex pl-4 hover-blacky p-2 w-full rounded text-sm text-gray-200 gap-2 items-center cursor-pointer ${
-          isPageActive ? 'bg-blacky-light shadow' : ''
-        }`}
+      <div
+        className={`flex pl-4 hover-blacky p-2 w-full rounded text-sm text-gray-200 gap-2 items-center cursor-pointer ${isPageActive ? 'bg-blacky-light shadow' : ''
+          }`}
         onClick={toggleSubMenu}
       >
         <Icon className={`${isPageActive ? 'text-violet-500' : 'text-violet-400'}`} />
         {subItems.length > 0 || !to ? (
           <div className="flex gap-20 items-center">
-          <span>{title}</span>
-          <FiChevronDown />
+            <span>{title}</span>
+            <FiChevronDown />
           </div>
         ) : (
           <NavLink
@@ -103,9 +65,8 @@ const SidebarElement = ({ title, to, Icon, HandleToggleButton, subItems = [] }: 
               key={subItem.to}
               to={subItem.to}
               onClick={HandleToggleButton}
-              className={`flex pl-4 hover-blacky w-full rounded p-1.5 text-sm text-white gap-2 items-center whitespace-pre ${
-                location.pathname === subItem.to ? 'bg-blacky-light shadow' : ''
-              }`}
+              className={`flex pl-4 hover-blacky w-full rounded p-1.5 text-sm text-white gap-2 items-center whitespace-pre ${location.pathname === subItem.to ? 'bg-blacky-light shadow' : ''
+                }`}
             >
               <subItem.Icon className={`${location.pathname === subItem.to ? 'text-violet-500' : 'text-violet-400'}`} />
               {subItem.title}

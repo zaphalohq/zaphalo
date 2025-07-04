@@ -1,22 +1,18 @@
 import { FiEdit, FiList } from "react-icons/fi"
-import { SearchWhite } from "@UI/Search"
 import { useEffect, useRef, useState } from "react"
 import ContactList from "./ContactsArea"
 import CreateContacts from "./CreateContacts"
 import ChannelLists from "./ChannelLists"
 import AllInstants from "./AllInstants"
-
+import { SearchWhite } from "@components/UI/Search"
 
 const ChatsSide = ({ setIsChatOpen }: any) => {
-
-  //-----------------------visiability of contacts----------------------------------
   const [isNewChatOpen, setIsNewChatOpen] = useState(false)
   const HandleNewChatVisiablity = () => setIsNewChatOpen(!isNewChatOpen)
   const [isCreateContactVis, setIsCreateContactVis] = useState(false);
   const HandleCreateContactVis = () => setIsCreateContactVis(!isCreateContactVis)
   const [isInstantsVis, setIsInstantsVis] = useState(false)
 
-  //----------Handle the vidiability of contacts when user click out side of the component---------
   const modalRef = useRef<HTMLDivElement | null>(null);
   const modalRef1 = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -24,7 +20,6 @@ const ChatsSide = ({ setIsChatOpen }: any) => {
       if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
         setIsNewChatOpen(false);
       }
-
       if (modalRef1.current && !modalRef1.current.contains(event.target as Node)) {
         setIsInstantsVis(false)
       }
@@ -38,15 +33,12 @@ const ChatsSide = ({ setIsChatOpen }: any) => {
   }, []);
 
   const [searchChannel, setSearchChannel] = useState("")
-  // min-h-full
   return (
     <div>
       <div className='sticky inset-shadow-sm z-11'>
-        {/* this is the upper on left side of chats */}
         <div className='flex justify-between p-4.5 bg-white border-b border-gray-300 '>
           <h2 className='text-xl font-bold text-stone-950'>Chats</h2>
           <div className='relative flex gap-2 text-lg items-center'>
-            {/* -------------this is button on sidebar with new contacts list----------- */}
             <button onClick={HandleNewChatVisiablity} className='p-2 hover-light rounded cursor-pointer'><FiEdit /></button>
             <div className="menuref" ref={modalRef}>
               {isNewChatOpen ?
@@ -62,7 +54,6 @@ const ChatsSide = ({ setIsChatOpen }: any) => {
             </div>
           </div>
         </div>
-        {/* this is the search of left side of chats */}
         <div className='px-5 py-4'>
           <SearchWhite HandleSearch={(event: any) => setSearchChannel(event.target.value)} />
         </div>

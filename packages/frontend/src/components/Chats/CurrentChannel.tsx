@@ -1,17 +1,11 @@
 import { useContext, useEffect, useState } from "react"
-import { ChatsContext } from "@Context/ChatsContext"
-import { setItem } from "@utils/localStorage"
-
+import { ChatsContext } from "@src/components/Context/ChatsContext"
 
 const CurrentChannel = ({ channelName, channelId, memberIds, unseen, setIsChannelExist }: any) => {
   const { chatsDetails, setChatsDetails, newMessage, setNewMessage, isNewChannelCreated }: any = useContext(ChatsContext)
-
-  //------------------new message count----------------------------
   const [ unseenMessageCount, setUnseenMessageCount ] = useState(0)
   const [ isUnseen, setIsUnseen ] = useState(true)
   useEffect(() => {
-    //----------update the count when new messages arrives--------------
-    console.log(unseen,"unseen", newMessage, "newMessage", )
     if (!newMessage) return;
     const currentChannelindex = newMessage?.findIndex((message: any) => message.channelId === channelId) ?? -1;
     const currentChannel = currentChannelindex !== -1 ? newMessage[currentChannelindex] : null;
@@ -25,12 +19,10 @@ const CurrentChannel = ({ channelName, channelId, memberIds, unseen, setIsChanne
    }
   }, [newMessage]) 
 
-  //---------------set count of all unseen messages when the page render----------------
   useEffect(() => {
     if(channelId !== chatsDetails.channelId) setUnseenMessageCount(unseen)
   },[channelId])
 
-  //------------------Handle Current Channel-------------------------
   const HandleCurrentChannel = async () => {
     const allMemberNumbers = memberIds.map((member: any) => member.phoneNo)
     const receiverNumbers = allMemberNumbers.filter((number : any) => number != import.meta.env.VITE_SENDER_PHONENO)
@@ -43,18 +35,14 @@ const CurrentChannel = ({ channelName, channelId, memberIds, unseen, setIsChanne
     }
 
     await setChatsDetails(currentChannel)
-    setItem('chatsDetails', currentChannel)
+    localStorage.setItem('chatsDetails', JSON.stringify(currentChannel))
 
-
-    //--------------------------delete the channel from localStorage and setNewMessage when seen----------------------
     const currentChannelIndex = await newMessage.findIndex((message: any) => message.channelId === chatsDetails.channelId);
-    console.log(unseen,"unseen", newMessage, "newMessage", );
     
     if (currentChannelIndex !== -1) {
       await newMessage.splice(currentChannelIndex, 1)
       await setNewMessage(newMessage)
     }
-    console.log(unseen,"unseen", newMessage, "newMessage", );
     setUnseenMessageCount(0)
     setIsUnseen(false)
   }
@@ -62,7 +50,6 @@ const CurrentChannel = ({ channelName, channelId, memberIds, unseen, setIsChanne
 const { setIsChatOpen }: any = useContext(ChatsContext);
   return (
     <div>
-      {/* this is the main */}
       <div onClick={ () =>{ 
         HandleCurrentChannel()
         setIsChatOpen(true)
@@ -73,14 +60,12 @@ const { setIsChatOpen }: any = useContext(ChatsContext);
                        ${channelId === chatsDetails.channelId ? 'bg-light' : 'hover-light'}
                        `}>
         <div className='flex gap-4'>
-          {/* <img className='w-11 h-11 object-cover rounded-full' src="https://www.washingtonpost.com/wp-apps/imrs.php?src=https://arc-anglerfish-washpost-prod-washpost.s3.amazonaws.com/public/L73IDX7GKCHAD7EJJS7FQ7A6BU.JPG&w=1200" alt="" /> */}
           <div className="w-8 h-8 bg-blue-200 rounded-full flex justify-center text-blue-500 font-bold text-sm items-center">{(channelName).slice(0, 1).toUpperCase()}</div>
           <div className="flex items-center">
             <p className='font-bold truncate w-[9rem]'>{channelName}</p>
           </div>
         </div>
         <span className='flex flex-col items-end text-sm'>
-          {/* <div>12:00</div> */}
           {unseenMessageCount !== 0 ?
             <div className='flex items-center w-5 h-5 text-xs justify-center bg-green-500 rounded-full text-white'>
               {unseenMessageCount}

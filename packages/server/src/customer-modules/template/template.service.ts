@@ -14,20 +14,16 @@ import { Connection, Repository } from 'typeorm';
 
 @Injectable()
 export class TemplateService {
-    private templateRepository: Repository<Template>
+  private templateRepository: Repository<Template>
 
   constructor(
-          @Inject(CONNECTION) connection: Connection,
-
-    private workspaceService: WorkspaceService,
+    @Inject(CONNECTION) connection: Connection,
     private readonly instantsService: instantsService,
-    private readonly mailingListService: MailingListService,
+  ) {
+    this.templateRepository = connection.getRepository(Template);
+  }
 
-      ) {
-        this.templateRepository = connection.getRepository(Template);
-      }
-
-  async submitTemplate(templateData: TemplateRequestInput, workspaceId: string): Promise<any> {
+  async submitTemplate(templateData: TemplateRequestInput): Promise<any> {
     const findSelectedInstants = await this.instantsService.findInstantsByInstantsId(templateData.account)
     if (!findSelectedInstants) throw new Error('findSelectedInstants not found');
     const businessId = findSelectedInstants?.businessAccountId
@@ -84,9 +80,6 @@ export class TemplateService {
       ].filter(Boolean)
     };
 
-
-
-
     try {
       const response = await axios({
         url: `https://graph.facebook.com/v22.0/${businessId}/message_templates`,
@@ -98,9 +91,6 @@ export class TemplateService {
         data: JSON.stringify({ ...payload })
       });
 
-      const workspace = await this.workspaceService.findWorkspaceById(workspaceId)
-      if (!workspace) throw new Error("workspace doesnt found")
-
       const templateAPiResponse = response.data
 
       if (templateAPiResponse.success || templateAPiResponse.id) {
@@ -108,19 +98,18 @@ export class TemplateService {
           templateId: templateAPiResponse.id,
           status: templateAPiResponse.status.toLowerCase(),
           ...templateData,
-          // workspace
         })
 
         await this.templateRepository.save(templateCreation)
 
-        this.getTemplateStatusByCron(templateAPiResponse.id, workspaceId)
+        this.getTemplateStatusByCron(templateAPiResponse.id)
         return {
           success: true,
           data: response.data,
         };
       }
     } catch (error) {
-      console.log({
+      console.error({
         success: false,
         error: error.response?.data || error.message,
       });
@@ -132,8 +121,8 @@ export class TemplateService {
 
   }
 
-  async getTemplateStatusByCron(templateId: string, workspaceId: string) {
-    const findSelectedInstants = await this.instantsService.FindSelectedInstants(workspaceId)
+  async getTemplateStatusByCron(templateId: string) {
+    const findSelectedInstants = await this.instantsService.FindSelectedInstants()
     if (!findSelectedInstants) throw new Error('findSelectedInstants not found');
     const accessToken = findSelectedInstants?.accessToken
     const templateByApi = await this.getTemplateStatusByWhatsappApi(templateId, accessToken);
@@ -181,7 +170,6 @@ export class TemplateService {
   async getTemplateStatusByWhatsappApi(templateId: string, accessToken: string): Promise<any> {
     try {
       const response = await axios({
-        // url: `https://graph.facebook.com/v22.0/1649375815967023/message_templates?template_id=${templateId}`,
         url: `https://graph.facebook.com/v22.0/${templateId}?fields=name,status,category,language,components`,
         method: 'GET',
         headers: {
@@ -206,10 +194,6 @@ export class TemplateService {
     }
   }
 
-
-
-
-
   async getAllTemplates() {
     const url = `https://graph.facebook.com/v22.0/467842749737629/message_templates`;
 
@@ -221,21 +205,16 @@ export class TemplateService {
       });
 
       const templates = response;
-      console.log(response.data.data, '.............................');
 
       return "fsds"
     } catch (err) {
       console.error('Error fetching templates:', err.response?.data || err.message);
       return "fsds"
     }
-
   }
 
-
-
-  async findAllTemplate(workspaceId: string): Promise<Template[]> {
+  async findAllTemplate(): Promise<Template[]> {
     return await this.templateRepository.find({
-      // where: { workspace: { id: workspaceId } },
       order: { createdAt: 'ASC' }
     })
   }
@@ -243,7 +222,6 @@ export class TemplateService {
   async findTemplateByTemplateId(templateId: string) {
     return await this.templateRepository.findOne({ where: { templateId } })
   }
-
 
   async uploadFile(file, appId, accessToken) {
     const { filename, mimetype, path, size }: any = file;
@@ -283,9 +261,6 @@ export class TemplateService {
       }
     );
     const templates = response.data?.data;
-    const workspace = await this.workspaceService.findWorkspaceById(workspaceId);
-    if (!workspace) throw new Error('Workspace not found');
-
     for (const template of templates) {
       const components = template.components || [];
 
@@ -321,7 +296,6 @@ export class TemplateService {
         header_handle: header?.example?.header_handle?.[0]?.handle || null,
         button: buttons,
         variables: variableList,
-        // workspace
       });
 
       await this.templateRepository.save(newTemplate);

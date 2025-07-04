@@ -1,12 +1,11 @@
 import { useMutation } from '@apollo/client';
 import { useEffect, useState } from 'react';
-import { LoginMutation } from 'src/generated/graphql';
+import { LoginMutation } from '@src/generated/graphql';
 import { useNavigate } from 'react-router-dom';
 import { cookieStorage } from '@src/utils/cookie-storage';
 import { useSignInWithGoogle } from '@src/modules/auth/hooks/useSignInWithGoogle';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import { workspacesState } from '@src/modules/auth/states/workspaces';
-import { useVerifyLoginToken } from '@src/modules/auth/hooks/useVerifyLoginToken';
 import { currentUserWorkspaceState } from '@src/modules/auth/states/currentUserWorkspaceState';
 
 function Login() {
@@ -15,12 +14,8 @@ function Login() {
   const setWorkspaces = useSetRecoilState(workspacesState);
   const [login, { data, loading, error }] = useMutation(LoginMutation);
   const navigate = useNavigate();
-  const { verifyLoginToken } = useVerifyLoginToken();
-
-
 
   useEffect(() => {
-    // const accessToken = Cookies.get('accessToken');
     const accessToken = cookieStorage.getItem('accessToken')
     if (accessToken && currentUserWorkspace) {
       navigate(`/w/${currentUserWorkspace.id}/dashboard`)

@@ -1,32 +1,9 @@
-
-import { Outlet, useLocation } from "react-router-dom"
-import { useEffect, useState } from "react"
-import Sidebar from "@components/MainLayout/Sidebar/Sidebar"
-import Navbar from "@components/MainLayout/Navbar/Navbar"
-import WorkspaceSetup from "@src/components/UI/WorkspaceSetup"
 import { useRecoilState } from "recoil"
+import { useEffect, useState } from "react"
+import { Outlet } from "react-router-dom"
+import Sidebar from "@components/MainLayout/Sidebar/Sidebar"
+import WorkspaceSetup from "@src/components/UI/WorkspaceSetup"
 import { currentUserWorkspaceState } from "@src/modules/auth/states/currentUserWorkspaceState"
-
-// const MainLayout = () => {
-//   const [isToggleActivated, setIsToggleActivated] = useState(false)
-//   const HandleToggleButton = () => {
-//     setIsToggleActivated(!isToggleActivated)
-//   }
-//   const location = useLocation();
-//   return (
-//     <div className='grid gap-4 md:grid-cols-[220px_1fr] p-4'>
-//       <Sidebar HandleToggleButton={HandleToggleButton} isToggleActivated={isToggleActivated} />
-//       <div >
-//       <div className={`${isToggleActivated ? 'hidden md:block overflow-x-auto' : 'overflow-x-auto'}`}>
-//         {location.pathname == '/chats' ? <></> 
-//                 :<Navbar HandleToggleButton={HandleToggleButton} location={location} />}
-//         <Outlet />
-//         </div>
-//       </div>
-//     </div>
-//   )
-// }
-
 
 const MainLayout = () => {
   const [isToggleActivated, setIsToggleActivated] = useState(false)
@@ -60,6 +37,3 @@ useEffect(() => {
 }
 
 export default MainLayout
-
-
-// export default MainLayout

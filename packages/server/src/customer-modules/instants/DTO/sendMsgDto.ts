@@ -7,5 +7,4 @@ export class sendMsgDto {
 
   @Field()
   msg: string;
-
 }

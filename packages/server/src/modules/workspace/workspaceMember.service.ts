@@ -1,12 +1,10 @@
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
-import { log } from "console";
 import { Workspace } from "./workspace.entity";
 import { WorkspaceMember } from "./workspaceMember.entity";
-import { UserService } from "../user/user.service";
-import { User } from "../user/user.entity";
 import { WorkspaceService } from "./workspace.service";
+import { User } from "src/modules/user/user.entity";
 
 @Injectable()
 export class WorkspaceMemberService {
@@ -34,13 +32,6 @@ export class WorkspaceMemberService {
       userId,
       workspaceId,
     });
-
-    // this.workspaceEventEmitter.emitCustomBatchEvent(
-    //   USER_SIGNUP_EVENT_NAME,
-    //   [{ userId }],
-    //   workspaceId,
-    // );
-
     return this.workspaceMemberRepository.save(userWorkspace);
   }
 
@@ -55,28 +46,6 @@ export class WorkspaceMemberService {
 
     if (!userWorkspace) {
       userWorkspace = await this.create(user.id, workspace.id);
-
-      // await this.createWorkspaceMember(workspace.id, user);
-
-      // const defaultRoleId = workspace.defaultRoleId;
-
-      // if (!isDefined(defaultRoleId)) {
-      //   throw new PermissionsException(
-      //     PermissionsExceptionMessage.DEFAULT_ROLE_NOT_FOUND,
-      //     PermissionsExceptionCode.DEFAULT_ROLE_NOT_FOUND,
-      //   );
-      // }
-
-      // await this.userRoleService.assignRoleToUserWorkspace({
-      //   workspaceId: workspace.id,
-      //   userWorkspaceId: userWorkspace.id,
-      //   roleId: defaultRoleId,
-      // });
-
-      // await this.workspaceInvitationService.invalidateWorkspaceInvitation(
-      //   workspace.id,
-      //   user.email,
-      // );
     }
   }
 

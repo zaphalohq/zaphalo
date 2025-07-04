@@ -5,7 +5,6 @@ import { IDField } from "@ptc-org/nestjs-query-graphql";
 import { Workspace } from "./workspace.entity";
 import { User } from "../user/user.entity";
 
-// WorkspaceInvitation Entity
 @Entity({ name: 'workspace_invitation', schema: 'core' })
 @ObjectType('WorkspaceInvitation')
 export class WorkspaceInvitation {

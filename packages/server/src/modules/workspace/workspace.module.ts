@@ -1,17 +1,16 @@
-import { forwardRef, Module } from "@nestjs/common";
+import { Module } from "@nestjs/common";
 import { NestjsQueryGraphQLModule } from "@ptc-org/nestjs-query-graphql";
 import { NestjsQueryTypeOrmModule } from "@ptc-org/nestjs-query-typeorm";
-import { TypeORMModule } from "src/database/typeorm/typeorm.module";
-import { UserService } from "../user/user.service";
-import { UserModule } from "../user/user.module";
-import { User } from "../user/user.entity";
-import { WorkspaceService } from "./workspace.service";
-import { WorkspaceMemberService } from "./workspaceMember.service";
 import { Workspace } from "./workspace.entity";
-import { WorkspaceMember } from "./workspaceMember.entity";
+import { WorkspaceService } from "./workspace.service";
 import { workspaceResolver } from "./workspace.resolver";
+import { WorkspaceMember } from "./workspaceMember.entity";
+import { WorkspaceMemberService } from "./workspaceMember.service";
 import { WorkspaceInvitation } from "./workspaceInvitation.entity";
-import { Contacts } from "src/customer-modules/contacts/contacts.entity";
+import { User } from "src/modules/user/user.entity";
+import { TypeORMModule } from "src/database/typeorm/typeorm.module";
+import { UserModule } from "src/modules/user/user.module";
+
 
 @Module({
   imports: [
@@ -23,12 +22,11 @@ import { Contacts } from "src/customer-modules/contacts/contacts.entity";
             Workspace,
             WorkspaceMember,
             WorkspaceInvitation,
-            // Contacts
           ],
           'core'
         ),
         TypeORMModule,
-        UserModule, // UserService is exported from here
+        UserModule
       ],
       services: [WorkspaceService, WorkspaceMemberService],
       

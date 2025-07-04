@@ -1,84 +1,10 @@
-// import { useQuery } from "@apollo/client";
-// import { useEffect, useState } from "react";
-// import { Find_ALL_TEMPLATE } from "./Mutation/Template";
-// import { FiChevronDown } from "react-icons/fi";
-
-// const Broadcast = () => {
-//     const { data: templateData, loading: templateLoading, refetch: templateRefetch }: any = useQuery(Find_ALL_TEMPLATE);
-//     const [templates, setTemplates] = useState([{
-//         account: '',
-//         templateName: '',
-//         category: '',
-//         language: '',
-//         bodyText: ``,
-//         footerText: '',
-//         button: [],
-//         variables: [],
-//         headerType: '',
-//         header_handle: '',
-//         fileUrl: ''
-//     }])
-//     useEffect(() => {
-//         try {
-//             templateRefetch()
-//             if (templateData && !templateLoading) {
-//                 console.log(templateData.findAllTemplate);
-//                 setTemplates(templateData.findAllTemplate)
-//             }
-//         } catch (error) {
-//             console.error('template data fetch error ', error)
-//         }
-
-//     }, [templateData])
-
-//     return (
-//         <div className="mt-4 bg-white rounded-lg shadow-lg p-6 w-full max-w-6xl mx-auto">
-//             <h1 className="text-2xl font-bold text-gray-800 mb-6">Dashboard Overview</h1>
-
-//             {/* Metrics Cards */}
-//             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-//                 <div className="bg-blue-50 p-4 font-semibold rounded-lg">Select Template</div>
-//                 <div className="bg-blue-50 p-4 font-semibold">Select Mailing List</div>
-//                 <div></div>
-//             </div>
-//             <div className="absolute bg-blue-50 p-4 font-semibold rounded-lg">
-//                 <div>fsdfsdfdsf</div>
-//                 <div>fdsfsdfdsf</div>
-//                 <div>fsdfsdfsd</div>
-//             </div>
-
-//             {/* Chart Section */}
-//             <div className="bg-gray-50 p-4 rounded-lg shadow mb-8">
-//                 <h2 className="text-lg font-semibold text-gray-700 mb-4">Template Preview</h2>
-//                 <div className="h-64 w-full md:w-[50%]">
-
-//                 </div>
-//                 <div className="flex justify-center mt-4 space-x-6">
-
-//                     <div className="flex items-center">
-//                         <div
-//                             className="w-4 h-4 mr-2 rounded-sm"
-
-//                         />
-//                         <span className="text-sm text-gray-600">fdsfsfdsfsd</span>
-//                     </div>
-
-//                 </div>
-//             </div>
-//         </div>
-//     )
-// }
-
-// export default Broadcast
-
-
 import { useMutation, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
-import { Find_ALL_TEMPLATE, SEND_TEMPLATE_TO_WHATSAPP } from "./Mutation/Template";
 import { FiChevronDown } from "react-icons/fi";
-import { FindAll_Mailing_List } from "./Mutation/MailingList";
-import TemplatePreview from "@src/components/Template/TemplatePreview";
 import { useLocation } from "react-router-dom";
+import { FindAll_Mailing_List } from "@src/generated/graphql";
+import { Find_ALL_TEMPLATE, SEND_TEMPLATE_TO_WHATSAPP } from "@src/generated/graphql";
+import TemplatePreview from "@src/components/Template/TemplatePreview";
 
 type BroadcastProps = {
     templateId?: string,
@@ -120,10 +46,8 @@ const Broadcast = () => {
         language: ''
     })
 
-
     const { data: mailingListData, refetch: mailingListRefetch, loading: mailingListLoading } = useQuery(FindAll_Mailing_List)
     const [mailingLists, setMailingLists] = useState<any[]>([])
-
     const [sendTemplateToWhatssapp, { data, loading, error }] = useMutation(SEND_TEMPLATE_TO_WHATSAPP);
 
     useEffect(() => {
@@ -151,8 +75,6 @@ const Broadcast = () => {
 
     useEffect(() => {
         if (selectedTemplate.templateId !== '' && selectedTemplate.templateName !== '') {
-            console.log(selectedTemplate.templateId,  selectedTemplate.templateName);
-            
             handleTemplateSelect(selectedTemplate.templateId, selectedTemplate.templateName)
         }
     }, [selectedTemplate])
@@ -161,7 +83,7 @@ const Broadcast = () => {
     const handleTemplateSelect = async (templateId: string, templateName: string) => {
         const currentTemplate = await templates.find(t => t.id === templateId)
         setCurrentTemplate(currentTemplate)
-        
+
         setBroadcastData({ ...broadcastData, templateId, templateName, headerType: currentTemplate?.headerType, language: currentTemplate.language });
         setVariableMatches(currentTemplate.bodyText.match(/{{\d+}}/g) || []);
         setShowTemplateDropdown(false);
@@ -180,8 +102,6 @@ const Broadcast = () => {
                     broadcastData
                 },
             });
-
-            console.log("Response:", response.data);
         } catch (err) {
             console.error("Mutation error:", err);
         }
@@ -201,7 +121,6 @@ const Broadcast = () => {
             <div className='font-bold text-lg border-gray-300 p-4 border-b'>Broadcast Template</div>
             <div className="mt-4 bg-white rounded-lg shadow-lg p-6 w-full max-w-6xl mx-auto relative">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 relative z-10">
-                    {/* Template Dropdown */}
                     <div className="relative">
                         <div
                             className="bg-blue-50 p-4 font-semibold rounded-lg cursor-pointer flex justify-between items-center"
@@ -228,8 +147,6 @@ const Broadcast = () => {
                             </div>
                         )}
                     </div>
-
-                    {/* Mailing List Dropdown */}
                     <div className="relative">
                         <div
                             className="bg-blue-50 p-4 font-semibold rounded-lg cursor-pointer flex justify-between items-center"
@@ -257,11 +174,8 @@ const Broadcast = () => {
                     </div>
                     <button onClick={HandleSendTempate} className="bg-violet-500 hover:bg-violet-600 text-white rounded font-semibold text-lg cursor-pointer">Broadcast</button>
                 </div>
-
-                {/* Template Preview Section */}
                 <div className="bg-gray-50 p-4 rounded-lg shadow mt-10">
                     <h2 className="text-lg font-semibold text-gray-700 mb-2">Template Preview</h2>
-                    {/* <div className="h-64 w-full md:w-[50%] bg-white border rounded-md p-4 overflow-auto"> */}
                     {broadcastData.templateId ? (
                         <div className="flex">
                             <div>
@@ -301,7 +215,6 @@ const Broadcast = () => {
                     ) : (
                         <></>
                     )}
-                    {/* </div> */}
                 </div>
             </div>
         </div>

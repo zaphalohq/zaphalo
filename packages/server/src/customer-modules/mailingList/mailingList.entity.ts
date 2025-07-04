@@ -1,11 +1,17 @@
-import { Field, Float, Int, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType } from '@nestjs/graphql';
 import { IDField } from '@ptc-org/nestjs-query-graphql';
-import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn, Relation } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Relation
+} from 'typeorm';
 import { MailingContacts } from './mailingContacts.entity';
 import { UUIDScalarType } from 'src/modules/api/scalars/uuid.scalar';
-import { Workspace } from 'src/modules/workspace/workspace.entity';
 
-@Entity({ name: 'MailingList'})
+@Entity({ name: 'MailingList' })
 @ObjectType()
 export class MailingList {
   @IDField(() => UUIDScalarType)
@@ -18,15 +24,9 @@ export class MailingList {
 
   @Field(() => [MailingContacts])
   @OneToMany(() => MailingContacts, MailingContacts => MailingContacts.mailingList)
-  mailingContacts : Relation<MailingContacts[]>
-  
-  // @Field(() => Workspace)
-  // @ManyToOne(() => Workspace)
-  // workspace : Relation<Workspace>
+  mailingContacts: Relation<MailingContacts[]>
 
   @Field(() => String)
   @CreateDateColumn()
   createdAt: Date;
-
-
 }

@@ -1,23 +1,13 @@
 import { Controller, Get, Post, Query, Request } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Channel } from './channel.entity';
-import { Message } from './message.entity';
 import { ChannelService } from './channel.service';
 import { WebSocketService } from './chat-socket';
-import { ContactsService } from '../contacts/contacts.service';
-import { instantsService } from '../instants/instants.service';
-
-
+import { ContactsService } from 'src/customer-modules/contacts/contacts.service';
+import { instantsService } from 'src/customer-modules/instants/instants.service';
 const token = 'my-token'
 
 @Controller('webhook')
 export class channelController {
   constructor(
-    // @InjectRepository(Channel)
-    // private readonly channelRepository: Repository<Channel>,
-    // @InjectRepository(Message)
-    // private readonly messageRepository: Repository<Message>,
     private readonly webSocketService: WebSocketService,
     private readonly channelservice: ChannelService,
     private readonly contactsservice: ContactsService,
