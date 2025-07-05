@@ -60,13 +60,12 @@ const handleSubmit = async (e: any) => {
       },
     });
 
-    console.log('Registration successful', response.data.Register);
     navigate('/login');
   } catch (err) {
     if (err instanceof ZodError) {
-      setError({ message: err.errors[0].message }); // Show first error only
+      setError({ message: err.errors[0].message });
     } else {
-      setError({ message: 'Something went wrong' });
+      setError({ message: `${err}` });
     }
   } finally {
     setLoading(false);

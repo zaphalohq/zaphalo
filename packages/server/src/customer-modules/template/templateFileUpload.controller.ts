@@ -28,7 +28,7 @@ export class TemplateFileUpload {
         
     async FileUpload(@Req() req, @UploadedFile() file: Express.Multer.File) {
         const workspaceId = req.user.workspaceIds[0];
-        const findSelectedInstants = await this.instantsService.FindSelectedInstants(workspaceId)
+        const findSelectedInstants = await this.instantsService.FindSelectedInstants()
         if (!findSelectedInstants) throw new Error('findSelectedInstants not found');
         const appId = findSelectedInstants?.appId
         const accessToken = findSelectedInstants?.accessToken

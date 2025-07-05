@@ -1,10 +1,10 @@
 import { useMutation } from '@apollo/client';
 import { useEffect, useState } from 'react';
-import { LoginMutation } from '@src/generated/graphql';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import { useNavigate } from 'react-router-dom';
+import { LoginMutation } from '@src/generated/graphql';
 import { cookieStorage } from '@src/utils/cookie-storage';
 import { useSignInWithGoogle } from '@src/modules/auth/hooks/useSignInWithGoogle';
-import { useRecoilState, useSetRecoilState } from 'recoil';
 import { workspacesState } from '@src/modules/auth/states/workspaces';
 import { currentUserWorkspaceState } from '@src/modules/auth/states/currentUserWorkspaceState';
 

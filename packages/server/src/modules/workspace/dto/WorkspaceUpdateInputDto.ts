@@ -8,7 +8,7 @@ export class WorkspaceUpdateInputDto {
   @Field()
   workspaceName: string;
 
-  @Field()
-  profileImg: string;
+  @Field({ nullable : true })
+  profileImg?: string;
 
 }

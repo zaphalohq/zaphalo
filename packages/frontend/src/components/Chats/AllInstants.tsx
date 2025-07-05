@@ -20,7 +20,6 @@ const AllInstants = () => {
                 setAllInstants(data?.findAllInstants)
                 refetch();
                 const currentInstants = data?.findAllInstants.filter((instants: any) => instants.defaultSelected == true)
-                console.log(currentInstants, "currentInstantscurrentInstantscurrentInstantscurrentInstants");
             } else {
                 console.error('No data returned from mutation');
             }
@@ -56,7 +55,6 @@ const AllInstants = () => {
                 variables: { instantsId },
             });
             if (data?.InstantsSelection) {
-                console.log(data.InstantsSelection);
                 setAllInstants(data.InstantsSelection);
             } else {
                 console.error('No data returned from mutation');

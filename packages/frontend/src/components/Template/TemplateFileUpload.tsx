@@ -1,12 +1,11 @@
 import React, { useState } from 'react'
 import axios from 'axios'
+
 const TemplateFileUpload = () => {
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState('');
 
   const handleFileChange = (e: any) => {
-    console.log(e.target.files[0]);
-
     setFile(e.target.files[0])
   }
 
@@ -19,7 +18,6 @@ const TemplateFileUpload = () => {
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/templateFileUpload`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
-        console.log('File uploaded successfully:', response.data);
       } catch (error) {
         console.error('Error uploading file:', error);
       }

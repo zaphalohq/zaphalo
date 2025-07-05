@@ -2,7 +2,6 @@ import { useMutation } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { setItem } from '@src/components/utils/localStorage';
 import { LoginMutation } from '@src/generated/graphql';
 import { cookieStorage } from '@src/utils/cookie-storage';
 import { workspacesState } from '@src/modules/auth/states/workspaces';
@@ -47,16 +46,12 @@ function Invite() {
           inviteToken: workspaceInviteToken || null
         },
       });
-      setItem('access_token', response.data.login.accessToken);
       cookieStorage.setItem(
         'accessToken',
         JSON.stringify(
           response.data.login.accessToken
         ),
       );
-      const workspaceIds = JSON.parse(response.data.login.workspaceIds)
-      setItem('workspaceIds', workspaceIds)
-
       setWorkspaces(response.data.login.workspaces)
 
       const token: string = response.data.login.accessToken.token;

@@ -24,7 +24,7 @@ export class BroadcastResolver {
     @Mutation(() => Broadcast)
     async BroadcastTemplate(@Context('req') req, @Args('broadcastData') broadcastData: BroadcastReqDto): Promise<Broadcast> {
         const workspaceId = req.headers['x-workspace-id']
-        const findTrueInstants = await this.instantsService.FindSelectedInstants(workspaceId)
+        const findTrueInstants = await this.instantsService.FindSelectedInstants()
         const accessToken = findTrueInstants?.accessToken
         const phoneNumberId = findTrueInstants?.phoneNumberId
         return await this.broadcastService.BroadcastTemplate(workspaceId, accessToken, broadcastData, phoneNumberId)
