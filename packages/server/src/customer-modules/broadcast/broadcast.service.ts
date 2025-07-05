@@ -177,7 +177,6 @@ export class BroadcastService {
             await this.broadcastContactsRepository.save(currentBroadcastContact)
           }
 
-          console.log(`Sent to ${broadcastContact.contactNo}`, response.data);
         } catch (error) {
           const currentBroadcastContact = await this.broadcastContactsRepository.findOne({ where: { id: broadcastContact.id } })
           if (currentBroadcastContact) {

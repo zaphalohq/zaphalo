@@ -14,7 +14,7 @@ export const performQuery = async (
   try {
     const result = await rawDataSource.query(query);
 
-    withLog && console.log(`Performed '${consoleDescription}' successfully`);
+    withLog
 
     return result;
   } catch (err) {

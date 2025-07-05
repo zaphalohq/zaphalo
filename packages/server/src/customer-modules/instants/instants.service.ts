@@ -118,8 +118,6 @@ export class instantsService {
                 data: response.data
             };
         } catch (error: any) {
-            console.log(error);
-
             return {
                 success: false,
                 error: error?.response?.data?.error?.message || error.message
@@ -166,11 +164,9 @@ export class instantsService {
     }
 
 
-    async FindSelectedInstants(workspaceId? : string) {
+    async FindSelectedInstants() {
         return this.instantsRepository.findOne({
-            where: {
-                defaultSelected: true,
-            }
+            where: { defaultSelected: true }
         });
     }
 

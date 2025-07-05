@@ -103,10 +103,7 @@ export class SignInUpService {
     });
 
     const workspace = await this.workspaceRepository.save(workspaceToCreate);
-    console.log(workspace, '......................................workspace.......');
-
     await this.workspaceService.createWorkspaceSchema(workspace);
-
 
     const user =
       userData.type === 'existingUser'

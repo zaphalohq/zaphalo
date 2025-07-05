@@ -1,16 +1,12 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
-import { AuthService } from './services/auth.service';
-import { AuthInput } from './dto/auth.input';
-import { AuthToken } from './dto/auth.token';
-import { AuthResponse } from './dto/auth.response';
-import { CreateUserDTO } from '../user/dto/create-user.dto';
-import { RegisterResponse } from './dto/register.response';
-import { log } from 'console';
-import { User } from '../user/user.entity';
-import { Controller, Request, Post, UseGuards } from '@nestjs/common';
-import { WorkspaceService } from '../workspace/workspace.service';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Resolver, Mutation, Args } from '@nestjs/graphql';
+import { AuthInput } from './dto/auth.input';
+import { AuthResponse } from './dto/auth.response';
+import { AuthService } from './services/auth.service';
+import { User } from 'src/modules/user/user.entity';
+import { CreateUserDTO } from 'src/modules/user/dto/create-user.dto';
+import { WorkspaceService } from 'src/modules/workspace/workspace.service';
 
 
 @Resolver()

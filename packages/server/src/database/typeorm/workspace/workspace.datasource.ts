@@ -30,7 +30,3 @@ export const typeORMWorkspaceModuleOptions: TypeOrmModuleOptions = {
 export const workspaceConnectionSource = new DataSource(
   typeORMWorkspaceModuleOptions as DataSourceOptions,
 );
-
-// export const connectionSource = new DataSource(
-//   typeORMWorkspaceModuleOptions as DataSourceOptions,
-// );

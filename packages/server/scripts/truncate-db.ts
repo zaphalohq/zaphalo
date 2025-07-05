@@ -35,7 +35,6 @@ async function dropSchemasSequentially() {
       );
     }
 
-    console.log('All schemas dropped successfully.');
   } catch (err) {
     console.error('Error during schema dropping:', err);
   }

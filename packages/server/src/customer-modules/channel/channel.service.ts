@@ -8,42 +8,32 @@ import { existsSync, unlinkSync } from "fs";
 import axios, { AxiosResponse } from "axios"
 import fs from "fs"
 import { UserService } from "src/modules/user/user.service";
-import { WorkspaceService } from "src/modules/workspace/workspace.service";
 import { Connection, Repository, In } from 'typeorm';
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 
 @Injectable()
 export class ChannelService {
-            private channelRepository: Repository<Channel>
-        private messageRepository: Repository<Message>
+    private channelRepository: Repository<Channel>
+    private messageRepository: Repository<Message>
     constructor(
-    @Inject(CONNECTION) connection: Connection,
+        @Inject(CONNECTION) connection: Connection,
         private readonly contactsservice: ContactsService,
-        private readonly userService: UserService,
-    ) { 
-    this.channelRepository = connection.getRepository(Channel);
-    this.messageRepository = connection.getRepository(Message);
+    ) {
+        this.channelRepository = connection.getRepository(Channel);
+        this.messageRepository = connection.getRepository(Message);
 
     }
 
 
-    async findOrCreateChannel(phoneNo: any, memberIds: number[], channelName?: string, userId?: any,) {
+    async findOrCreateChannel(phoneNo: any, memberIds: number[], channelName?: string) {
         const contacts = await this.contactsservice.findContactsByPhoneNoArr(memberIds)
-
-        //----finding channel exist or not ------------------------
-        const isChannelExist = await this.findExistingChannelByPhoneNo(memberIds,
-            //  workspaceId
-            )
+        const isChannelExist = await this.findExistingChannelByPhoneNo(memberIds)
 
         if (isChannelExist && isChannelExist.channelName)
             return { channel: isChannelExist, newChannelCreated: false }
-        const user = await this.userService.findByUserId(userId)
-        if (!user) throw new Error("user doesnt found")
         const newChannel = this.channelRepository.create({
-            channelName: channelName || phoneNo, 
+            channelName: channelName || phoneNo,
             contacts: contacts,
-            // writeUser: user,
-            // createUser: user,
             membersidsss: JSON.stringify(memberIds),
         })
         await this.channelRepository.save(newChannel)
@@ -53,7 +43,7 @@ export class ChannelService {
 
     async findExistingChannelByPhoneNo(memberIds: any): Promise<Channel | undefined> {
         const channelExist = await this.channelRepository.find({
-            where: { contacts: memberIds.map((member) => ({ phoneNo: member }))},
+            where: { contacts: memberIds.map((member) => ({ phoneNo: member })) },
             relations: ['contacts']
         })
 
@@ -74,7 +64,7 @@ export class ChannelService {
         const sender = await this.contactsservice.findOneContact(senderId);
 
         if (!sender) throw new Error('Sender not found');
-        const channel = await this.channelRepository.findOne({ where: { id: channelId} });
+        const channel = await this.channelRepository.findOne({ where: { id: channelId } });
         if (!channel) throw new Error('Channel not found');
 
         const message_rec = this.messageRepository.create({
@@ -89,7 +79,7 @@ export class ChannelService {
         return message_rec
     }
 
-    async findAllChannel(workspaceId: string): Promise<Channel[]> {
+    async findAllChannel(): Promise<Channel[]> {
         const allChannel = await this.channelRepository.find({
             relations: ['contacts'],
         })
@@ -99,8 +89,6 @@ export class ChannelService {
             .createQueryBuilder('channel')
             .leftJoinAndSelect('channel.contacts', 'contacts')
             .leftJoinAndSelect('channel.messages', 'messages', 'messages.unseen = :unseen', { unseen: false })
-            .leftJoinAndSelect('channel.workspace', 'workspace') // Ensure workspace relation is loaded
-            .where('workspace.id = :workspaceId', { workspaceId }) // Filter by workspaceId
             .addSelect(
                 (subQuery) =>
                     subQuery
@@ -204,51 +192,16 @@ export class ChannelService {
         if (!file) {
             throw new Error('No file provided');
         }
-
-        // Generate the URL
         const baseUrl = 'http://localhost:3000';
         const fileUrl = `${baseUrl}/${file.filename}`;
-
-        // Here you could add additional logic, like saving file metadata to a database
-        console.log(`File saved: ${file.path}, URL: ${fileUrl}`);
-        // // Convert to Base64 (for logging or other purposes)
-        // const fileBuffer = fs.readFileSync(file.path);
-        // const base64String = fileBuffer.toString('base64');
-        // console.log(base64String);
-
-        //              const response = await axios({
-        //             url: 'https://graph.facebook.com/v22.0/565830889949112/messages',
-        //             method: 'POST',
-        //             headers: {
-        //                 'Authorization': `Bearer ${process.env.Whatsapp_Token}`,
-        //                 'Content-Type': 'application/json'
-        //             },
-        //             data: JSON.stringify({
-        //                 "messaging_product": "whatsapp",
-        //                 "to": "917202031718",
-        //                 "type": "image",
-        //                 "image": {
-        //                     "link" : base64String,
-        //                     "caption" : "this is image"
-        //                 }
-        //             })
-        //         })
-
         return fileUrl;
     }
 
 
 
     async deleteFile(filename: string): Promise<void> {
-        // const filePath = join(this.uploadDir, filename);
-
-        // if (!existsSync(filePath)) {
-        //     throw new NotFoundException(`File ${filename} not found`);
-        // }
-
         try {
             unlinkSync(`uploads\\${filename}`);
-            console.log('File deleted: ${filePath}');
         } catch (error) {
             throw new Error("Failed to delete file: ${error.message}");
         }
@@ -286,6 +239,7 @@ export class ChannelService {
 
         let messagePayload = {};
 
+
         if (messageType === 'text' && textMessage) {
             messagePayload = {
                 type: 'text',
@@ -302,7 +256,7 @@ export class ChannelService {
                 },
             };
         } else if (messageType === 'document') {
-            
+
             messagePayload = {
                 type: 'document',
                 document: {
@@ -329,26 +283,27 @@ export class ChannelService {
             throw new Error(`Unsupported message type: ${messageType}`);
         }
 
-        receiverId.forEach( async (receiver) => {
+        receiverId.forEach(async (receiver) => {
+
+            const finalPayload = {
+                messaging_product: 'whatsapp',
+                to: receiver,
+                ...messagePayload,
+            };
+
+            console.log(finalPayload,'finalPayloadfinalPayloadfinalPayload');
             
-        const finalPayload = {
-            messaging_product: 'whatsapp',
-            to: receiver,
-            ...messagePayload,
-        };
-        console.log('access EAAao8Mkc6lMBOZBEsL7ZCkENxPbZAP1Ocs3z8phccZAa0ctc2lzLXumH34AjS8pkAkTvp7hDxTSG0TnutK4JfwXal9GINecTl3i2J4ezaFSq1qZCVXH7JToLL3crmRSZBZBZBDNvaZAg377BTpLuDKGv85kERpa5kFobcpp6lk39aohrLqYyTjJTzdSMG9PbLEnU9Q7sbGrOZALXAMzZCqCUHHaNPrnBFc3xlr0ZB6a3');
-        console.log(accessToken);
-        
-        
-        const response = await axios.post(url, finalPayload, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-            },
+            const response = await axios.post(url, finalPayload, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            console.log(response.data,'responseresponseresponse');
+            
+            return response.data;
         });
-        return response.data;
-        });
-        
+
     }
 
 

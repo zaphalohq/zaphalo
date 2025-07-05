@@ -1,10 +1,9 @@
-import { Args, Context, Field, Mutation, ObjectType, Query, Resolver } from "@nestjs/graphql";
+import { Args, Context, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { Channel } from "./channel.entity";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import axios from "axios";
 import { ChannelService } from "./channel.service";
 import { Message } from "./message.entity";
-import { Request, UseGuards } from "@nestjs/common";
+import { UseGuards } from "@nestjs/common";
 import { SendMessageInput, SendMessageResponse } from "./dto/SendMessageInputDto";
 import { instantsService } from "../instants/instants.service";
 import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
@@ -16,12 +15,10 @@ export class ChannelResolver {
     private readonly instantsService: instantsService) { }
 
   @Query(() => [Channel])
-  // @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async findAllChannel(
     @Context('req') req): Promise<Channel[]> {
-    const workspaceId = req.headers['x-workspace-id']
-    console.log(":.....................................workspaceId.............", workspaceId)
-    return await this.channelService.findAllChannel(workspaceId);
+    return await this.channelService.findAllChannel();
   }
 
   @UseGuards(GqlAuthGuard)
@@ -35,8 +32,7 @@ export class ChannelResolver {
   @UseGuards(GqlAuthGuard)
   @Query(() => Channel)
   async findExistingChannelByPhoneNo(@Context('req') req, @Args('memberIds') memberIds: string): Promise<Channel | undefined> {
-    const workspaceId = req.headers['x-workspace-id']
-    const findTrueInstants = await this.instantsService.FindSelectedInstants(workspaceId)
+    const findTrueInstants = await this.instantsService.FindSelectedInstants()
     if (!findTrueInstants) throw new Error('findTrueInstants not found');
     const senderId = Number(findTrueInstants?.phoneNumberId)
     const memberIdsJson = JSON.parse(memberIds)
@@ -62,15 +58,12 @@ export class ChannelResolver {
   ): Promise<SendMessageResponse> {
     const { receiverId, textMessage, channelName, channelId, uploadedFiles } = input;
 
-    const userId = req.user.userId;
-    const workspaceId = req.headers['x-workspace-id']
-    const findTrueInstants = await this.instantsService.FindSelectedInstants(workspaceId)
+    const findTrueInstants = await this.instantsService.FindSelectedInstants()
     if (!findTrueInstants) throw new Error('findTrueInstants not found');
     const senderId = Number(findTrueInstants?.phoneNumberId)
     const accessToken = findTrueInstants?.accessToken
-    // const receiverNumbers = allMemberNumbers.filter((number : any) => number != import.meta.env.VITE_SENDER_PHONENO)
+console.log(findTrueInstants,"...............", receiverId);
 
-    // Send WhatsApp message via Facebook Graph API
     // const response = await axios({
     //   url: `https://graph.facebook.com/v22.0/${senderId}/messages`,
     //   method: 'POST',
@@ -83,35 +76,30 @@ export class ChannelResolver {
     //     to: receiverId[0], 
     //     type: 'text',
     //     text: {
-    //       body: message,
+    //       body: textMessage,
     //     },
     //   }),
     // });
 
 
     const receiverId1 = receiverId.filter((number: any) => number != senderId)
-    console.log(receiverId, '[[[[[[', receiverId1, 'receiverId1receiverId1', uploadedFiles);
-
-
     if ((!uploadedFiles || uploadedFiles.length === 0) && textMessage) {
-      // const messageType = 'text'
-      // await this.channelService.sendWhatsappMessage({
-      //   accessToken,
-      //   senderId,
-      //   receiverId : receiverId1,
-      //   messageType,
-      //   textMessage,
-      //   attachmentUrl: null,
-      // });
+      const messageType = 'text'
+      await this.channelService.sendWhatsappMessage({
+        accessToken,
+        senderId,
+        receiverId : receiverId1,
+        messageType,
+        textMessage,
+        attachmentUrl: null,
+      });
 
       if (!channelId || channelId === '') {
-        // const memberIds = [...receiverId, senderId];
-        const memberIds = receiverId;
+        const memberIds = [...receiverId, senderId];
         const channel: any = await this.channelService.findOrCreateChannel(
           senderId,
           memberIds,
           channelName,
-          userId,
         );
         if (!channel.channel.id) throw new Error('Channel not found');
         await this.channelService.createMessage(textMessage, channel.channel.id, senderId, true);
@@ -140,7 +128,6 @@ export class ChannelResolver {
             senderId,
             memberIds,
             channelName,
-            userId,
           );
           if (!channel.channel.id) throw new Error('Channel not found');
           await this.channelService.createMessage(textMessage, channel.channel.id, senderId, true, attachmentUrl);

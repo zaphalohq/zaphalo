@@ -18,8 +18,6 @@ export class TemplateResolver {
         @Context('req') req, @Args('templateData') templateData: TemplateRequestInput,
     ): Promise<TemplateResponseDto> {
         const result = await this.templateService.submitTemplate(templateData);
-        console.log(result, "resultresultresultresultresultresultresult");
-
         return {
             success: result.success,
             data: result.data ? JSON.stringify(result.data) : undefined,
