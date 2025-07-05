@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useRecoilState } from 'recoil';
-import axios from 'axios';
 import { Upload, Settings, Briefcase } from 'lucide-react';
 import SubmitButton from './SubmitButton';
 import { useMutation } from '@apollo/client';
 import { UpdateWorkspaceDetails } from '@src/generated/graphql';
 import { currentUserWorkspaceState } from '@src/modules/auth/states/currentUserWorkspaceState';
+import { Post } from '@src/modules/domain-manager/hooks/axios';
 
 const WorkspaceSetup = () => {
     const [currentUserWorkspace] = useRecoilState(currentUserWorkspaceState);
@@ -33,8 +33,8 @@ const WorkspaceSetup = () => {
             const formData = new FormData();
             if (file !== null && currentUserWorkspace?.id) {
                 formData.append('file', file);
-                const response = await axios.post(
-                    `${import.meta.env.VITE_BACKEND_URL}/fileupload`,
+                const response = await Post(
+                    `/fileupload`,
                     formData,
                     { headers: { 'Content-Type': 'multipart/form-data' } }
                 );
