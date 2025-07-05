@@ -41,7 +41,7 @@ export class workspaceResolver {
   async updateWorkspaceDetails(
     @Args('WorkspaceUpdateInput') WorkspaceUpdateInput: WorkspaceUpdateInputDto,
   ): Promise<WorkspaceResponceDTO> {
-    return this.workspaceService.updateWorkspaceDetails(WorkspaceUpdateInput.workspaceId, WorkspaceUpdateInput.workspaceName, WorkspaceUpdateInput.profileImg);
+    return this.workspaceService.updateWorkspaceDetails(WorkspaceUpdateInput.workspaceId, WorkspaceUpdateInput.workspaceName, WorkspaceUpdateInput?.profileImg);
   }
 
 }

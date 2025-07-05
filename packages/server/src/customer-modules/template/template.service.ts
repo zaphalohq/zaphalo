@@ -1,15 +1,12 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import axios, { AxiosResponse } from "axios"
-import { Template } from "./template.entity";
+import axios from "axios";
 import cron from 'node-cron';
-import { TemplateRequestInput } from "./dto/TemplateRequestInputDto";
-import { instantsService } from "../instants/instants.service";
 import fs from 'fs/promises';
-import { MailingListService } from "../mailingList/mailingList.service";
-import { WorkspaceService } from "src/modules/workspace/workspace.service";
-import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 import { Connection, Repository } from 'typeorm';
+import { Inject, Injectable } from "@nestjs/common";
+import { Template } from "./template.entity";
+import { TemplateRequestInput } from "./dto/TemplateRequestInputDto";
+import { instantsService } from "src/customer-modules/instants/instants.service";
+import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 
 
 @Injectable()

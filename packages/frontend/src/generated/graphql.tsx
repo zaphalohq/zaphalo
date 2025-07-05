@@ -553,7 +553,7 @@ export const UpdateWorkspaceDetails = gql`
 mutation UpdateWorkspaceDetails(
   $workspaceId: String!,
   $workspaceName: String!,
-  $profileImg: String!
+  $profileImg: String
 ) {
   updateWorkspaceDetails(
     WorkspaceUpdateInput: {

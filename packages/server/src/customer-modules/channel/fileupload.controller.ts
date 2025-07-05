@@ -31,8 +31,6 @@ export class fileupload {
   @Post()
     // @UseGuards(AuthGuard("jwt"))
   async FileUpload(@UploadedFile() file: Express.Multer.File): Promise<string> {
-    console.log(file);
-
 //     const response = await axios({
 //     url: 'https://graph.facebook.com/v22.0/565830889949112/messages',
 //     method: 'POST',
@@ -50,10 +48,8 @@ export class fileupload {
 //         }
 //     })
 // })
-//  console.log(file);
 //  const reader = new FileReader();
 //  reader.onloadend = () => {
-//      console.log(reader.result);
 // Logs data:<type>;base64,wL2dvYWwgbW9yZ...
 //  };
 //  reader.readAsDataURL(file);
