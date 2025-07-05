@@ -54,6 +54,7 @@
     "@types/ms": "^2.1.0",
     "@types/multer": "^1.4.13",
     "@types/node": "~18.16.9",
+    "@types/react": "^19.1.8",
     "@vitejs/plugin-react": "^4.6.0",
     "@vitest/ui": "^3.0.0",
     "axios": "^1.10.0",
