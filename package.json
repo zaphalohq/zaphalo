@@ -18,6 +18,7 @@
     "@mui/material": "^7.1.2",
     "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/apollo": "^13.1.0",
+    "@nestjs/axios": "^4.0.0",
     "@nestjs/config": "^4.0.2",
     "@nestjs/graphql": "^13.1.0",
     "@nestjs/jwt": "^11.0.0",
