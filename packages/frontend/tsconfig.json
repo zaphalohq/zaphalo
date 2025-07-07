@@ -21,13 +21,13 @@
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "../../.cache/tsc",
-    "baseUrl": "./src",
+    "baseUrl": "./",
     "paths": {
-      "@src/*": ["./*"]
+      "@src/*": ["./src/*"]
     }
   },
   "files": [],
-  "include": [],
+  "include": ["./src"],
   "references": [
     {
       "path": "./tsconfig.app.json"
