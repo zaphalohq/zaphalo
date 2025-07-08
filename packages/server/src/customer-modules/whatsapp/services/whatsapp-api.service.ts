@@ -17,7 +17,6 @@ export class WhatsAppSDKService {
   }
 }
 
-
 export class WhatsAppApiService {
   private readonly wa_account_id: WhatsappInstants;
   private readonly phone_uid: String;
@@ -243,9 +242,7 @@ export class WhatsAppApiService {
     const response_data = response.data
     if (response.data?.id){
       return {
-        'id': response.id,
-        'status': response.status,
-        'success': response.success,
+        'success': response.status == 200,
         "data": response.data ? JSON.stringify(response.data) : undefined,
         "error": response.error ? JSON.stringify(response.error) : undefined,
       }

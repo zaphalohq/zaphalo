@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ContactsModule } from './contacts/contacts.module';
 import { channelModule } from './channel/channel.module';
-import { TemplateModule } from './template/template.module';
+// import { TemplateModule } from './template/template.module';
 import { MailingListModule } from './mailingList/mailingList.module';
 import { BroadcastModule } from './broadcast/broadcast.module';
 import { WhatsAppModule } from './whatsapp/whatsapp.module';
@@ -10,7 +10,7 @@ import { WhatsAppModule } from './whatsapp/whatsapp.module';
   imports: [
     ContactsModule,
     channelModule,
-    TemplateModule,
+    // TemplateModule,
     MailingListModule,
     BroadcastModule,
     WhatsAppModule,
@@ -18,7 +18,7 @@ import { WhatsAppModule } from './whatsapp/whatsapp.module';
   exports: [
     ContactsModule,
     channelModule,
-    TemplateModule,
+    // TemplateModule,
     MailingListModule,
     BroadcastModule,
     WhatsAppModule,

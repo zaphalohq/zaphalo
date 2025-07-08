@@ -8,6 +8,7 @@ import { WhatsAppResolver } from './whatsapp.resolver';
 
 import { WhatsAppAccountService } from './services/whatsapp-account.service';
 import { WhatsAppSDKService } from './services/whatsapp-api.service';
+import { TemplateService } from './services/whatsapp-template.service';
 import { TypeORMModule } from 'src/database/typeorm/typeorm.module';
 // import { instantsResolver } from './instants.resolver';
 // import { whatappinstanstsAutoResolverOpts } from './instants.auto-resolver-opts';
@@ -28,7 +29,7 @@ import { WhatsAppController } from 'src/customer-modules/whatsapp/controllers/wh
         instantsModule,
         // ContactsModule,
       ],
-      services: [WhatsAppAccountService, WhatsAppSDKService],
+      services: [WhatsAppAccountService, WhatsAppSDKService, TemplateService],
       // resolvers: whatappinstanstsAutoResolverOpts,
     }),
     // instantsModule,
@@ -36,7 +37,7 @@ import { WhatsAppController } from 'src/customer-modules/whatsapp/controllers/wh
     // instantsModule,
   ],
   controllers : [WhatsAppController],
-  providers: [WhatsAppAccountService, WhatsAppSDKService, WhatsAppResolver],
-  exports: [WhatsAppAccountService, WhatsAppSDKService],
+  providers: [WhatsAppAccountService, WhatsAppSDKService, TemplateService, WhatsAppResolver],
+  exports: [WhatsAppAccountService, WhatsAppSDKService, TemplateService],
 })
 export class WhatsAppModule {}

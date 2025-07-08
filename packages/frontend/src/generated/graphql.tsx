@@ -476,15 +476,7 @@ export const FindAll_Mailing_List = gql`query findAllMailingList {
 }`
 
 
-export const SUBMIT_TEMPLATE = gql`
-mutation SubmitTemplate($templateData: TemplateRequestInput!) {
-  submitTemplate(templateData: $templateData) {
-    success
-    data
-    error
-  }
-}
-`;
+
 
 export const GET_TEMPLATE_STATUS = gql`
 mutation getTemplateStatus($templateId: String!) {
@@ -497,7 +489,7 @@ mutation getTemplateStatus($templateId: String!) {
 `;
 
 
-export const Find_ALL_TEMPLATE = gql`
+export const findWaAllTemplate = gql`
 query findAllTemplate {
     findAllTemplate {
       account
@@ -519,9 +511,16 @@ query findAllTemplate {
       templateName
       fileUrl
   }
-}
-`
+}`
 
+export const SUBMIT_TEMPLATE = gql`
+mutation SubmitTemplate($templateData: WaTemplateRequestInput!) {
+  submitTemplate(templateData: $templateData) {
+    success
+    data
+    error
+  }
+}`;
 
 export const Send_Template_Message = gql`
   mutation sendTemplateMessage {

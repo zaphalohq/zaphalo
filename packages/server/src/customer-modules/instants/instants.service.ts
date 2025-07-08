@@ -3,21 +3,21 @@ import { Connection, Repository } from 'typeorm';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { WhatsappInstants } from './Instants.entity';
 import { CreateFormDataInput } from './DTO/create-form-data.input';
-import { Template } from 'src/customer-modules/template/template.entity';
+import { WhatsAppTemplate } from 'src/customer-modules/whatsapp/entities/whatsapp-template.entity';
 import { WorkspaceService } from 'src/modules/workspace/workspace.service';
 import { ContactsService } from 'src/customer-modules/contacts/contacts.service';
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 
 @Injectable()
 export class instantsService {
-            private instantsRepository: Repository<WhatsappInstants>
-        private templateRepository: Repository<Template>
+        private instantsRepository: Repository<WhatsappInstants>
+        private templateRepository: Repository<WhatsAppTemplate>
     constructor(
         @Inject(CONNECTION) connection: Connection,
         private readonly contactsService: ContactsService,
       ) {
         this.instantsRepository = connection.getRepository(WhatsappInstants);
-        this.templateRepository = connection.getRepository(Template);
+        this.templateRepository = connection.getRepository(WhatsAppTemplate);
       }
 
     async CreateInstants(WhatsappInstantsData: CreateFormDataInput): Promise<WhatsappInstants | null | string> {

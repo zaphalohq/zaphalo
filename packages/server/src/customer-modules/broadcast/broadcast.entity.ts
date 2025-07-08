@@ -10,7 +10,7 @@ import {
   Relation
 } from "typeorm";
 import { UUIDScalarType } from "src/modules/api/scalars/uuid.scalar";
-import { Template } from "src/customer-modules/template/template.entity";
+import { WhatsAppTemplate } from "src/customer-modules/whatsapp/entities/whatsapp-template.entity";
 import { MailingList } from "src/customer-modules/mailingList/mailingList.entity";
 
 @Entity({ name: 'broadcast' })
@@ -24,10 +24,10 @@ export class Broadcast {
   @Field(() => String)
   broadcastName: string;
 
-  @OneToOne(() => Template)
+  @OneToOne(() => WhatsAppTemplate)
   @JoinColumn()
-  @Field(() => Template, { nullable: true })
-  template: Relation<Template>;
+  @Field(() => WhatsAppTemplate, { nullable: true })
+  template: Relation<WhatsAppTemplate>;
 
   @OneToOne(() => MailingList)
   @JoinColumn()
