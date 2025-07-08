@@ -19,7 +19,7 @@ export const ChatsContext = createContext<ChatsContectProps | undefined>(undefin
 export const ChatsProvider = ({ children }: any) => {
 
     const [chatsDetails, setChatsDetails] = useState(async () => {
-        const item = localStorage.getItem("chatsDetails");
+        // const item = localStorage.getItem("chatsDetails");
         let chatsDetails = {
             receiverId: [],
             profileImg: '',
@@ -28,7 +28,9 @@ export const ChatsProvider = ({ children }: any) => {
             channelId: '',
             phoneNo: '',
         };
-        if(item) chatsDetails = await JSON.parse(item);
+        // if(item) chatsDetails = await JSON.parse(item);
+        // console.log(chatsDetails,'.....................chatsDetails');
+        
         return chatsDetails 
     })
 

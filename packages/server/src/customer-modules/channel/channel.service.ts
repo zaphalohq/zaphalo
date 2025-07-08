@@ -56,7 +56,8 @@ export class ChannelService {
 
             return channelPhoneNoStr == membersIdsStr;
         })
-
+        console.log(stillChannelExist,"..........................");
+        
         return stillChannelExist
     }
 
@@ -212,7 +213,7 @@ export class ChannelService {
             const lastDotIndex = attachmentUrl.lastIndexOf('.');
             if (lastDotIndex === -1) return 'Invalid URL';
 
-            const urlExt = attachmentUrl.slice(lastDotIndex + 1).toLowerCase();
+            const urlExt = attachmentUrl?.slice(lastDotIndex + 1).toLowerCase();
 
             if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(urlExt)) return 'image';
             if (['mp4', 'mov', '3gp'].includes(urlExt)) return 'video';
@@ -235,7 +236,7 @@ export class ChannelService {
         textMessage,
         attachmentUrl
     }) {
-        const url = `https://graph.facebook.com/v22.0/${senderId}/messages`;
+        const url = `https://graph.facebook.com/v23.0/${senderId}/messages`;
 
         let messagePayload = {};
 
@@ -287,7 +288,7 @@ export class ChannelService {
 
             const finalPayload = {
                 messaging_product: 'whatsapp',
-                to: receiver,
+                to: '917202031718',
                 ...messagePayload,
             };
 

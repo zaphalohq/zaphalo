@@ -1,4 +1,4 @@
-import { useState, React } from 'react';
+import { useState } from 'react';
 import { useMutation } from '@apollo/client';
 import CloseButton from '@components/UI/CloseButton'
 import InputLabel from '@components/UI/InputLabel'
@@ -32,7 +32,7 @@ const CreateContacts = ({ HandleCreateContactVis }: any) => {
                     profileImg: contactFormData.profileImg
                 }
             })
-            HandleCreateContactVis()
+            HandleCreateContactVis();
         } catch (err) {
             console.error('Error during updating', err)
         }
@@ -76,7 +76,7 @@ const CreateContacts = ({ HandleCreateContactVis }: any) => {
                         <InputLabel type="number" HandleInputChange={HandleChangeData} name="phoneNo" title="Phone number" placeholder="Enter phone number" />
                         <div className='bg-stone-200 flex gap-2 mt-4 rounded-2xl'>
                             <label className="cursor-pointer bg-violet-500 hover:bg-violet-600 p-2  rounded-l-2xl text-stone-50" htmlFor="file_input">Upload Image</label>
-                            <input required accept="image/*" onChange={HandleUploadImg} className="cursor-pointer p-2 text-stone-950 " type="file" name="file_input" id="file_input" />
+                            <input accept="image/*" onChange={HandleUploadImg} className="cursor-pointer p-2 text-stone-950 " type="file" name="file_input" id="file_input" />
                         </div>
                         {fileError && <p className="text-red-500">{fileError}</p>}
                         <div className='mt-4 h-full'>

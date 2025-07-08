@@ -8,7 +8,9 @@ const ContactsTable = () => {
     contactsData,
     setContactFormData,
     HandleDeleteContacts,
-    HandleContactsFormVisibility
+    HandleContactsFormVisibility,
+		setIsNewContacts
+
   } : any = useContext(ContactsContext)
 
   return (
@@ -43,6 +45,7 @@ const ContactsTable = () => {
                   <button 
                     onClick={() => {
                       setContactFormData(contactData);
+                      setIsNewContacts(false)
                       HandleContactsFormVisibility();
                     }} 
                     className='text-lg text-center text-violet-500 cursor-pointer hover:bg-stone-200 p-2 rounded'

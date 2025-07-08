@@ -23,7 +23,8 @@
     "outDir": "../../.cache/tsc",
     "baseUrl": "./",
     "paths": {
-      "@src/*": ["./src/*"]
+      "@src/*": ["./src/*"],
+      "@components/*": ["./src/components/*"]
     }
   },
   "files": [],

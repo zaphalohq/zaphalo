@@ -204,6 +204,23 @@ mutation CreateContacts(
   }
 }`
 
+export const UpdateContactMute = gql`
+mutation UpdateContact(
+  $id: String!,
+  $contactName: String!,
+  $phoneNo: Float!,
+  $profileImg: String,
+) {
+  UpdateContact(UpdateContact: {
+  id: $id, 
+  contactName: $contactName, 
+  phoneNo: $phoneNo, 
+  profileImg: $profileImg,
+  }) {
+    id
+  }
+}`
+
 export const findAllContacts = gql`
 query findAllContacts {
   findAllContacts {
@@ -232,15 +249,11 @@ query findAllChannel {
 }
 `
 
-export const findChannelByPhoneNo = gql`
-  query MyQuery($memberIds: String!) {
-    findExistingChannelByPhoneNo(memberIds: $memberIds) {
+export const findOrCreateChannel = gql`
+  mutation FindOrCreateChannel($phoneNo: String!) {
+    findExistingChannelByPhoneNoOrCreateChannel(phoneNo: $phoneNo) {
       channelName
       id
-      contacts {
-        id
-        phoneNo
-      }
     }
   }
 `;
@@ -425,6 +438,54 @@ mutation updateInstants(
   }
 }`
 
+export const WhatsappSyncAndUpdateInstants = gql`
+mutation SyncAndUpdateInstants(
+  $id: String!,
+  $name: String!,
+  $appId: String!,
+  $phoneNumberId: String!,
+  $businessAccountId: String!,
+  $accessToken: String!,
+  $appSecret: String!
+) {
+  SyncAndUpdateInstants(
+    updateInstants: {
+    id: $id
+    name: $name, 
+    appId: $appId, 
+    phoneNumberId: $phoneNumberId, 
+    businessAccountId: $businessAccountId, 
+    accessToken: $accessToken, 
+    appSecret: $appSecret
+    }) {
+    id
+  }
+}`
+
+export const WhatsappTestAndUpdateInstants = gql`
+mutation TestAndUpdateInstants(
+  $id: String!,
+  $name: String!,
+  $appId: String!,
+  $phoneNumberId: String!,
+  $businessAccountId: String!,
+  $accessToken: String!,
+  $appSecret: String!
+) {
+  TestAndUpdateInstants(
+    updateInstants: {
+    id: $id
+    name: $name, 
+    appId: $appId, 
+    phoneNumberId: $phoneNumberId, 
+    businessAccountId: $businessAccountId, 
+    accessToken: $accessToken, 
+    appSecret: $appSecret
+    }) {
+    id
+  }
+}`
+
 export const DeleteInstantsMutation = gql`
 mutation DeleteInstants(
   $id : String!,
@@ -457,15 +518,6 @@ export const findCountForDash = gql`query findWorkspaceByIdForDash($workspaceId:
   }
   }`
 
-export const CREATE_MAILING_LIST = gql`
-  mutation CreateMailingList($mailingListInput: MailingListInputDto!) {
-    CreateMailingList(mailingListInput: $mailingListInput) {
-    id
-    createdAt
-    mailingListName
-    }
-  }
-`;
 
 
 export const FindAll_Mailing_List = gql`query findAllMailingList {

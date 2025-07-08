@@ -4,6 +4,7 @@ import { Contacts } from "./contacts.entity";
 import { ContactsService } from "./contacts.service";
 import { createContactsDto } from "./dto/createContactsDto";
 import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
+import { updateContactsDto } from "./dto/updateContactsDto";
 
 @Resolver(() => Contacts)
 export class contactsResolver {
@@ -21,6 +22,12 @@ export class contactsResolver {
     @Query(() => [Contacts])
     async findAllContacts() {
         return await this.contactsservice.findAllContacts()
+    }
+
+    @UseGuards(GqlAuthGuard)
+    @Mutation(() => Contacts)
+    async UpdateContact(@Args('UpdateContact') UpdateContact: updateContactsDto): Promise<updateContactsDto | undefined> {
+        return await this.contactsservice.UpdateContact(UpdateContact)
     }
 
     @UseGuards(GqlAuthGuard)

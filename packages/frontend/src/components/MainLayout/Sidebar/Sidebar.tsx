@@ -32,9 +32,9 @@ const Sidebar = ({ isToggleActivated, HandleToggleButton }: any) => {
           Icon={FiSettings}
           title={"Settings"}
           subItems={[
+            { title: "Workspace", to: `/w/${workspaceId}/workspace`, Icon: FiLayers },
             { title: "Whatsapp Instants", to: `/w/${workspaceId}/whatsappinstants`, Icon: FiLink },
-            { title: "Template", to: `/w/${workspaceId}/template`, Icon: FiMap },
-            { title: "Workspace", to: `/w/${workspaceId}/workspace`, Icon: FiLayers }
+            { title: "Templates", to: `/w/${workspaceId}/template`, Icon: FiMap },
           ]}
         />
       </div>

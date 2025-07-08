@@ -17,8 +17,7 @@ export class MailingListService {
         this.mailingContactsRepository = connection.getRepository(MailingContacts);
 
     }
-    async CreateMailingList(mailingListData: MailingListInputDto) {
-        const mailingListName = `ListName-${Math.floor(Math.random() * 9000) + 1000}`;
+    async CreateMailingList(mailingListName : string, mailingListData: MailingListInputDto) {
         const mailingList = this.mailingListRepository.create({ mailingListName })
         await this.mailingListRepository.save(mailingList)
         mailingListData.mailingContacts.map(async (mailingContact) => {
@@ -42,6 +41,7 @@ export class MailingListService {
         return mailinglist
     }
 
+   
     async findAllContactsOfMailingList(mailingListId: string): Promise<MailingContacts[]> {
         const mailinglist = await this.mailingContactsRepository.find(
             {
@@ -61,4 +61,9 @@ export class MailingListService {
         })
     }
 
+     async findMailingListByName(mailingListName: string) {
+        return await this.mailingListRepository.findOne({ where: { mailingListName}})
+    }
+
+    
 }
