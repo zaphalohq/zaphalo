@@ -16,6 +16,8 @@ import { TypeORMModule } from 'src/database/typeorm/typeorm.module';
 // import { TypeORMModule } from 'src/database/typeorm/typeorm.module';
 // import { WorkspaceModule } from 'src/modules/workspace/workspace.module';
 import { instantsModule } from 'src/customer-modules/instants/instants.module';
+import { WhatsAppController } from 'src/customer-modules/whatsapp/controllers/whatsapp.controller';
+
 
 @Module({
   imports: [
@@ -33,6 +35,7 @@ import { instantsModule } from 'src/customer-modules/instants/instants.module';
     HttpModule,
     // instantsModule,
   ],
+  controllers : [WhatsAppController],
   providers: [WhatsAppAccountService, WhatsAppSDKService, WhatsAppResolver],
   exports: [WhatsAppAccountService, WhatsAppSDKService],
 })
