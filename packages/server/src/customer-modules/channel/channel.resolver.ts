@@ -75,8 +75,6 @@ export class ChannelResolver {
     if (!findTrueInstants) throw new Error('findTrueInstants not found');
     const senderId = Number(findTrueInstants?.phoneNumberId)
     const accessToken = findTrueInstants?.accessToken
-    console.log(findTrueInstants, "...............", receiverId);
-
     // const response = await axios({
     //   url: `https://graph.facebook.com/v22.0/${senderId}/messages`,
     //   method: 'POST',

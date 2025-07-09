@@ -130,6 +130,10 @@ export class instantsService {
         });
     }
 
+    async findDefaultSelectedInstants () {
+        
+    }
+
     async UpdateInstants(id: string, updatedInstants: CreateFormDataInput): Promise<WhatsappInstants | null> {
         const existingInstants = await this.instantsRepository.findOne({ where: { id } });
         if (!existingInstants) {

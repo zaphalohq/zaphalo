@@ -30,8 +30,6 @@ const ContactsForm = () => {
 			const formData = new FormData();
 
 			formData.append('file', file);
-			console.log(formData,'fdfddataasssssssssss');
-			
 			const response = await Post(
 				`/fileupload`,
 				formData,

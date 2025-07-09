@@ -31,7 +31,7 @@ const TemplatePreview = ({ templatePreviewData }: any) => {
             <p className="text-[10px] text-gray-500 self-end">12:00</p>
           </div>
           {JSON.stringify(templatePreviewData.button) !== '[]' ?
-            templatePreviewData.button.map((button: any) => <div className="flex gap-2 items-center justify-center p-2 text-blue-600 ">
+            templatePreviewData.button.map((button: any, index: number) => <div key={index} className="flex gap-2 items-center justify-center p-2 text-blue-600 ">
               <FiExternalLink />
               <button className="text-sm font-semibold text-left">
                 {button.text}

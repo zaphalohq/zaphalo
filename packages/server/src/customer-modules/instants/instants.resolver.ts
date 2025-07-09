@@ -48,6 +48,12 @@ export class instantsResolver {
         return await this.instantsservice.findAllInstants();
     }
 
+    // @UseGuards(GqlAuthGuard)
+    // @Query(() => [WhatsappInstants])
+    // async findDefaultSelectedInstants(): Promise<WhatsappInstants[]> {
+    //     return await this.instantsservice.findDefaultSelectedInstants();
+    // }
+
     @UseGuards(GqlAuthGuard)
     @Mutation(() => WhatsappInstants)
     async updateInstants(@Args('updateInstants') UpdatedInstants: UpdatedInstantsDTO): Promise<WhatsappInstants | null> {

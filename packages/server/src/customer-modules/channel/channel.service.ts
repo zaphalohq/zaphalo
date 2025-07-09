@@ -56,7 +56,6 @@ export class ChannelService {
 
             return channelPhoneNoStr == membersIdsStr;
         })
-        console.log(stillChannelExist,"..........................");
         
         return stillChannelExist
     }
@@ -292,7 +291,6 @@ export class ChannelService {
                 ...messagePayload,
             };
 
-            console.log(finalPayload,'finalPayloadfinalPayloadfinalPayload');
             
             const response = await axios.post(url, finalPayload, {
                 headers: {
@@ -300,7 +298,6 @@ export class ChannelService {
                     'Content-Type': 'application/json',
                 },
             });
-            console.log(response.data,'responseresponseresponse');
             
             return response.data;
         });

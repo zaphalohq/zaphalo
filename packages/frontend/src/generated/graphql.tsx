@@ -590,16 +590,6 @@ export const SEND_TEMPLATE_TO_WHATSAPP = gql`
   }
 `;
 
-// mutation MyMutation {
-//   BroadcastTemplate(
-//     broadcastData: {templateId: "", templateName: "", mailingListId: "", mailingListName: "", headerType: "", language: "", variables: ""}
-//   ) {
-//     URL
-//     broadcastName
-//   }
-// }
-
-
 
 export const UpdateWorkspaceDetails = gql`
 mutation UpdateWorkspaceDetails(

@@ -29,7 +29,6 @@ export const ChatsProvider = ({ children }: any) => {
             phoneNo: '',
         };
         // if(item) chatsDetails = await JSON.parse(item);
-        // console.log(chatsDetails,'.....................chatsDetails');
         
         return chatsDetails 
     })

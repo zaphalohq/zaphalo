@@ -83,7 +83,7 @@ export class WhatsAppResolver {
   @Mutation(() => WaTemplateResponseDto)
   async submitWaTemplate(
       @Context('req') req, @Args('templateData') templateData: WaTemplateRequestInput,
-      @Args('waTemplateId') waTemplateId: string
+      @Args('waTemplateId') waTemplateId?: string
   ): Promise<WaTemplateResponseDto> {
     const wa_api = await this.getWhatsAppApi()
 

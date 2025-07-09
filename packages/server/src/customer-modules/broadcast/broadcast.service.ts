@@ -29,7 +29,7 @@ export class BroadcastService {
     this.sendMessagesInBackground();
   }
 
-  async BroadcastTemplate(workspaceId, accessToken, broadcastData, phoneNumberId): Promise<Broadcast> {
+  async BroadcastTemplate(accessToken, broadcastData, phoneNumberId): Promise<Broadcast> {
     const url = `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`;
     const { templateName, variables = [], URL, headerType, language } = broadcastData;
     // const headerComponent =
@@ -85,11 +85,11 @@ export class BroadcastService {
     //   })),
     // };
 
-    const workspace = await this.workspaceService.findWorkspaceById(workspaceId)
-    if (!workspace) throw new Error('workspace not found');
     const mailingList = await this.mailingListService.findMailingListById(broadcastData.mailingListId)
     if (!mailingList) throw new Error('mailingList not found');
     const template = await this.templateService.findTemplateByTemplateId(broadcastData.templateId)
+    console.log(broadcastData.templateId,".......................broadcastData.templateId");
+    
     if (!template) throw new Error('template not found');
 
     const broadcastName = 'default'
