@@ -3,9 +3,11 @@ import { UseGuards } from '@nestjs/common';
 import graphqlTypeJson from 'graphql-type-json';
 
 
-import { WhatsAppAccount } from './whatsapp-account.entity';
+import { WhatsAppAccount } from './entities/whatsapp-account.entity';
+import { WhatsAppTemplate } from './entities/whatsapp-template.entity';
 import { WhatsAppAccountService } from './services/whatsapp-account.service';
 import { WhatsAppSDKService } from './services/whatsapp-api.service'
+import { TemplateService } from './services/whatsapp-template.service';
 import { instantsService } from "src/customer-modules/instants/instants.service";
 import { WhatsappInstants } from 'src/customer-modules/instants/Instants.entity';
 import { GqlAuthGuard } from 'src/modules/auth/guards/gql-auth.guard';
@@ -21,7 +23,8 @@ export class WhatsAppResolver {
    constructor(
       private readonly whatsAppAccountService: WhatsAppAccountService,
       private readonly whatsAppApiService: WhatsAppSDKService,
-      private readonly instantsService: instantsService
+      private readonly instantsService: instantsService,
+      private readonly waTemplateService: TemplateService
     ) { }
 
 
@@ -56,12 +59,7 @@ export class WhatsAppResolver {
   @UseGuards(GqlAuthGuard)
   @Query(() => graphqlTypeJson)
   async getAllWhatsAppTemplates(){
-     const findTrueInstants = await this.instantsService.FindSelectedInstants()
-
-    if (!findTrueInstants)
-      throw new Error("Not found whatsappaccount")
-
-    const wa_api = this.whatsAppApiService.getWhatsApp(findTrueInstants)
+    const wa_api = await this.getWhatsAppApi()
     const data = await wa_api.getAllTemplate();
     return data;
   }
@@ -164,5 +162,27 @@ export class WhatsAppResolver {
     
   }
 
+  @UseGuards(GqlAuthGuard)
+  @Query(() => [WhatsAppTemplate])
+  async findAllTemplate(@Context('req') req): Promise<WhatsAppTemplate[]> {
+    const data = await this.waTemplateService.findAllTemplate();
+    console.log("........................data............", data);
+    return data
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => WaTemplateResponseDto)
+  async submitTemplate(
+      @Context('req') req, @Args('templateData') templateData: WaTemplateRequestInput,
+  ): Promise<WaTemplateResponseDto> {
+      const result = await this.waTemplateService.submitTemplate(templateData);
+      // return {
+      //     success: result.success,
+      //     data: result.data ? JSON.stringify(result.data) : undefined,
+      //     error: result.error ? JSON.stringify(result.error) : undefined,
+      // };
+      console.log("...............................", result);
+      return result
+  }
 
 }

@@ -9,7 +9,7 @@ import { WorkspaceModule } from "src/modules/workspace/workspace.module";
 import { TypeORMModule } from "src/database/typeorm/typeorm.module";
 import { instantsModule } from "src/customer-modules/instants/instants.module";
 import { MailingListModule } from "src/customer-modules/mailingList/mailingList.module";
-import { TemplateModule } from "src/customer-modules/template/template.module";
+import { WhatsAppModule } from "src/customer-modules/whatsapp/whatsapp.module";
 
 @Module({
     imports : [ 
@@ -20,7 +20,7 @@ import { TemplateModule } from "src/customer-modules/template/template.module";
             WorkspaceModule,
             instantsModule,
             MailingListModule,
-            TemplateModule
+            WhatsAppModule
           ],
           services: [BroadcastService],
         }),],
