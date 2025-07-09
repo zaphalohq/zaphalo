@@ -24,14 +24,20 @@ import client from '@src/components/AppolloClientConnection/apolloClient';
 import ProtectedRoute from '@src/components/ProtectedRoute/ProtectedRoute';
 import VerifyLoginTokenEffect from '@src/modules/auth/pages/VerifySignInPage';
 import GetCurrentUserWrapper from '@src/modules/customWrapper/GetCurrentUserWrapper';
+import SettingsWorkspace from '@src/pages/settings/SettingsWorkspace';
+import { SystemConfigProviderEffect } from '@src/modules/system-config/components/SystemConfigProviderEffect';
+import { SystemConfigProvider } from '@src/modules/system-config/components/SystemConfigProvider';
 
 export const AppRouterProviders = () => {
   const pageTitle = "YaariAPI";
   return (
     <ApolloProvider client={client}>
-      <GetCurrentUserWrapper />
-      <PageTitle title={pageTitle} />
-      <Outlet />
+      <SystemConfigProviderEffect/>
+      <SystemConfigProvider>
+        <GetCurrentUserWrapper />
+        <PageTitle title={pageTitle} />
+        <Outlet />
+      </SystemConfigProvider>
     </ApolloProvider>
   );
 };
@@ -58,6 +64,7 @@ const routes = createRoutesFromElements(
         <Route path="mailinglist" element={<MailingList />} />
         <Route path="broadcast" element={<Broadcast />} />
         <Route path="loading" element={<LoadingPage />} />
+        <Route path="settings" element={<SettingsWorkspace />} />
       </Route>
     </Route >
   </Route>

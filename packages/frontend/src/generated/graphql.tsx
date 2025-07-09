@@ -568,4 +568,13 @@ mutation UpdateWorkspaceDetails(
 }
 `
 
+export const getSystemStatus = gql`
+  query SystemStatus {
+    getSystemStatus
+  }
+`;
 
+
+export function useGetSystemStatus(){
+  return Apollo.useQuery(getSystemStatus);
+}
