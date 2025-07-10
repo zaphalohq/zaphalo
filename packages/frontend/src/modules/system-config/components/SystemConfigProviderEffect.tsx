@@ -31,7 +31,6 @@ export const SystemConfigProviderEffect = () => {
         }));
         return;
       }
-      console.log("..........1212........hello..........", data, loading, error);
     }, [data, loading, error]);
 
     return <></>;
