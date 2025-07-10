@@ -2,7 +2,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import { Connection, Repository } from 'typeorm';
 import axios from "axios";
 
-import { WhatsAppAccount } from "src/customer-modules/whatsapp/whatsapp-account.entity";
+import { WhatsAppAccount } from "src/customer-modules/whatsapp/entities/whatsapp-account.entity";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 
 
@@ -19,6 +19,4 @@ export class WhatsAppAccountService {
           order: { createdAt: 'ASC' }
       });
   }
-
-
 }

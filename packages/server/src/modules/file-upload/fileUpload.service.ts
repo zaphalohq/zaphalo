@@ -10,7 +10,7 @@ export class FileUploadService {
         if (!file) {
             throw new Error('No file provided');
         }
-        const baseUrl = `${process.env.SERVER_URL}`;
+        const baseUrl = `${process.env.BACKEND_URL}`;
         const fileUrl = `${baseUrl}/${file.filename}`;
         return fileUrl;
     }

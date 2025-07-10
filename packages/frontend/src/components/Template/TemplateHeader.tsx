@@ -23,6 +23,7 @@ const TemplateHeader = ({ templateData, handleInputChange, handleFileChange }: a
         <div>
           <label className="block text-sm font-medium text-gray-700 mt-4">Header Text (Optional)</label>
           <input
+          required
             type="text"
             name="header_handle"
             value={templateData.header_handle}

@@ -249,6 +249,12 @@ query findAllChannel {
 }
 `
 
+export const findDefaultSelectedInstants = gql`query MyQuery {
+  findDefaultSelectedInstants {
+    phoneNumberId
+  }
+}`
+
 export const findOrCreateChannel = gql`
   mutation FindOrCreateChannel($phoneNo: String!) {
     findExistingChannelByPhoneNoOrCreateChannel(phoneNo: $phoneNo) {
@@ -528,15 +534,7 @@ export const FindAll_Mailing_List = gql`query findAllMailingList {
 }`
 
 
-export const SUBMIT_TEMPLATE = gql`
-mutation SubmitTemplate($templateData: TemplateRequestInput!) {
-  submitTemplate(templateData: $templateData) {
-    success
-    data
-    error
-  }
-}
-`;
+
 
 export const GET_TEMPLATE_STATUS = gql`
 mutation getTemplateStatus($templateId: String!) {
@@ -549,31 +547,28 @@ mutation getTemplateStatus($templateId: String!) {
 `;
 
 
-export const Find_ALL_TEMPLATE = gql`
+export const findWaAllTemplate = gql`
 query findAllTemplate {
     findAllTemplate {
       account
-      bodyText
-      button {
-        phone_number
-        text
-        type
-        url
-      }
       category
-      footerText
-      headerType
-      header_handle
       id
       language
       status
       templateId
       templateName
-      fileUrl
+      rawComponents
   }
-}
-`
+}`
 
+export const SUBMIT_TEMPLATE = gql`
+mutation SubmitTemplate($templateData: WaTemplateRequestInput!) {
+  submitWaTemplate(templateData: $templateData) {
+    success
+    data
+    error
+  }
+}`;
 
 export const Send_Template_Message = gql`
   mutation sendTemplateMessage {

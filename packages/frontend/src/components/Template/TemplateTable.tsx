@@ -2,7 +2,8 @@ import { useNavigate } from "react-router-dom"
 import { useContext, useEffect, useState } from "react"
 import { useMutation, useQuery } from "@apollo/client"
 import { TemplateContext } from "@components/Context/TemplateContext"
-import { Find_ALL_TEMPLATE, GET_TEMPLATE_STATUS } from "@src/generated/graphql"
+import { findWaAllTemplate, GET_TEMPLATE_STATUS } from "@src/generated/graphql"
+// import { convertRawPayloadToPreviewData } from "../utils/rawPayloadtoPreviewTemplate"
 
 const TemplateTable = ({ setIsTemplatePreviewVis }: any) => {
     const { setTemplateFormData }: any = useContext(TemplateContext)
@@ -13,6 +14,7 @@ const TemplateTable = ({ setIsTemplatePreviewVis }: any) => {
         templateId: '',
         templateName: '',
         category: '',
+        rawComponents: []
     }])
 
     const [templateId, setTemplateId] = useState("")
@@ -27,8 +29,10 @@ const TemplateTable = ({ setIsTemplatePreviewVis }: any) => {
         });
     }
 
-    const { data: templateData, loading: templateLoading, refetch: templateRefetch }: any = useQuery(Find_ALL_TEMPLATE);
+    const { data: templateData, loading: templateLoading, refetch: templateRefetch }: any = useQuery(findWaAllTemplate);
     useEffect(() => {
+        console.log(templateData,'...............templateData');
+        
         templateRefetch()
         if (templateData && !templateLoading) {
             setTemplates(templateData.findAllTemplate)

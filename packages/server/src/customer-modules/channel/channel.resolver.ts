@@ -94,6 +94,8 @@ export class ChannelResolver {
 
 
     const receiverId1 = receiverId.filter((number: any) => number != senderId)
+    console.log(receiverId1,'..............rec');
+    
     if ((!uploadedFiles || uploadedFiles.length === 0) && textMessage) {
       const messageType = 'image'
       await this.channelService.sendWhatsappMessage({

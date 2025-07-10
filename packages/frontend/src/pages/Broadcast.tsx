@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { FiAirplay, FiChevronDown } from "react-icons/fi";
 import { useLocation } from "react-router-dom";
 import { FindAll_Mailing_List } from "@src/generated/graphql";
-import { Find_ALL_TEMPLATE, SEND_TEMPLATE_TO_WHATSAPP } from "@src/generated/graphql";
+import { findWaAllTemplate, SEND_TEMPLATE_TO_WHATSAPP } from "@src/generated/graphql";
 import TemplatePreview from "@src/components/Template/TemplatePreview";
 import TableView from "@src/components/UI/TableView";
 
@@ -28,7 +28,7 @@ const Broadcast = () => {
         }
     }, [location?.state]);
 
-    const { data: templateData, loading: templateLoading, refetch: templateRefetch }: any = useQuery(Find_ALL_TEMPLATE);
+    const { data: templateData, loading: templateLoading, refetch: templateRefetch }: any = useQuery(findWaAllTemplate);
     const [templates, setTemplates] = useState<any[]>([]);
     const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
     const [showMailingDropdown, setShowMailingDropdown] = useState(false);

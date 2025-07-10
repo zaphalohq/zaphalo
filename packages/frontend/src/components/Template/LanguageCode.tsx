@@ -83,6 +83,7 @@ const LanguageCode = ({ templateData, handleInputChange }: any) => {
                 value={templateData.language}
                 onChange={handleInputChange}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
+                required
             >
                 { languages.map((language : any, index ) => 
                  <option key={index} className="text-black" value={language.value}>{language.label}</option>

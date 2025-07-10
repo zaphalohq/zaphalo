@@ -5,7 +5,7 @@ import { Connection, Repository, In } from 'typeorm';
 import { Broadcast } from "./broadcast.entity";
 import { BroadcastContacts } from "./broadcastContacts.entity";
 import { MailingListService } from "src/customer-modules/mailingList/mailingList.service";
-import { TemplateService } from "src/customer-modules/template/template.service";
+import { TemplateService } from "src/customer-modules/whatsapp/services/whatsapp-template.service";
 import { instantsService } from "src/customer-modules/instants/instants.service";
 import { WorkspaceService } from "src/modules/workspace/workspace.service";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
@@ -128,10 +128,13 @@ export class BroadcastService {
         isBroadcastDone: false
       },
       relations: ['template', 'workspace']
-    })
+    });
+
     broadcasts.forEach(async (broadcast) => {
-      const { template, variables = [], URL } = broadcast;
-      const headerType = template.headerType;
+      const { template, variables, URL } = broadcast;
+      // const headerType = template.headerType;
+      const headerType = 'TEXT';
+
       const templateName = template.templateName;
       const language = template.language;
       const findTrueInstants = await this.instantsService.FindSelectedInstants()

@@ -1,11 +1,11 @@
 import { useContext, useEffect, useRef, useState } from "react"
 import { useWebSocket } from "./Websocket_hooks/WebSocket";
 import { useQuery } from "@apollo/client";
-import { findMsgByChannelId } from "@src/generated/graphql";
+import { findDefaultSelectedInstants, findMsgByChannelId } from "@src/generated/graphql";
 import { ChatsContext } from "@components/Context/ChatsContext"
 
 const MessageDisplay = () => {
-  const senderPhoneNo = import.meta.env.VITE_SENDER_PHONENO;
+  const [selectedPhoneNo, setSelectedPhoneNo ] = useState<number | null>(null);
   const { myCurrentMessage }: any = useContext(ChatsContext)
   const { chatsDetails }: any = useContext(ChatsContext)
   const [allMessages, setAllMessages] = useState([{
@@ -17,6 +17,13 @@ const MessageDisplay = () => {
     createdAt: '',
     attachmentUrl: '',
   }])
+
+  const { data: selectedInstantsData, loading: selectedInstantsLoading } = useQuery(findDefaultSelectedInstants);
+  useEffect(() => {
+    if(!selectedInstantsLoading && selectedInstantsData){
+      setSelectedPhoneNo(Number(selectedInstantsData.findDefaultSelectedInstants.phoneNumberId))
+    }
+  },[selectedInstantsData,selectedInstantsLoading])
 
   const { data, loading, error, refetch } = useQuery(findMsgByChannelId, {
     variables: { channelId: chatsDetails?.channelId },
@@ -76,7 +83,7 @@ const MessageDisplay = () => {
         textMessage: myCurrentMessage.message,
         sender: {
           id: '',
-          phoneNo: senderPhoneNo
+          phoneNo: JSON.stringify(selectedPhoneNo)
         },
         createdAt: '',
         attachmentUrl: myCurrentMessage.attachmentUrl,
@@ -127,7 +134,7 @@ const MessageDisplay = () => {
       <div ref={messagesContainerRef} className="relative z-10 h-full overflow-y-scroll p-4">
         {allMessages.map((message, index) =>
           <div key={index} className="relative z-10 p-4">
-            {message.sender.phoneNo != senderPhoneNo ? (
+            {Number(message.sender.phoneNo) != selectedPhoneNo ? (
               <div className="text-stone-900 flex justify-start text-lg ">
                 <div className="bg-[#ffffff] p-2 rounded-lg flex flex-col gap-1 max-w-[70%] md:max-w-[40%]">
                   <div className="break-words">{message.textMessage}</div>
