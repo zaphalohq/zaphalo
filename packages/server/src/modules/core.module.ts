@@ -2,9 +2,10 @@ import { Module } from '@nestjs/common';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { WorkspaceModule } from './workspace/workspace.module';
-import { FileUploadModule } from './file-upload/fileUpload.module';
 import { WorkspaceManagerModule } from 'src/modules/workspace-manager/workspace.manager.module';
 import { SystemConfigModule } from 'src/modules/system-config/system-config.module';
+import { FileStorageModule } from 'src/modules/file-storage/file-storage.module';
+
 
 @Module({
   imports: [
@@ -12,16 +13,16 @@ import { SystemConfigModule } from 'src/modules/system-config/system-config.modu
     AuthModule,
     WorkspaceModule,
     WorkspaceManagerModule,
-    FileUploadModule,
     SystemConfigModule,
+    FileStorageModule,
   ],
   exports: [
     UserModule,
     AuthModule,
     WorkspaceModule,
     WorkspaceManagerModule,
-    FileUploadModule,
-    SystemConfigModule
+    SystemConfigModule,
+    FileStorageModule
   ],
 })
 export class CoreModule { }
