@@ -79,7 +79,7 @@ const AllInstants = () => {
                                 <div className="w-11 h-11 bg-blue-200 rounded-full 
                        flex justify-center text-blue-500 font-bold text-lg 
                        items-center">
-                                    {instants.name.slice(0, 1).toUpperCase()}
+                                    {instants?.name?.slice(0, 1).toUpperCase()}
                                 </div>
                                 <div className='flex flex-col'>
                                     <span className="font-semibold text-lg">{instants.name}</span>
@@ -91,7 +91,7 @@ const AllInstants = () => {
                                 <div className="w-11 h-11 bg-blue-200 rounded-full 
                        flex justify-center text-blue-500 font-bold text-lg 
                        items-center">
-                                    {instants.name.slice(0, 1).toUpperCase()}
+                                    {instants?.name?.slice(0, 1).toUpperCase()}
                                 </div>
                                 <div className='flex flex-col'>
                                     <span className="font-semibold text-lg">{instants.name}</span>

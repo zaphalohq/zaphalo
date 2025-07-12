@@ -1,12 +1,15 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { ChangeEvent, createContext, ReactNode, useState } from "react";
-import { 
-    DeleteInstantsMutation, 
-    findAllInstants, 
-    UpdatedInstants, 
-    WhatsappInstantsCreation, 
-    WhatsappInstantsSyncAndSave, 
-    WhatsappInstantsTestAndSave } from "@src/generated/graphql";
+import {
+    DeleteInstantsMutation,
+    findAllInstants,
+    UpdatedInstants,
+    WhatsappInstantsCreation,
+    WhatsappInstantsSyncAndSave,
+    WhatsappInstantsTestAndSave,
+    WhatsappSyncAndUpdateInstants,
+    WhatsappTestAndUpdateInstants
+} from "@src/generated/graphql";
 
 export interface InstantsContectProps {
     instantsData: any,
@@ -28,7 +31,11 @@ export interface InstantsContectProps {
     isFormVisible: any,
     refetch: any,
     HandleSyncAndSaveInstants: any,
-    HandleTestAndSaveInstants: any
+    HandleTestAndSaveInstants: any,
+    HandleUpdateInstants: any,
+    HandleSyncAndUpdateInstants: any,
+    HandleTestAndUpdateInstants: any,
+
 }
 
 export const InstantsContext = createContext<InstantsContectProps | undefined>(undefined)
@@ -51,37 +58,56 @@ export const InstantsProvider = ({ children }: { children: ReactNode }) => {
     const [SyncAndSaveInstants] = useMutation(WhatsappInstantsSyncAndSave);
     const [TestAndSaveInstants] = useMutation(WhatsappInstantsTestAndSave);
 
+    const [UpdateInstants] = useMutation(UpdatedInstants);
+    const [SyncAndUpdateInstants] = useMutation(WhatsappSyncAndUpdateInstants);
+    const [TestAndUpdateInstants] = useMutation(WhatsappTestAndUpdateInstants);
+
+
     const HandleCreateInstants = async () => {
-        if (isNewInstants) {
-            try {
-                await CreateInstants({
-                    variables: {
-                        ...formData
-                    }
-                })
-                HandaleFeatchData()
+        try {
+            await CreateInstants({
+                variables: {
+                    ...formData
+                }
+            })
+            HandaleFeatchData()
 
-            } catch (err) {
-                console.error('Error submitting form', err);
-            }
+        } catch (err) {
+            console.error('Error submitting form', err);
+        }
 
-        }
-        else {
-            try {
-                await UpdateInstants({
-                    variables: {
-                        ...formData
-                    }
-                })
-            } catch (err) {
-                console.error('Error during updating', err)
-            }
-        }
     }
 
+    const HandleUpdateInstants = async () => {
+        try {
+            await UpdateInstants({
+                variables: {
+                    ...formData
+                }
+            })
+        } catch (err) {
+            console.error('Error during updating', err)
+        }
+    }
     const HandleSyncAndSaveInstants = async () => {
         try {
             await SyncAndSaveInstants({
+                variables: {
+                    ...formData
+                }
+            })
+            HandaleFeatchData()
+
+        } catch (err) {
+            console.error('Error submitting form', err);
+        }
+
+
+    }
+
+    const HandleSyncAndUpdateInstants = async () => {
+        try {
+            await SyncAndUpdateInstants({
                 variables: {
                     ...formData
                 }
@@ -107,9 +133,22 @@ export const InstantsProvider = ({ children }: { children: ReactNode }) => {
         }
     }
 
+    const HandleTestAndUpdateInstants = async () => {
+
+        try {
+            await TestAndUpdateInstants({
+                variables: {
+                    ...formData
+                }
+            })
+            HandaleFeatchData()
+
+        } catch (err) {
+            console.error('Error submitting form', err);
+        }
+    }
 
 
-    const [UpdateInstants] = useMutation(UpdatedInstants);
     const [DeleteInstants] = useMutation(DeleteInstantsMutation);
     const [isFormVisible, setFormVisibility] = useState(false);
     const HandleFormVisibility = () => {
@@ -169,7 +208,10 @@ export const InstantsProvider = ({ children }: { children: ReactNode }) => {
             loading,
             refetch,
             HandleSyncAndSaveInstants,
-            HandleTestAndSaveInstants
+            HandleTestAndSaveInstants,
+            HandleUpdateInstants,
+            HandleSyncAndUpdateInstants,
+            HandleTestAndUpdateInstants,
         }}>
             {children}
         </InstantsContext.Provider>

@@ -3,6 +3,8 @@ import { Contacts } from "./contacts.entity";
 import { createContactsDto } from "./dto/createContactsDto";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 import { Connection, Repository } from 'typeorm';
+import { updateContactsDto } from "./dto/updateContactsDto";
+import { throwError } from "rxjs";
 
 @Injectable()
 export class ContactsService {
@@ -25,6 +27,7 @@ export class ContactsService {
             contactName : CreateContacts.contactName,
             phoneNo : CreateContacts.phoneNo,
             profileImg : CreateContacts.profileImg,
+            defaultContact: CreateContacts.defaultContact || false
         });        
         await this.contactsRepository.save(createdContacts);
         return createdContacts
@@ -47,6 +50,15 @@ export class ContactsService {
         },
         )
 
+    }
+
+    async UpdateContact(UpdateContact : updateContactsDto){
+        const updateContact = await this.contactsRepository.findOne({ where: { id : UpdateContact.id}})
+        if(!updateContact) throw Error("contact doesn't found." )
+        updateContact.contactName = UpdateContact.contactName;
+        updateContact.phoneNo = UpdateContact.phoneNo;
+        updateContact.profileImg = UpdateContact.profileImg;
+        return await this.contactsRepository.save(updateContact);
     }
 
     async DeleteContact(contactId : string){

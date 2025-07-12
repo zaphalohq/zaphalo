@@ -39,25 +39,25 @@ export class WaTemplateRequestInput {
   language: string;
 
   @Field({ nullable: true })
-  headerType: string;
+  headerType?: string;
 
   @Field({ nullable: true })
   bodyText: string;
 
   @Field({ nullable: true })
-  footerText: string;
+  footerText?: string;
 
   @Field({ nullable: true })
-  header_handle: string;
+  header_handle?: string;
 
   @Field({ nullable: true })
-  fileUrl: string;
+  fileUrl?: string;
 
   @Field(() => [WaButtonInput], { nullable: true })
-  button: WaButtonInput[];
+  button?: WaButtonInput[];
 
   @Field(() => [WaVariableInput], { nullable: true })
-  variables: WaVariableInput[];
+  variables?: WaVariableInput[];
 }
 
 

@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import axios from 'axios';
 import TemplateBasic from "./TemplateBasic";
 import TemplateBody from "./TemplateBody";
@@ -8,10 +8,36 @@ import { useMutation } from "@apollo/client";
 import { cookieStorage } from '@src/utils/cookie-storage';
 import { SUBMIT_TEMPLATE } from "@src/generated/graphql";
 import { TemplateContext } from "@components/Context/TemplateContext";
+import { Post } from "@src/modules/domain-manager/hooks/axios";
 
+type WaButtonInput = {
+  type: string;
+  text: string;
+  url?: string;
+  phone_number?: string;
+};
+
+type WaVariableInput = {
+  name: string;
+  value: string;
+};
+
+type TemplateData = {
+  account: string;
+  templateName: string;
+  category: 'UTILITY' | 'MARKETING' | 'TRANSACTIONAL' | string;
+  language: string;
+  bodyText: string;
+  footerText: string;
+  button: WaButtonInput[];
+  variables: WaVariableInput[];
+  headerType: 'NONE' | 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT';
+  header_handle: string;
+  fileUrl: string;
+};
 
 const TemplateForm = () => {
-  const [templateData, setTemplateData] = useState({
+  const [templateData, setTemplateData] = useState<TemplateData>({
     account: '',
     templateName: '',
     category: 'UTILITY',
@@ -34,27 +60,45 @@ Thank you.`,
   const [submitTemplate] = useMutation(SUBMIT_TEMPLATE);
   const { templateFormData, setTemplateFormData }: any = useContext(TemplateContext)
   const [file, setFile] = useState<File | null>(null);
-
+  const [isValidated, setIsValidated] = useState(false)
   const handleInputChange = (e: any) => {
     setTemplateData({ ...templateData, [e.target.name]: e.target.value });
     setTemplateFormData({ ...templateFormData, [e.target.name]: e.target.value });
   };
 
+  useEffect(() => {
+    console.log(templateData.variables, templateData.button, templateData.button.length, '................');
+
+    if (templateData.account !== '' && templateData.templateName !== '' && templateData.category !== '' && templateData.language !== '' && templateData.bodyText !== '') {
+      const variableMatches = templateFormData.bodyText.match(/{{\d+}}/g) || [];
+      if (variableMatches.length === templateData.variables.length) {
+        setIsValidated(true);
+      } else {
+        setIsValidated(false);
+      }
+    }
+  }, [templateData])
+
   const handleFileUpload = async () => {
     let updatedTemplateData = { ...templateData };
     const accessToken = cookieStorage.getItem('accessToken')
     if (file !== null) {
-      const formData = new FormData();
-      formData.append('file', file);
-      try {
-        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/templateFileUpload`, formData, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'multipart/form-data'
-          },
-        });
 
-        updatedTemplateData['header_handle'] = response.data.file_handle;
+
+      try {
+        //   const response = await Post(`/templateFileUpload`, formData, {
+        //     headers: {
+        //       'Content-Type': 'multipart/form-data'
+        //     },
+        //   });
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await Post(
+          `/fileupload`,
+          formData,
+          { headers: { 'Content-Type': 'multipart/form-data' } }
+        );
+        updatedTemplateData['header_handle'] = response.data;
         updatedTemplateData['fileUrl'] = response.data.fileUrl;
         setTemplateData(updatedTemplateData);
         return updatedTemplateData
@@ -104,42 +148,42 @@ Thank you.`,
   return (
     <div>
       <h1 className="text-3xl font-bold mb-6 text-gray-800">WhatsApp Template Manager</h1>
+      <form onSubmit={handleSubmit}>
+        <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+          <h2 className="text-xl font-semibold mb-4">Submit New Template</h2>
+          <TemplateBasic templateData={templateData} handleInputChange={handleInputChange} handleFileChange={handleFileChange} />
+          <div className="flex mb-6 mt-4">
+            {templateComponents.map((component, index) =>
+              <button type="button" key={index} onClick={() => setCurrentComponent(component)}
+                className={`${currentComponent === component ? 'border-l-1 border-r-1 border-t-1 border-gray-400 rounded-t' : 'border-b-1 border-gray-400'} cursor-pointer text-center px-2`}>
+                {component}
+              </button>)}
+            <div className="flex-1 border-b border-gray-400"></div>
+          </div>
 
-      <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Submit New Template</h2>
-        <TemplateBasic templateData={templateData} handleInputChange={handleInputChange} handleFileChange={handleFileChange} />
-        <div className="flex mb-6 mt-4">
-          {templateComponents.map((component, index) =>
-            <button key={index} onClick={() => setCurrentComponent(component)}
-              className={`${currentComponent === component ? 'border-l-1 border-r-1 border-t-1 border-gray-400 rounded-t' : 'border-b-1 border-gray-400'} cursor-pointer text-center px-2`}>
-              {component}
-            </button>)}
-          <div className="flex-1 border-b border-gray-400"></div>
-        </div>
+          <div>
+            <div className="space-y-4">
+              {currentComponent === "Body" ?
+                <TemplateBody templateData={templateFormData} handleInputChange={handleInputChange} />
+                : <></>}
+              {currentComponent === "Buttons" ?
+                <TemplateButton templateData={templateFormData} setTemplateData={setTemplateData} />
+                : <></>}
 
-        <div>
-          <div className="space-y-4">
-            {currentComponent == "Body" ?
-              <TemplateBody templateData={templateFormData} handleInputChange={handleInputChange} />
-              : <></>}
-            {currentComponent == "Buttons" ?
-              <TemplateButton templateData={templateFormData} setTemplateData={setTemplateData} />
-              : <></>}
-
-            {currentComponent == "Variables" ?
-              <TemplateVariables setTemplateData={setTemplateData} />
-              : <></>}
-            <button
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-400 p-2"
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit Template'}
-            </button>
+              {currentComponent === "Variables" ?
+                <TemplateVariables setTemplateData={setTemplateData} />
+                : <></>}
+              <button
+                type="submit"
+                disabled={isSubmitting || !isValidated}
+                className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-400 p-2"
+              >
+                {isSubmitting ? 'Submitting...' : 'Submit Template'}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-
+      </form>
       {status && (
         <div className="bg-white shadow-md rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-4">Template Status</h2>
@@ -147,7 +191,7 @@ Thank you.`,
             {JSON.stringify(status, null, 2)}
           </pre>
           {templateId && (
-            <button
+            <button type="button"
               className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
             >
               Refresh Status

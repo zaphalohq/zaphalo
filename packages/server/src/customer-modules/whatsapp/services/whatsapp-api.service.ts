@@ -2,6 +2,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import { Connection, Repository } from 'typeorm';
 import { HttpService } from '@nestjs/axios';
 import axios from "axios";
+import path from 'path';
 import fs from 'fs/promises';
 
 import { WhatsappInstants } from "src/customer-modules/instants/Instants.entity";
@@ -174,7 +175,45 @@ export class WhatsAppApiService {
     return response.data
   }
 
-  async uploadDemoDocument(attachment){
+    async uploadFile(url) {
+    const response1 = await axios.get(url, { responseType: 'arraybuffer' });
+    const filename = path.basename(url);
+    const buffer = Buffer.from(response1.data);
+    const mimetype = response1.headers['content-type'];
+    const size = parseInt(response1.headers['content-length'] || `${buffer.length}`);
+    // const { filename, mimetype, size, buffer }: any = file;
+    // const buffer = await fs.readFile(path)
+
+    const appId = this.wa_account_id.appId
+    const uploadSessionRes = await axios.post(
+      `https://graph.facebook.com/v22.0/${appId}/uploads`,
+      null,
+      {
+        params: {
+          file_name: filename,
+          file_length: size,
+          file_type: mimetype,
+          access_token: `${this.token}`,
+        },
+      }
+    );
+
+    const response = await axios({
+      url: `https://graph.facebook.com/v22.0/${uploadSessionRes.data.id}`,
+      method: 'POST',
+      headers: {
+        Authorization: `OAuth ${this.token}`,
+        file_offset: 0
+      },
+      data: {
+        'data-binary': buffer
+      }
+    });
+    return response.data.h
+  }
+
+
+  async uploadDemoDocument(attachment?: any, url?){
     // """
     //     This method is used to get a handle to later upload a demo document.
     //     Only use for template registration.
@@ -182,6 +221,8 @@ export class WhatsAppApiService {
     //     API documentation https://developers.facebook.com/docs/graph-api/guides/upload
     // """
     const { filename, mimetype, path, size }: any = attachment;
+
+    //......................its need if we use 
     const buffer = await fs.readFile(path)
     if (this.is_shared_account)
         throw new Error("Account not properly configured")

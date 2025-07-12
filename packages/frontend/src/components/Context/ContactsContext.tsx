@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { ChangeEvent, createContext, ReactNode, useState } from "react";
-import { UpdatedInstants } from "@src/generated/graphql";
+import { UpdateContactMute } from "@src/generated/graphql";
 import { CreateContactMute, DeleteContact, findAllContacts } from "@src/generated/graphql";
 
 export interface ContactsContectProps {
@@ -35,6 +35,7 @@ export const ContactsProvider = ({ children }: { children: ReactNode }) => {
     const [isNewContacts, setIsNewContacts] = useState(false);
 
     const [CreateContact] = useMutation(CreateContactMute);
+    const [UpdateContact] = useMutation(UpdateContactMute);
     const HandleContactsFormData = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         if (isNewContacts) {
@@ -56,18 +57,22 @@ export const ContactsProvider = ({ children }: { children: ReactNode }) => {
         }
         else {
             try {
-                await UpdateInstants({
+                await UpdateContact({
                     variables: {
-                        ...contactFormData
+                        id: contactFormData.id,
+                        contactName: contactFormData.contactName,
+                        phoneNo: parseFloat(contactFormData.phoneNo),
+                        profileImg: contactFormData.profileImg
                     }
                 })
+                setContactFormVisibility(false)
+                HandleFetchData()
             } catch (err) {
                 console.error('Error during updating', err)
             }
         }
     }
 
-    const [UpdateInstants] = useMutation(UpdatedInstants);
     const [isContactFormVisible, setContactFormVisibility] = useState(false);
 
     const HandleContactsFormVisibility = () => {
