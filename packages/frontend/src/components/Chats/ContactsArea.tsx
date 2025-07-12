@@ -9,7 +9,7 @@ import { findAllContacts } from '@src/generated/graphql'
 const ContactList = ({ HandleNewChatVisiablity, HandleCreateContactVis }: any) => {
     const { data, loading, refetch } = useQuery(findAllContacts)
     const [allContacts, setAllContacts] = useState([{
-        contactName: "refresh it",
+        contactName: "",
         phoneNo: null,
         profileImg: "",
     }])

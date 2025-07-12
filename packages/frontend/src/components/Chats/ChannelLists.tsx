@@ -3,11 +3,16 @@ import { useContext, useEffect, useState } from "react"
 import CurrentChannel from "./CurrentChannel"
 import { findAllChannel } from "@src/generated/graphql"
 import { ChatsContext } from "@components/Context/ChatsContext"
+import { channel } from "diagnostics_channel"
 
 const ChannelLists = ({ searchChannel }: any) => {
+  const { isNewChannelCreated,
+    setIsNewChannelCreated,
+    myCurrentMessage,
+    chatsDetails }: any = useContext(ChatsContext)
   const { data, refetch, loading } = useQuery(findAllChannel)
   const [allChannel, setAllChannel] = useState([{
-    channelName: 'refresh it',
+    channelName: '',
     id: '',
     contacts: [{
       phoneNo: null,
@@ -16,7 +21,8 @@ const ChannelLists = ({ searchChannel }: any) => {
     messages: []
   }])
 
-  const { isNewChannelCreated, setIsNewChannelCreated }: any = useContext(ChatsContext)
+
+
   const FetchAllChannel = async () => {
     if (!loading) {
       await refetch()
@@ -36,8 +42,6 @@ const ChannelLists = ({ searchChannel }: any) => {
     }
   }, [isNewChannelCreated])
 
-  const { myCurrentMessage }: any = useContext(ChatsContext)
-  const { chatsDetails }: any = useContext(ChatsContext)
   useEffect(() => {
     if (!myCurrentMessage || !chatsDetails?.channelId) return;
     const channelToMove = allChannel.find(
@@ -53,6 +57,29 @@ const ChannelLists = ({ searchChannel }: any) => {
     setFilteredChannels(reorderedChannels.length > 0 ? reorderedChannels : allChannel);
 
   }, [myCurrentMessage]);
+
+
+  useEffect(() => {
+    if (data && !loading) {
+      const isChannelExist = allChannel.findIndex((channel: any) => {
+        if (channel.id === chatsDetails.channelId) {
+          return channel
+        }
+      })
+
+      if (isChannelExist === -1) {
+        setAllChannel((prevChannel) => [{
+          channelName: chatsDetails.channelName,
+          id: chatsDetails.channelId,
+          contacts: [{
+            phoneNo: null,
+            id: ''
+          }],
+          messages: []
+        }, ...prevChannel])
+      }
+    }
+  }, [chatsDetails])
 
 
   const [filteredChannels, setFilteredChannels] = useState(allChannel);

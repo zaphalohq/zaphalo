@@ -27,11 +27,19 @@ export class Attachment {
 
   @Column()
   @Field(() => String)
+  originalname: string;
+
+  @Column()
+  @Field(() => String)
   fullPath: string;
 
   @Column()
   @Field(() => String)
   type: string;
+
+  @Column({type: 'bigint'})
+  @Field(() => Number)
+  size: number;
 
   @CreateDateColumn({
     type: 'timestamp without time zone',

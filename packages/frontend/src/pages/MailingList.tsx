@@ -4,13 +4,15 @@ import { FiUpload } from "react-icons/fi";
 import { useRecoilState } from "recoil";
 import excel from "@src/assets/excel.png"
 import { cookieStorage } from "@src/utils/cookie-storage";
+import {Post} from "@src/modules/domain-manager/hooks/axios";
 import { currentUserWorkspaceState } from "@src/modules/auth/states/currentUserWorkspaceState";
 
 const FileUpload = () => {
+  const [error, setError] = useState<string>(null)
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState<string>("");
+  const [mailingListName, setMailingListName] = useState("");
   const [currentUserWorkspace] = useRecoilState(currentUserWorkspaceState);
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
@@ -24,20 +26,21 @@ const FileUpload = () => {
 
     const formData = new FormData();
     formData.append("file", file);
-    const workspaceId = currentUserWorkspace?.id;
+    formData.append("mailingListName", mailingListName);
+    const workspaceId = await currentUserWorkspace?.id;
     const accessToken = cookieStorage.getItem('accessToken')
     const authtoken = accessToken ? JSON.parse(accessToken).accessToken : false;
     try {
-      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/uploadExcel`, formData, {
+      const response = await Post(`/uploadExcel`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          "Authorization": `Bearer ${authtoken.token}`,
-          "x-workspace-id": workspaceId,
         },
       });
 
     } catch (error) {
-      console.error('Upload failed:', error);
+      const message =
+        error?.response?.data?.message || "Unexpected error";
+      setError(message)
     }
   };
 
@@ -58,9 +61,19 @@ const FileUpload = () => {
           sample excel sheet
         </div>
         <div className="w-full max-w-md mx-auto p-6 bg-light shadow-lg rounded-xl">
-          <h2 className="text-lg font-semibold text-gray-800">Upload Contact List</h2>
+          {error && <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-xl backdrop-blur-sm">
+            <p className="text-red-700 text-sm flex items-center">
+              <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              {error}
+            </p>
+          </div>}
+          <h2 className="text-lg font-semibold text-gray-800 mb-2">Mailing List Name</h2>
+          <input onChange={(e) => setMailingListName(e.target.value)} className='border-none outline-none bg-blue-50 w-full p-2 rounded' placeholder="Enter Mailing List Name" type="text" name="mailingListName" />
+          <h2 className="text-lg font-semibold text-gray-800 my-2">Upload Contact List</h2>
 
-          <label className="flex mt-4 py-10 bg-chat flex-col mb-4 items-center justify-center border-2 border-dashed border-violet-300 rounded-lg cursor-pointer hover:border-violet-500 transition-colors">
+          <label className="flex mt-4 py-8 bg-chat flex-col mb-4 items-center justify-center border-2 border-dashed border-violet-300 rounded-lg cursor-pointer hover:border-violet-500 transition-colors">
             <input
               type="file"
               onChange={handleFileChange}

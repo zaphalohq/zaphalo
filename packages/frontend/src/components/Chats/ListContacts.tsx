@@ -1,50 +1,49 @@
 import { useContext, useState } from 'react'
 import { useMutation, useQuery } from '@apollo/client'
 import { ChatsContext } from '@components/Context/ChatsContext'
-import { findChannelByPhoneNo, DeleteContact } from '@src/generated/graphql'
+import { findOrCreateChannel, DeleteContact } from '@src/generated/graphql'
 
 const ListContacts = ({ contactName, phoneNo, HandleNewChatVisiablity, profileImg }: any) => {
     const { chatsDetails, setChatsDetails }: any = useContext(ChatsContext)
     const [fetchNow, setFetchNow] = useState(false)
-    const memberIds = [phoneNo]
-    const { data, loading, error } = useQuery(findChannelByPhoneNo, {
-        variables: { memberIds: JSON.stringify(memberIds) },
-        skip: !memberIds,
-    })
-    const HandleCurrentContact = () => {
-        if (data && data.findExistingChannelByPhoneNo) {
-            const existChannel = data.findExistingChannelByPhoneNo
+    // const memberIds = [ phoneNo]
+    const [FindOrCreateChannel, { data, loading, error }] = useMutation(findOrCreateChannel)
+    const HandleCurrentContact = async () => {
+        const channel = await FindOrCreateChannel({ variables: { phoneNo: `${phoneNo}` } })
+        const currentChannel = channel.data.findExistingChannelByPhoneNoOrCreateChannel;
+        if (currentChannel) {
+            // const existChannel = data.findExistingChannelByPhoneNoOrCreateChannel
             setChatsDetails({
-                channelName: existChannel.channelName,
+                channelName: currentChannel.channelName,
                 profileImg,
-                channelId: existChannel.id,
-                memberIds: memberIds,
+                channelId: currentChannel.id,
+                memberIds: [phoneNo],
                 receiverId: [phoneNo]
             })
 
-            localStorage.setItem('chatsDetails', JSON.stringify({
-                channelName: existChannel.channelName,
-                profileImg,
-                receiverId: [phoneNo],
-                channelId: existChannel.id,
-                memberIds: memberIds,
-            }))
+            // localStorage.setItem('chatsDetails', JSON.stringify({
+            //     channelName: existChannel.channelName,
+            //     profileImg,
+            //     receiverId: [phoneNo],
+            //     channelId: existChannel.id,
+            //     memberIds: [phoneNo],
+            // }))
         } else {
             setChatsDetails({
                 channelName: contactName,
                 profileImg,
                 receiverId: [phoneNo],
                 channelId: '',
-                memberIds: memberIds,
+                memberIds: [phoneNo],
             })
 
-            localStorage.setItem('chatsDetails', JSON.stringify({
-                channelName: contactName,
-                profileImg,
-                receiverId: [phoneNo],
-                channelId: '',
-                memberIds: memberIds,
-            }))
+            // localStorage.setItem('chatsDetails', JSON.stringify({
+            //     channelName: contactName,
+            //     profileImg,
+            //     receiverId: [phoneNo],
+            //     channelId: '',
+            //     memberIds: [phoneNo],
+            // }))
         }
 
         HandleNewChatVisiablity()
@@ -79,7 +78,7 @@ const ListContacts = ({ contactName, phoneNo, HandleNewChatVisiablity, profileIm
                     : <div className="w-11 h-11 bg-blue-200 rounded-full 
                        flex justify-center text-blue-500 font-bold text-lg 
                        items-center">
-                        {contactName.slice(0, 1).toUpperCase()}
+                        {contactName?.slice(0, 1).toUpperCase()}
                     </div>
                 }
                 <div className='flex flex-col'>

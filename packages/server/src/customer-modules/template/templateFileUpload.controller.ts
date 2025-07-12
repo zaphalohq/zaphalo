@@ -1,9 +1,9 @@
 // import { Controller, Post, UseGuards, UseInterceptors, UploadedFile, Req } from '@nestjs/common';
 // import { FileInterceptor } from '@nestjs/platform-express';
 // import { diskStorage } from 'multer';
-// import { TemplateService } from './template.service';
 // import { instantsService } from '../instants/instants.service';
 // import { GqlAuthGuard } from 'src/modules/auth/guards/gql-auth.guard';
+// import { TemplateService } from '../whatsapp/services/whatsapp-template.service';
 
 
 // @Controller('templateFileUpload')
@@ -27,13 +27,12 @@
 //         }))
         
 //     async FileUpload(@Req() req, @UploadedFile() file: Express.Multer.File) {
-//         const workspaceId = req.user.workspaceIds[0];
 //         const findSelectedInstants = await this.instantsService.FindSelectedInstants()
 //         if (!findSelectedInstants) throw new Error('findSelectedInstants not found');
 //         const appId = findSelectedInstants?.appId
 //         const accessToken = findSelectedInstants?.accessToken
 //         const file_handle = await this.templateService.uploadFile(file, appId, accessToken);
-//         return { file_handle, fileUrl: `${process.env.SERVER_URL}/${file.filename}` }
+//         return { file_handle, fileUrl: `${process.env.BACKEND_URL}/${file.filename}` }
 
 //     }
 // }

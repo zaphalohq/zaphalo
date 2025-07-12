@@ -15,6 +15,7 @@ import { AttachmentModule } from 'src/customer-modules/attachment/attachment.mod
     MailingListModule,
     BroadcastModule,
     WhatsAppModule,
+    AttachmentModule,
   ],
   exports: [
     ContactsModule,
@@ -23,6 +24,7 @@ import { AttachmentModule } from 'src/customer-modules/attachment/attachment.mod
     MailingListModule,
     BroadcastModule,
     WhatsAppModule,
+    AttachmentModule
   ],
 })
 export class CustomerModule { }

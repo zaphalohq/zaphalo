@@ -11,11 +11,6 @@ export class MailingListResolver {
     private readonly mailingListService: MailingListService,
   ) { }
 
-  @Mutation(() => MailingList)
-  @UseGuards(GqlAuthGuard)
-  async CreateMailingList(@Args('mailingListInput') mailingListInput : MailingListInputDto ): Promise<MailingList> {
-    return this.mailingListService.CreateMailingList(mailingListInput)
-  }
 
    @Query(() => [MailingList])
   @UseGuards(GqlAuthGuard)

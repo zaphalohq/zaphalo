@@ -7,7 +7,7 @@ const Navbar = ({ HandleToggleButton, location }: any) => {
         <button onClick={HandleToggleButton} className='cursor-pointer md:hidden hover:bg-white ' >
           <div className='text-lg'><FiMenu /></div>
         </button>
-        <div className="font-bold">{location.pathname.split('/').filter(Boolean).map((word: any) => word.charAt(0).toUpperCase() + word.slice(1)).join('')}</div>
+        <div className="font-bold">{location.pathname.split('/').filter(Boolean).map((word: any) => word?.charAt(0).toUpperCase() + word?.slice(1)).join('')}</div>
         <div className="flex  items-center pl-2">
         </div>
       </div>

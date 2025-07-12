@@ -3,7 +3,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MulterModule } from '@nestjs/platform-express';
 import { LocalStorageProvider } from './local-storage.provider';
 import { AwsS3StorageProvider } from './aws-s3-storage.provider';
-import { UploadController } from 'src/modules/file-storage/file-upload.controller';
+import { UploadController } from 'src/modules/file-storage/controllers/file-upload.controller';
+import { FileController } from 'src/modules/file-storage/controllers/file.controller';
+import { FileService } from 'src/modules/file-storage/services/file.service';
 import { REQUEST } from '@nestjs/core';
 
 @Module({
@@ -29,8 +31,8 @@ import { REQUEST } from '@nestjs/core';
       inject: [REQUEST, ConfigService],
     }),
   ],
-  controllers: [UploadController],
-  providers: [LocalStorageProvider, AwsS3StorageProvider],
+  controllers: [UploadController, FileController],
+  providers: [FileService, LocalStorageProvider, AwsS3StorageProvider],
 })
 export class FileStorageModule {}
 

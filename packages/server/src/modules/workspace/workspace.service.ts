@@ -138,8 +138,6 @@ export class WorkspaceService {
 
 
   async updateWorkspaceDetails(workspaceId: string, workspaceName: string, profileImg?: string) {
-    console.log("............workspaceid");
-    
     const workspace = await this.workspaceRepository.findOne({ where: { id: workspaceId } })
     if (!workspace) throw Error('workspace not found');
     workspace.name = workspaceName;

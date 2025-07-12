@@ -29,27 +29,27 @@ const AccountSelection = ({ templateData, handleInputChange} : any) => {
         }, [instantsData, templateData])
     
   return (
-    <div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Account</label>
-        <select
-          name="account"
-          value={templateData.account}
-          onChange={handleInputChange}
-          className="mt-1 block w-full rounded-md outline-none shadow-sm p-2"
-        >
-          <option className='p-4' value="NONE">
-            NONE
-          </option>
-          { allInstants.map((instant : any, index) => 
-          <option key={index} className='p-4' value={instant.id}>
-            {`${instant.name} — ${instant.phoneNumberId}`}
-          </option>
-        
-      )}
-      </select>
-      </div>
-    </div>
+   <div>
+  <div>
+    <label className="block text-sm font-medium text-gray-700">Account</label>
+    <select
+      name="account"
+      value={templateData.account}
+      onChange={handleInputChange}
+      required
+      className="mt-1 block w-full rounded-md outline-none shadow-sm p-2"
+    >
+      <option value="" disabled>
+        -- Select Account --
+      </option>
+      {allInstants.map((instant: any, index) => (
+        <option key={index} value={instant.id}>
+          {`${instant.name} — ${instant.phoneNumberId}`}
+        </option>
+      ))}
+    </select>
+  </div>
+</div>
   )
 }
 

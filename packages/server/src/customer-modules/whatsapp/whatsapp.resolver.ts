@@ -20,12 +20,12 @@ export class WhatsAppResolver {
   //   private readonly whatsAppApiService: WhatsAppSDKService,
   //   private readonly instantsService: instantsService) { }
 
-   constructor(
-      private readonly whatsAppAccountService: WhatsAppAccountService,
-      private readonly whatsAppApiService: WhatsAppSDKService,
-      private readonly instantsService: instantsService,
-      private readonly waTemplateService: TemplateService
-    ) { }
+  constructor(
+    private readonly whatsAppAccountService: WhatsAppAccountService,
+    private readonly whatsAppApiService: WhatsAppSDKService,
+    private readonly instantsService: instantsService,
+    private readonly waTemplateService: TemplateService
+  ) { }
 
 
   // @UseGuards(GqlAuthGuard)
@@ -40,10 +40,10 @@ export class WhatsAppResolver {
 
     const wa_api = this.whatsAppApiService.getWhatsApp(findTrueInstants)
 
-    try{
+    try {
       wa_api._test_connection()
     }
-    catch(err){
+    catch (err) {
       return "{'status': 401, 'error': 'Credentials not look good!'}"
     }
 
@@ -53,12 +53,12 @@ export class WhatsAppResolver {
   @UseGuards(GqlAuthGuard)
   @Query(() => [WhatsAppAccount])
   async findAllWhatsAppAccounts(): Promise<WhatsAppAccount[]> {
-      return await this.whatsAppAccountService.findAllAccounts();
+    return await this.whatsAppAccountService.findAllAccounts();
   }
 
   @UseGuards(GqlAuthGuard)
   @Query(() => graphqlTypeJson)
-  async getAllWhatsAppTemplates(){
+  async getAllWhatsAppTemplates() {
     const wa_api = await this.getWhatsAppApi()
     const data = await wa_api.getAllTemplate();
     return data;
@@ -66,8 +66,8 @@ export class WhatsAppResolver {
 
   @UseGuards(GqlAuthGuard)
   @Query(() => graphqlTypeJson)
-  async getWaTemplatesDetails(@Args('waTemplateId') waTemplateId: string){
-     const findTrueInstants = await this.instantsService.FindSelectedInstants()
+  async getWaTemplatesDetails(@Args('waTemplateId') waTemplateId: string) {
+    const findTrueInstants = await this.instantsService.FindSelectedInstants()
 
     if (!findTrueInstants)
       throw new Error("Not found whatsappaccount")
@@ -80,109 +80,75 @@ export class WhatsAppResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => WaTemplateResponseDto)
   async submitWaTemplate(
-      @Context('req') req, @Args('templateData') templateData: WaTemplateRequestInput,
-      @Args('waTemplateId') waTemplateId: string
+    @Context('req') req, @Args('templateData') templateData: WaTemplateRequestInput,
+    @Args('waTemplateId', { nullable: true }) waTemplateId?: string
   ): Promise<WaTemplateResponseDto> {
-    const wa_api = await this.getWhatsAppApi()
-
-    const variablesValue = templateData.variables?.map((variable: any) => variable.value)
-    const payload = {
-      name: templateData.templateName.toLowerCase().replace(/\s/g, '_'),
-      category: templateData.category,
-      language: templateData.language,
-      components: [
-        templateData.header_handle && templateData.headerType == 'TEXT' && {
-          type: 'HEADER',
-          format: 'TEXT',
-          text: templateData.header_handle
-        },
-        templateData.headerType && templateData.headerType == 'IMAGE' && {
-          type: 'HEADER',
-          format: 'IMAGE',
-          example: {
-            header_handle: [templateData.header_handle]
-          }
-        },
-        templateData.headerType && templateData.headerType == 'VIDEO' && {
-          type: 'HEADER',
-          format: 'VIDEO',
-          example: {
-            header_handle: [templateData.header_handle]
-          }
-        },
-        templateData.headerType && templateData.headerType == 'DOCUMENT' && {
-          type: 'HEADER',
-          format: 'DOCUMENT',
-          example: {
-            header_handle: [templateData.header_handle]
-          }
-        },
-        {
-          type: 'BODY',
-          text: templateData.bodyText,
-          
-        },
-        templateData.footerText && {
-          type: 'FOOTER',
-          text: templateData.footerText
-        },
-        templateData.button && {
-          type: 'BUTTONS',
-          buttons: templateData.button
-          // buttons: [{ type: 'QUICK_REPLY', text: templateData.buttonText }]
-        }
-      ].filter(Boolean)
-    };
-
+    console.log(templateData,'........................templatedata');
+    const wa_api = await this.getWhatsAppApi(templateData.account)
+    
+    const payload = await this.waTemplateService.generatePayload(templateData);
+    console.log(payload?.components[0],'payload.....................');
+    
+    // const savedTemplate = await this.waTemplateService.saveTemplate(payload,templateData.account)
     const payload_json = JSON.stringify({ ...payload });
     let response;
-    if (waTemplateId){
+    if (waTemplateId) {
       response = await wa_api.submitTemplateUpdate(payload_json, waTemplateId);
-    }else{
+      
+      // await this.waTemplateService.updateTemplate(JSON.parse(response.data), savedTemplate.id)
+    } else {
       response = await wa_api.submitTemplateNew(payload_json);
+      // console.log(response.data, savedTemplate.id,'.......................updatedtemta');
+
+      // await this.waTemplateService.updateTemplate(JSON.parse(response.data), savedTemplate.id)
     }
     return response
   }
 
-  async getWhatsAppApi(){
-    const findTrueInstants = await this.instantsService.FindSelectedInstants()
-    if (!findTrueInstants)
-      throw new Error("Not found whatsappaccount")
+  async getWhatsAppApi(instantsId?: string) {
+    if (instantsId) {
+      const instants = await this.instantsService.findInstantsByInstantsId(instantsId)
+      if (!instants)
+        throw new Error("Not found whatsappaccount")
+      return this.whatsAppApiService.getWhatsApp(instants)
+    } else {
+      const findTrueInstants = await this.instantsService.FindSelectedInstants()
+      if (!findTrueInstants)
+        throw new Error("Not found whatsappaccount")
 
-    return this.whatsAppApiService.getWhatsApp(findTrueInstants)
+      return this.whatsAppApiService.getWhatsApp(findTrueInstants)
+    }
   }
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => WaTemplateResponseDto)
   async sendWaTemplate(
-      @Context('req') req,
-      @Args('waTemplateId') waTemplateId: string
+    @Context('req') req,
+    @Args('waTemplateId') waTemplateId: string
   ) {
     const wa_api = await this.getWhatsAppApi()
-    
+
   }
 
   @UseGuards(GqlAuthGuard)
   @Query(() => [WhatsAppTemplate])
   async findAllTemplate(@Context('req') req): Promise<WhatsAppTemplate[]> {
     const data = await this.waTemplateService.findAllTemplate();
-    console.log("........................data............", data);
     return data
   }
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => WaTemplateResponseDto)
   async submitTemplate(
-      @Context('req') req, @Args('templateData') templateData: WaTemplateRequestInput,
+    @Context('req') req, @Args('templateData') templateData: WaTemplateRequestInput,
   ): Promise<WaTemplateResponseDto> {
-      const result = await this.waTemplateService.submitTemplate(templateData);
-      // return {
-      //     success: result.success,
-      //     data: result.data ? JSON.stringify(result.data) : undefined,
-      //     error: result.error ? JSON.stringify(result.error) : undefined,
-      // };
-      console.log("...............................", result);
-      return result
+    const result = await this.waTemplateService.submitTemplate(templateData);
+    // return {
+    //     success: result.success,
+    //     data: result.data ? JSON.stringify(result.data) : undefined,
+    //     error: result.error ? JSON.stringify(result.error) : undefined,
+    // };
+    return result
   }
 
 }

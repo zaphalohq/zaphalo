@@ -1,5 +1,6 @@
 import axios from "axios";
 import cron from 'node-cron';
+import path from 'path';
 import fs from 'fs/promises';
 import { Connection, Repository } from 'typeorm';
 import { Inject, Injectable } from "@nestjs/common";
@@ -31,71 +32,22 @@ export class TemplateService {
     if (!findSelectedInstants) throw new Error('findSelectedInstants not found');
     const businessId = findSelectedInstants?.businessAccountId
     const accessToken = findSelectedInstants?.accessToken
-    const variablesValue = templateData.variables.map((variable: any) => variable.value)
-
-    const payload = {
-      name: templateData.templateName.toLowerCase().replace(/\s/g, '_'),
-      category: templateData.category,
-      language: templateData.language,
-      components: [
-        templateData.header_handle && templateData.headerType == 'TEXT' && {
-          type: 'HEADER',
-          format: 'TEXT',
-          text: templateData.header_handle
-        },
-        templateData.headerType && templateData.headerType == 'IMAGE' && {
-          type: 'HEADER',
-          format: 'IMAGE',
-          example: {
-            header_handle: [templateData.header_handle]
-          }
-        },
-        templateData.headerType && templateData.headerType == 'VIDEO' && {
-          type: 'HEADER',
-          format: 'VIDEO',
-          example: {
-            header_handle: [templateData.header_handle]
-          }
-        },
-        templateData.headerType && templateData.headerType == 'DOCUMENT' && {
-          type: 'HEADER',
-          format: 'DOCUMENT',
-          example: {
-            header_handle: [templateData.header_handle]
-          }
-        },
-        {
-          type: 'BODY',
-          text: templateData.bodyText,
-          example: {
-            body_text: [variablesValue]
-          }
-        },
-        templateData.footerText && {
-          type: 'FOOTER',
-          text: templateData.footerText
-        },
-        templateData.button && {
-          type: 'BUTTONS',
-          buttons: templateData.button
-          // buttons: [{ type: 'QUICK_REPLY', text: templateData.buttonText }]
-        }
-      ].filter(Boolean)
-    };
+    // const variablesValue = templateData.variables.map((variable: any) => variable.value)
+    const payload = await this.generatePayload(templateData);
 
     // try {
-      // const response = await axios({
-      //   url: `https://graph.facebook.com/v22.0/${businessId}/message_templates`,
-      //   method: 'POST',
-      //   headers: {
-      //     Authorization: `Bearer ${accessToken}`,
-      //     'Content-Type': 'application/json',
-      //   },
-      //   data: 
-      // });
-      const payload_json = JSON.stringify({ ...payload });
-      const response = await wa_api.submitTemplateNew(payload_json)
-      return response
+    // const response = await axios({
+    //   url: `https://graph.facebook.com/v22.0/${businessId}/message_templates`,
+    //   method: 'POST',
+    //   headers: {
+    //     Authorization: `Bearer ${accessToken}`,
+    //     'Content-Type': 'application/json',
+    //   },
+    //   data: 
+    // });
+    const payload_json = JSON.stringify({ ...payload });
+    const response = await wa_api.submitTemplateNew(payload_json)
+    return response
     //   const templateAPiResponse = response.data
 
     //   if (templateAPiResponse.success || templateAPiResponse.id) {
@@ -124,6 +76,89 @@ export class TemplateService {
     //   };
     // }
 
+  }
+
+  async saveTemplate(templateData, instantsId) {
+    const newTemplate = this.templateRepository.create({
+      account: instantsId,
+      templateName: templateData.name,
+      status: 'saved',
+      category: templateData.category,
+      language: templateData.language,
+      rawComponents: templateData.components
+    });
+    return await this.templateRepository.save(newTemplate);
+  }
+
+  async updateTemplate(updatetemplateData, dbTemplateId, instantsId?: string) {
+    const template = await this.templateRepository.findOne({ where: { id: dbTemplateId } })
+    if (!template) throw Error("template doesn't exist")
+    if (instantsId) {
+      template.account = instantsId;
+    }
+    template.templateId = updatetemplateData.id;
+    template.status = updatetemplateData.status;
+    template.category = updatetemplateData.category;
+    console.log(template, 'updted temlate......................');
+
+    await this.templateRepository.save(template);
+    return template;
+  }
+
+  async generatePayload(templateData: WaTemplateRequestInput) {
+    const variablesValue = templateData?.variables?.map((variable: any) => variable.value) || [];
+    const payload = {
+      name: templateData.templateName.toLowerCase().replace(/\s/g, '_'),
+      category: templateData.category,
+      language: templateData.language,
+      components: [
+        templateData.header_handle && templateData.headerType === 'TEXT' && {
+          type: 'HEADER',
+          format: 'TEXT',
+          text: templateData.header_handle,
+        },
+        templateData.headerType === 'IMAGE' && {
+          type: 'HEADER',
+          format: 'IMAGE',
+          example: {
+            header_handle: [templateData.header_handle],
+          },
+        },
+        templateData.headerType === 'VIDEO' && {
+          type: 'HEADER',
+          format: 'VIDEO',
+          example: {
+            header_handle: [templateData.header_handle],
+          },
+        },
+        templateData.headerType === 'DOCUMENT' && {
+          type: 'HEADER',
+          format: 'DOCUMENT',
+          example: {
+            header_handle: [templateData.header_handle],
+          },
+        },
+        {
+          type: 'BODY',
+          text: templateData.bodyText,
+          ...(variablesValue.length > 0 && {
+            example: {
+              body_text: [variablesValue]
+            }
+          })
+        },
+        templateData.footerText && {
+          type: 'FOOTER',
+          text: templateData.footerText,
+        },
+        (templateData.button?.length ?? 0) > 0 && {
+          type: 'BUTTONS',
+          buttons: templateData.button,
+        },
+      ].filter(Boolean),
+    };
+
+    return payload;
   }
 
   async getTemplateStatusByCron(templateId: string) {
@@ -220,7 +255,7 @@ export class TemplateService {
 
   async findAllTemplate(): Promise<WhatsAppTemplate[]> {
     return await this.templateRepository.find({
-      order: { createdAt: 'ASC' }
+      order: { createdAt: 'DESC' }
     })
   }
 
@@ -228,9 +263,20 @@ export class TemplateService {
     return await this.templateRepository.findOne({ where: { templateId } })
   }
 
-  async uploadFile(file, appId, accessToken) {
-    const { filename, mimetype, path, size }: any = file;
-    const buffer = await fs.readFile(path)
+  async uploadFile(url) {
+    const response1 = await axios.get(url, { responseType: 'arraybuffer' });
+    const filename = path.basename(url);
+    const buffer = Buffer.from(response1.data);
+    const mimetype = response1.headers['content-type'];
+    const size = parseInt(response1.headers['content-length'] || `${buffer.length}`);
+    // const { filename, mimetype, size, buffer }: any = file;
+    // const buffer = await fs.readFile(path)
+
+    const findSelectedInstants = await this.instantsService.FindSelectedInstants()
+    if (!findSelectedInstants) throw new Error('findSelectedInstants not found');
+    const appId = findSelectedInstants?.appId
+    const accessToken = findSelectedInstants?.accessToken
+
     const uploadSessionRes = await axios.post(
       `https://graph.facebook.com/v22.0/${appId}/uploads`,
       null,
@@ -243,6 +289,7 @@ export class TemplateService {
         },
       }
     );
+
     const response = await axios({
       url: `https://graph.facebook.com/v22.0/${uploadSessionRes.data.id}`,
       method: 'POST',
@@ -258,60 +305,53 @@ export class TemplateService {
   }
 
 
-  async SyncAllTemplats(workspaceId, businessAccountId, accessToken) {
-    const response = await axios.get(
-      `https://graph.facebook.com/v22.0/${businessAccountId}/message_templates`,
-      {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      }
-    );
-    const templates = response.data?.data;
-    for (const template of templates) {
-      const components = template.components || [];
+  // async SyncAllTemplats(workspaceId, businessAccountId, accessToken) {
+  //   const response = await axios.get(
+  //     `https://graph.facebook.com/v22.0/${businessAccountId}/message_templates`,
+  //     {
+  //       headers: { Authorization: `Bearer ${accessToken}` },
+  //     }
+  //   );
+  //   const templates = response.data?.data;
+  //   for (const template of templates) {
+  //     const components = template.components || [];
+  //     const header = components.find((c) => c.type === 'HEADER');
+  //     const body = components.find((c) => c.type === 'BODY');
+  //     const footer = components.find((c) => c.type === 'FOOTER');
+  //     const buttonsComponent = components.find((c) => c.type === 'BUTTONS');
 
-      const header = components.find((c) => c.type === 'HEADER');
-      const body = components.find((c) => c.type === 'BODY');
-      const footer = components.find((c) => c.type === 'FOOTER');
-      const buttonsComponent = components.find((c) => c.type === 'BUTTONS');
+  //     const variableList: { name: string; value: string }[] = [];
+  //     if (body?.example?.body_text?.[0]) {
+  //       body.example.body_text[0].forEach((_, index) => {
+  //         variableList.push({ name: `{{${index + 1}}}`, value: '' });
+  //       });
+  //     }
 
-      const variableList: { name: string; value: string }[] = [];
-      if (body?.example?.body_text?.[0]) {
-        body.example.body_text[0].forEach((_, index) => {
-          variableList.push({ name: `{{${index + 1}}}`, value: '' });
-        });
-      }
+  //     const buttons = buttonsComponent?.buttons?.map((btn) => ({
+  //       type: btn.type,
+  //       text: btn.text,
+  //       url: btn.url,
+  //       phone_number: btn.phone_number
+  //     })) || [];
 
-      const buttons = buttonsComponent?.buttons?.map((btn) => ({
-        type: btn.type,
-        text: btn.text,
-        url: btn.url,
-        phone_number: btn.phone_number
-      })) || [];
+  //     const newTemplate = this.templateRepository.create({
+  //       account: businessAccountId,
+  //       templateName: template.name,
+  //       status: template.status || 'UNKNOWN',
+  //       templateId: template.id,
+  //       category: template.category || 'UNKNOWN',
+  //       language: template.language || 'en_US',
+  //     });
 
-      const newTemplate = this.templateRepository.create({
-        account: businessAccountId,
-        templateName: template.name,
-        status: template.status || 'UNKNOWN',
-        templateId: template.id,
-        category: template.category || 'UNKNOWN',
-        language: template.language || 'en_US',
-        headerType: header?.format || null,
-        bodyText: body?.text || null,
-        footerText: footer?.text || null,
-        header_handle: header?.example?.header_handle?.[0]?.handle || null,
-        button: buttons,
-        variables: variableList,
-      });
+  //     await this.templateRepository.save(newTemplate);
+  //   }
 
-      await this.templateRepository.save(newTemplate);
-    }
-
-    return {
-      success: true,
-      message: 'Templates imported successfully',
-      count: templates.length
-    };
-  }
+  //   return {
+  //     success: true,
+  //     message: 'Templates imported successfully',
+  //     count: templates.length
+  //   };
+  // }
 
 
 }

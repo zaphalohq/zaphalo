@@ -33,17 +33,13 @@ export class instantsResolver {
     }
     @UseGuards(GqlAuthGuard)
     @Mutation(() => WhatsappInstants)
-    async TestAndSaveInstants(@Context('req') req, @Args('InstantsData'
-    ) WhatsappInstantsData: CreateFormDataInput): Promise<WhatsappInstants | null | string> {
-        const workspaceId = req.headers['x-workspace-id']
+    async TestAndSaveInstants(@Args('InstantsData') WhatsappInstantsData: CreateFormDataInput): Promise<WhatsappInstants | null | string> {
         const instants = await this.instantsservice.CreateInstants(WhatsappInstantsData);
         if (instants && typeof instants !== 'string') {
             const syncTemplate = await this.instantsservice.TestInstants(instants?.businessAccountId, instants?.accessToken)
-
         }
         return instants;
     }
-
 
 
     @UseGuards(GqlAuthGuard)
@@ -53,9 +49,36 @@ export class instantsResolver {
     }
 
     @UseGuards(GqlAuthGuard)
+    @Query(() => WhatsappInstants)
+    async findDefaultSelectedInstants(): Promise<WhatsappInstants | null> {
+        return await this.instantsservice.FindSelectedInstants();
+    }
+
+    @UseGuards(GqlAuthGuard)
     @Mutation(() => WhatsappInstants)
     async updateInstants(@Args('updateInstants') UpdatedInstants: UpdatedInstantsDTO): Promise<WhatsappInstants | null> {
         return this.instantsservice.UpdateInstants(UpdatedInstants.id, UpdatedInstants)
+    }
+
+        @UseGuards(GqlAuthGuard)
+    @Mutation(() => WhatsappInstants)
+    async SyncAndUpdateInstants(
+        @Args('updateInstants') UpdatedInstants: UpdatedInstantsDTO): Promise<WhatsappInstants | null | string> {
+        const instants = await this.instantsservice.UpdateInstants(UpdatedInstants.id, UpdatedInstants);
+        if (instants && typeof instants !== 'string') {
+            const syncTemplate = await this.instantsservice.SyncTemplate(instants, instants?.businessAccountId, instants?.accessToken)
+
+        }
+        return instants;
+    }
+    @UseGuards(GqlAuthGuard)
+    @Mutation(() => WhatsappInstants)
+    async TestAndUpdateInstants(@Args('updateInstants') UpdatedInstants: UpdatedInstantsDTO): Promise<WhatsappInstants | null | string> {
+        const instants = await this.instantsservice.UpdateInstants(UpdatedInstants.id, UpdatedInstants);
+        if (instants && typeof instants !== 'string') {
+            const syncTemplate = await this.instantsservice.TestInstants(instants?.businessAccountId, instants?.accessToken)
+        }
+        return instants;
     }
 
     @UseGuards(GqlAuthGuard)
@@ -68,6 +91,12 @@ export class instantsResolver {
     @Mutation(() => [WhatsappInstants])
     async InstantsSelection(@Args('instantsId') instantsId: string): Promise<WhatsappInstants[]> {
         return await this.instantsservice.InstantsSelection(instantsId);
+    }
+
+    @UseGuards(GqlAuthGuard)
+    @Query(() => String)
+    async sendTemplateMessage () {
+        return this.instantsservice.sendTemplateMessage();
     }
 
 }

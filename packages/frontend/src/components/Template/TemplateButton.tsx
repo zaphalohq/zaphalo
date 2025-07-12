@@ -16,7 +16,7 @@ const TemplateButton = ({ setTemplateData }: any) => {
     if(templateFormData.button?.length > 0){
       return [...templateFormData.button]
     }else{
-      return [{ type: "URL", text: "" }]
+      return []
     }
   });
 

@@ -1,10 +1,11 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
-import { FiChevronDown } from "react-icons/fi";
+import { FiAirplay, FiChevronDown } from "react-icons/fi";
 import { useLocation } from "react-router-dom";
 import { FindAll_Mailing_List } from "@src/generated/graphql";
 import { findWaAllTemplate, SEND_TEMPLATE_TO_WHATSAPP } from "@src/generated/graphql";
 import TemplatePreview from "@src/components/Template/TemplatePreview";
+import TableView from "@src/components/UI/TableView";
 
 type BroadcastProps = {
     templateId?: string,
@@ -116,6 +117,41 @@ const Broadcast = () => {
         }));
     };
 
+    const colData = [
+  { name: 'Alice', email: 'alice@example.com', role: 'Admin' },
+  { name: 'Bob', email: 'bob@example.com', role: 'User' },
+  { name: 'Charlie', email: 'charlie@example.com', role: 'Moderator' },
+];
+
+const columns = [{
+  type : 'text',
+  columnName : 'Name',
+  rowKey: 'name',
+},{
+  type : 'link',
+  columnName : 'Email',
+  rowName: 'preview email',
+  onclick: () => console.log("link works")
+},
+{
+  type : 'text',
+  columnName : 'Role',
+  rowKey: 'role',
+},
+{
+    type: 'button',
+    columnName: 'Submit Button',
+    rowName: 'submit Button',
+    onclick:() => console.log('button is working')
+},
+{
+    type: 'icon',
+    columnName: 'Submit Button',
+    Icon: FiAirplay,
+    onclick:() => console.log('button is working')
+}
+];
+
     return (
         <div>
             <div className='font-bold text-lg border-gray-300 p-4 border-b'>Broadcast Template</div>
@@ -215,6 +251,9 @@ const Broadcast = () => {
                     ) : (
                         <></>
                     )}
+                </div>
+                <div className="py-4">
+                <TableView data={colData} columns={columns} />
                 </div>
             </div>
         </div>
