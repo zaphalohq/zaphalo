@@ -7,6 +7,7 @@ import { UploadController } from 'src/modules/file-storage/controllers/file-uplo
 import { FileController } from 'src/modules/file-storage/controllers/file.controller';
 import { FileService } from 'src/modules/file-storage/services/file.service';
 import { REQUEST } from '@nestjs/core';
+import { JwtModule } from 'src/modules/jwt/jwt.module';
 
 @Module({
   imports: [
@@ -30,9 +31,11 @@ import { REQUEST } from '@nestjs/core';
       },
       inject: [REQUEST, ConfigService],
     }),
+    JwtModule
   ],
   controllers: [UploadController, FileController],
   providers: [FileService, LocalStorageProvider, AwsS3StorageProvider],
+  exports: [FileService]
 })
 export class FileStorageModule {}
 

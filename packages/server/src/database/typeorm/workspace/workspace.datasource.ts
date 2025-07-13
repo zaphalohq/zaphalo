@@ -9,6 +9,7 @@ export const typeORMWorkspaceModuleOptions: TypeOrmModuleOptions = {
   url: process.env.PG_DATABASE_URL,
   type: 'postgres',
   logging: ['error'],
+  // schema: 'core',
   entities: [
     `${isJest ? '' : 'dist/'}/src/customer-modules/**/*.entity{.ts,.js}`,
   ],

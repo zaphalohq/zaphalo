@@ -6,7 +6,13 @@ export class CreateAttachmentDto {
   name: string;
 
   @Field()
+  originalname: string;
+
+  @Field()
   type: string;
+
+  @Field()
+  size: number;
 
   @Field()
   fullPath: string;

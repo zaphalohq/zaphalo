@@ -21,8 +21,11 @@ export class AttachmentService {
     async createOneAttachment(createAttachmentDto: CreateAttachmentDto) {
         const attachment = this.attachmentRepository.create({
             name : createAttachmentDto.name,
+            originalname : createAttachmentDto.originalname,
+            size : createAttachmentDto.size,
             type : createAttachmentDto.type,
             fullPath : createAttachmentDto.fullPath,
+
         });        
         await this.attachmentRepository.save(attachment);
         return attachment

@@ -13,7 +13,7 @@ export class AttachmentResolver {
 
     @UseGuards(GqlAuthGuard)
     @Mutation(() => Attachment)
-    async CreateOneAttachment(@Args('CreateContacts') createAttachmentDto: CreateAttachmentDto): Promise<Attachment | undefined> {
+    async CreateOneAttachment(@Args('Attachment') createAttachmentDto: CreateAttachmentDto): Promise<Attachment | undefined> {
         return await this.attachmentService.createOneAttachment(createAttachmentDto)
     }
 

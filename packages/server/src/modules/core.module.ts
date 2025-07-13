@@ -5,7 +5,7 @@ import { WorkspaceModule } from './workspace/workspace.module';
 import { WorkspaceManagerModule } from 'src/modules/workspace-manager/workspace.manager.module';
 import { SystemConfigModule } from 'src/modules/system-config/system-config.module';
 import { FileStorageModule } from 'src/modules/file-storage/file-storage.module';
-
+import { JwtModule } from 'src/modules/jwt/jwt.module';
 
 @Module({
   imports: [
@@ -15,6 +15,7 @@ import { FileStorageModule } from 'src/modules/file-storage/file-storage.module'
     WorkspaceManagerModule,
     SystemConfigModule,
     FileStorageModule,
+    JwtModule,
   ],
   exports: [
     UserModule,
@@ -22,7 +23,8 @@ import { FileStorageModule } from 'src/modules/file-storage/file-storage.module'
     WorkspaceModule,
     WorkspaceManagerModule,
     SystemConfigModule,
-    FileStorageModule
+    FileStorageModule,
+    JwtModule,
   ],
 })
 export class CoreModule { }

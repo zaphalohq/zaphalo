@@ -35,13 +35,14 @@ export type UserWorkspace = {
   id: Scalars['UUID'];
   name: Scalars['String'];
   role: Scalars['String'];
-  isWorkspaceSetup: Scalars['Boolean']
+  isWorkspaceSetup: Scalars['Boolean'];
 };
 
 export type Workspace = {
   __typename?: 'UserWorkspace';
   id: Scalars['UUID'];
   name: Scalars['String'];
+  profileImg: Scalars['String']
 };
 
 
@@ -115,7 +116,8 @@ export const UserQueryFragmentFragmentDoc = gql`
     currentWorkspace {
       id
       name
-      isWorkspaceSetup
+      isWorkspaceSetup,
+      profileImg,
     }
     workspaces {
       id
@@ -612,7 +614,38 @@ export const getSystemStatus = gql`
   }
 `;
 
-
 export function useGetSystemStatus(){
   return Apollo.useQuery(getSystemStatus);
 }
+
+
+
+export type CreateOneAttachmentVariables = Exact<{
+    name: Scalars['String'];
+
+}>;
+
+export const CreateOneAttachmentDoc = gql`
+  mutation CreateOneAttachmentMutation(
+    $name: String!,
+    $originalname: String!,
+    $type: String!,
+    $size: Float!,
+    $fullPath: String!,
+    $createdAt: DateTime!,
+    $updatedAt: DateTime!) {
+      CreateOneAttachment(
+        Attachment: {
+          name: $name,
+          originalname: $originalname,
+          type: $type,
+          size: $size,
+          fullPath: $fullPath,
+          createdAt: $createdAt,
+          updatedAt: $updatedAt,
+        }
+      ) {
+      id
+    }
+  }
+`;
