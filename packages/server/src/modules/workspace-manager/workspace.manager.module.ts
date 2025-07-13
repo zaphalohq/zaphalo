@@ -10,7 +10,7 @@ const connectionFactory = {
     let { workspaceId } = request;
      const isGraphQL = request?.hasOwnProperty('req') && request?.req?.body?.hasOwnProperty('operationName');
 
-  if (isGraphQL) {
+    if (isGraphQL) {
       workspaceId = request?.req?.headers['x-workspace-id'];
     } else {
       workspaceId = request.headers['x-workspace-id'];

@@ -3,7 +3,7 @@ import { useRecoilState } from 'recoil';
 import { Upload, Settings, Briefcase } from 'lucide-react';
 import SubmitButton from './SubmitButton';
 import { useMutation } from '@apollo/client';
-import { UpdateWorkspaceDetails } from '@src/generated/graphql';
+import { UpdateWorkspaceDetails, CreateOneAttachmentDoc } from '@src/generated/graphql';
 import { currentUserWorkspaceState } from '@src/modules/auth/states/currentUserWorkspaceState';
 import { Post } from '@src/modules/domain-manager/hooks/axios';
 
@@ -11,6 +11,7 @@ const WorkspaceSetup = () => {
     const [currentUserWorkspace] = useRecoilState(currentUserWorkspaceState);
     const [workspaceName, setWorkspaceName] = useState('');
     const [WorkspaceDetails] = useMutation(UpdateWorkspaceDetails);
+    const [createOneAttachment] = useMutation(CreateOneAttachmentDoc);
     const [fileError, setFileError] = useState("")
     const [file, setFile] = useState<File | null>(null);
 
@@ -34,17 +35,27 @@ const WorkspaceSetup = () => {
             if (file !== null && currentUserWorkspace?.id) {
                 formData.append('file', file);
                 const response = await Post(
-                    `/fileupload`,
+                    `/upload`,
                     formData,
                     { headers: { 'Content-Type': 'multipart/form-data' } }
                 );
-
-                if (response.data && currentUserWorkspace?.id) {
+                if (response.data && response.data.file && currentUserWorkspace?.id) {
+                    const attachment = await createOneAttachment({
+                        variables: {
+                            name: response.data.file.filename,
+                            originalname: response.data.file.originalname,
+                            type: response.data.file.mimetype,
+                            size: response.data.file.size,
+                            fullPath: response.data.file.path,
+                            createdAt: "",
+                            updatedAt: "",
+                        }
+                    })
                     const workspace = WorkspaceDetails({
                         variables: {
                             workspaceId: currentUserWorkspace?.id,
                             workspaceName,
-                            profileImg: response.data
+                            profileImg: response.data.file.filename,
                         }
                     })
                 }

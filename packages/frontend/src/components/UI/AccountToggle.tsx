@@ -6,11 +6,11 @@ import {
 } from 'recoil';
 import { workspacesState } from '@src/modules/auth/states/workspaces';
 import { currentUserWorkspaceState } from "@src/modules/auth/states/currentUserWorkspaceState";
+import { VITE_BACKEND_URL } from '@src/config';
 
 const AccountToggle = () => {
   const [workspaces] = useRecoilState(workspacesState);
   const [currentUserWorkspace] = useRecoilState(currentUserWorkspaceState);
-
   const navigate = useNavigate()
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false)
   return (
@@ -19,7 +19,7 @@ const AccountToggle = () => {
         <div className="relative">
           <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-md flex items-center justify-center shadow-lg">
             <span className="text-white font-bold text-sm">
-              Y
+              <img src={`${VITE_BACKEND_URL}/files/${currentUserWorkspace?.profileImg}`}/>
             </span>
           </div>
           <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-gray-900"></div>

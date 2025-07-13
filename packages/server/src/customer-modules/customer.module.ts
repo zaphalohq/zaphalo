@@ -5,6 +5,7 @@ import { channelModule } from './channel/channel.module';
 import { MailingListModule } from './mailingList/mailingList.module';
 import { BroadcastModule } from './broadcast/broadcast.module';
 import { WhatsAppModule } from './whatsapp/whatsapp.module';
+import { AttachmentModule } from 'src/customer-modules/attachment/attachment.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { WhatsAppModule } from './whatsapp/whatsapp.module';
     MailingListModule,
     BroadcastModule,
     WhatsAppModule,
+    AttachmentModule,
   ],
   exports: [
     ContactsModule,
@@ -22,6 +24,7 @@ import { WhatsAppModule } from './whatsapp/whatsapp.module';
     MailingListModule,
     BroadcastModule,
     WhatsAppModule,
+    AttachmentModule
   ],
 })
 export class CustomerModule { }

@@ -10,7 +10,7 @@ import { WorkspaceInvitation } from "./workspaceInvitation.entity";
 import { User } from "src/modules/user/user.entity";
 import { TypeORMModule } from "src/database/typeorm/typeorm.module";
 import { UserModule } from "src/modules/user/user.module";
-
+import { FileStorageModule } from 'src/modules/file-storage/file-storage.module';
 
 @Module({
   imports: [
@@ -26,10 +26,10 @@ import { UserModule } from "src/modules/user/user.module";
           'core'
         ),
         TypeORMModule,
-        UserModule
+        UserModule,
+        FileStorageModule
       ],
       services: [WorkspaceService, WorkspaceMemberService],
-      
     }),
   ],
   providers: [WorkspaceService, workspaceResolver, WorkspaceMemberService],
