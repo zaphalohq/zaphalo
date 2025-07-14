@@ -22,7 +22,6 @@ export class FileService {
   params.folderPath,
   params.filename,
   );
-    console.log("...............filePath.............", filePath);
     if (!existsSync(filePath)) {
       throw new Error(
         'File not found',
