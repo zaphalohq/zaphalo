@@ -13,6 +13,7 @@ import { TemplateService } from './services/whatsapp-template.service';
 import { TypeORMModule } from 'src/database/typeorm/typeorm.module';
 import { ContactsModule } from 'src/customer-modules/contacts/contacts.module';
 import { WorkspaceModule } from 'src/modules/workspace/workspace.module';
+import { WaAccountResolver } from './resolvers/account.resolver';
 
 @Module({
   imports: [
@@ -27,7 +28,13 @@ import { WorkspaceModule } from 'src/modules/workspace/workspace.module';
     }),
     HttpModule,
   ],
-  providers: [WaAccountService, WhatsAppSDKService, TemplateService, WhatsAppResolver],
+  providers: [
+    WaAccountService,
+    WhatsAppSDKService,
+    TemplateService,
+    WhatsAppResolver,
+    WaAccountResolver,
+  ],
   exports: [WaAccountService, WhatsAppSDKService, TemplateService],
 })
 export class WhatsAppModule {}

@@ -19,18 +19,11 @@ export class WaAccountService {
     this.waTemplateRepository = connection.getRepository(WhatsAppTemplate);
   }
 
-  async CreateInstants(WhatsappInstantsData: WaAccountUpdateDTO): Promise<WhatsAppAccount | null | string> {
-    const instant = await this.waAccountRepository.findOne({
-      where: { phoneNumberId: WhatsappInstantsData.phoneNumberId }
-    });
-    if (instant) {
-      return instant
-    }
-
-    const instants = await this.waAccountRepository.find();
-    let defaultSelected = false;
-    if (instants.length < 1) {
-      defaultSelected = true
+  async WaAccountCreate(WhatsappInstantsData: WaAccountUpdateDTO): Promise<WhatsAppAccount> {
+    const waAccounts = await this.waAccountRepository.find();
+    let defaultWaAccount = false;
+    if (waAccounts.length < 1) {
+      defaultWaAccount = true
     }
     const whatappInstants = this.waAccountRepository.create({
       name: WhatsappInstantsData.name,
@@ -39,7 +32,7 @@ export class WaAccountService {
       businessAccountId: WhatsappInstantsData.businessAccountId,
       accessToken: WhatsappInstantsData.accessToken,
       appSecret: WhatsappInstantsData.appSecret,
-      defaultSelected: defaultSelected
+      defaultSelected: defaultWaAccount
     })
     await this.contactsService.createContacts({
       contactName: WhatsappInstantsData.name,

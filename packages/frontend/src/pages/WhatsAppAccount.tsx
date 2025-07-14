@@ -5,7 +5,7 @@ import InstantsForm from "@components/WhatsappInstants/InstantsForm";
 import TableListView from "@components/WhatsappInstants/TableListView";
 import { InstantsContext, InstantsProvider } from "@components/Context/InstantsContext";
 
-const WhatsappInstantsContent = () => {
+const WhatsAppAccountContent = () => {
 	const {
 		HandaleFeatchData,
 		data,
@@ -50,12 +50,12 @@ const WhatsappInstantsContent = () => {
 	)
 }
 
-const WhatsappInstants = () => {
+const WhatsappAccount = () => {
 	return (
 		<InstantsProvider>
-			<WhatsappInstantsContent />
+			<WhatsAppAccountContent />
 		</InstantsProvider>
 	);
 };
 
-export default WhatsappInstants
+export default WhatsappAccount

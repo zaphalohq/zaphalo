@@ -3,10 +3,8 @@ import { WaAccountService } from '../services/whatsapp-account.service';
 import { WhatsAppAccount } from '../entities/whatsapp-account.entity';
 import { UseGuards } from '@nestjs/common';
 import { WaAccountUpdateDTO } from '../dtos/whatsapp-account-update.dto';
-// import { CreateFormDataInput } from './dtos/create-form-data.input';
-
-// import { DeleteInstantsDTO } from './DTO/Delete-instants';
 import { GqlAuthGuard } from 'src/modules/auth/guards/gql-auth.guard';
+
 
 @Resolver(() => WhatsAppAccount)
 export class WaAccountResolver {
@@ -16,16 +14,18 @@ export class WaAccountResolver {
 
     @UseGuards(GqlAuthGuard)
     @Mutation(() => WhatsAppAccount)
-    async CreateWaAccount(@Context('req') req, @Args('InstantsData'
-    ) WhatsappInstantsData: WaAccountUpdateDTO): Promise<WhatsAppAccount | null | string> {
-        return await this.waAccountService.CreateInstants(WhatsappInstantsData);
+    async WaAccountCreate(
+        @Context('req') req,
+        @Args('waAccount') waAccount: WaAccountUpdateDTO
+    ): Promise<WhatsAppAccount> {
+        return await this.waAccountService.WaAccountCreate(waAccount);
     }
 
     @UseGuards(GqlAuthGuard)
     @Mutation(() => WhatsAppAccount)
     async SyncAndSaveInstants(
         @Args('InstantsData') WhatsappInstantsData: WaAccountUpdateDTO): Promise<WhatsAppAccount | null | string> {
-        const instants = await this.waAccountService.CreateInstants(WhatsappInstantsData);
+        const instants = await this.waAccountService.WaAccountCreate(WhatsappInstantsData);
         if (instants && typeof instants !== 'string') {
             const syncTemplate = await this.waAccountService.SyncTemplate(instants, instants?.businessAccountId, instants?.accessToken)
 
@@ -35,7 +35,7 @@ export class WaAccountResolver {
     @UseGuards(GqlAuthGuard)
     @Mutation(() => WhatsAppAccount)
     async TestAndSaveInstants(@Args('InstantsData') WhatsappInstantsData: WaAccountUpdateDTO): Promise<WhatsAppAccount | null | string> {
-        const instants = await this.waAccountService.CreateInstants(WhatsappInstantsData);
+        const instants = await this.waAccountService.WaAccountCreate(WhatsappInstantsData);
         if (instants && typeof instants !== 'string') {
             const syncTemplate = await this.waAccountService.TestInstants(instants?.businessAccountId, instants?.accessToken)
         }

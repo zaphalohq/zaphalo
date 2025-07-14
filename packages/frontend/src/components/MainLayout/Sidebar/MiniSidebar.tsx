@@ -13,7 +13,7 @@ const MiniSidebar = ({isToggleActivated, HandleToggleButton} : any) => {
     <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiUsers}  to='/teams' title={"Teams"}/>
     <SidebarElement HandleToggleButton={HandleToggleButton} Icon={IoChatbubbleEllipsesOutline}  to='/chats' title={"Chats"}/>
     <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiLink}  to='/integrations' title={"Integrations"}/>
-    <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiLink}  to='/whatsappinstants' title={"WhatsappInstants"}/>
+    <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiLink}  to='/whatsapp-account' title={"WhatsApp Accounts"}/>
     <div className='absolute left-3 bottom-3 w-[90%]'>    
       <Logout />
     </div>
