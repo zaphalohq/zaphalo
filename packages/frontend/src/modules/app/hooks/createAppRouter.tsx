@@ -17,7 +17,7 @@ import Broadcast from '@src/pages/Broadcast';
 import MailingList from '@src/pages/MailingList';
 import Register from '@src/components/Auth/Register';
 import LoadingPage from '@src/components/UI/Loadingpage';
-import WhatsappInstants from '@src/pages/WhatsappInstants';
+import WhatsAppAccount from '@src/pages/WhatsAppAccount';
 import SignUpPage from '@src/modules/auth/pages/SignUpPage';
 import { PageTitle } from '@src/modules/ui/components/PageTitle';
 import client from '@src/components/AppolloClientConnection/apolloClient';
@@ -58,7 +58,7 @@ const routes = createRoutesFromElements(
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="workspace" element={<Workspace />} />
         <Route path="chats" element={<Chats />} />
-        <Route path="whatsappinstants" element={<WhatsappInstants />} />
+        <Route path="whatsapp-account" element={<WhatsAppAccount />} />
         <Route path="contacts" element={<Contacts />} />
         <Route path="template" element={<Template />} />
         <Route path="mailinglist" element={<MailingList />} />

@@ -6,7 +6,7 @@ import { Connection, Repository } from 'typeorm';
 import { Inject, Injectable } from "@nestjs/common";
 import { WhatsAppTemplate } from "../entities/whatsapp-template.entity";
 import { WaTemplateRequestInput } from "../dtos/whatsapp.template.dto";
-import { instantsService } from "src/customer-modules/instants/instants.service";
+import { WaAccountService } from "src/customer-modules/whatsapp/services/whatsapp-account.service";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 import { WhatsAppSDKService } from './whatsapp-api.service'
 
@@ -17,14 +17,14 @@ export class TemplateService {
 
   constructor(
     @Inject(CONNECTION) connection: Connection,
-    private readonly instantsService: instantsService,
+    private readonly waAccountService: WaAccountService,
     private readonly whatsAppApiService: WhatsAppSDKService,
   ) {
     this.templateRepository = connection.getRepository(WhatsAppTemplate);
   }
 
   async submitTemplate(templateData: WaTemplateRequestInput): Promise<any> {
-    const findSelectedInstants = await this.instantsService.findInstantsByInstantsId(templateData.account)
+    const findSelectedInstants = await this.waAccountService.findInstantsByInstantsId(templateData.account)
     if (!findSelectedInstants)
       throw new Error("Whatsapp configration missing!")
     const wa_api = this.whatsAppApiService.getWhatsApp(findSelectedInstants)
@@ -162,7 +162,7 @@ export class TemplateService {
   }
 
   async getTemplateStatusByCron(templateId: string) {
-    const findSelectedInstants = await this.instantsService.FindSelectedInstants()
+    const findSelectedInstants = await this.waAccountService.FindSelectedInstants()
     if (!findSelectedInstants) throw new Error('findSelectedInstants not found');
     const accessToken = findSelectedInstants?.accessToken
     const templateByApi = await this.getTemplateStatusByWhatsappApi(templateId, accessToken);
@@ -272,7 +272,7 @@ export class TemplateService {
     // const { filename, mimetype, size, buffer }: any = file;
     // const buffer = await fs.readFile(path)
 
-    const findSelectedInstants = await this.instantsService.FindSelectedInstants()
+    const findSelectedInstants = await this.waAccountService.FindSelectedInstants()
     if (!findSelectedInstants) throw new Error('findSelectedInstants not found');
     const appId = findSelectedInstants?.appId
     const accessToken = findSelectedInstants?.accessToken

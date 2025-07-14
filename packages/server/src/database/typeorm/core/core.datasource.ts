@@ -12,6 +12,7 @@ export const typeORMCoreModuleOptions: TypeOrmModuleOptions = {
   schema: 'core',
   entities: [
     `${isJest ? '' : 'dist/'}/src/modules/**/*.entity{.ts,.js}`,
+    `${isJest ? '' : 'dist/'}/src/modules/**/*.entity{.ts,.js}`
   ],
   synchronize: false,
   migrationsRun: false,

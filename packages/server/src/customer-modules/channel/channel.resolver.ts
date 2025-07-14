@@ -5,7 +5,7 @@ import { ChannelService } from "./channel.service";
 import { Message } from "./message.entity";
 import { UseGuards } from "@nestjs/common";
 import { SendMessageInput, SendMessageResponse } from "./dto/SendMessageInputDto";
-import { instantsService } from "src/customer-modules/instants/instants.service";
+import { WaAccountService } from "src/customer-modules/whatsapp/services/whatsapp-account.service";
 import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
 import { ContactsService } from "src/customer-modules/contacts/contacts.service";
 
@@ -14,7 +14,7 @@ export class ChannelResolver {
   constructor(
     private readonly channelService: ChannelService,
     private readonly contactService: ContactsService,
-    private readonly instantsService: instantsService) { }
+    private readonly waAccountService: WaAccountService) { }
 
   @Query(() => [Channel])
   @UseGuards(GqlAuthGuard)
@@ -34,7 +34,7 @@ export class ChannelResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Channel)
   async findExistingChannelByPhoneNoOrCreateChannel(@Args('phoneNo') phoneNo: string): Promise<Channel | undefined> {
-    const findTrueInstants = await this.instantsService.FindSelectedInstants()
+    const findTrueInstants = await this.waAccountService.FindSelectedInstants()
     const contact = await this.contactService.findOneContact(Number(phoneNo))
     const senderId = Number(findTrueInstants?.phoneNumberId)
     const channelName = contact?.contactName;
@@ -71,7 +71,7 @@ export class ChannelResolver {
   ): Promise<SendMessageResponse> {
     const { receiverId, textMessage, channelName, channelId, uploadedFiles } = input;
 
-    const findTrueInstants = await this.instantsService.FindSelectedInstants()
+    const findTrueInstants = await this.waAccountService.FindSelectedInstants()
     if (!findTrueInstants) throw new Error('findTrueInstants not found');
     const senderId = Number(findTrueInstants?.phoneNumberId)
     const accessToken = findTrueInstants?.accessToken

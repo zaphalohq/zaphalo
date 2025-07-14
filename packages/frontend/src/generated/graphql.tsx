@@ -339,7 +339,7 @@ mutation DeleteContact(
 
 
 export const WhatsappInstantsCreation = gql`
-mutation CreateInstants(
+mutation WaAccountCreate(
   $name: String!,
   $appId: String!,
   $phoneNumberId: String!,
@@ -347,7 +347,7 @@ mutation CreateInstants(
   $accessToken: String!,
   $appSecret: String!
 ) {
-  CreateInstants(InstantsData: {
+  WaAccountCreate(waAccount: {
     name: $name,
     appId: $appId,
     phoneNumberId: $phoneNumberId,

@@ -34,7 +34,7 @@ const Sidebar = ({ isToggleActivated, HandleToggleButton }: any) => {
           subItems={[
             { title: "General", to: `/w/${workspaceId}/settings`, Icon: FiLink },
             { title: "Workspace", to: `/w/${workspaceId}/workspace`, Icon: FiLayers },
-            { title: "Whatsapp Instants", to: `/w/${workspaceId}/whatsappinstants`, Icon: FiLink },
+            { title: "WhatsApp Accounts", to: `/w/${workspaceId}/whatsapp-account`, Icon: FiLink },
             { title: "Templates", to: `/w/${workspaceId}/template`, Icon: FiMap },
           ]}
         />

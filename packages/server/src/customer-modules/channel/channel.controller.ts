@@ -2,7 +2,7 @@ import { Controller, Get, Post, Query, Request } from '@nestjs/common';
 import { ChannelService } from './channel.service';
 import { WebSocketService } from './chat-socket';
 import { ContactsService } from 'src/customer-modules/contacts/contacts.service';
-import { instantsService } from 'src/customer-modules/instants/instants.service';
+import { WaAccountService } from 'src/customer-modules/whatsapp/services/whatsapp-account.service';
 const token = 'my-token'
 
 @Controller('webhook')
@@ -11,7 +11,7 @@ export class channelController {
     private readonly webSocketService: WebSocketService,
     private readonly channelservice: ChannelService,
     private readonly contactsservice: ContactsService,
-    private readonly instantsService: instantsService,
+    private readonly waAccountService: WaAccountService,
     ) { }
   @Get()
   getWhatsappApi(@Query() query: any): string {
@@ -34,7 +34,7 @@ export class channelController {
       const userPhoneNo = data.entry[0].changes[0].value.messages[0].from;
       const memberIds = [data.entry[0].changes[0].value.metadata.phone_number_id]
       const myPhoneNo = Number(data.entry[0].changes[0].value.metadata.phone_number_id)
-      const workspace = await this.instantsService.findInstantsByPhoneNoId(data.entry[0].changes[0].value.metadata.phone_number_id)
+      const workspace = await this.waAccountService.findInstantsByPhoneNoId(data.entry[0].changes[0].value.metadata.phone_number_id)
       // const workspaceId = workspace?.workspace.id
       // if (!workspaceId) throw new Error('workspaceId not found');
       const createContactNotExist = await this.contactsservice.createContacts({ contactName: userPhoneNo, phoneNo: Number(userPhoneNo)},

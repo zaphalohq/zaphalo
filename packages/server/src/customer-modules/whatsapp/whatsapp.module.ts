@@ -3,42 +3,38 @@ import { NestjsQueryTypeOrmModule } from '@ptc-org/nestjs-query-typeorm';
 import { NestjsQueryGraphQLModule } from '@ptc-org/nestjs-query-graphql';
 import { HttpModule } from '@nestjs/axios';
 
-// import { WhatsAppAccountEntity } from './whatsapp-account.entity';
+import { WhatsAppAccount } from './entities/whatsapp-account.entity';
+import { WhatsAppMessage } from './entities/whatsapp-message.entity';
+import { WhatsAppTemplate } from './entities/whatsapp-template.entity';
 import { WhatsAppResolver } from './whatsapp.resolver';
-
-import { WhatsAppAccountService } from './services/whatsapp-account.service';
+import { WaAccountService } from './services/whatsapp-account.service';
 import { WhatsAppSDKService } from './services/whatsapp-api.service';
 import { TemplateService } from './services/whatsapp-template.service';
 import { TypeORMModule } from 'src/database/typeorm/typeorm.module';
-// import { instantsResolver } from './instants.resolver';
-// import { whatappinstanstsAutoResolverOpts } from './instants.auto-resolver-opts';
-// import { ContactsModule } from 'src/customer-modules/contacts/contacts.module';
-// import { Template } from 'src/customer-modules/template/template.entity';
-// import { TypeORMModule } from 'src/database/typeorm/typeorm.module';
-// import { WorkspaceModule } from 'src/modules/workspace/workspace.module';
-import { instantsModule } from 'src/customer-modules/instants/instants.module';
-import { WhatsAppController } from 'src/customer-modules/whatsapp/controllers/whatsapp.controller';
-import { TemplateFileUpload } from './controllers/templateFileUpload.controller';
-
+import { ContactsModule } from 'src/customer-modules/contacts/contacts.module';
+import { WorkspaceModule } from 'src/modules/workspace/workspace.module';
+import { WaAccountResolver } from './resolvers/account.resolver';
 
 @Module({
   imports: [
     NestjsQueryGraphQLModule.forFeature({
       imports: [
-        NestjsQueryTypeOrmModule.forFeature([]),
+        NestjsQueryTypeOrmModule.forFeature([WhatsAppAccount, WhatsAppMessage, WhatsAppTemplate]),
         TypeORMModule,
-        instantsModule,
-        // ContactsModule,
+        ContactsModule,
+        WorkspaceModule
       ],
-      services: [WhatsAppAccountService, WhatsAppSDKService, TemplateService],
-      // resolvers: whatappinstanstsAutoResolverOpts,
+      services: [WaAccountService, WhatsAppSDKService, TemplateService],
     }),
-    // instantsModule,
     HttpModule,
-    // instantsModule,
   ],
-  controllers : [WhatsAppController, TemplateFileUpload],
-  providers: [WhatsAppAccountService, WhatsAppSDKService, TemplateService, WhatsAppResolver],
-  exports: [WhatsAppAccountService, WhatsAppSDKService, TemplateService],
+  providers: [
+    WaAccountService,
+    WhatsAppSDKService,
+    TemplateService,
+    WhatsAppResolver,
+    WaAccountResolver,
+  ],
+  exports: [WaAccountService, WhatsAppSDKService, TemplateService],
 })
 export class WhatsAppModule {}
