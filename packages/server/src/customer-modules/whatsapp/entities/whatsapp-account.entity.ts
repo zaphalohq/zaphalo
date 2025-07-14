@@ -22,7 +22,7 @@ export class WhatsAppAccount {
 
   @Column()
   @Field()
-  appUid: string;
+  appId: string;
 
   @Column()
   @Field()

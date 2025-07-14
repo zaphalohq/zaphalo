@@ -6,7 +6,7 @@ import { Broadcast } from "./broadcast.entity";
 import { BroadcastContacts } from "./broadcastContacts.entity";
 import { MailingListService } from "src/customer-modules/mailingList/mailingList.service";
 import { TemplateService } from "src/customer-modules/whatsapp/services/whatsapp-template.service";
-import { instantsService } from "src/customer-modules/instants/instants.service";
+import { WaAccountService } from "src/customer-modules/whatsapp/services/whatsapp-account.service";
 import { WorkspaceService } from "src/modules/workspace/workspace.service";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 
@@ -19,7 +19,7 @@ export class BroadcastService {
     private readonly mailingListService: MailingListService,
     private readonly templateService: TemplateService,
     private readonly workspaceService: WorkspaceService,
-    private readonly instantsService: instantsService
+    private readonly waAccountService: WaAccountService
   ) {
     this.broadcastRepository = connection.getRepository(Broadcast);
     this.broadcastContactsRepository = connection.getRepository(BroadcastContacts);
@@ -137,7 +137,7 @@ export class BroadcastService {
 
       const templateName = template.templateName;
       const language = template.language;
-      const findTrueInstants = await this.instantsService.FindSelectedInstants()
+      const findTrueInstants = await this.waAccountService.FindSelectedInstants()
       const accessToken = findTrueInstants?.accessToken
       const phoneNumberId = findTrueInstants?.phoneNumberId
       const url = `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`;

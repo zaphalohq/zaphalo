@@ -4,13 +4,13 @@ import { Broadcast } from "./broadcast.entity";
 import { BroadcastService } from "./broadcast.service";
 import { BroadcastReqDto } from "./dto/BroadcastReqDto";
 import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
-import { instantsService } from "src/customer-modules/instants/instants.service";
+import { WaAccountService } from "src/customer-modules/whatsapp/services/whatsapp-account.service";
 
 @Resolver(() => Broadcast)
 export class BroadcastResolver {
     constructor(
         private readonly broadcastService: BroadcastService,
-        private readonly instantsService: instantsService
+        private readonly waAccountService: WaAccountService,
     ) { }
 
     @UseGuards(GqlAuthGuard)
@@ -23,7 +23,7 @@ export class BroadcastResolver {
     @UseGuards(GqlAuthGuard)
     @Mutation(() => Broadcast)
     async BroadcastTemplate(@Args('broadcastData') broadcastData: BroadcastReqDto): Promise<Broadcast> {
-        const findTrueInstants = await this.instantsService.FindSelectedInstants()
+        const findTrueInstants = await this.waAccountService.FindSelectedInstants()
         const accessToken = findTrueInstants?.accessToken
         const phoneNumberId = findTrueInstants?.phoneNumberId
         return await this.broadcastService.BroadcastTemplate(accessToken, broadcastData, phoneNumberId)

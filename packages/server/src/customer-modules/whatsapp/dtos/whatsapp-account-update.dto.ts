@@ -1,7 +1,11 @@
 import { InputType, Field } from '@nestjs/graphql';
 
+
 @InputType()
-export class CreateFormDataInput {
+export class WaAccountUpdateDTO {
+  @Field(() => [String], { nullable: true })
+  id: string;
+
   @Field()
   name: string;
 
@@ -20,5 +24,3 @@ export class CreateFormDataInput {
   @Field()
   appSecret: string;
 }
-
-

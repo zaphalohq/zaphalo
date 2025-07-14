@@ -5,25 +5,24 @@ import graphqlTypeJson from 'graphql-type-json';
 
 import { WhatsAppAccount } from './entities/whatsapp-account.entity';
 import { WhatsAppTemplate } from './entities/whatsapp-template.entity';
-import { WhatsAppAccountService } from './services/whatsapp-account.service';
+import { WaAccountService } from './services/whatsapp-account.service';
 import { WhatsAppSDKService } from './services/whatsapp-api.service'
 import { TemplateService } from './services/whatsapp-template.service';
-import { instantsService } from "src/customer-modules/instants/instants.service";
-import { WhatsappInstants } from 'src/customer-modules/instants/Instants.entity';
+// import { WaAccountService } from "src/customer-modules/whatsapp/services/whatsapp-account.service";
+// import { WhatsAppAccount } from 'src/customer-modules/whatsapp/entities/whatsapp-account.entity';
 import { GqlAuthGuard } from 'src/modules/auth/guards/gql-auth.guard';
 import { WaTemplateRequestInput } from 'src/customer-modules/whatsapp/dtos/whatsapp.template.dto';
 import { WaTemplateResponseDto } from 'src/customer-modules/whatsapp/dtos/whatsapp.response.dto';
 
-@Resolver(() => WhatsappInstants)
+@Resolver(() => WhatsAppAccount)
 export class WhatsAppResolver {
   // constructor(
   //   private readonly whatsAppApiService: WhatsAppSDKService,
   //   private readonly instantsService: instantsService) { }
 
   constructor(
-    private readonly whatsAppAccountService: WhatsAppAccountService,
+    private readonly waAccountService: WaAccountService,
     private readonly whatsAppApiService: WhatsAppSDKService,
-    private readonly instantsService: instantsService,
     private readonly waTemplateService: TemplateService
   ) { }
 
@@ -33,7 +32,7 @@ export class WhatsAppResolver {
   async testConnection(
     @Context('req') req,
   ): Promise<String> {
-    const findTrueInstants = await this.instantsService.FindSelectedInstants()
+    const findTrueInstants = await this.waAccountService.FindSelectedInstants()
 
     if (!findTrueInstants)
       throw new Error("Not found whatsappaccount")
@@ -53,7 +52,7 @@ export class WhatsAppResolver {
   @UseGuards(GqlAuthGuard)
   @Query(() => [WhatsAppAccount])
   async findAllWhatsAppAccounts(): Promise<WhatsAppAccount[]> {
-    return await this.whatsAppAccountService.findAllAccounts();
+    return await this.waAccountService.findAllAccounts();
   }
 
   @UseGuards(GqlAuthGuard)
@@ -67,7 +66,7 @@ export class WhatsAppResolver {
   @UseGuards(GqlAuthGuard)
   @Query(() => graphqlTypeJson)
   async getWaTemplatesDetails(@Args('waTemplateId') waTemplateId: string) {
-    const findTrueInstants = await this.instantsService.FindSelectedInstants()
+    const findTrueInstants = await this.waAccountService.FindSelectedInstants()
 
     if (!findTrueInstants)
       throw new Error("Not found whatsappaccount")
@@ -107,12 +106,12 @@ export class WhatsAppResolver {
 
   async getWhatsAppApi(instantsId?: string) {
     if (instantsId) {
-      const instants = await this.instantsService.findInstantsByInstantsId(instantsId)
+      const instants = await this.waAccountService.findInstantsByInstantsId(instantsId)
       if (!instants)
         throw new Error("Not found whatsappaccount")
       return this.whatsAppApiService.getWhatsApp(instants)
     } else {
-      const findTrueInstants = await this.instantsService.FindSelectedInstants()
+      const findTrueInstants = await this.waAccountService.FindSelectedInstants()
       if (!findTrueInstants)
         throw new Error("Not found whatsappaccount")
 

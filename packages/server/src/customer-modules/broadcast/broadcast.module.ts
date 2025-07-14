@@ -7,9 +7,8 @@ import { Broadcast } from "./broadcast.entity";
 import { BroadcastContacts } from "./broadcastContacts.entity";
 import { WorkspaceModule } from "src/modules/workspace/workspace.module";
 import { TypeORMModule } from "src/database/typeorm/typeorm.module";
-import { instantsModule } from "src/customer-modules/instants/instants.module";
-import { MailingListModule } from "src/customer-modules/mailingList/mailingList.module";
 import { WhatsAppModule } from "src/customer-modules/whatsapp/whatsapp.module";
+import { MailingListModule } from "src/customer-modules/mailingList/mailingList.module";
 
 @Module({
     imports : [ 
@@ -18,7 +17,6 @@ import { WhatsAppModule } from "src/customer-modules/whatsapp/whatsapp.module";
             NestjsQueryTypeOrmModule.forFeature([Broadcast, BroadcastContacts]),
             TypeORMModule,
             WorkspaceModule,
-            instantsModule,
             MailingListModule,
             WhatsAppModule
           ],

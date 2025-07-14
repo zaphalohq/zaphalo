@@ -5,7 +5,7 @@ import axios from "axios";
 import path from 'path';
 import fs from 'fs/promises';
 
-import { WhatsappInstants } from "src/customer-modules/instants/Instants.entity";
+import { WhatsAppAccount } from "src/customer-modules/whatsapp/entities/whatsapp-account.entity";
 // import { WhatsAppAccountService } from "./whatsapp-account.service";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 
@@ -13,20 +13,20 @@ const DEFAULT_ENDPOINT = "https://graph.facebook.com/v23.0"
 
 @Injectable()
 export class WhatsAppSDKService {
-  getWhatsApp(whatsAppAccount: WhatsappInstants) {
+  getWhatsApp(whatsAppAccount: WhatsAppAccount) {
     return new WhatsAppApiService(whatsAppAccount);
   }
 }
 
 export class WhatsAppApiService {
-  private readonly wa_account_id: WhatsappInstants;
+  private readonly wa_account_id: WhatsAppAccount;
   private readonly phone_uid: String;
   private readonly token: String;
   private readonly httpService: HttpService;
   private readonly is_shared_account: boolean;
 
   constructor(
-    private readonly whatsAppAccount: WhatsappInstants,
+    private readonly whatsAppAccount: WhatsAppAccount,
   ) {
       this.wa_account_id = whatsAppAccount
       this.phone_uid = whatsAppAccount.phoneNumberId;

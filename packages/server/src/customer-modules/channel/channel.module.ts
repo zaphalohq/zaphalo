@@ -13,7 +13,7 @@ import { UserService } from "src/modules/user/user.service";
 import { UserModule } from "src/modules/user/user.module";
 import { WorkspaceModule } from "src/modules/workspace/workspace.module";
 import { TypeORMModule } from "src/database/typeorm/typeorm.module";
-import { instantsModule } from "src/customer-modules/instants/instants.module";
+import { WhatsAppModule } from "src/customer-modules/whatsapp/whatsapp.module";
 import { ContactsModule } from "src/customer-modules/contacts/contacts.module";
 
 @Module({
@@ -26,7 +26,7 @@ import { ContactsModule } from "src/customer-modules/contacts/contacts.module";
         ContactsModule,
         UserModule,
         WorkspaceModule,
-        instantsModule
+        WhatsAppModule
       ],
       services: [ChannelService],
     })
