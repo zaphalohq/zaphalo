@@ -38,13 +38,13 @@ const AccountToggle = () => {
             }`}
         />
       </div>
-
+            <p className="text-white">{currentUserWorkspace?.profileImg}...</p>
       {isWorkspaceOpen && (
         <div className="flex flex-col bg-gray-800 absolute z-50 w-full rounded-xl mt-2 shadow-xl border border-gray-700 overflow-hidden">
           <div className="px-4 py-3 bg-gray-900 border-b border-gray-700">
             <div className="flex items-center gap-2">
               <Briefcase className="w-4 h-4 text-gray-400" />
-              <span className="font-semibold text-center text-gray-200">Workspaces</span>
+              <span className="font-semibold text-center text-gray-200">Workspaces </span>
             </div>
           </div>
 

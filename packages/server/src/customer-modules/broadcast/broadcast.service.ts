@@ -127,7 +127,7 @@ export class BroadcastService {
       where: {
         isBroadcastDone: false
       },
-      relations: ['template', 'workspace']
+      relations: ['template']
     });
 
     broadcasts.forEach(async (broadcast) => {

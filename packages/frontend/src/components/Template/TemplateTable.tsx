@@ -2,37 +2,44 @@ import { useNavigate } from "react-router-dom"
 import { useContext, useEffect, useState } from "react"
 import { useMutation, useQuery } from "@apollo/client"
 import { TemplateContext } from "@components/Context/TemplateContext"
-import { findWaAllTemplate, GET_TEMPLATE_STATUS } from "@src/generated/graphql"
-// import { convertRawPayloadToPreviewData } from "../utils/rawPayloadtoPreviewTemplate"
+import { findWaAllTemplate, GET_TEMPLATE_STATUS, WaTestTemplate } from "@src/generated/graphql"
+import { GrDocumentUpdate } from "react-icons/gr";
 
-const TemplateTable = ({ setIsTemplatePreviewVis }: any) => {
-    const { setTemplateFormData }: any = useContext(TemplateContext)
+const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) => {
+    const { setTemplateFormData, setSelectedTemplateInfo }: any = useContext(TemplateContext)
+    const [testTemplate] = useMutation(WaTestTemplate);
+    const [showSendPopup, setShowSendPopup] = useState(false);
+    const [testTemplateData, setTestTemplateData] = useState({
+        dbTemplateId: '',
+        testPhoneNo: '',
+        templateName: ''
+    });
+
+
     const navigate = useNavigate()
     const [templates, setTemplates] = useState([{
         id: '',
         status: '',
-        templateId: '',
+        waTemplateId: '',
         templateName: '',
         category: '',
-        rawComponents: []
     }])
 
-    const [templateId, setTemplateId] = useState("")
     const [GetTemplateStatus] = useMutation(GET_TEMPLATE_STATUS);
 
-    const HandelSendTemplate = (templateId: string, templateName: string) => {
-        navigate("/broadcast", {
-            state: {
-                templateId,
-                templateName
-            },
-        });
-    }
+    // const HandelSendTemplate = (templateId: string, templateName: string) => {
+    //     navigate("/broadcast", {
+    //         state: {
+    //             templateId,
+    //             templateName
+    //         },
+    //     });
+    // }
 
-    const { data: templateData, loading: templateLoading, refetch: templateRefetch }: any = useQuery(findWaAllTemplate);
+    const { data: templateData,
+        loading: templateLoading,
+        refetch: templateRefetch }: any = useQuery(findWaAllTemplate);
     useEffect(() => {
-        console.log(templateData,'...............templateData');
-        
         templateRefetch()
         if (templateData && !templateLoading) {
             setTemplates(templateData.findAllTemplate)
@@ -45,6 +52,26 @@ const TemplateTable = ({ setIsTemplatePreviewVis }: any) => {
         })
     }
 
+
+    const handleSendTemplateToPhone = async (templateId: string) => {
+        if (!testTemplateData.testPhoneNo.trim()) {
+            alert("Please enter a phone number.");
+            return;
+        }
+        const response = await testTemplate({
+            variables : {
+                testTemplateData
+            }
+        })
+        setShowSendPopup(false);
+        setTestTemplateData({
+            dbTemplateId: '',
+            testPhoneNo: '',
+            templateName: ''
+        });
+    };
+
+
     return (
         <div>
             <div className="relative overflow-x-auto md:pt-4 md:p-4 rounded-lg">
@@ -55,6 +82,7 @@ const TemplateTable = ({ setIsTemplatePreviewVis }: any) => {
                             <th scope="col" className="px-6 py-4 text-center truncate">Template Id</th>
                             <th scope="col" className="px-6 py-4 text-center truncate">Status</th>
                             <th scope="col" className="px-6 py-4 text-center truncate">Category</th>
+                            <th scope="col" className="px-6 py-4 text-center truncate">Update</th>
                             <th scope="col" className="px-6 py-4 text-center truncate">Check Template Status</th>
                             <th scope="col" className="px-6 py-4 text-center truncate">preview</th>
                             <th scope="col" className="px-6 py-4 text-center truncate">Send Template</th>
@@ -72,9 +100,9 @@ const TemplateTable = ({ setIsTemplatePreviewVis }: any) => {
                                 </th>
                                 <td
                                     className="px-6 py-4 text-center truncate max-w-[150px]"
-                                    title={template.templateId}
+                                    title={template.waTemplateId}
                                 >
-                                    {template.templateId}
+                                    {template.waTemplateId}
                                 </td>
                                 <td
                                     className="px-6 py-4 text-center truncate max-w-[150px]"
@@ -84,6 +112,7 @@ const TemplateTable = ({ setIsTemplatePreviewVis }: any) => {
                                         {template.status.toLowerCase() == "approved" ? <p className="p-1.5 bg-green-600 rounded-full "></p> : <></>}
                                         {template.status.toLowerCase() == "rejected" ? <p className="p-1.5 bg-red-600 rounded-full "></p> : <></>}
                                         {template.status.toLowerCase() == "pending" ? <p className="p-1.5 bg-yellow-600 rounded-full "></p> : <></>}
+                                        {template.status.toLowerCase() == "saved" ? <p className="p-1.5 bg-yellow-600 rounded-full "></p> : <></>}
                                         <p className="p-2">{template.status.toUpperCase()}</p>
                                     </div>
 
@@ -94,31 +123,109 @@ const TemplateTable = ({ setIsTemplatePreviewVis }: any) => {
                                 >
                                     {template.category.toUpperCase()}
                                 </td>
-                                <td onClick={() => HandleTempalteStatus(template.templateId)}
+                                <td className="px-4 py-2 text-center">
+                                    <button
+                                        disabled={template.status.toLowerCase() === 'pending'}
+                                        onClick={() => {
+                                            const { account, attachment, ...restTemplate } = template;
+                                            setTemplateFormData({
+                                                accountId: account?.id,
+                                                attachmentId: attachment?.id,
+                                                ...restTemplate
+                                            })
+                                            setSelectedTemplateInfo({
+                                                dbTemplateId: template.id,
+                                                status: template.status.toLowerCase(),
+                                                templateImg: attachment?.name,
+                                                templateImgName: attachment?.originalname
+                                            })
+                                            setIsTemplateFormVis(true)
+                                        }}
+                                        className={`text-lg text-center text-violet-500 cursor-pointer hover:bg-violet-200 p-2 rounded disabled:bg-violet-200 disabled:cursor-default`}
+                                    >
+                                        <GrDocumentUpdate />
+                                    </button>
+                                </td>
+                                <td onClick={() => HandleTempalteStatus(template.waTemplateId)}
                                     className="px-6 py-4 text-center truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
                                     title="sendTemplate"
                                 >
                                     Check Template Status
                                 </td>
                                 <td onClick={() => {
-                                    setTemplateFormData(template)
+                                    const { account, attachment, ...restTemplate } = template;
+                                    setTemplateFormData({
+                                        accountId: account?.id,
+                                        attachmentId: attachment?.id,
+                                        ...restTemplate
+                                    })
+                                    setSelectedTemplateInfo({
+                                        dbTemplateId: template.id,
+                                        status: template.status.toLowerCase(),
+                                        templateImg: attachment?.name,
+                                        templateImgName: attachment?.originalname
+                                    })
                                     setIsTemplatePreviewVis(true)
                                 }}
                                     className="px-6 py-4 text-center truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
-                                    title="sendTemplate"
+                                    title="preview"
                                 >
                                     preview
                                 </td>
-                                <td onClick={() => HandelSendTemplate(template.id, template.templateName)}
+                                <td onClick={() => {
+                                    setShowSendPopup(true);
+                                    setTestTemplateData((prev) => ({
+                                        ...prev, 
+                                        dbTemplateId : template.id,
+                                        templateName : template.templateName
+                                    }))
+                                }
+                            }
                                     className="px-6 py-4 text-center truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
-                                    title="sendTemplate"
+                                    title="Test Template"
                                 >
-                                    send template
+                                    Test Template
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
+                {showSendPopup && (
+                    <div className="fixed inset-0 bg-gray-800/30 bg-opacity-40 flex items-center justify-center z-50">
+                        <div className="bg-white p-6 rounded-lg shadow-xl w-80">
+                            <h2 className="text-lg text-gray-800 font-semibold mb-2">Test Template</h2>
+                            <p className="text-sm text-gray-600 mb-4">Template: <strong>{testTemplateData.templateName}</strong></p>
+
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Test Phone No</label>
+                            <input
+                                name='testPhoneNo'
+                                type="text"
+                                value={testTemplateData.testPhoneNo}
+                                onChange={(e) => setTestTemplateData((prev) => ({
+                                    ...prev,
+                                    [e.target.name]: e.target.value
+                                }))}
+                                placeholder="Enter phone number"
+                                className="w-full p-2 border rounded-md mb-4 text-sm"
+                            />
+
+                            <div className="flex justify-between">
+                                <button
+                                    onClick={() => setShowSendPopup(false)}
+                                    className="bg-gray-300 text-gray-700 px-4 py-1 rounded hover:bg-gray-400"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={() => handleSendTemplateToPhone("showSendPopup.id")}
+                                    className="bg-indigo-600 text-white px-4 py-1 rounded hover:bg-indigo-700"
+                                >
+                                    Send
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     )

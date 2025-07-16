@@ -44,9 +44,9 @@ const WorkspaceSetup = () => {
                         variables: {
                             name: response.data.file.filename,
                             originalname: response.data.file.originalname,
-                            type: response.data.file.mimetype,
+                            mimetype: response.data.file.mimetype,
                             size: response.data.file.size,
-                            fullPath: response.data.file.path,
+                            path: response.data.file.path,
                             createdAt: "",
                             updatedAt: "",
                         }

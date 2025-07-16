@@ -175,45 +175,9 @@ export class WhatsAppApiService {
     return response.data
   }
 
-    async uploadFile(url) {
-    const response1 = await axios.get(url, { responseType: 'arraybuffer' });
-    const filename = path.basename(url);
-    const buffer = Buffer.from(response1.data);
-    const mimetype = response1.headers['content-type'];
-    const size = parseInt(response1.headers['content-length'] || `${buffer.length}`);
-    // const { filename, mimetype, size, buffer }: any = file;
-    // const buffer = await fs.readFile(path)
-
-    const appId = this.wa_account_id.appId
-    const uploadSessionRes = await axios.post(
-      `https://graph.facebook.com/v22.0/${appId}/uploads`,
-      null,
-      {
-        params: {
-          file_name: filename,
-          file_length: size,
-          file_type: mimetype,
-          access_token: `${this.token}`,
-        },
-      }
-    );
-
-    const response = await axios({
-      url: `https://graph.facebook.com/v22.0/${uploadSessionRes.data.id}`,
-      method: 'POST',
-      headers: {
-        Authorization: `OAuth ${this.token}`,
-        file_offset: 0
-      },
-      data: {
-        'data-binary': buffer
-      }
-    });
-    return response.data.h
-  }
 
 
-  async uploadDemoDocument(attachment?: any, url?){
+  async uploadDemoDocument(attachment?: any){
     // """
     //     This method is used to get a handle to later upload a demo document.
     //     Only use for template registration.
@@ -289,6 +253,24 @@ export class WhatsAppApiService {
       }
     }
     throw new Error(this.prepare_error_response(response))
+  }
+  
+  async testTemplate(json_data) {
+        if (this.is_shared_account){
+      throw new Error("Account not properly configured")
+    }
+
+    console.info("Submit new template for account %s [%s]", this.wa_account_id.name, this.wa_account_id.id)
+    const response = await this.apiRequests({
+      "request_type": "POST",
+      "url": `/${this.wa_account_id.phoneNumberId}/messages`,
+      "auth_type": "bearer",
+      "headers": {"Content-Type": "application/json"},
+      "data": json_data})
+    const response_data = response.data
+console.log(response,'..........response_data');
+ return response_data
+    // throw new Error(this.prepare_error_response(response))
   }
 
   async submitTemplateUpdate(json_data, waTemplateId){

@@ -552,25 +552,67 @@ mutation getTemplateStatus($templateId: String!) {
 export const findWaAllTemplate = gql`
 query findAllTemplate {
     findAllTemplate {
-      account
-      category
+    account {
       id
-      language
-      status
-      templateId
-      templateName
-      rawComponents
+    }
+    attachment {
+      id
+      originalname
+      name
+    }
+    bodyText
+    category
+    button {
+      phone_number
+      text
+      type
+      url
+    }
+    footerText
+    headerText
+    headerType
+    id
+    language
+    status
+    templateName
+    waTemplateId
+    variables {
+      name
+      value
+    }
   }
 }`
 
 export const SUBMIT_TEMPLATE = gql`
-mutation SubmitTemplate($templateData: WaTemplateRequestInput!) {
-  submitWaTemplate(templateData: $templateData) {
+mutation SubmitTemplate($templateData: WaTemplateRequestInput!, $dbTemplateId: String) {
+  submitWaTemplate(templateData: $templateData, dbTemplateId: $dbTemplateId) {
     success
     data
     error
   }
 }`;
+
+export const SAVE_TEMPLATE = gql`
+mutation saveTemplate($templateData: WaTemplateRequestInput!) {
+  saveTemplate(templateData: $templateData) {
+    id
+  }
+}`;
+
+export const UPDATE_TEMPLATE = gql`
+mutation updateTemplate($templateData: WaTemplateRequestInput!, $dbTemplateId: String!) {
+  updateTemplate(templateData: $templateData, dbTemplateId: $dbTemplateId) {
+    id
+  }
+}`;
+
+export const WaTestTemplate = gql`
+mutation testTemplate($testTemplateData: WaTestTemplateInput!){
+  testTemplate(testTemplateData: $testTemplateData){
+    success
+  }
+}
+`
 
 export const Send_Template_Message = gql`
   mutation sendTemplateMessage {
@@ -629,18 +671,18 @@ export const CreateOneAttachmentDoc = gql`
   mutation CreateOneAttachmentMutation(
     $name: String!,
     $originalname: String!,
-    $type: String!,
+    $mimetype: String!,
     $size: Float!,
-    $fullPath: String!,
+    $path: String!,
     $createdAt: DateTime!,
     $updatedAt: DateTime!) {
       CreateOneAttachment(
         Attachment: {
           name: $name,
           originalname: $originalname,
-          type: $type,
+          mimetype: $mimetype,
           size: $size,
-          fullPath: $fullPath,
+          path: $path,
           createdAt: $createdAt,
           updatedAt: $updatedAt,
         }

@@ -1,6 +1,9 @@
-import React from 'react'
+import React, { useContext } from 'react'
+import { TemplateContext } from '../Context/TemplateContext'
 
 const TemplateHeader = ({ templateData, handleInputChange, handleFileChange }: any) => {
+    const { selectedTemplateInfo }: any = useContext(TemplateContext);
+  
   return (
     <div>
       <div>
@@ -21,12 +24,12 @@ const TemplateHeader = ({ templateData, handleInputChange, handleFileChange }: a
 
       {templateData.headerType === 'TEXT' ?
         <div>
-          <label className="block text-sm font-medium text-gray-700 mt-4">Header Text (Optional)</label>
+          <label className="block text-sm font-medium text-gray-700 mt-4">Header Text</label>
           <input
           required
             type="text"
-            name="header_handle"
-            value={templateData.header_handle}
+            name="headerText"
+            value={templateData.headerText}
             onChange={handleInputChange}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2"
             placeholder="Welcome to Our Service"
@@ -39,6 +42,7 @@ const TemplateHeader = ({ templateData, handleInputChange, handleFileChange }: a
       {templateData.headerType === 'IMAGE' ?
         <>
           <label className="block text-sm font-medium text-gray-700 mt-4 pb-2">Upload image</label>
+          {selectedTemplateInfo.templateImgName !== '' && <p className='p-2 mb-2 text-blue-700 rounded bg-blue-500/10 font-semibold'> <span className='text-gray-600 font-normal'>Current Uploaded Image : </span>{selectedTemplateInfo.templateImgName}</p>}
           <input
             type="file"
             name="header_handle"

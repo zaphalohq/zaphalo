@@ -33,8 +33,8 @@ const AccountSelection = ({ templateData, handleInputChange} : any) => {
   <div>
     <label className="block text-sm font-medium text-gray-700">Account</label>
     <select
-      name="account"
-      value={templateData.account}
+      name="accountId"
+      value={templateData.accountId}
       onChange={handleInputChange}
       required
       className="mt-1 block w-full rounded-md outline-none shadow-sm p-2"

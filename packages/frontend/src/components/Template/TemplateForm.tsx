@@ -6,7 +6,7 @@ import TemplateButton from "./TemplateButton";
 import TemplateVariables from "./TemplateVariables";
 import { useMutation } from "@apollo/client";
 import { cookieStorage } from '@src/utils/cookie-storage';
-import { SUBMIT_TEMPLATE } from "@src/generated/graphql";
+import { CreateOneAttachmentDoc, SAVE_TEMPLATE, SUBMIT_TEMPLATE, UPDATE_TEMPLATE } from "@src/generated/graphql";
 import { TemplateContext } from "@components/Context/TemplateContext";
 import { Post } from "@src/modules/domain-manager/hooks/axios";
 
@@ -23,42 +23,34 @@ type WaVariableInput = {
 };
 
 type TemplateData = {
-  account: string;
+  accountId: string;
   templateName: string;
-  category: 'UTILITY' | 'MARKETING' | 'TRANSACTIONAL' | string;
+  category: 'UTILITY' | 'MARKETING' | 'AUTHENTICATION' | string;
   language: string;
   bodyText: string;
   footerText: string;
   button: WaButtonInput[];
+  headerText: string;
   variables: WaVariableInput[];
   headerType: 'NONE' | 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT';
   header_handle: string;
   fileUrl: string;
+  attachmentId: string | null;
 };
 
 const TemplateForm = () => {
-  const [templateData, setTemplateData] = useState<TemplateData>({
-    account: '',
-    templateName: '',
-    category: 'UTILITY',
-    language: 'en_US',
-    bodyText: `Hi {{1}},
-Your order *{{2}}* from *{{3}}* has been shipped.
-To track the shipping: {{4}}
-Thank you.`,
-    footerText: '',
-    button: [],
-    variables: [],
-    headerType: 'NONE',
-    header_handle: '',
-    fileUrl: ''
-  });
+  const { templateFormData, setTemplateFormData, selectedTemplateInfo }: any = useContext(TemplateContext)
+  const [templateData, setTemplateData] = useState<TemplateData>(() => ({ ...templateFormData }));
   const [status, setStatus] = useState(null);
-  const [templateId, setTemplateId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<String | null>(null);
   const [submitTemplate] = useMutation(SUBMIT_TEMPLATE);
-  const { templateFormData, setTemplateFormData }: any = useContext(TemplateContext)
+  const [saveTemplate] = useMutation(SAVE_TEMPLATE);
+  const [updateTemplate] = useMutation(UPDATE_TEMPLATE);
+  const [createOneAttachment] = useMutation(CreateOneAttachmentDoc);
+
+
+
   const [file, setFile] = useState<File | null>(null);
   const [isValidated, setIsValidated] = useState(false)
   const handleInputChange = (e: any) => {
@@ -67,16 +59,37 @@ Thank you.`,
   };
 
   useEffect(() => {
-    console.log(templateData.variables, templateData.button, templateData.button.length, '................');
+    const validateTemplate = () => {
+      const { headerType, headerText, variables } = templateData;
+      const variableMatches = templateData.bodyText.match(/{{\d+}}/g) || [];
 
-    if (templateData.account !== '' && templateData.templateName !== '' && templateData.category !== '' && templateData.language !== '' && templateData.bodyText !== '') {
-      const variableMatches = templateFormData.bodyText.match(/{{\d+}}/g) || [];
-      if (variableMatches.length === templateData.variables.length) {
-        setIsValidated(true);
-      } else {
-        setIsValidated(false);
+      if (headerType === "TEXT" && !headerText?.trim()) {
+        return false;
       }
+
+      if (
+        ["IMAGE", "VIDEO", "DOCUMENT"].includes(headerType) &&
+        !file
+      ) {
+        return false;
+      }
+
+      if (variableMatches.length !== variables.length) {
+        return false;
+      }
+
+      for (let i = 0; i < variables.length; i++) {
+        if (!variables[i].value || variables[i].value.trim() === "") {
+          return false;
+        }
+      }
+      return true;
     }
+
+    if (validateTemplate()) {
+      setIsValidated(true)
+    }
+
   }, [templateData])
 
   const handleFileUpload = async () => {
@@ -94,12 +107,27 @@ Thank you.`,
         const formData = new FormData();
         formData.append('file', file);
         const response = await Post(
-          `/fileupload`,
+          `/upload`,
           formData,
           { headers: { 'Content-Type': 'multipart/form-data' } }
         );
-        updatedTemplateData['header_handle'] = response.data;
-        updatedTemplateData['fileUrl'] = response.data.fileUrl;
+
+        // updatedTemplateData['header_handle'] = response.data;
+        // updatedTemplateData['fileUrl'] = response.data.file.filename;
+        if (response.data) {
+          const attachment: any = await createOneAttachment({
+            variables: {
+              name: response.data.file.filename,
+              originalname: response.data.file.originalname,
+              mimetype: response.data.file.mimetype,
+              size: response.data.file.size,
+              path: response.data.file.path,
+              createdAt: "",
+              updatedAt: "",
+            }
+          })
+          updatedTemplateData['attachmentId'] = attachment.data.CreateOneAttachment.id;
+        }
         setTemplateData(updatedTemplateData);
         return updatedTemplateData
       } catch (error) {
@@ -125,14 +153,18 @@ Thank you.`,
     setIsSubmitting(true);
     setError(null);
     setStatus(null);
+
+    if (!validateTemplate()) {
+      setIsSubmitting(false);
+      return;
+    }
+
+
     const updatedTemplateData = await handleFileUpload()
     try {
-      const response = await submitTemplate({ variables: { templateData: updatedTemplateData } });
+      const response = await submitTemplate({ variables: { templateData: updatedTemplateData, dbTemplateId: selectedTemplateInfo.dbTemplateId } });
       const result = response.data;
       setStatus(result);
-      if (result.success) {
-        setTemplateId(JSON.parse(result.data).id);
-      }
     } catch (err: any) {
       setError(err.message || 'Failed to submit template');
       console.error(err);
@@ -144,6 +176,89 @@ Thank you.`,
 
   const [currentComponent, setCurrentComponent] = useState("Body")
   const templateComponents = ["Body", "Buttons", "Variables"]
+
+
+  const handleSaveTemplate = async (e: any) => {
+    if (!templateData.templateName) {
+      setError('Template name is required to save.');
+      return;
+    }
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+    setStatus(null);
+    const updatedTemplateData = await handleFileUpload()
+
+    try {
+      const response = await saveTemplate({ variables: { templateData: updatedTemplateData } });
+      const result = response.data;
+      setStatus(result);
+    } catch (err: any) {
+      setError(err.message || 'Failed to save template');
+      console.error(err);
+
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+
+  const handleUpdateTemplate = async (e: any) => {
+    if (!templateData.templateName) {
+      setError('Template name is required to save.');
+      return;
+    }
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+    setStatus(null);
+    const updatedTemplateData = await handleFileUpload()
+    try {
+      const response = await updateTemplate({ variables: { templateData: updatedTemplateData, dbTemplateId: selectedTemplateInfo.dbTemplateId } });
+      const result = response.data;
+      setStatus(result);
+    } catch (err: any) {
+      setError(err.message || 'Failed to update template');
+      console.error(err);
+
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+
+  const validateTemplate = () => {
+    const { headerType, headerText, variables } = templateData;
+    const variableMatches = templateData.bodyText.match(/{{\d+}}/g) || [];
+
+    if (headerType === "TEXT" && !headerText?.trim()) {
+      setError("Header text is required when header type is TEXT.");
+      return false;
+    }
+
+    if (
+      ["IMAGE", "VIDEO", "DOCUMENT"].includes(headerType) &&
+      !file
+    ) {
+      setError(`File upload is required when header type is ${headerType}.`);
+      return false;
+    }
+
+    if (variableMatches.length !== variables.length) {
+      setError(`Expected ${variableMatches.length} variables but found ${variables.length}.`);
+      return false;
+    }
+
+    for (let i = 0; i < variables.length; i++) {
+      if (!variables[i].value || variables[i].value.trim() === "") {
+        setError(`Value for variable ${variables[i].name} is required.`);
+        return false;
+      }
+    }
+
+    return true;
+  };
+
 
   return (
     <div>
@@ -173,13 +288,50 @@ Thank you.`,
               {currentComponent === "Variables" ?
                 <TemplateVariables setTemplateData={setTemplateData} />
                 : <></>}
-              <button
-                type="submit"
-                disabled={isSubmitting || !isValidated}
-                className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-400 p-2"
-              >
-                {isSubmitting ? 'Submitting...' : 'Submit Template'}
-              </button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={handleSaveTemplate}
+                  disabled={selectedTemplateInfo.status !== ''}
+                  className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-400 p-2"
+                >
+                  {isSubmitting ? 'Saving...' : 'Save Template'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleUpdateTemplate}
+                  disabled={
+                    selectedTemplateInfo.status !== 'pending' &&
+                    selectedTemplateInfo.status !== 'saved' &&
+                    selectedTemplateInfo.status !== 'approved' &&
+                    selectedTemplateInfo.status !== 'rejected'}
+                  className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-400 p-2"
+                >
+                  {isSubmitting ? 'Editing...' : 'Edit Template'}
+                </button>
+                <button
+                  type="submit"
+                  disabled={
+                    isSubmitting ||
+                    !isValidated ||
+                    (selectedTemplateInfo.status !== 'saved' && selectedTemplateInfo.status !== '')}
+                  className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-400 p-2"
+                >
+                  {isSubmitting ? 'Submitting...' : 'Submit Template'}
+                </button>
+                <button
+                  type="submit"
+                  disabled={
+                    isSubmitting ||
+                    !isValidated ||
+                    !(selectedTemplateInfo.status === 'approved' || selectedTemplateInfo.status === 'rejected')
+                  }
+                  className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-400 p-2"
+                >
+                  {isSubmitting ? 'Updating...' : 'Update & Submit Template'}
+                </button>
+              </div>
+
             </div>
           </div>
         </div>
@@ -190,13 +342,13 @@ Thank you.`,
           <pre className="bg-gray-100 p-4 rounded-md overflow-auto">
             {JSON.stringify(status, null, 2)}
           </pre>
-          {templateId && (
+          {/* {templateId && (
             <button type="button"
               className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
             >
               Refresh Status
             </button>
-          )}
+          )} */}
         </div>
       )}
       {error && (
