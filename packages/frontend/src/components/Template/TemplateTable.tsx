@@ -38,7 +38,9 @@ const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) =
 
     const { data: templateData,
         loading: templateLoading,
-        refetch: templateRefetch }: any = useQuery(findWaAllTemplate);
+        refetch: templateRefetch }: any = useQuery(findWaAllTemplate, {
+            fetchPolicy: 'no-cache',
+        });
     useEffect(() => {
         templateRefetch()
         if (templateData && !templateLoading) {
@@ -59,7 +61,7 @@ const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) =
             return;
         }
         const response = await testTemplate({
-            variables : {
+            variables: {
                 testTemplateData
             }
         })
@@ -127,17 +129,31 @@ const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) =
                                     <button
                                         disabled={template.status.toLowerCase() === 'pending'}
                                         onClick={() => {
-                                            const { account, attachment, ...restTemplate } = template;
+                                            const { account,
+                                                attachment,
+                                                status,
+                                                __typename,
+                                                id,
+                                                waTemplateId,
+                                                variables,
+                                                button,
+                                                templateImg,
+                                                ...restTemplate } = template;
+                                            const cleanedButtons = button.map(({ __typename , ...rest }) => rest);
+                                            const cleanedVariables = variables.map(({ __typename , ...rest }) => rest);
                                             setTemplateFormData({
                                                 accountId: account?.id,
                                                 attachmentId: attachment?.id,
+                                                variables: cleanedVariables,
+                                                button : cleanedButtons,
                                                 ...restTemplate
                                             })
                                             setSelectedTemplateInfo({
                                                 dbTemplateId: template.id,
+                                                waTemplateId: template.waTemplateId,
                                                 status: template.status.toLowerCase(),
-                                                templateImg: attachment?.name,
-                                                templateImgName: attachment?.originalname
+                                                templateImg: template.templateImg,
+                                                templateOriginaName: attachment?.originalname
                                             })
                                             setIsTemplateFormVis(true)
                                         }}
@@ -153,18 +169,32 @@ const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) =
                                     Check Template Status
                                 </td>
                                 <td onClick={() => {
-                                    const { account, attachment, ...restTemplate } = template;
-                                    setTemplateFormData({
-                                        accountId: account?.id,
-                                        attachmentId: attachment?.id,
-                                        ...restTemplate
-                                    })
-                                    setSelectedTemplateInfo({
-                                        dbTemplateId: template.id,
-                                        status: template.status.toLowerCase(),
-                                        templateImg: attachment?.name,
-                                        templateImgName: attachment?.originalname
-                                    })
+                                      const { account,
+                                                attachment,
+                                                status,
+                                                __typename,
+                                                id,
+                                                waTemplateId,
+                                                variables,
+                                                button,
+                                                templateImg,
+                                                ...restTemplate } = template;
+                                            const cleanedButtons = button.map(({ __typename , ...rest }) => rest);
+                                            const cleanedVariables = variables.map(({ __typename , ...rest }) => rest);
+                                            setTemplateFormData({
+                                                accountId: account?.id,
+                                                attachmentId: attachment?.id,
+                                                variables: cleanedVariables,
+                                                button : cleanedButtons,
+                                                ...restTemplate
+                                            })
+                                            setSelectedTemplateInfo({
+                                                dbTemplateId: template.id,
+                                                waTemplateId: template.waTemplateId,
+                                                status: template.status.toLowerCase(),
+                                                templateImg: template.templateImg,
+                                                templateOriginaName: attachment?.originalname
+                                            })
                                     setIsTemplatePreviewVis(true)
                                 }}
                                     className="px-6 py-4 text-center truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
@@ -175,12 +205,12 @@ const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) =
                                 <td onClick={() => {
                                     setShowSendPopup(true);
                                     setTestTemplateData((prev) => ({
-                                        ...prev, 
-                                        dbTemplateId : template.id,
-                                        templateName : template.templateName
+                                        ...prev,
+                                        dbTemplateId: template.id,
+                                        templateName: template.templateName
                                     }))
                                 }
-                            }
+                                }
                                     className="px-6 py-4 text-center truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
                                     title="Test Template"
                                 >

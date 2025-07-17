@@ -576,6 +576,7 @@ query findAllTemplate {
     status
     templateName
     waTemplateId
+    templateImg
     variables {
       name
       value
@@ -584,8 +585,8 @@ query findAllTemplate {
 }`
 
 export const SUBMIT_TEMPLATE = gql`
-mutation SubmitTemplate($templateData: WaTemplateRequestInput!, $dbTemplateId: String) {
-  submitWaTemplate(templateData: $templateData, dbTemplateId: $dbTemplateId) {
+mutation SubmitTemplate($templateData: WaTemplateRequestInput!, $waTemplateId: String, $dbTemplateId: String) {
+  submitWaTemplate(templateData: $templateData, waTemplateId: $waTemplateId, dbTemplateId: $dbTemplateId) {
     success
     data
     error

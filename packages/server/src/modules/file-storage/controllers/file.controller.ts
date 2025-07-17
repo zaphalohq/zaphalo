@@ -29,9 +29,8 @@ export class FileController {
 
     const workspaceId = (req as any)?.workspaceId;
 
-
     const workspaceFolderPath = `workspace-${workspaceId}`;
-
+    
     if (!workspaceId) {
       throw new Error(
         'Unauthorized: missing workspaceId',

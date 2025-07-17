@@ -69,8 +69,8 @@ const TemplateForm = () => {
 
       if (
         ["IMAGE", "VIDEO", "DOCUMENT"].includes(headerType) &&
-        !file
-      ) {
+        (!file && !selectedTemplateInfo.templateOriginaName?.trim())
+      ) {        
         return false;
       }
 
@@ -143,8 +143,6 @@ const TemplateForm = () => {
     const file = e.target.files[0];
     if (file) {
       setFile(file)
-      const imageURL = URL.createObjectURL(file)
-      setTemplateFormData({ ...templateFormData, ["fileUrl"]: imageURL })
     }
   }
 
@@ -161,8 +159,10 @@ const TemplateForm = () => {
 
 
     const updatedTemplateData = await handleFileUpload()
+    console.log(updatedTemplateData,'updatedTemplateDataupdatedTemplateData');
+    
     try {
-      const response = await submitTemplate({ variables: { templateData: updatedTemplateData, dbTemplateId: selectedTemplateInfo.dbTemplateId } });
+      const response = await submitTemplate({ variables: { templateData: updatedTemplateData, waTemplateId: selectedTemplateInfo.waTemplateId , dbTemplateId: selectedTemplateInfo.dbTemplateId } });
       const result = response.data;
       setStatus(result);
     } catch (err: any) {
@@ -238,7 +238,7 @@ const TemplateForm = () => {
 
     if (
       ["IMAGE", "VIDEO", "DOCUMENT"].includes(headerType) &&
-      !file
+      !file && !selectedTemplateInfo.templateOriginaName?.trim()
     ) {
       setError(`File upload is required when header type is ${headerType}.`);
       return false;

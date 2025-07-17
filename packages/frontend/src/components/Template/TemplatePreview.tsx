@@ -35,7 +35,7 @@ const TemplatePreview = ({ templatePreviewData, selectedTemplateInfo }: Template
             </p>
           </div>
           <div className="px-3 pb-2 border-b-2 border-gray-200 flex justify-between ">
-            <p className="text-[13.5px] text-gray-500">{templatePreviewData.footerText}</p>
+            <p className="text-[13.5px] text-gray-500">{templatePreviewData.footerText} </p>
             <p className="text-[10px] text-gray-500 self-end">12:00</p>
           </div>
           {templatePreviewData.button.length !== 0 &&

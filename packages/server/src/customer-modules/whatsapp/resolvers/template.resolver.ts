@@ -9,7 +9,7 @@ import { FileService } from "src/modules/file-storage/services/file.service";
 // import { TemplateResponseDto } from "src/customer-modules/template/dto/TemplateResponseDto";
 
 @Resolver(() => WhatsAppTemplate)
-export class TemplateResolver {
+export class WhatsAppTemplateResolver {
     constructor(
         private readonly templateService: TemplateService,
         private fileService: FileService
@@ -48,22 +48,24 @@ export class TemplateResolver {
         };
     }
 
-
+      @UseGuards(GqlAuthGuard)
       @ResolveField(() => String)
-      async templateImg(@Parent() template: WhatsAppTemplate): Promise<string> {
-        console.log(".......tempalte",template);
-        
-        if (template.account.name) {
+      async templateImg(@Parent() template: WhatsAppTemplate, @Context() context): Promise<string> {
+        console.log(context.req.headers['x-workspace-id'],'.................');
+        const workspaceId = context.req.headers['x-workspace-id']
+        if (template.templateImg) {
           try {
             const workspaceLogoToken = this.fileService.encodeFileToken({
-              workspaceId: template.id,
+              workspaceId: workspaceId,
             });
-            return `${template.account.name}?token=${workspaceLogoToken}`;
+
+            return `${template.templateImg}?token=${workspaceLogoToken}`;
+
           } catch (e) {
-            return template.account.name;
+            return template.templateImg;
           }
         }
-        return template.account.name ?? '';
+        return template.templateImg ?? '';
       }
 
 }

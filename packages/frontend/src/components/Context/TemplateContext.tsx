@@ -30,9 +30,10 @@ Thank you.`,
   });
   const [ selectedTemplateInfo, setSelectedTemplateInfo ] = useState({
     dbTemplateId : '',
+    waTemplateId: '',
     status : '',
     attachmentId: null,
-    templateImgName : '',
+    templateOriginaName : '',
     templateImg : ''
   });
 

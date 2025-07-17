@@ -81,12 +81,14 @@ export class WhatsAppResolver {
   @Mutation(() => WaTemplateResponseDto)
   async submitWaTemplate(
     @Context('req') req, @Args('templateData') templateData: WaTemplateRequestInput,
+    @Args('waTemplateId', { nullable: true }) waTemplateId?: string,
     @Args('dbTemplateId', { nullable: true }) dbTemplateId?: string
   ): Promise<WaTemplateResponseDto> {
     const wa_api = await this.getWhatsAppApi(templateData.accountId)
 
     let response;
-    if (dbTemplateId) {
+    if (waTemplateId) {
+
       const template: any = await this.waTemplateService.updateTemplate(templateData, dbTemplateId)
       let payload
       if (template.attachment) {
@@ -95,18 +97,42 @@ export class WhatsAppResolver {
       }
       const payload_json = JSON.stringify({ ...payload });
       response = await wa_api.submitTemplateUpdate(payload_json, template.waTemplateId);
-      await this.waTemplateService.updateTemplate(JSON.parse(response.data), template.id)
+      const updatedTemplate = await this.waTemplateService.updateTemplate(JSON.parse(response.data), template.id);
+      this.waTemplateService.getTemplateStatusByCron(updatedTemplate.waTemplateId)
+
     } else {
 
-      const template: any = await this.waTemplateService.saveTemplate(templateData, templateData.accountId)
-      let payload
-      if (template.attachment) {
-        const header_handle = await wa_api.uploadDemoDocument(template.attachment);
-        payload = await this.waTemplateService.generatePayload(templateData, header_handle);
+      if (dbTemplateId) {
+        const template: any = await this.waTemplateService.updateTemplate(templateData, dbTemplateId)
+        let payload
+
+        if (template.attachment) {
+          const header_handle = await wa_api.uploadDemoDocument(template.attachment);
+          payload = await this.waTemplateService.generatePayload(templateData, header_handle);
+        }
+
+        const payload_json = JSON.stringify({ ...payload });
+        response = await wa_api.submitTemplateNew(payload_json);
+        const updatedTemplate = await this.waTemplateService.updateTemplate(JSON.parse(response.data), template.id);
+        this.waTemplateService.getTemplateStatusByCron(updatedTemplate.waTemplateId)
+
+      } else {
+        const template: any = await this.waTemplateService.saveTemplate(templateData, templateData.accountId)
+        let payload
+
+        if (template.attachment) {
+          const header_handle = await wa_api.uploadDemoDocument(template.attachment);
+          payload = await this.waTemplateService.generatePayload(templateData, header_handle);
+        }
+
+        const payload_json = JSON.stringify({ ...payload });
+
+        response = await wa_api.submitTemplateNew(payload_json);
+        const updatedTemplate = await this.waTemplateService.updateTemplate(JSON.parse(response.data), template.id)
+        this.waTemplateService.getTemplateStatusByCron(updatedTemplate.waTemplateId)
+
       }
-      const payload_json = JSON.stringify({ ...payload });
-      response = await wa_api.submitTemplateNew(payload_json);
-      await this.waTemplateService.updateTemplate(JSON.parse(response.data), template.id)
+
     }
     return response
   }
@@ -148,21 +174,21 @@ export class WhatsAppResolver {
     const wa_api = await this.getWhatsAppApi()
 
     const template: any = await this.waTemplateService.findtemplateById(testTemplateData.dbTemplateId)
-    console.log(template,'.....');
-    
+    console.log(template, '.....');
+
     if (!template) throw Error('template doesnt exist')
 
     let generateTemplatePayload
     if (template.attachment) {
-      const mediaLink = await wa_api.uploadDemoDocument(template.attachment);
-      // const mediaLink = 'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png'
+      // const mediaLink = await wa_api.uploadDemoDocument(template.attachment);
+      const mediaLink = 'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png'
       generateTemplatePayload = await this.waTemplateService.generateSendMessagePayload(template, testTemplateData.testPhoneNo, mediaLink);
     }
 
 
     const testTemplate = await wa_api.testTemplate(JSON.stringify(generateTemplatePayload))
-        console.log(testTemplate,'....................testTemplate');
-        
+    console.log(testTemplate, '....................testTemplate');
+
     return { success: 'test template send successfully' }
   }
 

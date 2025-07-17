@@ -51,12 +51,6 @@ export class WaTemplateRequestInput {
   @Field({ nullable: true })
   footerText?: string;
 
-  @Field({ nullable: true })
-  header_handle?: string;
-
-  @Field({ nullable: true })
-  fileUrl?: string;
-
   @Field(() => [WaButtonInput], { nullable: true })
   button?: WaButtonInput[];
 
