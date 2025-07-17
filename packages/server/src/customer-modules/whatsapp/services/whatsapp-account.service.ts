@@ -3,9 +3,9 @@ import { Connection, Repository } from 'typeorm';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { WhatsAppAccount } from '../entities/whatsapp-account.entity';
 import { WhatsAppTemplate } from 'src/customer-modules/whatsapp/entities/whatsapp-template.entity';
-import { WaAccountUpdateDTO } from '../dtos/whatsapp-account-update.dto';
 import { ContactsService } from 'src/customer-modules/contacts/contacts.service';
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
+import { WaAccountUpdateDTO } from '../dtos/whatsapp-account-update.dto';
 
 @Injectable()
 export class WaAccountService {
@@ -76,13 +76,13 @@ export class WaAccountService {
             // }));
 
       const newTemplate = this.waTemplateRepository.create({
-        account: instants?.id,
+        account: instants,
         templateName: template.name,
         status: template.status,
-        templateId: template.id,
+        waTemplateId: template.id,
         category: template.category,
         language: template.language,
-        rawComponents: components
+        // rawComponents: components
                 // bodyText: body?.text,
                 // footerText: footer?.text,
                 // header_handle: header?.example?.header_handle?.[0]?.handle || null,

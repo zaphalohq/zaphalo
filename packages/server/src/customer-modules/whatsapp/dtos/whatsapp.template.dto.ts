@@ -1,4 +1,5 @@
 import { InputType, Field } from '@nestjs/graphql';
+import { HeaderType, TemplateCategory, TemplateLanguage } from '../entities/whatsapp-template.entity';
 
 @InputType()
 export class WaVariableInput {
@@ -27,37 +28,37 @@ export class WaButtonInput {
 @InputType()
 export class WaTemplateRequestInput {
   @Field()
-  account: string;
+  accountId: string;
 
   @Field()
   templateName: string;
 
-  @Field()
-  category: string;
+  @Field(() => TemplateCategory)
+  category: TemplateCategory;
 
-  @Field()
-  language: string;
-
-  @Field({ nullable: true })
-  headerType?: string;
+  @Field(() => TemplateLanguage)
+  language: TemplateLanguage;
 
   @Field({ nullable: true })
   bodyText: string;
 
+  @Field(() => HeaderType, { nullable: true })
+  headerType?: HeaderType;
+
+  @Field({ nullable: true })
+  headerText?: string;
+
   @Field({ nullable: true })
   footerText?: string;
-
-  @Field({ nullable: true })
-  header_handle?: string;
-
-  @Field({ nullable: true })
-  fileUrl?: string;
 
   @Field(() => [WaButtonInput], { nullable: true })
   button?: WaButtonInput[];
 
   @Field(() => [WaVariableInput], { nullable: true })
   variables?: WaVariableInput[];
+
+  @Field({ nullable: true })
+  attachmentId?: string;
 }
 
 

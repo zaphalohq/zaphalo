@@ -6,6 +6,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   Relation,
   UpdateDateColumn
@@ -31,13 +32,13 @@ export class Attachment {
 
   @Column()
   @Field(() => String)
-  fullPath: string;
+  path: string;
 
   @Column()
   @Field(() => String)
-  type: string;
+  mimetype: string;
 
-  @Column({type: 'bigint'})
+  @Column({ type: 'bigint' })
   @Field(() => Number)
   size: number;
 
@@ -54,8 +55,8 @@ export class Attachment {
   })
   updatedAt: Date;
 
-  @ManyToOne(() => MailingList)
-  @JoinColumn()
-  @Field(() => MailingList, { nullable: true })
-  waTemplateId: Relation<MailingList>;
+  @Field(() => [WhatsAppTemplate])
+  @OneToMany(() => WhatsAppTemplate, template => template.attachment)
+  template: Relation<WhatsAppTemplate[]>
+
 }

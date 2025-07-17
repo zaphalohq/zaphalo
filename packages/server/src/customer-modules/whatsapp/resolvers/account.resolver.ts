@@ -2,8 +2,8 @@ import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { WaAccountService } from '../services/whatsapp-account.service';
 import { WhatsAppAccount } from '../entities/whatsapp-account.entity';
 import { UseGuards } from '@nestjs/common';
-import { WaAccountUpdateDTO } from '../dtos/whatsapp-account-update.dto';
 import { GqlAuthGuard } from 'src/modules/auth/guards/gql-auth.guard';
+import { WaAccountUpdateDTO } from '../dtos/whatsapp-account-update.dto';
 
 
 @Resolver(() => WhatsAppAccount)

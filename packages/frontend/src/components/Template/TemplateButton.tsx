@@ -76,9 +76,9 @@ const TemplateButton = ({ setTemplateData }: any) => {
                 onChange={(e: any) => HandleButtonChange(index, e)}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
               >
+                <option value="QUICK_REPLY">QUICK_REPLY</option>
                 <option value="URL">URL</option>
                 <option value="PHONE_NUMBER">PHONE_NUMBER</option>
-                <option value="QUICK_REPLY">QUICK_REPLY</option>
               </select>
             </div>
 

@@ -9,13 +9,13 @@ export class CreateAttachmentDto {
   originalname: string;
 
   @Field()
-  type: string;
+  mimetype: string;
 
   @Field()
   size: number;
 
   @Field()
-  fullPath: string;
+  path: string;
 
   @Field()
   createdAt: Date;

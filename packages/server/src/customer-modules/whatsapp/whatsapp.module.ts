@@ -14,6 +14,9 @@ import { TypeORMModule } from 'src/database/typeorm/typeorm.module';
 import { ContactsModule } from 'src/customer-modules/contacts/contacts.module';
 import { WorkspaceModule } from 'src/modules/workspace/workspace.module';
 import { WaAccountResolver } from './resolvers/account.resolver';
+import { AttachmentModule } from '../attachment/attachment.module';
+import { WhatsAppTemplateResolver } from './resolvers/template.resolver';
+import { FileStorageModule } from 'src/modules/file-storage/file-storage.module';
 
 @Module({
   imports: [
@@ -22,7 +25,9 @@ import { WaAccountResolver } from './resolvers/account.resolver';
         NestjsQueryTypeOrmModule.forFeature([WhatsAppAccount, WhatsAppMessage, WhatsAppTemplate]),
         TypeORMModule,
         ContactsModule,
-        WorkspaceModule
+        WorkspaceModule,
+        AttachmentModule,
+        FileStorageModule
       ],
       services: [WaAccountService, WhatsAppSDKService, TemplateService],
     }),
@@ -34,6 +39,7 @@ import { WaAccountResolver } from './resolvers/account.resolver';
     TemplateService,
     WhatsAppResolver,
     WaAccountResolver,
+    WhatsAppTemplateResolver
   ],
   exports: [WaAccountService, WhatsAppSDKService, TemplateService],
 })

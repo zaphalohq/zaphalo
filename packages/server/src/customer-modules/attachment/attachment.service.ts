@@ -23,12 +23,15 @@ export class AttachmentService {
             name : createAttachmentDto.name,
             originalname : createAttachmentDto.originalname,
             size : createAttachmentDto.size,
-            type : createAttachmentDto.type,
-            fullPath : createAttachmentDto.fullPath,
-
+            mimetype : createAttachmentDto.mimetype,
+            path : createAttachmentDto.path,
         });        
         await this.attachmentRepository.save(attachment);
         return attachment
+    }
+
+    async findOneAttachmentById(attachmentId : string) {
+        return await this.attachmentRepository.findOne({ where : { id : attachmentId }})
     }
 
     // async DeleteContact(contactId : string){

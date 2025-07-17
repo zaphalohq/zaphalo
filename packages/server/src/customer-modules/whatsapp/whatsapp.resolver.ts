@@ -11,8 +11,9 @@ import { TemplateService } from './services/whatsapp-template.service';
 // import { WaAccountService } from "src/customer-modules/whatsapp/services/whatsapp-account.service";
 // import { WhatsAppAccount } from 'src/customer-modules/whatsapp/entities/whatsapp-account.entity';
 import { GqlAuthGuard } from 'src/modules/auth/guards/gql-auth.guard';
-import { WaTemplateRequestInput } from 'src/customer-modules/whatsapp/dtos/whatsapp.template.dto';
-import { WaTemplateResponseDto } from 'src/customer-modules/whatsapp/dtos/whatsapp.response.dto';
+import { TestTemplateOutput, WaTestTemplateInput } from "./dtos/test-input.template.dto";
+import { WaTemplateResponseDto } from "./dtos/whatsapp.response.dto";
+import { WaTemplateRequestInput } from "./dtos/whatsapp.template.dto";
 
 @Resolver(() => WhatsAppAccount)
 export class WhatsAppResolver {
@@ -80,26 +81,58 @@ export class WhatsAppResolver {
   @Mutation(() => WaTemplateResponseDto)
   async submitWaTemplate(
     @Context('req') req, @Args('templateData') templateData: WaTemplateRequestInput,
-    @Args('waTemplateId', { nullable: true }) waTemplateId?: string
+    @Args('waTemplateId', { nullable: true }) waTemplateId?: string,
+    @Args('dbTemplateId', { nullable: true }) dbTemplateId?: string
   ): Promise<WaTemplateResponseDto> {
-    console.log(templateData,'........................templatedata');
-    const wa_api = await this.getWhatsAppApi(templateData.account)
-    
-    const payload = await this.waTemplateService.generatePayload(templateData);
-    console.log(payload?.components[0],'payload.....................');
-    
-    // const savedTemplate = await this.waTemplateService.saveTemplate(payload,templateData.account)
-    const payload_json = JSON.stringify({ ...payload });
+    const wa_api = await this.getWhatsAppApi(templateData.accountId)
+
     let response;
     if (waTemplateId) {
-      response = await wa_api.submitTemplateUpdate(payload_json, waTemplateId);
-      
-      // await this.waTemplateService.updateTemplate(JSON.parse(response.data), savedTemplate.id)
-    } else {
-      response = await wa_api.submitTemplateNew(payload_json);
-      // console.log(response.data, savedTemplate.id,'.......................updatedtemta');
 
-      // await this.waTemplateService.updateTemplate(JSON.parse(response.data), savedTemplate.id)
+      const template: any = await this.waTemplateService.updateTemplate(templateData, dbTemplateId)
+      let payload
+      if (template.attachment) {
+        const header_handle = await wa_api.uploadDemoDocument(template.attachment);
+        payload = await this.waTemplateService.generatePayload(templateData, header_handle);
+      }
+      const payload_json = JSON.stringify({ ...payload });
+      response = await wa_api.submitTemplateUpdate(payload_json, template.waTemplateId);
+      const updatedTemplate = await this.waTemplateService.updateTemplate(JSON.parse(response.data), template.id);
+      this.waTemplateService.getTemplateStatusByCron(updatedTemplate.waTemplateId)
+
+    } else {
+
+      if (dbTemplateId) {
+        const template: any = await this.waTemplateService.updateTemplate(templateData, dbTemplateId)
+        let payload
+
+        if (template.attachment) {
+          const header_handle = await wa_api.uploadDemoDocument(template.attachment);
+          payload = await this.waTemplateService.generatePayload(templateData, header_handle);
+        }
+
+        const payload_json = JSON.stringify({ ...payload });
+        response = await wa_api.submitTemplateNew(payload_json);
+        const updatedTemplate = await this.waTemplateService.updateTemplate(JSON.parse(response.data), template.id);
+        this.waTemplateService.getTemplateStatusByCron(updatedTemplate.waTemplateId)
+
+      } else {
+        const template: any = await this.waTemplateService.saveTemplate(templateData, templateData.accountId)
+        let payload
+
+        if (template.attachment) {
+          const header_handle = await wa_api.uploadDemoDocument(template.attachment);
+          payload = await this.waTemplateService.generatePayload(templateData, header_handle);
+        }
+
+        const payload_json = JSON.stringify({ ...payload });
+
+        response = await wa_api.submitTemplateNew(payload_json);
+        const updatedTemplate = await this.waTemplateService.updateTemplate(JSON.parse(response.data), template.id)
+        this.waTemplateService.getTemplateStatusByCron(updatedTemplate.waTemplateId)
+
+      }
+
     }
     return response
   }
@@ -136,18 +169,29 @@ export class WhatsAppResolver {
     return data
   }
 
-  @UseGuards(GqlAuthGuard)
-  @Mutation(() => WaTemplateResponseDto)
-  async submitTemplate(
-    @Context('req') req, @Args('templateData') templateData: WaTemplateRequestInput,
-  ): Promise<WaTemplateResponseDto> {
-    const result = await this.waTemplateService.submitTemplate(templateData);
-    // return {
-    //     success: result.success,
-    //     data: result.data ? JSON.stringify(result.data) : undefined,
-    //     error: result.error ? JSON.stringify(result.error) : undefined,
-    // };
-    return result
+  @Mutation(() => TestTemplateOutput)
+  async testTemplate(@Args('testTemplateData') testTemplateData: WaTestTemplateInput) {
+    const wa_api = await this.getWhatsAppApi()
+
+    const template: any = await this.waTemplateService.findtemplateById(testTemplateData.dbTemplateId)
+    console.log(template, '.....');
+
+    if (!template) throw Error('template doesnt exist')
+
+    let generateTemplatePayload
+    if (template.attachment) {
+      // const mediaLink = await wa_api.uploadDemoDocument(template.attachment);
+      const mediaLink = 'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png'
+      generateTemplatePayload = await this.waTemplateService.generateSendMessagePayload(template, testTemplateData.testPhoneNo, mediaLink);
+    }
+
+
+    const testTemplate = await wa_api.testTemplate(JSON.stringify(generateTemplatePayload))
+    console.log(testTemplate, '....................testTemplate');
+
+    return { success: 'test template send successfully' }
   }
+
+
 
 }
