@@ -21,7 +21,7 @@ const TemplateButton = ({ setTemplateData }: any) => {
   });
 
   const HandelAddButton = () => {
-    setAddButtonData([...addButtonData, { text: "", type: "" }])
+    setAddButtonData([...addButtonData, { text: "", type: "QUICK_REPLY" }])
   }
 
   const HandelDeleteButton = (index: number) => {
@@ -118,7 +118,7 @@ const TemplateButton = ({ setTemplateData }: any) => {
                 value={currentButton.phone_number}
                 onChange={(e: any) => HandleButtonChange(index, e)}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2"
-                placeholder="https://chatgpt.com/"
+                placeholder="phone no"
               />
             </div> : <></>}
           </div>

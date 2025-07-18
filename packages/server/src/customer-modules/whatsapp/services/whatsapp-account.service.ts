@@ -137,7 +137,7 @@ export class WaAccountService {
         contactName: existingContact?.contactName,
         phoneNo: Number(updatedInstants?.phoneNumberId)
       })
-    return this.waAccountRepository.save(existingInstants);
+    return await this.waAccountRepository.save(existingInstants);
   }
 
   async DeleteInstants(id: string): Promise<WhatsAppAccount | null> {

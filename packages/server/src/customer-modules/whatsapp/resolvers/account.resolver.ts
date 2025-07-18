@@ -61,26 +61,26 @@ export class WaAccountResolver {
         return this.waAccountService.UpdateInstants(UpdatedInstants.id, UpdatedInstants)
     }
 
-    @UseGuards(GqlAuthGuard)
-    @Mutation(() => WhatsAppAccount)
-    async SyncAndUpdateInstants(
-        @Args('updateInstants') UpdatedInstants: WaAccountUpdateDTO): Promise<WhatsAppAccount | null | string> {
-        const instants = await this.waAccountService.UpdateInstants(UpdatedInstants.id, UpdatedInstants);
-        if (instants && typeof instants !== 'string') {
-            const syncTemplate = await this.waAccountService.SyncTemplate(instants, instants?.businessAccountId, instants?.accessToken)
+    // @UseGuards(GqlAuthGuard)
+    // @Mutation(() => WhatsAppAccount)
+    // async SyncAndUpdateInstants(
+    //     @Args('updateInstants') UpdatedInstants: WaAccountUpdateDTO): Promise<WhatsAppAccount | null | string> {
+    //     const instants = await this.waAccountService.UpdateInstants(UpdatedInstants.id, UpdatedInstants);
+    //     if (instants && typeof instants !== 'string') {
+    //         const syncTemplate = await this.waAccountService.SyncTemplate(instants, instants?.businessAccountId, instants?.accessToken)
 
-        }
-        return instants;
-    }
-    @UseGuards(GqlAuthGuard)
-    @Mutation(() => WhatsAppAccount)
-    async TestAndUpdateInstants(@Args('updateInstants') UpdatedInstants: WaAccountUpdateDTO): Promise<WhatsAppAccount | null | string> {
-        const instants = await this.waAccountService.UpdateInstants(UpdatedInstants.id, UpdatedInstants);
-        if (instants && typeof instants !== 'string') {
-            const syncTemplate = await this.waAccountService.TestInstants(instants?.businessAccountId, instants?.accessToken)
-        }
-        return instants;
-    }
+    //     }
+    //     return instants;
+    // }
+    // @UseGuards(GqlAuthGuard)
+    // @Mutation(() => WhatsAppAccount)
+    // async TestAndUpdateInstants(@Args('updateInstants') UpdatedInstants: WaAccountUpdateDTO): Promise<WhatsAppAccount | null | string> {
+    //     const instants = await this.waAccountService.UpdateInstants(UpdatedInstants.id, UpdatedInstants);
+    //     if (instants && typeof instants !== 'string') {
+    //         const syncTemplate = await this.waAccountService.TestInstants(instants?.businessAccountId, instants?.accessToken)
+    //     }
+    //     return instants;
+    // }
 
     @UseGuards(GqlAuthGuard)
     @Mutation(() => WhatsAppAccount)
