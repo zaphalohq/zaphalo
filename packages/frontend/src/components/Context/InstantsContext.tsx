@@ -120,6 +120,7 @@ export const InstantsProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const HandleTestAndSaveInstants = async () => {
+        
         try {
             await TestAndSaveInstants({
                 variables: {
@@ -134,7 +135,6 @@ export const InstantsProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const HandleTestAndUpdateInstants = async () => {
-
         try {
             await TestAndUpdateInstants({
                 variables: {

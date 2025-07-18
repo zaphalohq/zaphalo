@@ -364,59 +364,74 @@ export class TemplateService {
     return response.data.h
   }
 
-
-  async SyncAllTemplats(workspaceId, businessAccountId, accessToken) {
-    const response = await axios.get(
-      `https://graph.facebook.com/v22.0/${businessAccountId}/message_templates`,
-      {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      }
-    );
-    const templates = response.data?.data;
+  async saveSyncTemplates(templates, instants) {
     for (const template of templates) {
       const components = template.components || [];
-      const header = components.find((c) => c.type === 'HEADER');
-      const body = components.find((c) => c.type === 'BODY');
-      const footer = components.find((c) => c.type === 'FOOTER');
-      const buttonsComponent = components.find((c) => c.type === 'BUTTONS');
-
-      const variableList: { name: string; value: string }[] = [];
-      if (body?.example?.body_text?.[0]) {
-        body.example.body_text[0].forEach((_, index) => {
-          variableList.push({ name: `{{${index + 1}}}`, value: '' });
-        });
-      }
-
-      const buttons = buttonsComponent?.buttons?.map((btn) => ({
-        type: btn.type,
-        text: btn.text,
-        url: btn.url,
-        phone_number: btn.phone_number
-      })) || [];
-
-      const newTemplate = this.templateRepository.create({
-        account: businessAccountId,
+      const componentData: any = this.convertTemplatePayloadToDbData(components)
+      const dbTemplate = this.templateRepository.create({
+        account: instants,
         templateName: template.name,
-        status: template.status || 'UNKNOWN',
+        status: template.status,
         waTemplateId: template.id,
-        category: template.category || 'UNKNOWN',
-        language: template.language || 'en_US',
-      });
+        language: template.language,
+        category: template.category,
+        headerType: componentData.headerType,
+        headerText: componentData.headerText,
+        bodyText: componentData.bodyText,
+        footerText: componentData.footerText,
+        button: componentData.button,
+        variables: componentData.variables,
+        templateImg: componentData.templateImg
+      })
+      await this.templateRepository.save(dbTemplate);
+    }
+    return { success : 'template are synced'}
+  }
 
-      await this.templateRepository.save(newTemplate);
+  convertTemplatePayloadToDbData(components: any[]) {
+    const dbComponent = {
+      headerType: 'NONE',
+      bodyText: '',
+      footerText: '',
+      button: [],
+      headerText: '',
+      templateImg: '',
+      variables: []
+    };
+
+    for (const component of components) {
+      switch (component.type) {
+        case 'HEADER':
+          dbComponent.headerType = component.format;
+          if (component.format === 'TEXT') {
+            dbComponent.headerText = component.text;
+          } else if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(component.format)) {
+            dbComponent.templateImg = component.example?.header_handle?.[0] || '';
+          }
+          break;
+        case 'BODY':
+          dbComponent.bodyText = component.text;
+          const variableValues = component.example?.body_text?.[0] || [];
+          dbComponent.variables = variableValues.map((val: string, idx: number) => ({
+            name: `{{${idx + 1}}}`,
+            value: val
+          }));
+          break;
+        case 'FOOTER':
+          dbComponent.footerText = component.text;
+          break;
+        case 'BUTTONS':
+          dbComponent.button = component.buttons;
+          break;
+      }
     }
 
-    return {
-      success: true,
-      message: 'Templates imported successfully',
-      count: templates.length
-    };
+    return dbComponent;
   }
 
 
   async generateSendMessagePayload(templateData: any, recipientPhone: string, mediaLink?: string) {
     const variablesValue = templateData?.variables?.map((v: any) => v.value) || [];
-
     const components: any[] = [];
 
     if (templateData.headerType === 'IMAGE' && mediaLink) {
@@ -478,35 +493,36 @@ export class TemplateService {
     }
 
     if (templateData.button?.length > 0) {
-      const buttons = templateData.button.map((btn: any, i: number) => {
-        const base = {
-          type: btn.type.toLowerCase(),
-          index: i.toString(),
-        };
+      const buttons = templateData.button.map((btn: any, index: number) => {
+        const { type, url, phone_number, text } = btn;
 
-        if (btn.type === 'URL') {
-          return {
-            ...base,
-            sub_type: 'url',
-            parameters: [{ type: 'text', text: btn.url }],
-          };
+        switch (type) {
+          case 'URL':
+            return {
+              type: 'button',
+              sub_type: 'url',
+              index: index.toString(),
+              parameters: [{ type: 'text', text: url }],
+            };
+          case 'PHONE_NUMBER':
+            return {
+              type: 'button',
+              sub_type: 'phone_number',
+              index: index.toString(),
+              parameters: [{ type: 'phone_number', phone_number }],
+            };
+          case 'QUICK_REPLY':
+          default:
+            return {
+              type: 'button',
+              sub_type: 'quick_reply',
+              index: index.toString(),
+              parameters: [{ type: 'payload', payload: text }],
+            };
         }
-
-        if (btn.type === 'PHONE_NUMBER') {
-          return {
-            ...base,
-            sub_type: 'phone_number',
-            parameters: [{ type: 'phone_number', phone_number: btn.phone_number }],
-          };
-        }
-
-        return base;
       });
 
-      components.push({
-        type: 'button',
-        parameters: buttons,
-      });
+      components.push(...buttons);
     }
 
     return {
@@ -518,13 +534,10 @@ export class TemplateService {
         language: {
           code: templateData.language,
         },
-        ...(components.length > 0 && { components }),
+        ...( variablesValue.length > 0 && components.length  > 0 && { components }),
       },
     };
   }
-
-
-
 
 
 }

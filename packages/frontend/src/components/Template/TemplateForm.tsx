@@ -187,19 +187,22 @@ const TemplateForm = () => {
     setIsSubmitting(true);
     setError(null);
     setStatus(null);
-    const updatedTemplateData = await handleFileUpload()
 
-    try {
-      const response = await saveTemplate({ variables: { templateData: updatedTemplateData } });
-      const result = response.data;
-      setStatus(result);
-    } catch (err: any) {
-      setError(err.message || 'Failed to save template');
-      console.error(err);
+    console.log(templateData,'.....................templateData');
+    
+    // const updatedTemplateData = await handleFileUpload()
 
-    } finally {
-      setIsSubmitting(false);
-    }
+    // try {
+    //   const response = await saveTemplate({ variables: { templateData: updatedTemplateData } });
+    //   const result = response.data;
+    //   setStatus(result);
+    // } catch (err: any) {
+    //   setError(err.message || 'Failed to save template');
+    //   console.error(err);
+
+    // } finally {
+    //   setIsSubmitting(false);
+    // }
   }
 
 

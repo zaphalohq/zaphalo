@@ -18,15 +18,15 @@ const TemplatePreview = ({ templatePreviewData, selectedTemplateInfo }: Template
             className="w-full min-h-50 max-h-70 object-cover p-2 rounded"
           />}
           {templatePreviewData.headerType === 'TEXT' &&
-            <div className="px-3 pt-2 pb-1 font-semibold">{templatePreviewData.header_handle}</div>}
+            <div className="px-3 pt-2 pb-1 font-semibold">{templatePreviewData.headerText}</div>}
           {templatePreviewData.headerType === 'VIDEO' &&
             <iframe
-              src={templatePreviewData.fileUrl}
+              src={`${VITE_BACKEND_URL}/files/${selectedTemplateInfo?.templateImg}`}
               className="w-full min-h-50 max-h-60 object-cover p-2 rounded"
             />}
           {templatePreviewData.headerType === 'DOCUMENT' &&
             <iframe
-              src={templatePreviewData.fileUrl}
+              src={`${VITE_BACKEND_URL}/files/${selectedTemplateInfo?.templateImg}`}
               className="w-full min-h-50 max-h-60 object-cover p-2 rounded"
             />}
           <div className="px-3 pb-2 text-sm text-gray-800">
