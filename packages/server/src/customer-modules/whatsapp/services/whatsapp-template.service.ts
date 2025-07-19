@@ -9,6 +9,9 @@ import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symb
 import { WhatsAppSDKService } from './whatsapp-api.service'
 import { AttachmentService } from "src/customer-modules/attachment/attachment.service";
 import { WaAccountService } from "./whatsapp-account.service";
+import { Attachment } from "src/customer-modules/attachment/attachment.entity";
+import { Account } from "aws-sdk";
+import { WhatsAppAccount } from "../entities/whatsapp-account.entity";
 
 
 @Injectable()
@@ -81,50 +84,80 @@ export class TemplateService {
   // }
 
   async saveTemplate(templateData, instantsId) {
-    const account = await this.waAccountService.findInstantsByInstantsId(instantsId);
+    let account: WhatsAppAccount | null = null;
+    if (instantsId) {
+      account = await this.waAccountService.findInstantsByInstantsId(instantsId);
+      if (!account) throw Error('template doesnt exist')
+    }
 
-    if (!account) throw Error('template doesnt exist')
+    let attachment: Attachment | null = null;
+
     if (templateData.attachmentId) {
-      const attachment = await this.attachmentService.findOneAttachmentById(templateData.attachmentId)
-      if (!attachment) throw Error('attachment doesnt exist')
-      const newTemplate = this.templateRepository.create({
-        account: account,
-        templateName: templateData.templateName,
-        status: 'saved',
-        category: templateData.category,
-        language: templateData.language,
-        headerType: templateData.headerType,
-        bodyText: templateData.bodyText,
-        footerText: templateData.footerText,
-        button: templateData.button,
-        variables: templateData.variables,
-        templateImg: attachment.name,
-        attachment: attachment
-      });
-      await this.templateRepository.save(newTemplate);
-      return newTemplate;
-    } else {
-      const newTemplate = this.templateRepository.create({
-        account: instantsId,
-        templateName: templateData.templateName,
-        status: 'saved',
-        category: templateData.category,
-        language: templateData.language,
-        headerType: templateData.headerType,
-        bodyText: templateData.bodyText,
-        footerText: templateData.footerText,
-        button: templateData.button,
-        variables: templateData.variables,
-      });
-      await this.templateRepository.save(newTemplate);
-      return newTemplate;
+      attachment = await this.attachmentService.findOneAttachmentById(templateData.attachmentId);
+      if (!attachment) throw new Error('Attachment does not exist');
+    }
+
+    const template = this.templateRepository.create({
+      templateName: templateData.templateName,
+      status: 'saved',
+      category: templateData.category,
+      language: templateData.language,
+      headerType: templateData.headerType,
+      bodyText: templateData.bodyText,
+      footerText: templateData.footerText,
+      button: templateData.button,
+      variables: templateData.variables,
+    });
+
+    if (account) {
+      template.account = account
+    }
+
+    if (attachment) {
+      template.templateImg = attachment.name;
+      template.attachment = attachment;
     }
 
 
-
-
-
+    await this.templateRepository.save(template);
+    return template;
+    // if (templateData.attachmentId) {
+    //   const attachment = await this.attachmentService.findOneAttachmentById(templateData.attachmentId)
+    //   if (!attachment) throw Error('attachment doesnt exist')
+    //   const newTemplate = this.templateRepository.create({
+    //     account: account,
+    //     templateName: templateData.templateName,
+    //     status: 'saved',
+    //     category: templateData.category,
+    //     language: templateData.language,
+    //     headerType: templateData.headerType,
+    //     bodyText: templateData.bodyText,
+    //     footerText: templateData.footerText,
+    //     button: templateData.button,
+    //     variables: templateData.variables,
+    //     templateImg: attachment.name,
+    //     attachment: attachment
+    //   });
+    //   await this.templateRepository.save(newTemplate);
+    //   return newTemplate;
+    // } else {
+    //   const newTemplate = this.templateRepository.create({
+    //     account: instantsId,
+    //     templateName: templateData.templateName,
+    //     status: 'saved',
+    //     category: templateData.category,
+    //     language: templateData.language,
+    //     headerType: templateData.headerType,
+    //     bodyText: templateData.bodyText,
+    //     footerText: templateData.footerText,
+    //     button: templateData.button,
+    //     variables: templateData.variables,
+    //   });
+    //   await this.templateRepository.save(newTemplate);
+    //   return newTemplate;
   }
+
+
 
   async updateTemplate(updatetemplateData, dbTemplateId, instantsId?: string) {
     const template = await this.templateRepository.findOne({ where: { id: dbTemplateId } })
@@ -213,50 +246,48 @@ export class TemplateService {
   }
 
   async getTemplateStatusByCron(waTemplateId: string) {
-    const findSelectedInstants = await this.waAccountService.FindSelectedInstants()
+    const findSelectedInstants = await this.waAccountService.FindSelectedInstants();
     if (!findSelectedInstants) throw new Error('findSelectedInstants not found');
-    const accessToken = findSelectedInstants?.accessToken
-    const templateByApi = await this.getTemplateStatusByWhatsappApi(waTemplateId, accessToken);
 
+    const accessToken = findSelectedInstants.accessToken;
     const templateFromDb = await this.findTemplateByTemplateId(waTemplateId);
+    if (!templateFromDb) throw new Error("template not found in database");
 
-    if (!templateFromDb) throw new Error("template error from database")
+    const checkStatus = async () => {
+      const templateByApi = await this.getTemplateStatusByWhatsappApi(waTemplateId, accessToken);
+      const status = templateByApi?.data?.status?.toLowerCase();
 
+      if (status === 'approved') {
+        templateFromDb.status = 'approved';
+        await this.templateRepository.save(templateFromDb);
+        console.log('Template approved and saved in DB.');
+        return true;
+      }
 
-    if (templateByApi && templateByApi.data.status.toLowerCase() === 'approved') {
-      templateFromDb.status = 'approved'
-      await this.templateRepository.save(templateFromDb)
+      return false;
+    };
+
+    const immediateStatus = await checkStatus();
+    if (immediateStatus) {
       return {
         success: true,
-        data: templateByApi.data,
+        message: 'Template approved immediately.',
       };
     }
 
-    try {
-      if (templateByApi && templateByApi.data.status.toLowerCase() == 'pending') {
-        const taskTemplateStatus = cron.schedule('*/10 * * * * *', async () => {
-          console.log('corn.............................');
+    const task = cron.schedule('*/10 * * * * *', async () => {
+      console.log('🔁 Running cron to check template status...');
+      const approved = await checkStatus();
 
-          if (templateByApi.data.status.toLowerCase() === 'approved') {
-            taskTemplateStatus.stop();
-            templateFromDb.status = 'approved'
-            await this.templateRepository.save(templateFromDb)
-            return {
-              success: true,
-              data: templateByApi.data,
-            };
-          }
-        });
-
-        taskTemplateStatus.start();
+      if (approved) {
+        task.stop();
       }
-    } catch (error) {
-      console.error("this error is from Cron", error);
-      return {
-        success: false,
-        error: error.response?.data || error.message,
-      };
-    }
+    });
+
+    return {
+      success: true,
+      message: 'Started cron job to monitor template status every 10 seconds.',
+    };
   }
 
   async getTemplateStatusByWhatsappApi(templateId: string, accessToken: string): Promise<any> {
@@ -365,27 +396,32 @@ export class TemplateService {
   }
 
   async saveSyncTemplates(templates, instants) {
+    const dbTemplates = await this.templateRepository.find();
+    const arrWaTempalteIds = dbTemplates.map((template) => template.waTemplateId)
     for (const template of templates) {
-      const components = template.components || [];
-      const componentData: any = this.convertTemplatePayloadToDbData(components)
-      const dbTemplate = this.templateRepository.create({
-        account: instants,
-        templateName: template.name,
-        status: template.status,
-        waTemplateId: template.id,
-        language: template.language,
-        category: template.category,
-        headerType: componentData.headerType,
-        headerText: componentData.headerText,
-        bodyText: componentData.bodyText,
-        footerText: componentData.footerText,
-        button: componentData.button,
-        variables: componentData.variables,
-        templateImg: componentData.templateImg
-      })
-      await this.templateRepository.save(dbTemplate);
+      if (!arrWaTempalteIds.includes(template.id)) {
+        const components = template.components || [];
+        const componentData: any = this.convertTemplatePayloadToDbData(components)
+        const dbTemplate = this.templateRepository.create({
+          account: instants,
+          templateName: template.name,
+          status: template.status,
+          waTemplateId: template.id,
+          language: template.language,
+          category: template.category,
+          headerType: componentData.headerType,
+          headerText: componentData.headerText,
+          bodyText: componentData.bodyText,
+          footerText: componentData.footerText,
+          button: componentData.button,
+          variables: componentData.variables,
+          templateImg: componentData.templateImg
+        })
+        await this.templateRepository.save(dbTemplate);
+      }
     }
-    return { success : 'template are synced'}
+
+    return { success: 'template are synced' }
   }
 
   convertTemplatePayloadToDbData(components: any[]) {
@@ -534,7 +570,7 @@ export class TemplateService {
         language: {
           code: templateData.language,
         },
-        ...( variablesValue.length > 0 && components.length  > 0 && { components }),
+        ...(variablesValue.length > 0 && components.length > 0 && { components }),
       },
     };
   }

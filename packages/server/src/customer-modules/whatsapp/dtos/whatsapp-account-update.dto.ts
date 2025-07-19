@@ -2,10 +2,7 @@ import { InputType, Field } from '@nestjs/graphql';
 
 
 @InputType()
-export class WaAccountUpdateDTO {
-  @Field()
-  id: string;
-
+export class WaAccountDto {
   @Field()
   name: string;
 

@@ -18,7 +18,7 @@ import { MailingListModule } from "src/customer-modules/mailingList/mailingList.
             TypeORMModule,
             WorkspaceModule,
             MailingListModule,
-            WhatsAppModule
+            WhatsAppModule,
           ],
           services: [BroadcastService],
         }),],

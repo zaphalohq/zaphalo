@@ -262,7 +262,7 @@ export class WhatsAppApiService {
     throw new Error(this.prepare_error_response(response))
   }
 
-  async testTemplate(json_data) {
+  async sendTemplateMsg(json_data) {
     if (this.is_shared_account) {
       throw new Error("Account not properly configured")
     }

@@ -14,7 +14,7 @@ import { GqlAuthGuard } from 'src/modules/auth/guards/gql-auth.guard';
 import { TestTemplateOutput, WaTestTemplateInput } from "./dtos/test-input.template.dto";
 import { WaTemplateResponseDto } from "./dtos/whatsapp.response.dto";
 import { WaTemplateRequestInput } from "./dtos/whatsapp.template.dto";
-import { WaAccountUpdateDTO } from "./dtos/whatsapp-account-update.dto";
+import { WaAccountDto } from "./dtos/whatsapp-account-update.dto";
 
 @Resolver(() => WhatsAppAccount)
 export class WhatsAppResolver {
@@ -95,6 +95,8 @@ export class WhatsAppResolver {
       if (template.attachment) {
         const header_handle = await wa_api.uploadDemoDocument(template.attachment);
         payload = await this.waTemplateService.generatePayload(templateData, header_handle);
+      }else{
+        payload = await this.waTemplateService.generatePayload(templateData);
       }
       const payload_json = JSON.stringify({ ...payload });
       response = await wa_api.submitTemplateUpdate(payload_json, template.waTemplateId);
@@ -110,6 +112,8 @@ export class WhatsAppResolver {
         if (template.attachment) {
           const header_handle = await wa_api.uploadDemoDocument(template.attachment);
           payload = await this.waTemplateService.generatePayload(templateData, header_handle);
+        }else{
+          payload = await this.waTemplateService.generatePayload(templateData);
         }
 
         const payload_json = JSON.stringify({ ...payload });
@@ -181,45 +185,43 @@ export class WhatsAppResolver {
 
     let generateTemplatePayload
     if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(template.headerType)) {
-      // const mediaLink = await wa_api.uploadDemoDocument(template.attachment);
       const mediaLink = 'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png'
       // const mediaLink = template.templateImg;
       generateTemplatePayload = await this.waTemplateService.generateSendMessagePayload(template, testTemplateData.testPhoneNo, mediaLink);
     }else {
       generateTemplatePayload = await this.waTemplateService.generateSendMessagePayload(template, testTemplateData.testPhoneNo);
     }
-    console.log(JSON.stringify(generateTemplatePayload), '....................testTemplate');
 
-    const testTemplate = await wa_api.testTemplate(JSON.stringify(generateTemplatePayload))
+    const testTemplate = await wa_api.sendTemplateMsg(JSON.stringify(generateTemplatePayload))
 
     return { success: 'test template send successfully' }
   }
 
-  @UseGuards(GqlAuthGuard)
-  @Mutation(() => WhatsAppAccount)
-  async SyncAndUpdateInstants(
-    @Args('updateInstants') UpdatedInstants: WaAccountUpdateDTO): Promise<WhatsAppAccount | null | string> {
-    const instants = await this.waAccountService.UpdateInstants(UpdatedInstants.id, UpdatedInstants);
-    if (!instants) throw Error('instants doesnt exist')
-    const wa_api = await this.getWhatsAppApi(instants.id)
-    if (instants) {
-      const syncTemplate = await wa_api.syncTemplate();
-      await this.waTemplateService.saveSyncTemplates(syncTemplate,instants)
-    }
-    return instants;
-  }
-  @UseGuards(GqlAuthGuard)
-  @Mutation(() => WhatsAppAccount)
-  async TestAndUpdateInstants(@Args('updateInstants') UpdatedInstants: WaAccountUpdateDTO): Promise<WhatsAppAccount | null | string> {
-    const instants = await this.waAccountService.UpdateInstants(UpdatedInstants.id, UpdatedInstants);
-    if (!instants) throw Error('instants doesnt exist')
-    const wa_api = await this.getWhatsAppApi(instants.id)
-    if (instants) {
-      const testTemplate = await wa_api.testInstants()
-      console.log(testTemplate, ".testTemplate.testTemplate");
+  // @UseGuards(GqlAuthGuard)
+  // @Mutation(() => WhatsAppAccount)
+  // async SyncAndUpdateInstants(
+  //   @Args('updateInstants') UpdatedInstants: WaAccountDto): Promise<WhatsAppAccount | null | string> {
+  //   const instants = await this.waAccountService.UpdateInstants(UpdatedInstants.id, UpdatedInstants);
+  //   if (!instants) throw Error('instants doesnt exist')
+  //   const wa_api = await this.getWhatsAppApi(instants.id)
+  //   if (instants) {
+  //     const syncTemplate = await wa_api.syncTemplate();
+  //     await this.waTemplateService.saveSyncTemplates(syncTemplate,instants)
+  //   }
+  //   return instants;
+  // }
+  // @UseGuards(GqlAuthGuard)
+  // @Mutation(() => WhatsAppAccount)
+  // async TestAndUpdateInstants(@Args('updateInstants') UpdatedInstants: WaAccountDto): Promise<WhatsAppAccount | null | string> {
+  //   const instants = await this.waAccountService.UpdateInstants(UpdatedInstants.id, UpdatedInstants);
+  //   if (!instants) throw Error('instants doesnt exist')
+  //   const wa_api = await this.getWhatsAppApi(instants.id)
+  //   if (instants) {
+  //     const testTemplate = await wa_api.testInstants()
+  //     console.log(testTemplate, ".testTemplate.testTemplate");
 
-    }
-    return instants;
-  }
+  //   }
+  //   return instants;
+  // }
 
 }

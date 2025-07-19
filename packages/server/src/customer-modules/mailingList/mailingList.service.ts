@@ -32,11 +32,16 @@ export class MailingListService {
     }
 
     async findMailingListById(mailingListId: string): Promise<MailingList | null> {
-        return await this.mailingListRepository.findOne({ where: { id: mailingListId } })
+        return await this.mailingListRepository.findOne({ 
+            where: { id: mailingListId },
+            relations: ['mailingContacts'] 
+        })
     }
 
     async findAllMailingList(): Promise<MailingList[]> {
-        const mailinglist = await this.mailingListRepository.find()
+        const mailinglist = await this.mailingListRepository.find({
+            relations : ['mailingContacts']
+        })
 
         return mailinglist
     }

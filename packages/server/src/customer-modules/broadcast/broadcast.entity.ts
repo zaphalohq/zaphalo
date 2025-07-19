@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
   Relation
@@ -12,6 +13,7 @@ import {
 import { UUIDScalarType } from "src/modules/api/scalars/uuid.scalar";
 import { WhatsAppTemplate } from "src/customer-modules/whatsapp/entities/whatsapp-template.entity";
 import { MailingList } from "src/customer-modules/mailingList/mailingList.entity";
+import { WhatsAppAccount } from "../whatsapp/entities/whatsapp-account.entity";
 
 @Entity({ name: 'broadcast' })
 @ObjectType('broadcast')
@@ -20,9 +22,21 @@ export class Broadcast {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Field(() => WhatsAppAccount)
+  @ManyToOne(() => WhatsAppAccount)
+  account: Relation<WhatsAppAccount>;
+
   @Column()
   @Field(() => String)
   broadcastName: string;
+
+  @Column({ nullable: true })
+  @Field(() => String, { nullable: true })
+  totalBroadcast: string;
+
+  @Column()
+  @Field(() => String)
+  currentBroadcastCount: string;
 
   @OneToOne(() => WhatsAppTemplate)
   @JoinColumn()
@@ -33,14 +47,6 @@ export class Broadcast {
   @JoinColumn()
   @Field(() => MailingList, { nullable: true })
   mailingList: Relation<MailingList>;
-
-  @Column("text", { array: true, nullable: true })
-  @Field(() => [String], { nullable: true })
-  variables?: string[];
-
-  @Column()
-  @Field({ nullable: true })
-  URL?: string;
 
   @Column({ type: 'boolean', default: false, nullable: true })
   @Field(() => Boolean)
