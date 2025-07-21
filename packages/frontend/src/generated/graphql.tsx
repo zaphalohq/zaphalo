@@ -338,23 +338,9 @@ mutation DeleteContact(
 `
 
 
-export const WhatsappInstantsCreation = gql`
-mutation WaAccountCreate(
-  $name: String!,
-  $appId: String!,
-  $phoneNumberId: String!,
-  $businessAccountId: String!,
-  $accessToken: String!,
-  $appSecret: String!
-) {
-  WaAccountCreate(waAccount: {
-    name: $name,
-    appId: $appId,
-    phoneNumberId: $phoneNumberId,
-    businessAccountId: $businessAccountId,
-    accessToken: $accessToken,
-    appSecret: $appSecret
-  }) {
+export const WhatsappInstantsSave = gql`
+mutation WaAccountSave($whatsappInstantsData: WaAccountDto!, $instanceId: String) {
+  WaAccountSave(whatsappInstantsData: $whatsappInstantsData, instanceId: $instanceId) {
     id
     name
   }
@@ -362,22 +348,8 @@ mutation WaAccountCreate(
 `;
 
 export const WhatsappInstantsSyncAndSave = gql`
-mutation SyncAndSaveInstants(
-  $name: String!,
-  $appId: String!,
-  $phoneNumberId: String!,
-  $businessAccountId: String!,
-  $accessToken: String!,
-  $appSecret: String!
-) {
-  SyncAndSaveInstants(InstantsData: {
-    name: $name,
-    appId: $appId,
-    phoneNumberId: $phoneNumberId,
-    businessAccountId: $businessAccountId,
-    accessToken: $accessToken,
-    appSecret: $appSecret
-  }) {
+mutation SyncAndSaveInstants($whatsappInstantsData: WaAccountDto!, $instanceId: String) {
+  SyncAndSaveInstants(whatsappInstantsData: $whatsappInstantsData, instanceId: $instanceId) {
     id
     name
   }
@@ -385,26 +357,13 @@ mutation SyncAndSaveInstants(
 `;
 
 export const WhatsappInstantsTestAndSave = gql(`
-  mutation TestAndSaveInstants(
-  $name: String!,
-  $appId: String!,
-  $phoneNumberId: String!,
-  $businessAccountId: String!,
-  $accessToken: String!,
-  $appSecret: String!
-) {
-  TestAndSaveInstants(InstantsData: {
-    name: $name,
-    appId: $appId,
-    phoneNumberId: $phoneNumberId,
-    businessAccountId: $businessAccountId,
-    accessToken: $accessToken,
-    appSecret: $appSecret
-  }) {
+mutation TestAndSaveInstants($whatsappInstantsData: WaAccountDto!, $instanceId: String) {
+  TestAndSaveInstants(whatsappInstantsData: $whatsappInstantsData, instanceId: $instanceId) {
     id
     name
   }
-}`)
+}`
+)
 
 
 export const findAllInstants = gql`
@@ -528,12 +487,7 @@ export const findCountForDash = gql`query findWorkspaceByIdForDash($workspaceId:
 
 
 
-export const FindAll_Mailing_List = gql`query findAllMailingList {
-  findAllMailingList {
-    id
-    mailingListName
-  }
-}`
+
 
 
 
@@ -584,6 +538,42 @@ query findAllTemplate {
   }
 }`
 
+
+export const findAllApprovedTemplate = gql`
+query findAllApprovedTemplate {
+    findAllApprovedTemplate {
+    account {
+      id
+    }
+    attachment {
+      id
+      originalname
+      name
+    }
+    bodyText
+    category
+    button {
+      phone_number
+      text
+      type
+      url
+    }
+    footerText
+    headerText
+    headerType
+    id
+    language
+    status
+    templateName
+    waTemplateId
+    templateImg
+    variables {
+      name
+      value
+    }
+  }
+}`
+
 export const SUBMIT_TEMPLATE = gql`
 mutation SubmitTemplate($templateData: WaTemplateRequestInput!, $waTemplateId: String, $dbTemplateId: String) {
   submitWaTemplate(templateData: $templateData, waTemplateId: $waTemplateId, dbTemplateId: $dbTemplateId) {
@@ -593,16 +583,16 @@ mutation SubmitTemplate($templateData: WaTemplateRequestInput!, $waTemplateId: S
   }
 }`;
 
-export const SAVE_TEMPLATE = gql`
-mutation saveTemplate($templateData: WaTemplateRequestInput!) {
-  saveTemplate(templateData: $templateData) {
-    id
-  }
-}`;
+// export const SAVE_TEMPLATE = gql`
+// mutation saveTemplate($templateData: WaTemplateRequestInput!) {
+//   saveTemplate(templateData: $templateData) {
+//     id
+//   }
+// }`;
 
-export const UPDATE_TEMPLATE = gql`
-mutation updateTemplate($templateData: WaTemplateRequestInput!, $dbTemplateId: String!) {
-  updateTemplate(templateData: $templateData, dbTemplateId: $dbTemplateId) {
+export const SAVE_TEMPLATE = gql`
+mutation saveTemplate($templateData: WaTemplateRequestInput!, $dbTemplateId: String) {
+  saveTemplate(templateData: $templateData, dbTemplateId: $dbTemplateId) {
     id
   }
 }`;
@@ -692,3 +682,46 @@ export const CreateOneAttachmentDoc = gql`
     }
   }
 `;
+
+
+
+export const findAllMailingList = gql`
+  query FindAllMailingList {
+    findAllMailingList {
+      id
+      mailingListName
+      createdAt
+      mailingContacts {
+        contactName
+        contactNo
+        id
+    }
+    }
+  }
+`;
+
+export const SaveMailingContact = gql`
+mutation saveMailingContact($saveMailingContact: MailingContact!){
+  saveMailingContact(saveMailingContact : $saveMailingContact){
+    success
+  }
+}
+`
+
+export const FindAllMailingContact = gql`
+query findAllMailingContactByMailingListId($mailingListId : String!){
+ findAllMailingContactByMailingListId(mailingListId : $mailingListId){
+    contactName
+    contactNo
+    id
+ }
+}
+`
+
+export const DeleteMailingContact = gql`
+mutation deleteMailingContact($mailingContactId : String!){
+  deleteMailingContact(mailingContactId: $mailingContactId){
+    success
+ }
+}
+`

@@ -36,7 +36,7 @@ export class Broadcast {
 
   @Column()
   @Field(() => String)
-  currentBroadcastCount: string;
+  totalBroadcastSend: string;
 
   @OneToOne(() => WhatsAppTemplate)
   @JoinColumn()

@@ -21,10 +21,8 @@ To track the shipping: {{4}}
 Thank you.`,
     footerText: '',
     headerType: 'NONE',
-    header_handle: '',
     button: [],
     variables: [],
-    fileUrl: '',
     headerText: '',
     attachmentId: null
   });

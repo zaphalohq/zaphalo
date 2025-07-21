@@ -9,6 +9,7 @@ const WhatsAppAccountContent = () => {
 	const {
 		HandaleFeatchData,
 		data,
+		instantsData,
 		setFormData,
 		setIsNewInstants,
 		HandleFormVisibility,
@@ -21,7 +22,7 @@ const WhatsAppAccountContent = () => {
 
 	return (
 		<div>
-			<div className='font-bold text-lg border-gray-300 p-4 border-b'>Mailing List</div>
+			<div className='font-bold text-lg border-gray-300 p-4 border-b'>Whatsapp Account</div>
 			<div className="grid grid-cols-5 pt-4 px-4">
 				<div className="md:col-start-5 md:pb-0 col-start-1 col-end-5 pb-4">
 					<SubmitButton onClick={() => {

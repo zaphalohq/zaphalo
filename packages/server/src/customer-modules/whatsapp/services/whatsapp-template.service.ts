@@ -2,7 +2,7 @@ import axios from "axios";
 import cron from 'node-cron';
 import path from 'path';
 import fs from 'fs/promises';
-import { Connection, Repository } from 'typeorm';
+import { Connection, In, Repository } from 'typeorm';
 import { Inject, Injectable } from "@nestjs/common";
 import { WhatsAppTemplate } from "../entities/whatsapp-template.entity";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
@@ -12,6 +12,7 @@ import { WaAccountService } from "./whatsapp-account.service";
 import { Attachment } from "src/customer-modules/attachment/attachment.entity";
 import { Account } from "aws-sdk";
 import { WhatsAppAccount } from "../entities/whatsapp-account.entity";
+import { log } from "util";
 
 
 @Injectable()
@@ -343,6 +344,14 @@ export class TemplateService {
     })
   }
 
+    async findAllApprovedTemplate(): Promise<WhatsAppTemplate[]> {
+    return await this.templateRepository.find({
+      where: { status : In(['APPROVED', 'approved'])},
+      order: { createdAt: 'DESC' },
+      relations: ["account", "attachment"]
+    })
+  }
+
   async findtemplateById(dbTemplateId: string): Promise<WhatsAppTemplate | null> {
     return await this.templateRepository.findOne({
       where: { id: dbTemplateId },
@@ -561,6 +570,9 @@ export class TemplateService {
       components.push(...buttons);
     }
 
+
+    console.log(components,'....componenst');
+    
     return {
       messaging_product: 'whatsapp',
       to: recipientPhone,

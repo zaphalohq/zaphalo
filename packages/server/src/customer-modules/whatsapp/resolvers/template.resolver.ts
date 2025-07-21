@@ -15,12 +15,20 @@ export class WhatsAppTemplateResolver {
     private fileService: FileService
   ) { }
 
-  // @UseGuards(GqlAuthGuard)
-  // @Mutation(() => WhatsAppTemplate)
-  // async saveTemplate(@Args('templateData') templateData: WaTemplateRequestInput): Promise<WhatsAppTemplate> {
-  //     // const payload = await this.templateService.generatePayload(templateData)
-  //     return await this.templateService.saveTemplate(templateData, templateData.accountId);
-  // }
+    @UseGuards(GqlAuthGuard)
+    @Query(() => [WhatsAppTemplate])
+    async findAllTemplate(@Context('req') req): Promise<WhatsAppTemplate[]> {
+      const data = await this.templateService.findAllTemplate();
+      return data
+    }
+  
+    @UseGuards(GqlAuthGuard)
+    @Query(() => [WhatsAppTemplate])
+    async findAllApprovedTemplate(@Context('req') req): Promise<WhatsAppTemplate[]> {
+      const data = await this.templateService.findAllApprovedTemplate();
+      return data
+    }
+  
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => WhatsAppTemplate)
@@ -64,7 +72,7 @@ export class WhatsAppTemplateResolver {
           workspaceId: workspaceId,
         });
 
-        return `${template.templateImg}?token=undefined${workspaceLogoToken}`;
+        return `${template.templateImg}?token=${workspaceLogoToken}`;
 
       } catch (e) {
         return template.templateImg;

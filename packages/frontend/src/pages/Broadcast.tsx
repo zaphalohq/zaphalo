@@ -1,11 +1,10 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
-import { FiAirplay, FiChevronDown } from "react-icons/fi";
+import { FiChevronDown } from "react-icons/fi";
 import { useLocation } from "react-router-dom";
-import { FindAll_Mailing_List } from "@src/generated/graphql";
-import { findWaAllTemplate, SEND_TEMPLATE_TO_WHATSAPP } from "@src/generated/graphql";
+import { findAllMailingList } from "@src/generated/graphql";
+import { findAllApprovedTemplate, SEND_TEMPLATE_TO_WHATSAPP } from "@src/generated/graphql";
 import TemplatePreview from "@src/components/Template/TemplatePreview";
-import TableView from "@src/components/UI/TableView";
 
 type BroadcastProps = {
     templateId?: string,
@@ -28,8 +27,8 @@ const Broadcast = () => {
         }
     }, [location?.state]);
 
-    const { data: templateData, loading: templateLoading, refetch: templateRefetch }: any = useQuery(findWaAllTemplate);
-    const [templates, setTemplates] = useState<any[]>([]);
+    const { data: templateData, loading: templateLoading, refetch: templateRefetch }: any = useQuery(findAllApprovedTemplate);
+    const [allTemplates, setAllTemplates] = useState<any[]>([]);
     const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
     const [showMailingDropdown, setShowMailingDropdown] = useState(false);
     const [broadcastData, setBroadcastData] = useState({
@@ -47,7 +46,7 @@ const Broadcast = () => {
         language: ''
     })
 
-    const { data: mailingListData, refetch: mailingListRefetch, loading: mailingListLoading } = useQuery(FindAll_Mailing_List)
+    const { data: mailingListData, refetch: mailingListRefetch, loading: mailingListLoading } = useQuery(findAllMailingList)
     const [mailingLists, setMailingLists] = useState<any[]>([])
     const [sendTemplateToWhatssapp, { data, loading, error }] = useMutation(SEND_TEMPLATE_TO_WHATSAPP);
 
@@ -66,7 +65,7 @@ const Broadcast = () => {
         try {
             mailingListRefetch();
             if (templateData && !templateLoading) {
-                setTemplates(templateData.findAllTemplate);
+                setAllTemplates(templateData.findAllApprovedTemplate);
             }
         } catch (error) {
             console.error('Template fetch error:', error);
@@ -82,11 +81,13 @@ const Broadcast = () => {
 
     const [variableMatches, setVariableMatches] = useState([])
     const handleTemplateSelect = async (templateId: string, templateName: string) => {
-        const currentTemplate = await templates.find(t => t.id === templateId)
+        const currentTemplate = await allTemplates.find(t => t.id === templateId)
+        console.log(currentTemplate,'....................currentTemplate');
+        
         setCurrentTemplate(currentTemplate)
 
         setBroadcastData({ ...broadcastData, templateId, templateName, headerType: currentTemplate?.headerType, language: currentTemplate.language });
-        setVariableMatches(currentTemplate.bodyText.match(/{{\d+}}/g) || []);
+        setVariableMatches(currentTemplate?.bodyText.match(/{{\d+}}/g) || []);
         setShowTemplateDropdown(false);
 
     };
@@ -117,40 +118,40 @@ const Broadcast = () => {
         }));
     };
 
-    const colData = [
-  { name: 'Alice', email: 'alice@example.com', role: 'Admin' },
-  { name: 'Bob', email: 'bob@example.com', role: 'User' },
-  { name: 'Charlie', email: 'charlie@example.com', role: 'Moderator' },
-];
+//     const colData = [
+//   { name: 'Alice', email: 'alice@example.com', role: 'Admin' },
+//   { name: 'Bob', email: 'bob@example.com', role: 'User' },
+//   { name: 'Charlie', email: 'charlie@example.com', role: 'Moderator' },
+// ];
 
-const columns = [{
-  type : 'text',
-  columnName : 'Name',
-  rowKey: 'name',
-},{
-  type : 'link',
-  columnName : 'Email',
-  rowName: 'preview email',
-  onclick: () => console.log("link works")
-},
-{
-  type : 'text',
-  columnName : 'Role',
-  rowKey: 'role',
-},
-{
-    type: 'button',
-    columnName: 'Submit Button',
-    rowName: 'submit Button',
-    onclick:() => console.log('button is working')
-},
-{
-    type: 'icon',
-    columnName: 'Submit Button',
-    Icon: FiAirplay,
-    onclick:() => console.log('button is working')
-}
-];
+// const columns = [{
+//   type : 'text',
+//   columnName : 'Name',
+//   rowKey: 'name',
+// },{
+//   type : 'link',
+//   columnName : 'Email',
+//   rowName: 'preview email',
+//   onclick: () => console.log("link works")
+// },
+// {
+//   type : 'text',
+//   columnName : 'Role',
+//   rowKey: 'role',
+// },
+// {
+//     type: 'button',
+//     columnName: 'Submit Button',
+//     rowName: 'submit Button',
+//     onclick:() => console.log('button is working')
+// },
+// {
+//     type: 'icon',
+//     columnName: 'Submit Button',
+//     Icon: FiAirplay,
+//     onclick:() => console.log('button is working')
+// }
+// ];
 
     return (
         <div>
@@ -170,7 +171,7 @@ const columns = [{
                         </div>
                         {showTemplateDropdown && (
                             <div className="absolute top-full left-0 w-full bg-white border shadow-md rounded-md mt-1 z-20 max-h-60 overflow-auto">
-                                {templates.map((template, index) => (
+                                {allTemplates.map((template, index) => (
                                     <div
                                         key={index}
                                         className="p-3 hover:bg-blue-100 cursor-pointer"
@@ -252,9 +253,9 @@ const columns = [{
                         <></>
                     )}
                 </div>
-                <div className="py-4">
+                {/* <div className="py-4">
                 <TableView data={colData} columns={columns} />
-                </div>
+                </div> */}
             </div>
         </div>
     );

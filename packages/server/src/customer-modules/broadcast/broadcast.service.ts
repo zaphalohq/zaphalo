@@ -216,7 +216,7 @@ export class BroadcastService {
           }
 
           await this.broadcastRepository.update(broadcast.id, {
-            currentBroadcastCount: String(Number(broadcast.currentBroadcastCount) + 1)
+            totalBroadcastSend: String(Number(broadcast.totalBroadcastSend) + 1)
           });
 
         } catch (error) {
