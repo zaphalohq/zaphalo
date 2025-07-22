@@ -172,7 +172,7 @@ export class WhatsAppResolver {
   async testTemplate(@Args('testTemplateData') testTemplateData: WaTestTemplateInput) {
     const wa_api = await this.getWhatsAppApi()
 
-    const template: any = await this.waTemplateService.findtemplateById(testTemplateData.dbTemplateId)
+    const template: any = await this.waTemplateService.findtemplateByDbId(testTemplateData.dbTemplateId)
     console.log(template, '.....');
 
     if (!template) throw Error('template doesnt exist')
@@ -188,11 +188,12 @@ export class WhatsAppResolver {
       generateTemplatePayload = await this.waTemplateService.generateSendMessagePayload(template, testTemplateData.testPhoneNo);
     }
 
-
     console.log(generateTemplatePayload,'genereated pauyload');
+
+    console.log(generateTemplatePayload.components,'genereated pauyload components');
     
 
-    // const testTemplate = await wa_api.sendTemplateMsg(JSON.stringify(generateTemplatePayload))
+    const testTemplate = await wa_api.sendTemplateMsg(JSON.stringify(generateTemplatePayload))
 
     return { success: 'test template send successfully' }
   }

@@ -251,7 +251,7 @@ export class TemplateService {
     if (!findSelectedInstants) throw new Error('findSelectedInstants not found');
 
     const accessToken = findSelectedInstants.accessToken;
-    const templateFromDb = await this.findTemplateByTemplateId(waTemplateId);
+    const templateFromDb = await this.findTemplateByWaTemplateId(waTemplateId);
     if (!templateFromDb) throw new Error("template not found in database");
 
     const checkStatus = async () => {
@@ -352,14 +352,14 @@ export class TemplateService {
     })
   }
 
-  async findtemplateById(dbTemplateId: string): Promise<WhatsAppTemplate | null> {
+  async findtemplateByDbId(dbTemplateId: string): Promise<WhatsAppTemplate | null> {
     return await this.templateRepository.findOne({
       where: { id: dbTemplateId },
       relations: ["account", "attachment"]
     })
   }
 
-  async findTemplateByTemplateId(waTemplateId: string) {
+  async findTemplateByWaTemplateId(waTemplateId: string) {
     return await this.templateRepository.findOne({ where: { waTemplateId } })
   }
 
@@ -547,7 +547,7 @@ export class TemplateService {
               type: 'button',
               sub_type: 'url',
               index: index.toString(),
-              parameters: [{ type: 'text', text: url }],
+              // parameters: [{ type: 'text', text: url }],
             };
           case 'PHONE_NUMBER':
             return {
@@ -582,7 +582,7 @@ export class TemplateService {
         language: {
           code: templateData.language,
         },
-        ...(variablesValue.length > 0 && components.length > 0 && { components }),
+        ...((variablesValue.length > 0 || ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(templateData.headerType)) && components.length > 0 && { components }),
       },
     };
   }

@@ -34,18 +34,18 @@ export class Broadcast {
   @Field(() => String, { nullable: true })
   totalBroadcast: string;
 
-  @Column()
-  @Field(() => String)
+  @Column({ nullable: true })
+  @Field(() => String, { nullable: true })
   totalBroadcastSend: string;
 
   @OneToOne(() => WhatsAppTemplate)
   @JoinColumn()
-  @Field(() => WhatsAppTemplate, { nullable: true })
+  @Field(() => WhatsAppTemplate)
   template: Relation<WhatsAppTemplate>;
 
   @OneToOne(() => MailingList)
   @JoinColumn()
-  @Field(() => MailingList, { nullable: true })
+  @Field(() => MailingList)
   mailingList: Relation<MailingList>;
 
   @Column({ type: 'boolean', default: false, nullable: true })

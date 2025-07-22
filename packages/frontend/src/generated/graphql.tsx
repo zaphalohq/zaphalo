@@ -614,7 +614,6 @@ export const Send_Template_Message = gql`
 export const SEND_TEMPLATE_TO_WHATSAPP = gql`
   mutation BroadcastTemplate($broadcastData: BroadcastReqDto!) {
     BroadcastTemplate(broadcastData: $broadcastData){
-    URL
     broadcastName
   }
   }

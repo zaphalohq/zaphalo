@@ -33,7 +33,7 @@ export class BroadcastService {
   async saveBroadcast(broadcastData): Promise<Broadcast> {
     const mailingList = await this.mailingListService.findMailingListById(broadcastData.mailingListId)
     if (!mailingList) throw new Error('mailingList not found');
-    const template = await this.waTemplateService.findTemplateByTemplateId(broadcastData.templateId)
+    const template = await this.waTemplateService.findtemplateByDbId(broadcastData.templateId)
     console.log(broadcastData.templateId, ".......................broadcastData.templateId");
 
     if (!template) throw new Error('template not found');
@@ -56,6 +56,8 @@ export class BroadcastService {
         broadcast,
       })
       broadcast.totalBroadcast = String(allContacts.length)
+      console.log(broadcast,'..broadcast');
+      
       await this.broadcastContactsRepository.save(broadcastContacts)
     });
 

@@ -24,14 +24,11 @@ export class BroadcastResolver {
     async BroadcastTemplate(@Args('broadcastData') broadcastData: BroadcastReqDto): Promise<Broadcast> {
 
         const saveTemplates = await this.broadcastService.saveBroadcast(broadcastData);
-        if (saveTemplates) this.broadcastService.cronForPendingBroadcasts();
+        console.log(saveTemplates,'savetemplate....');
+        
+        // if (saveTemplates) this.broadcastService.cronForPendingBroadcasts();
 
 
-        // if(saveTemplates) 
-        // const accessToken = findTrueInstants?.accessToken
-        // const phoneNumberId = findTrueInstants?.phoneNumberId
-        // return await this.broadcastService.BroadcastTemplate(accessToken, broadcastData, phoneNumberId)
-        // }
 
         return saveTemplates
     }
