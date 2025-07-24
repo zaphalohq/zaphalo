@@ -53,7 +53,7 @@ export class BroadcastService {
     allContacts.forEach(async (contact) => {
       const broadcastContacts = this.broadcastContactsRepository.create({
         contactNo: contact.contactNo,
-        broadcast,
+        broadcast, 
       })
       broadcast.totalBroadcast = String(allContacts.length)
       console.log(broadcast,'..broadcast');
@@ -376,7 +376,16 @@ export class BroadcastService {
 
   async findAllBroadcast(): Promise<Broadcast[]> {
     return await this.broadcastRepository.find({
-      order: { createdAt: 'ASC' },
+      relations: {
+        template: {
+          attachment: true
+        },
+        mailingList: {
+          mailingContacts: true
+        },
+        account: true
+      },
+      order: { createdAt: 'DESC' }
     });
 
   }

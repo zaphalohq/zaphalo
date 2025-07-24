@@ -724,3 +724,52 @@ mutation deleteMailingContact($mailingContactId : String!){
  }
 }
 `
+
+export const findAllBroadcasts = gql`
+query findAllBroadcast {
+  findAllBroadcast {
+    id
+    broadcastName
+    totalBroadcast
+    totalBroadcastSend
+    isBroadcastDone
+    createdAt
+
+    account {
+      id
+    }
+
+    template {
+      id
+      templateName
+      status
+      headerText
+      bodyText
+      footerText
+      templateImg
+      language
+      category
+      headerType
+      variables {
+        name
+        value
+      }
+      button {
+        type
+        text
+        url
+        phone_number
+      }
+    }
+
+    mailingList {
+      id
+      mailingListName
+      mailingContacts {
+        id
+        contactName
+        contactNo
+      }
+    }
+  }
+}`

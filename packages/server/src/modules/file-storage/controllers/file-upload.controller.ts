@@ -20,7 +20,6 @@ export class UploadController {
     @AuthWorkspace() workspace: Workspace,
     @Req() req,
     @UploadedFile() file: Express.Multer.File) {
-
     return {
       message: 'File uploaded successfully',
       file,
