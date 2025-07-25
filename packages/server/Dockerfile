@@ -79,4 +79,4 @@ RUN mkdir -p /app/.local-storage /app/packages/server/.local-storage && \
 USER 1000
 
 CMD ["node", "dist/src/main"]
-#ENTRYPOINT ["/app/entrypoint.sh"]
+ENTRYPOINT ["/app/entrypoint.sh"]
