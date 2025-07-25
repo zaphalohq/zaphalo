@@ -1,36 +1,47 @@
 services:
-  #frontend:
-    #container_name: frontend
-    #build:
-      #context: .
-      #dockerfile: packages/frontend/Dockerfile
-    #ports:
-      #- '3000:80' # Expose the UI app on port 3000
-    #networks:
-      #- app-network
-    #depends_on:
-      #- server
+  frontend:
+    container_name: frontend
+    build:
+      context: .
+      dockerfile: packages/frontend/Dockerfile
+    command: yarn nx start:prod frontend
+    ports:
+      - '5173:3001' # Expose the UI app on port 3000
+    networks:
+      - app-network
+    depends_on:
+      - server
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3000/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    environment:
+      VITE_BACKEND_URL: 'http://192.168.1.246:3000'
+      VITE_WEBSOCKET_URL: 'http://192.168.1.246:4000'
   server:
     build:
       context: .
       dockerfile: packages/server/Dockerfile
     command: yarn nx start server
     ports:
-      - '4000:3000' # Expose the backend on port 4000
+      - '3000:3000' # Expose the backend on port 4000
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       PORT: 3000
       APP_SECRET: 'asasasasa'
-      PG_DATABASE_URL: postgres://yaari:yaari@db:5432/yaariapi
+      PG_DATABASE_URL: postgres://${PG_DATABASE_USER:-postgres}:${PG_DATABASE_PASSWORD:-postgres}@${PG_DATABASE_HOST:-db}:${PG_DATABASE_PORT:-5432}/yaariapi
       WEBSOCKET_PORT: 4000
-      FRONTEND_URL: 'http://localhost:5173'
-      SERVER_URL: 'localhost:3000'
-      BACKEND_URL: 'http://localhost:3000'
+      FRONTEND_URL: 'http://192.168.1.246:5173'
+      SERVER_URL: '192.168.1.246:3000'
+      BACKEND_URL: 'http://192.168.1.246:3000'
       IS_MULTIWORKSPACE_ENABLED: true
       GOOGLE_AUTH_ENABLED: false
-      GOOGLE_AUTH_CLIENT_ID: 
-      GOOGLE_AUTH_CLIENT_SECRET: 
+      GOOGLE_AUTH_CLIENT_ID: false
+      GOOGLE_AUTH_CLIENT_SECRET: false
       GOOGLE_AUTH_CALLBACK_URL: http://localhost:3000/google/auth/redirect
       GOOGLE_AUTH_APIS_CALLBACK_URL: http://localhost:3001/auth/google-apis/get-access-token
   db:
@@ -40,9 +51,14 @@ services:
     volumes:
       - ./docker-postgres-multiple-dbs.sh:/docker-entrypoint-initdb.d/docker-postgres-multiple-dbs.sh
     environment:
-      POSTGRES_USER: yaari
-      POSTGRES_PASSWORD: yaari
-      POSTGRES_DB_NAMES: yaariapi
+      POSTGRES_USER: ${PG_DATABASE_USER:-postgres}
+      POSTGRES_PASSWORD: ${PG_DATABASE_PASSWORD:-postgres}
+    healthcheck:
+      test: pg_isready -U ${PG_DATABASE_USER:-postgres} -h localhost -d postgres
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: always
 
 networks:
   app-network:
