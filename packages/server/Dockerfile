@@ -24,7 +24,7 @@ COPY ./packages/server /app/packages/server
 
 RUN npx nx run server:build
 RUN mv /app/packages/server/dist /app/packages/server/build
-#RUN npx nx run server:build:packageJson
+RUN npx nx run server:build:packageJson
 RUN mv /app/packages/server/package.json /app/packages/server/package.json
 RUN rm -rf /app/packages/server/dist
 RUN mv /app/packages/server/build /app/packages/server/dist
@@ -59,8 +59,8 @@ WORKDIR /app/packages/server
 ARG VITE_BACKEND_URL
 ENV VITE_BACKEND_URL $VITE_BACKEND_URL
 
-#ARG APP_VERSION
-#ENV APP_VERSION $APP_VERSION
+ARG APP_VERSION
+ENV APP_VERSION $APP_VERSION
 
 
 # Copy built applications from previous stages
@@ -79,4 +79,4 @@ RUN mkdir -p /app/.local-storage /app/packages/server/.local-storage && \
 USER 1000
 
 CMD ["node", "dist/src/main"]
-ENTRYPOINT ["/app/entrypoint.sh"]
+#ENTRYPOINT ["/app/entrypoint.sh"]
