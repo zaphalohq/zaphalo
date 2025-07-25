@@ -1,30 +1,11 @@
 services:
-  frontend:
-    container_name: frontend
-    build:
-      context: .
-      dockerfile: packages/frontend/Dockerfile
-    command: yarn nx start:prod frontend
-    ports:
-      - '5173:3001' # Expose the UI app on port 3000
-    networks:
-      - app-network
-    depends_on:
-      - server
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3000/health" ]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 60s
-    environment:
-      VITE_BACKEND_URL: 'http://192.168.1.246:3000'
-      VITE_WEBSOCKET_URL: 'http://192.168.1.246:4000'
   server:
     build:
       context: .
       dockerfile: packages/server/Dockerfile
-    command: yarn nx start server
+    command: ["yarn", "start:prod"]
+    volumes:
+      - server-local-data:/app/packages/server/.local-storage
     ports:
       - '3000:3000' # Expose the backend on port 4000
     depends_on:
@@ -60,6 +41,7 @@ services:
       retries: 10
     restart: always
 
-networks:
-  app-network:
-    driver: bridge
+volumes:
+  db-data:
+  server-local-data:
+
