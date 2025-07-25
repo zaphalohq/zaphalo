@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "start:prod": "NODE_ENV=production npx vite --host",
-    "start": "npx vite --host"
+    "start": "npx vite --host",
+    "build": "NODE_ENV=production VITE_DISABLE_TYPESCRIPT_CHECKER=true VITE_DISABLE_ESLINT_CHECKER=true NODE_OPTIONS=--max-old-space-size=8192 npx vite build"
   }
 }
