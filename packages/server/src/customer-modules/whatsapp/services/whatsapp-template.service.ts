@@ -571,7 +571,6 @@ export class TemplateService {
     }
 
 
-    console.log(components,'....componenst');
     
     return {
       messaging_product: 'whatsapp',

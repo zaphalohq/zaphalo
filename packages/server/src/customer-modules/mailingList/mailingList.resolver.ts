@@ -32,7 +32,10 @@ export class MailingListResolver {
   @Mutation(() => SuccessResponse)
   async saveMailingContact(@Args('saveMailingContact') saveMailingContact : MailingContact) {
     await this.mailingListService.saveMailingContact(saveMailingContact)
-    return { success : 'contact saved successfully'}
+        return { 
+      success : true,
+      message : 'contact saved successfully'
+    }
   }
 
   @Mutation(() => SuccessResponse)
@@ -40,10 +43,13 @@ export class MailingListResolver {
     const deleteContact = await this.mailingListService.deleteMailingContact(mailingContactId)
     console.log(deleteContact,'deletecontact');
     
-    if(deleteContact.raw){
+    // if(deleteContact.raw){
 
+    // }
+    return { 
+      success : true,
+      message : 'Mailing Contact Deleted successfully'
     }
-    return { success : 'The contact deleted successfully'}
   }
 
 

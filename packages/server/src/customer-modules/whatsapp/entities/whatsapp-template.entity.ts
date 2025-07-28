@@ -13,6 +13,7 @@ import {
 import { UUIDScalarType } from "src/modules/api/scalars/uuid.scalar";
 import { Attachment } from "src/customer-modules/attachment/attachment.entity";
 import { WhatsAppAccount } from "./whatsapp-account.entity";
+import { Broadcast } from "src/customer-modules/broadcast/broadcast.entity";
 
 export enum HeaderType {
   NONE = 'NONE',
@@ -184,9 +185,9 @@ export class WhatsAppTemplate {
     value: string;
   }[];
 
-    @Column({ nullable: true })
+  @Column({ nullable: true })
   @Field({ nullable: true })
-  templateImg : string
+  templateImg: string
 
   @Field(() => Attachment, { nullable: true })
   @ManyToOne(() => Attachment, attachment => attachment.template, { nullable: true, onDelete: 'CASCADE' })

@@ -4,19 +4,28 @@ import { findAllBroadcasts } from '@src/generated/graphql';
 import TemplatePreview from '@src/components/Template/TemplatePreview';
 
 function BroadcastView() {
-    const { data, loading } = useQuery(findAllBroadcasts);
+    const { data, refetch, loading } = useQuery(findAllBroadcasts);
     const [selectedBroadcastId, setSelectedBroadcastId] = useState<string | null>(null);
     const [viewType, setViewType] = useState<'template' | 'mailingList'>('template');
     const [broadcasts, setBroadcasts] = useState<any[]>([]);
 
-    useEffect(() => {
-        if (data && data.findAllBroadcast) {
-            setBroadcasts(data.findAllBroadcast);
-            if (!selectedBroadcastId && data.findAllBroadcast.length > 0) {
-                setSelectedBroadcastId(data.findAllBroadcast[0].id);
+useEffect(() => {
+    const fetchAndSetBroadcasts = async () => {
+        if (!loading && data?.findAllBroadcast?.length > 0) {
+            const { data: newData } = await refetch();
+
+            if (newData?.findAllBroadcast?.length > 0) {
+                setBroadcasts(newData.findAllBroadcast);
+
+                if (!selectedBroadcastId) {
+                    setSelectedBroadcastId(newData.findAllBroadcast[0].id);
+                }
             }
         }
-    }, [data]);
+    };
+
+    fetchAndSetBroadcasts();
+}, [loading, data]);
 
     const selectedBroadcast = broadcasts.find(b => b.id === selectedBroadcastId);
 
@@ -32,7 +41,7 @@ function BroadcastView() {
                                 ? 'bg-violet-100 border-violet-400 shadow'
                                 : 'hover:bg-stone-200 border-stone-300'
                                 }`}
-                            onClick={() => {    
+                            onClick={() => {
                                 setSelectedBroadcastId(broadcast.id);
                                 setViewType('template');
                             }}

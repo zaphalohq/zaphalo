@@ -25,7 +25,7 @@ const Broadcast = () => {
             {!isSendBroadcastVis ?
                 <BroadcastView />
                 :
-                <SendBroadcast />
+                <SendBroadcast setIsSendBroadcastVis={setIsSendBroadcastVis} />
 
             }
         </>
@@ -33,3 +33,4 @@ const Broadcast = () => {
 }
 
 export default Broadcast
+ 

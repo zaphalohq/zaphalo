@@ -1,15 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/modules/user/user.entity';
 import { CreateUserDTO } from './dto/create-user.dto';
 
 @Injectable()
-export class UserService {
+export class UserService implements OnModuleInit  {
   constructor(
     @InjectRepository(User, 'core')
     private userRepository: Repository<User>,
   ) { }
+
+  onModuleInit() {
+    console.log(`The  user module has been initialized.`);
+  }
 
   async findAll(): Promise<User[]> {
     return this.userRepository.find();

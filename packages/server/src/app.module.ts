@@ -16,7 +16,7 @@ import { CustomerModule } from 'src/customer-modules/customer.module';
       imports: [GraphQLConfigModule],
       useClass: GraphQLConfigService, 
     }),
-    CustomerModule,
+    // CustomerModule,
 ],
 })
 export class AppModule {}

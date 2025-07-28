@@ -1,13 +1,14 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { FiChevronDown } from "react-icons/fi";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { findAllInstants, findAllMailingList } from "@src/generated/graphql";
 import { findAllApprovedTemplate, SEND_TEMPLATE_TO_WHATSAPP } from "@src/generated/graphql";
 import TemplatePreview from "@src/components/Template/TemplatePreview";
 import { toast } from 'react-toastify';
 
-const SendBroadcast = () => {
+const SendBroadcast = ({ setIsSendBroadcastVis } : any) => {
+    const navigate = useNavigate();
     const { data: templateData, loading: templateLoading, refetch: templateRefetch }: any = useQuery(findAllApprovedTemplate);
     const [allTemplates, setAllTemplates] = useState<any[]>([]);
     const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
@@ -90,6 +91,8 @@ const SendBroadcast = () => {
     };
 
     const HandleSendTempate = async () => {
+    
+
         if (
             !broadcastData.accountId ||
             !broadcastData.templateId ||
@@ -106,6 +109,12 @@ const SendBroadcast = () => {
                     broadcastData
                 },
             });
+
+
+            if (response.data?.BroadcastTemplate?.success) {
+                toast.success(`${response.data?.BroadcastTemplate?.message}`);
+                setIsSendBroadcastVis(false)
+            }
         } catch (err) {
             console.error("Mutation error:", err);
         }

@@ -1,3 +1,61 @@
+// import { Field, ObjectType } from "@nestjs/graphql";
+// import { IDField } from "@ptc-org/nestjs-query-graphql";
+// import {
+//   Column,
+//   CreateDateColumn,
+//   Entity,
+//   JoinColumn,
+//   OneToMany,
+//   PrimaryGeneratedColumn,
+//   Relation
+// } from "typeorm";
+// import { UUIDScalarType } from "src/modules/api/scalars/uuid.scalar";
+// import { WhatsAppTemplate } from "src/customer-modules/whatsapp/entities/whatsapp-template.entity";
+// import { MailingList } from "src/customer-modules/mailingList/mailingList.entity";
+// import { WhatsAppAccount } from "../whatsapp/entities/whatsapp-account.entity";
+
+// @Entity({ name: 'broadcast' })
+// @ObjectType('broadcast')
+// export class Broadcast {
+//   @IDField(() => UUIDScalarType)
+//   @PrimaryGeneratedColumn('uuid')
+//   id: string;
+
+// @OneToMany(() => WhatsAppAccount, (account) => account.broadcast)
+// @Field(() => [WhatsAppAccount])
+// accounts: Relation<WhatsAppAccount[]>;
+
+//   @Column()
+//   @Field(() => String)
+//   broadcastName: string;
+
+//   @Column({ nullable: true })
+//   @Field(() => String, { nullable: true })
+//   totalBroadcast: string;
+
+//   @Column({ nullable: true })
+//   @Field(() => String, { nullable: true })
+//   totalBroadcastSend: string;
+
+// @OneToMany(() => WhatsAppTemplate, (template) => template.broadcast)
+// @Field(() => [WhatsAppTemplate])
+// templates: Relation<WhatsAppTemplate[]>;
+
+// @OneToMany(() => MailingList, (list) => list.broadcast)
+// @Field(() => [MailingList])
+// mailingLists: Relation<MailingList[]>;
+
+//   @Column({ type: 'boolean', default: false})
+//   @Field(() => Boolean)
+//   isBroadcastDone: boolean;
+
+//   @CreateDateColumn()
+//   @Field()
+//   createdAt: Date;
+
+// }
+
+
 import { Field, ObjectType } from "@nestjs/graphql";
 import { IDField } from "@ptc-org/nestjs-query-graphql";
 import {
@@ -38,13 +96,11 @@ export class Broadcast {
   @Field(() => String, { nullable: true })
   totalBroadcastSend: string;
 
-  @OneToOne(() => WhatsAppTemplate)
-  @JoinColumn()
+  @ManyToOne(() => WhatsAppTemplate)
   @Field(() => WhatsAppTemplate)
   template: Relation<WhatsAppTemplate>;
 
-  @OneToOne(() => MailingList)
-  @JoinColumn()
+  @ManyToOne(() => MailingList)
   @Field(() => MailingList)
   mailingList: Relation<MailingList>;
 

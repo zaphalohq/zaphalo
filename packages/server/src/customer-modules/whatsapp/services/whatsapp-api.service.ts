@@ -232,7 +232,10 @@ export class WhatsAppApiService {
     return file_handle
   }
 
+  private countWhatsappSend = 0
   async submitTemplateNew(json_data) {
+    console.log(this.countWhatsappSend +1,'countWhatsappSendcountWhatsappSendcountWhatsappSend');
+    
     // """
     //     This method is used to submit template for approval
     //     If template was submitted before, we have wa_template_uid and we call template update URL
@@ -276,7 +279,6 @@ export class WhatsAppApiService {
       "data": json_data
     })
     const response_data = response.data
-    console.log(response, '..........response_data');
     return response_data
     // throw new Error(this.prepare_error_response(response))
   }

@@ -10,6 +10,7 @@ const Chats = () => {
   const { isChatOpen }: any = useContext(ChatsContext);
   const location = useLocation();
   const navigate = useNavigate();
+  
   useEffect(() => {
     if (location.pathname == './chats') navigate(0)
   }, [])
