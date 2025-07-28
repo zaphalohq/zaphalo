@@ -1,36 +1,87 @@
-import axios from 'axios';
-import cron from 'node-cron';
-import { Inject, Injectable } from "@nestjs/common";
+import axios, { all } from 'axios';
+import * as cron from 'node-cron';
+import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
 import { Connection, Repository, In } from 'typeorm';
 import { Broadcast } from "./broadcast.entity";
 import { BroadcastContacts } from "./broadcastContacts.entity";
 import { MailingListService } from "src/customer-modules/mailingList/mailingList.service";
 import { TemplateService } from "src/customer-modules/whatsapp/services/whatsapp-template.service";
 import { WaAccountService } from "src/customer-modules/whatsapp/services/whatsapp-account.service";
-import { WorkspaceService } from "src/modules/workspace/workspace.service";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
+import { WhatsAppSDKService } from '../whatsapp/services/whatsapp-api.service';
 
 @Injectable()
-export class BroadcastService {
+export class BroadcastService implements OnModuleInit {
   private broadcastRepository: Repository<Broadcast>
   private broadcastContactsRepository: Repository<BroadcastContacts>
+  onModuleInit() {
+    console.log("...................started.........................");
+
+    this.sendMessagesInBackground();
+  }
   constructor(
     @Inject(CONNECTION) connection: Connection,
     private readonly mailingListService: MailingListService,
-    private readonly templateService: TemplateService,
-    private readonly workspaceService: WorkspaceService,
-    private readonly waAccountService: WaAccountService
+    private readonly waTemplateService: TemplateService,
+    private readonly waAccountService: WaAccountService,
+    private readonly whatsAppApiService: WhatsAppSDKService,
+
   ) {
     this.broadcastRepository = connection.getRepository(Broadcast);
     this.broadcastContactsRepository = connection.getRepository(BroadcastContacts);
+    console.log("..................serv..........");
+
+    this.onModuleInit()
   }
 
-  onModuleInit() {
-    this.sendMessagesInBackground();
+  private job: cron.ScheduledTask | null = null;
+
+  // onModuleInit() {
+  //   console.log("...................started.........................");
+
+  //   this.cronForPendingBroadcasts();
+
+  // }
+
+
+  async saveBroadcast(broadcastData): Promise<Broadcast> {
+    const mailingList = await this.mailingListService.findMailingListById(broadcastData.mailingListId)
+    if (!mailingList) throw new Error('mailingList not found');
+    const template = await this.waTemplateService.findtemplateByDbId(broadcastData.templateId)
+    console.log(broadcastData.templateId, ".......................broadcastData.templateId");
+
+    if (!template) throw new Error('template not found');
+
+    const account = await this.waAccountService.findInstantsByInstantsId(broadcastData.accountId);
+    if (!account) throw new Error('account not found');
+
+    const broadcast = this.broadcastRepository.create({
+      account: account,
+      broadcastName: broadcastData.broadcastName,
+      template: template,
+      mailingList: mailingList,
+    })
+    await this.broadcastRepository.save(broadcast)
+
+    const allContacts = await this.mailingListService.findAllContactsOfMailingList(broadcastData.mailingListId)
+
+    allContacts.forEach(async (contact) => {
+      const broadcastContacts = this.broadcastContactsRepository.create({
+        contactNo: contact.contactNo,
+        broadcast,
+      })
+      broadcast.totalBroadcast = String(allContacts.length)
+      console.log(broadcast, '..broadcast');
+      await this.broadcastRepository.save(broadcast)
+
+      await this.broadcastContactsRepository.save(broadcastContacts)
+    });
+
+    return broadcast
   }
 
-  async BroadcastTemplate(accessToken, broadcastData, phoneNumberId): Promise<Broadcast> {
-    const url = `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`;
+  async BroadcastTemplate(accessToken, broadcastData, phoneNumberId) {
+    // const url = `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`;
     const { templateName, variables = [], URL, headerType, language } = broadcastData;
     // const headerComponent =
     //   headerType === 'IMAGE' && URL
@@ -85,189 +136,259 @@ export class BroadcastService {
     //   })),
     // };
 
-    const mailingList = await this.mailingListService.findMailingListById(broadcastData.mailingListId)
-    if (!mailingList) throw new Error('mailingList not found');
-    const template = await this.templateService.findTemplateByTemplateId(broadcastData.templateId)
-    console.log(broadcastData.templateId,".......................broadcastData.templateId");
-    
-    if (!template) throw new Error('template not found');
+    // const mailingList = await this.mailingListService.findMailingListById(broadcastData.mailingListId)
+    // if (!mailingList) throw new Error('mailingList not found');
+    // const template = await this.templateService.findTemplateByTemplateId(broadcastData.templateId)
+    // console.log(broadcastData.templateId, ".......................broadcastData.templateId");
 
-    const broadcastName = 'default'
-    const broadcast = this.broadcastRepository.create({
-      broadcastName,
-      template,
-      mailingList,
-      URL,
-      variables,
-    })
-    await this.broadcastRepository.save(broadcast)
+    // if (!template) throw new Error('template not found');
 
-    const allContacts = await this.mailingListService.findAllContactsOfMailingList(broadcastData.mailingListId)
-    allContacts.forEach(async (contact) => {
-      const broadcastContacts = this.broadcastContactsRepository.create({
-        contactNo: contact.contactNo,
-        broadcast,
-      })
+    // const account = await this.waAccountService.findInstantsByInstantsId(instantsId);
 
-      await this.broadcastContactsRepository.save(broadcastContacts)
-    });
+    // const broadcastName = 'default'
+    // const broadcast = this.broadcastRepository.create({
+    //   account
+    //   broadcastName,
+    //   template,
+    //   mailingList,
+    //   URL,
+    //   variables,
+    // })
+    // await this.broadcastRepository.save(broadcast)
 
-    this.cronForPendingBroadcasts()
-    return broadcast
+    // const allContacts = await this.mailingListService.findAllContactsOfMailingList(broadcastData.mailingListId)
+    // allContacts.forEach(async (contact) => {
+    //   const broadcastContacts = this.broadcastContactsRepository.create({
+    //     contactNo: contact.contactNo,
+    //     broadcast,
+    //   })
+
+    //   await this.broadcastContactsRepository.save(broadcastContacts)
+    // });
+
+    // this.cronForPendingBroadcasts()
+    // return broadcast
   }
 
-  private async cronForPendingBroadcasts() {
-    cron.schedule('*/30 * * * *', async () => {
-      await this.sendMessagesInBackground()
-    })
-  }
-
-  private async sendMessagesInBackground() {
-    const broadcasts = await this.broadcastRepository.find({
-      where: {
-        isBroadcastDone: false
-      },
-      relations: ['template']
-    });
-
-    broadcasts.forEach(async (broadcast) => {
-      const { template, variables, URL } = broadcast;
-      // const headerType = template.headerType;
-      const headerType = 'TEXT';
-
-      const templateName = template.templateName;
-      const language = template.language;
+  async getWhatsAppApi(instantsId?: string) {
+    if (instantsId) {
+      const instants = await this.waAccountService.findInstantsByInstantsId(instantsId)
+      if (!instants)
+        throw new Error("Not found whatsappaccount")
+      return this.whatsAppApiService.getWhatsApp(instants)
+    } else {
       const findTrueInstants = await this.waAccountService.FindSelectedInstants()
-      const accessToken = findTrueInstants?.accessToken
-      const phoneNumberId = findTrueInstants?.phoneNumberId
-      const url = `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`;
+      if (!findTrueInstants)
+        throw new Error("Not found whatsappaccount")
 
-      const { bodyComponent, headerComponent } = await this.templateMeta(headerType, variables)
+      return this.whatsAppApiService.getWhatsApp(findTrueInstants)
+    }
+  }
 
-      if (!broadcast) throw new Error('broadcast not found')
+
+  cronForPendingBroadcasts() {
+    if (this.job) return;
+
+    this.job = cron.schedule('*/30 * * * *', async () => {
+      console.log('⏰ Running scheduled broadcast sender...');
+      await this.sendMessagesInBackground();
+    });
+  }
+
+  async sendMessagesInBackground() {
+    console.log("...................started.........................");
+
+    const broadcasts = await this.broadcastRepository.find({
+      where: { isBroadcastDone: false },
+      relations: ['template', 'account'],
+    });
+    console.log(broadcasts, 'broadcastsfalse');
+
+
+    if (broadcasts.length === 0) {
+
+      console.log('All broadcasts completed. Stopping cron.');
+      if (this.job) {
+        this.job.stop();
+        this.job = null;
+      }
+      return;
+    }
+
+    for (const broadcast of broadcasts) {
+      const { template, account } = broadcast;
+      const wa_api = await this.getWhatsAppApi(account?.id);
+
       const allBroadcastContacts = await this.broadcastContactsRepository.find({
         where: {
           broadcast: { id: broadcast.id },
-          status: In(['PENDING', 'FAILED'])
+          status: In(['PENDING', 'FAILED']),
+        },
+      });
+
+      for (const broadcastContact of allBroadcastContacts) {
+        let generateTemplatePayload;
+
+        if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(template.headerType)) {
+          const mediaLink = 'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png';
+          generateTemplatePayload = await this.waTemplateService.generateSendMessagePayload(template, broadcastContact.contactNo, mediaLink);
+        } else {
+          generateTemplatePayload = await this.waTemplateService.generateSendMessagePayload(template, broadcastContact.contactNo);
         }
-      })
-
-      for (let i = 0; i < allBroadcastContacts.length; i++) {
-        const broadcastContact = allBroadcastContacts[i];
-
-        const payload = {
-          messaging_product: 'whatsapp',
-          to: broadcastContact.contactNo,
-          type: 'template',
-          template: {
-            name: templateName,
-            language: { code: language },
-            components: [...headerComponent, bodyComponent],
-          },
-        };
 
         try {
-          const response = await axios.post(url, payload, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              'Content-Type': 'application/json',
-            },
-          });
+          const sendTemplate = await wa_api.sendTemplateMsg(JSON.stringify(generateTemplatePayload));
+          console.log(sendTemplate, 'resposer from api');
 
-          const currentBroadcastContact = await this.broadcastContactsRepository.findOne({ where: { id: broadcastContact.id } })
-          if (currentBroadcastContact) {
-            currentBroadcastContact.status = 'SENT'
-            await this.broadcastContactsRepository.save(currentBroadcastContact)
+          if (sendTemplate?.messaging_product) {
+            const currentBroadcastContact = await this.broadcastContactsRepository.findOne({ where: { id: broadcastContact.id } });
+            if (currentBroadcastContact) {
+              currentBroadcastContact.status = 'SENT';
+              await this.broadcastContactsRepository.save(currentBroadcastContact);
+            }
+            console.log(broadcast.totalBroadcastSend,'........................broadcast.totalBroadcastSend');
+            
+            await this.broadcastRepository.update(broadcast.id, {
+              totalBroadcastSend: String(Number(broadcast.totalBroadcastSend ?? 1) + 1),
+            });
           }
+
 
         } catch (error) {
-          const currentBroadcastContact = await this.broadcastContactsRepository.findOne({ where: { id: broadcastContact.id } })
+          const currentBroadcastContact = await this.broadcastContactsRepository.findOne({ where: { id: broadcastContact.id } });
           if (currentBroadcastContact) {
-            currentBroadcastContact.status = 'FAILED'
-            await this.broadcastContactsRepository.save(currentBroadcastContact)
+            currentBroadcastContact.status = 'FAILED';
+            await this.broadcastContactsRepository.save(currentBroadcastContact);
           }
+
           console.error(`Failed to send to ${broadcastContact.contactNo}`, error.response?.data || error.message);
         }
 
         await new Promise((resolve) => setTimeout(resolve, 6000));
       }
-      const isBroadcastSucceed = await this.broadcastContactsRepository.findOne({
+
+      const hasPendingOrFailed = await this.broadcastContactsRepository.findOne({
         where: {
           broadcast: { id: broadcast.id },
-          status: In(['PENDING', 'FAILED'])
-        }
-      })
-      if (!isBroadcastSucceed?.id) {
-        const updateBroadcast = await this.broadcastRepository.findOne({ where: { id: broadcast.id } });
-        if (updateBroadcast) {
-          updateBroadcast.isBroadcastDone = true;
-          await this.broadcastRepository.save(updateBroadcast);
-        }
+          status: In(['PENDING', 'FAILED']),
+        },
+      });
+
+      if (!hasPendingOrFailed) {
+        await this.broadcastRepository.update(broadcast.id, {
+          isBroadcastDone: true,
+        });
       }
-    });
-
+    }
   }
+    // const remainingBroadcasts = await this.broadcastRepository.find({
+    //   where: { isBroadcastDone: false },
+    // });
 
-  private async templateMeta(headerType: string, variables) {
-    const headerComponent =
-      headerType === 'IMAGE' && URL
-        ? [
-          {
-            type: 'header',
-            parameters: [
-              {
-                type: 'image',
-                image: {
-                  link: URL,
-                },
-              },
-            ],
-          },
-        ]
-        : headerType === 'VIDEO' && URL
-          ? [
-            {
-              type: 'header',
-              parameters: [
-                {
-                  type: 'video',
-                  video: {
-                    link: URL,
-                  },
-                },
-              ],
-            },
-          ]
-          : headerType === 'DOCUMENT' && URL
-            ? [
-              {
-                type: 'header',
-                parameters: [
-                  {
-                    type: 'document',
-                    document: {
-                      link: URL,
-                    },
-                  },
-                ],
-              },
-            ]
-            : [];
+    // if (remainingBroadcasts.length === 0) {
+    //   console.log(' All broadcasts completed. Stopping cron.');
+    //   if (this.job) {
+    //     this.job.stop();
+    //     this.job = null;
+    //   }
+    // }
 
-    const bodyComponent = {
-      type: 'body',
-      parameters: variables.map((value) => ({
-        type: 'text',
-        text: value,
-      })),
-    };
 
-    return { bodyComponent, headerComponent }
-  }
+    // async cronForPendingBroadcasts() {
+    //   cron.schedule('*/30 * * * *', async () => {
+    //     await this.sendMessagesInBackground()
+    //   })
+    // }
 
-  async findAllBroadcast(workspaceId: string): Promise<Broadcast[]> {
+    // async sendMessagesInBackground() {
+
+    //   const broadcasts = await this.broadcastRepository.find({
+    //     where: {
+    //       isBroadcastDone: false
+    //     },
+    //     relations: ['template', 'account']
+    //   });
+
+
+    //   broadcasts.forEach(async (broadcast) => {
+    //     const { template } = broadcast;
+
+    //     const wa_api = await this.getWhatsAppApi(broadcast?.account?.id)
+
+
+    //     if (!broadcast) throw new Error('broadcast not found')
+    //     const allBroadcastContacts = await this.broadcastContactsRepository.find({
+    //       where: {
+    //         broadcast: { id: broadcast.id },
+    //         status: In(['PENDING', 'FAILED'])
+    //       }
+    //     })
+    //     console.log(allBroadcastContacts);
+
+    //     for (const broadcastContact of allBroadcastContacts) {
+    //       let generateTemplatePayload
+    //       if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(template.headerType)) {
+    //         const mediaLink = 'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png'
+    //         // const mediaLink = template.templateImg;
+    //         generateTemplatePayload = await this.waTemplateService.generateSendMessagePayload(template, broadcastContact.contactNo, mediaLink);
+    //       } else {
+    //         generateTemplatePayload = await this.waTemplateService.generateSendMessagePayload(template, broadcastContact.contactNo);
+    //       }
+
+    //       try {
+    //         const sendTemplate = await wa_api.sendTemplateMsg(JSON.stringify(generateTemplatePayload))
+    //         const currentBroadcastContact = await this.broadcastContactsRepository.findOne({ where: { id: broadcastContact.id } })
+    //         if (currentBroadcastContact) {
+    //           currentBroadcastContact.status = 'SENT'
+    //           await this.broadcastContactsRepository.save(currentBroadcastContact)
+    //         }
+
+    //         await this.broadcastRepository.update(broadcast.id, {
+    //           totalBroadcastSend: String(Number(broadcast.totalBroadcastSend) + 1)
+    //         });
+
+    //       } catch (error) {
+    //         const currentBroadcastContact = await this.broadcastContactsRepository.findOne({ where: { id: broadcastContact.id } })
+    //         if (currentBroadcastContact) {
+    //           currentBroadcastContact.status = 'FAILED'
+    //           await this.broadcastContactsRepository.save(currentBroadcastContact)
+    //         }
+    //         console.error(`Failed to send to ${broadcastContact.contactNo}`, error.response?.data || error.message);
+    //       }
+
+    //       await new Promise((resolve) => setTimeout(resolve, 6000));
+    //     }
+
+    //     const hasPendingOrFailed = await this.broadcastContactsRepository.findOne({
+    //       where: {
+    //         broadcast: { id: broadcast.id },
+    //         status: In(['PENDING', 'FAILED'])
+    //       }
+    //     });
+
+    //     if (!hasPendingOrFailed) {
+    //       await this.broadcastRepository.update(broadcast.id, {
+    //         isBroadcastDone: true
+    //       });
+    //     }
+
+    //   });
+
+
+
+
+  async findAllBroadcast(): Promise<Broadcast[]> {
     return await this.broadcastRepository.find({
-      order: { createdAt: 'ASC' },
+      relations: {
+        template: {
+          attachment: true
+        },
+        mailingList: {
+          mailingContacts: true
+        },
+        account: true
+      },
+      order: { createdAt: 'DESC' }
     });
 
   }

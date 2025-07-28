@@ -3,7 +3,6 @@ import { IDField } from "@ptc-org/nestjs-query-graphql";
 import { UUIDScalarType } from "src/modules/api/scalars/uuid.scalar";
 import {
   Column,
-  CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
   JoinColumn,

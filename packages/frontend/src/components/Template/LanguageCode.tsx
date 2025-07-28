@@ -1,8 +1,4 @@
-import React from 'react'
-
-const LanguageCode = ({ templateData, handleInputChange }: any) => {
-
-    const languages = [
+export const languagesCode = [
         { value: "af", label: "Afrikaans" },
         { value: "sq", label: "Albanian" },
         { value: "ar", label: "Arabic" },
@@ -76,6 +72,7 @@ const LanguageCode = ({ templateData, handleInputChange }: any) => {
         { value: "zu", label: "Zulu" },
     ];
 
+const LanguageCode = ({ templateData, handleInputChange }: any) => {
     return (
         <div>
             <label className="block text-sm font-medium text-gray-700">Language</label>
@@ -85,7 +82,7 @@ const LanguageCode = ({ templateData, handleInputChange }: any) => {
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
                 required
             >
-                { languages.map((language : any, index ) => 
+                { languagesCode.map((language : any, index ) => 
                  <option key={index} className="text-black" value={language.value}>{language.label}</option>
                  )}
             </select>

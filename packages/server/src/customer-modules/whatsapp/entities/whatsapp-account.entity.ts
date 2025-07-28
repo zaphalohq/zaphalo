@@ -1,11 +1,14 @@
 import { Field, ObjectType } from "@nestjs/graphql";
 import { IDField } from "@ptc-org/nestjs-query-graphql";
+import { Broadcast } from "src/customer-modules/broadcast/broadcast.entity";
 import { UUIDScalarType } from "src/modules/api/scalars/uuid.scalar";
 import {
   Column,
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Relation
 } from "typeorm";
 
 
@@ -47,4 +50,5 @@ export class WhatsAppAccount {
   @Column({ nullable: true })
   @Field({ nullable: true })
   defaultSelected: boolean;
+
 }

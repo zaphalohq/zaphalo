@@ -7,19 +7,19 @@ import { currentUserWorkspaceState } from "@src/modules/auth/states/currentUserW
 
 const MainLayout = () => {
   const [isToggleActivated, setIsToggleActivated] = useState(false)
-      const [currentUserWorkspace] = useRecoilState(currentUserWorkspaceState);
-  
+  const [currentUserWorkspace] = useRecoilState(currentUserWorkspaceState);
+
   const HandleToggleButton = () => {
     setIsToggleActivated(!isToggleActivated)
   }
 
   const [isLoaded, setIsLoaded] = useState(false);
 
-useEffect(() => {
-  if (currentUserWorkspace !== null ) {
-    setIsLoaded(true);
-  }
-}, [currentUserWorkspace]);
+  useEffect(() => {
+    if (currentUserWorkspace !== null) {
+      setIsLoaded(true);
+    }
+  }, [currentUserWorkspace]);
 
   return (
     <div className="grid md:grid-cols-[260px_1fr] min-h-screen w-full bg-blacky-900 p-5 overflow-hidden ">

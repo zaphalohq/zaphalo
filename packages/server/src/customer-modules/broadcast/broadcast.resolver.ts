@@ -4,29 +4,38 @@ import { Broadcast } from "./broadcast.entity";
 import { BroadcastService } from "./broadcast.service";
 import { BroadcastReqDto } from "./dto/BroadcastReqDto";
 import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
-import { WaAccountService } from "src/customer-modules/whatsapp/services/whatsapp-account.service";
+import { SuccessResponse } from "../whatsapp/dtos/success.dto";
+
 
 @Resolver(() => Broadcast)
 export class BroadcastResolver {
     constructor(
         private readonly broadcastService: BroadcastService,
-        private readonly waAccountService: WaAccountService,
-    ) { }
+    ) {
 
-    @UseGuards(GqlAuthGuard)
-    @Query(() => [Broadcast])
-    async findAllBroadcast(@Context('req') req) {
-        const workspaceId = req.headers['x-workspace-id'];
-        return await this.broadcastService.findAllBroadcast(workspaceId)
     }
 
     @UseGuards(GqlAuthGuard)
-    @Mutation(() => Broadcast)
-    async BroadcastTemplate(@Args('broadcastData') broadcastData: BroadcastReqDto): Promise<Broadcast> {
-        const findTrueInstants = await this.waAccountService.FindSelectedInstants()
-        const accessToken = findTrueInstants?.accessToken
-        const phoneNumberId = findTrueInstants?.phoneNumberId
-        return await this.broadcastService.BroadcastTemplate(accessToken, broadcastData, phoneNumberId)
+    @Query(() => [Broadcast])
+    async findAllBroadcast() {
+        return await this.broadcastService.findAllBroadcast()
+    }
+
+
+    @UseGuards(GqlAuthGuard)
+    @Mutation(() => SuccessResponse)
+    async BroadcastTemplate(@Args('broadcastData') broadcastData: BroadcastReqDto): Promise<SuccessResponse> {
+
+        const saveTemplates = await this.broadcastService.saveBroadcast(broadcastData);
+        console.log(saveTemplates, 'savetemplate....');
+
+        if (saveTemplates) {
+            this.broadcastService.sendMessagesInBackground();
+        }
+        return {
+            success: true,
+            message: 'Broadcast save successfully and broadcast sending started.'
+        }
     }
 
 }

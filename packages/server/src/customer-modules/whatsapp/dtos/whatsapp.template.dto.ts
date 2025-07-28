@@ -27,8 +27,8 @@ export class WaButtonInput {
 
 @InputType()
 export class WaTemplateRequestInput {
-  @Field()
-  accountId: string;
+  @Field({ nullable: true})
+  accountId?: string;
 
   @Field()
   templateName: string;

@@ -4,6 +4,7 @@ import { useMutation, useQuery } from "@apollo/client"
 import { TemplateContext } from "@components/Context/TemplateContext"
 import { findWaAllTemplate, GET_TEMPLATE_STATUS, WaTestTemplate } from "@src/generated/graphql"
 import { GrDocumentUpdate } from "react-icons/gr";
+import { languagesCode } from "./LanguageCode"
 
 const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) => {
     const { setTemplateFormData, setSelectedTemplateInfo }: any = useContext(TemplateContext)
@@ -73,10 +74,14 @@ const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) =
         });
     };
 
+    const HandleLanguage = (languageCode : string) => {
+    const languageValue = languagesCode.find((language) => language.value == languageCode)
+    return languageValue?.label
+    }
 
     return (
         <div>
-            <div className="relative overflow-x-auto md:pt-4 md:p-4 rounded-lg">
+            <div className="relative w-5xl md:pt-4 md:p-4 rounded-lg">
                 <table className="w-full text-sm text-left rtl:text-right text-stone-500 rounded-2xl">
                     <thead className="text-xs text-stone-700 uppercase bg-stone-200 truncate">
                         <tr>
@@ -84,10 +89,11 @@ const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) =
                             <th scope="col" className="px-6 py-4 text-center truncate">Template Id</th>
                             <th scope="col" className="px-6 py-4 text-center truncate">Status</th>
                             <th scope="col" className="px-6 py-4 text-center truncate">Category</th>
+                            <th scope="col" className="px-6 py-4 text-center truncate">Language</th>
                             <th scope="col" className="px-6 py-4 text-center truncate">Update</th>
-                            <th scope="col" className="px-6 py-4 text-center truncate">Check Template Status</th>
-                            <th scope="col" className="px-6 py-4 text-center truncate">preview</th>
-                            <th scope="col" className="px-6 py-4 text-center truncate">Send Template</th>
+                            <th scope="col" className="px-6 py-4 text-center truncate">Check Status</th>
+                            <th scope="col" className="px-6 py-4 text-center truncate">Preview</th>
+                            <th scope="col" className="px-6 py-4 text-center truncate">Test Template</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -124,6 +130,13 @@ const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) =
                                     title={template.category}
                                 >
                                     {template.category.toUpperCase()}
+                                </td>
+                                <td
+                                    className="px-6 py-4 text-center truncate max-w-[150px]"
+                                    title={template.language}
+                                >  
+                                {`${HandleLanguage(template.language)}`}
+                                    {/* {template.language} */}
                                 </td>
                                 <td className="px-4 py-2 text-center">
                                     <button
@@ -166,7 +179,7 @@ const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) =
                                     className="px-6 py-4 text-center truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
                                     title="sendTemplate"
                                 >
-                                    Check Template Status
+                                    Check Status
                                 </td>
                                 <td onClick={() => {
                                       const { account,
@@ -200,7 +213,7 @@ const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) =
                                     className="px-6 py-4 text-center truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
                                     title="preview"
                                 >
-                                    preview
+                                    Preview
                                 </td>
                                 <td onClick={() => {
                                     setShowSendPopup(true);
