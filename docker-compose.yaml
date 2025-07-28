@@ -1,0 +1,47 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: packages/server/Dockerfile
+    command: ["yarn", "start:prod"]
+    volumes:
+      - server-local-data:/app/packages/server/.local-storage
+    ports:
+      - '3000:3000' # Expose the backend on port 4000
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PORT: 3000
+      APP_SECRET: 'asasasasa'
+      PG_DATABASE_URL: postgres://${PG_DATABASE_USER:-postgres}:${PG_DATABASE_PASSWORD:-postgres}@${PG_DATABASE_HOST:-db}:${PG_DATABASE_PORT:-5432}/yaariapi
+      WEBSOCKET_PORT: 4000
+      FRONTEND_URL: 'http://192.168.1.246:5173'
+      SERVER_URL: '192.168.1.246:3000'
+      BACKEND_URL: 'http://192.168.1.246:3000'
+      IS_MULTIWORKSPACE_ENABLED: true
+      GOOGLE_AUTH_ENABLED: false
+      GOOGLE_AUTH_CLIENT_ID: false
+      GOOGLE_AUTH_CLIENT_SECRET: false
+      GOOGLE_AUTH_CALLBACK_URL: http://localhost:3000/google/auth/redirect
+      GOOGLE_AUTH_APIS_CALLBACK_URL: http://localhost:3001/auth/google-apis/get-access-token
+  db:
+    image: postgres:15
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./docker-postgres-multiple-dbs.sh:/docker-entrypoint-initdb.d/docker-postgres-multiple-dbs.sh
+    environment:
+      POSTGRES_USER: ${PG_DATABASE_USER:-postgres}
+      POSTGRES_PASSWORD: ${PG_DATABASE_PASSWORD:-postgres}
+    healthcheck:
+      test: pg_isready -U ${PG_DATABASE_USER:-postgres} -h localhost -d postgres
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: always
+
+volumes:
+  db-data:
+  server-local-data:
+

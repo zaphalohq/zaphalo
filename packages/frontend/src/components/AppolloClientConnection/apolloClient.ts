@@ -2,9 +2,10 @@
 import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { cookieStorage } from '@src/utils/cookie-storage';
+import { VITE_BACKEND_URL } from '@src/config';
 
 const httpLink = createHttpLink({
-  uri: `${import.meta.env.VITE_BACKEND_URL}/graphql`,
+  uri: `${VITE_BACKEND_URL}/graphql`,
 });
 
 const authLink = setContext((_, { headers }) => {

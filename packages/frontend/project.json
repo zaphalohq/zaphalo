@@ -4,6 +4,13 @@
   "projectType": "application",
   "tags": ["scope:frontend"],
   "targets": {
+    "build": {
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "{projectRoot}/build"
+      },
+      "dependsOn": ["^build"]
+    },
     "start": {
       "executor": "@nx/vite:dev-server",
       "options": {
