@@ -8,10 +8,6 @@ const TableListView = () => {
     HandleFormVisibility,
     setFormData,
     instantsData,
-    DeleteInstants,
-    data,
-    refetch,
-    setInstantsData,
     HandleDeleteInstants
   }: any = useContext(InstantsContext)
   return (
@@ -60,13 +56,14 @@ const TableListView = () => {
                 </td>
                 <td
                   className="px-6 py-4 text-center truncate max-w-[200px]"
-                  title={instantsdata.accessToken}
+                  title={'*'.repeat(instantsdata.accessToken.length)}
                 >
-                  {instantsdata.accessToken}
+                  {'*'.repeat(instantsdata.accessToken.length)}
+
                 </td>
                 <td
                   className="px-6 py-4 text-center truncate max-w-[150px]"
-                  title={instantsdata.appSecret}
+                  title={'*'.repeat(instantsdata.appSecret.length)}
                 >
                   {'*'.repeat(instantsdata.appSecret.length)}
                 </td>
@@ -86,10 +83,6 @@ const TableListView = () => {
                     onClick={async () => {
                       HandleDeleteInstants(
                         instantsdata.id,
-                        DeleteInstants,
-                        data,
-                        refetch,
-                        setInstantsData
                       )
                     }}
                     className='text-lg text-center text-[#ED4337] cursor-pointer hover:bg-stone-200 p-2 rounded'

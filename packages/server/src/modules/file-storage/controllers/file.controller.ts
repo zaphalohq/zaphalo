@@ -26,10 +26,11 @@ export class FileController {
     @Req() req: Request,
   ) {
     const filename = params['filename']
-
+    
     const workspaceId = (req as any)?.workspaceId;
 
     const workspaceFolderPath = `workspace-${workspaceId}`;
+    console.log(workspaceFolderPath);
     
     if (!workspaceId) {
       throw new Error(
@@ -40,7 +41,7 @@ export class FileController {
     try {
       const fileStream = await this.fileService.getFileStream({
         folderPath: workspaceFolderPath,
-        filename: filename,}
+        filename: filename}
       );
       
       fileStream.on('error', () => {

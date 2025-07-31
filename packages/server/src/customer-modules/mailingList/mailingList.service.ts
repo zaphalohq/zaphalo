@@ -1,9 +1,9 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { MailingList } from "./mailingList.entity";
-import { MailingListInputDto } from "./DTO/MailingListReqDto";
+import { MailingContact, MailingListInputDto } from "./DTO/MailingListReqDto";
 import { MailingContacts } from "./mailingContacts.entity";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
-import { Connection, Repository } from 'typeorm';
+import { Connection, ILike, Repository } from 'typeorm';
 
 
 @Injectable()
@@ -17,7 +17,8 @@ export class MailingListService {
         this.mailingContactsRepository = connection.getRepository(MailingContacts);
 
     }
-    async CreateMailingList(mailingListName : string, mailingListData: MailingListInputDto) {
+
+    async CreateMailingList(mailingListName: string, mailingListData: MailingListInputDto) {
         const mailingList = this.mailingListRepository.create({ mailingListName })
         await this.mailingListRepository.save(mailingList)
         mailingListData.mailingContacts.map(async (mailingContact) => {
@@ -32,16 +33,22 @@ export class MailingListService {
     }
 
     async findMailingListById(mailingListId: string): Promise<MailingList | null> {
-        return await this.mailingListRepository.findOne({ where: { id: mailingListId } })
+        return await this.mailingListRepository.findOne({
+            where: { id: mailingListId },
+            relations: ['mailingContacts']
+        })
     }
 
     async findAllMailingList(): Promise<MailingList[]> {
-        const mailinglist = await this.mailingListRepository.find()
+        const mailinglist = await this.mailingListRepository.find({
+            relations: ['mailingContacts'],
+            order: { createdAt: 'ASC' }
+        })
 
         return mailinglist
     }
 
-   
+
     async findAllContactsOfMailingList(mailingListId: string): Promise<MailingContacts[]> {
         const mailinglist = await this.mailingContactsRepository.find(
             {
@@ -61,9 +68,66 @@ export class MailingListService {
         })
     }
 
-     async findMailingListByName(mailingListName: string) {
-        return await this.mailingListRepository.findOne({ where: { mailingListName}})
+    async findAllMailingContactByMailingListId(mailingListId: string) {
+        return await this.mailingContactsRepository.find({
+            where: { mailingList: { id: mailingListId } },
+            order: { createdAt: 'ASC' }
+        })
     }
 
-    
+    async selectedMailingContact(mailingListId: string, currentPage: number, itemsPerPage: number) {
+        const totalItems = await this.mailingContactsRepository.count({ where: { mailingList: { id: mailingListId } } });
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const mailingContact = await this.mailingContactsRepository.find({
+            where: { mailingList: { id: mailingListId } },
+            order: { createdAt: 'ASC' },
+            skip: startIndex,
+            take: itemsPerPage,
+        })
+
+        console.log(startIndex, "...........................");
+
+        return {
+            mailingContact,
+            totalPages
+        }
+    }
+
+
+    async searchAndPaginateContact(
+        mailingListId: string,
+        searchTerm?: string,
+    ) {
+        const [mailingContact, totalCount] = await this.mailingContactsRepository.findAndCount({
+            where: searchTerm ? [
+                { mailingList: { id: mailingListId }, contactName: ILike(`%${searchTerm}%`) },
+                { mailingList: { id: mailingListId }, contactNo: ILike(`%${searchTerm}%`) },
+            ] : { mailingList: { id: mailingListId } },
+            order: { createdAt: 'ASC' },
+        });
+
+        return { mailingContact, totalCount };
+    }
+
+    async findMailingListByName(mailingListName: string) {
+        return await this.mailingListRepository.findOne({ where: { mailingListName } })
+    }
+
+
+    async saveMailingContact(saveMailingContact: MailingContact) {
+        const mailingContact = await this.mailingContactsRepository.findOne({ where: { id: saveMailingContact.id } })
+        if (!mailingContact) throw new Error('mailing List contact doesnt exist');
+        mailingContact.contactName = saveMailingContact.contactName;
+        mailingContact.contactNo = saveMailingContact.contactNo;
+        await this.mailingContactsRepository.save(mailingContact);
+        await mailingContact
+    }
+
+
+    async deleteMailingContact(mailingContactId: string) {
+        return await this.mailingContactsRepository.delete({ id: mailingContactId })
+    }
+
+
 }

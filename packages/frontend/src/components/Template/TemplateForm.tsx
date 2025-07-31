@@ -6,7 +6,7 @@ import TemplateButton from "./TemplateButton";
 import TemplateVariables from "./TemplateVariables";
 import { useMutation } from "@apollo/client";
 import { cookieStorage } from '@src/utils/cookie-storage';
-import { CreateOneAttachmentDoc, SAVE_TEMPLATE, SUBMIT_TEMPLATE, UPDATE_TEMPLATE } from "@src/generated/graphql";
+import { CreateOneAttachmentDoc, SUBMIT_TEMPLATE, SAVE_TEMPLATE } from "@src/generated/graphql";
 import { TemplateContext } from "@components/Context/TemplateContext";
 import { Post } from "@src/modules/domain-manager/hooks/axios";
 
@@ -33,8 +33,6 @@ type TemplateData = {
   headerText: string;
   variables: WaVariableInput[];
   headerType: 'NONE' | 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT';
-  header_handle: string;
-  fileUrl: string;
   attachmentId: string | null;
 };
 
@@ -45,8 +43,8 @@ const TemplateForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<String | null>(null);
   const [submitTemplate] = useMutation(SUBMIT_TEMPLATE);
+  // const [saveTemplate] = useMutation(SAVE_TEMPLATE);
   const [saveTemplate] = useMutation(SAVE_TEMPLATE);
-  const [updateTemplate] = useMutation(UPDATE_TEMPLATE);
   const [createOneAttachment] = useMutation(CreateOneAttachmentDoc);
 
 
@@ -94,16 +92,8 @@ const TemplateForm = () => {
 
   const handleFileUpload = async () => {
     let updatedTemplateData = { ...templateData };
-    const accessToken = cookieStorage.getItem('accessToken')
     if (file !== null) {
-
-
       try {
-        //   const response = await Post(`/templateFileUpload`, formData, {
-        //     headers: {
-        //       'Content-Type': 'multipart/form-data'
-        //     },
-        //   });
         const formData = new FormData();
         formData.append('file', file);
         const response = await Post(
@@ -112,8 +102,6 @@ const TemplateForm = () => {
           { headers: { 'Content-Type': 'multipart/form-data' } }
         );
 
-        // updatedTemplateData['header_handle'] = response.data;
-        // updatedTemplateData['fileUrl'] = response.data.file.filename;
         if (response.data) {
           const attachment: any = await createOneAttachment({
             variables: {
@@ -159,7 +147,6 @@ const TemplateForm = () => {
 
 
     const updatedTemplateData = await handleFileUpload()
-    console.log(updatedTemplateData,'updatedTemplateDataupdatedTemplateData');
     
     try {
       const response = await submitTemplate({ variables: { templateData: updatedTemplateData, waTemplateId: selectedTemplateInfo.waTemplateId , dbTemplateId: selectedTemplateInfo.dbTemplateId } });
@@ -178,6 +165,34 @@ const TemplateForm = () => {
   const templateComponents = ["Body", "Buttons", "Variables"]
 
 
+  // const handleSaveTemplate = async (e: any) => {
+  //   if (!templateData.templateName) {
+  //     setError('Template name is required to save.');
+  //     return;
+  //   }
+  //   e.preventDefault();
+  //   setIsSubmitting(true);
+  //   setError(null);
+  //   setStatus(null);
+
+  //   console.log(templateData,'.....................templateData');
+    
+  //   // const updatedTemplateData = await handleFileUpload()
+
+  //   // try {
+  //   //   const response = await saveTemplate({ variables: { templateData: updatedTemplateData } });
+  //   //   const result = response.data;
+  //   //   setStatus(result);
+  //   // } catch (err: any) {
+  //   //   setError(err.message || 'Failed to save template');
+  //   //   console.error(err);
+
+  //   // } finally {
+  //   //   setIsSubmitting(false);
+  //   // }
+  // }
+
+
   const handleSaveTemplate = async (e: any) => {
     if (!templateData.templateName) {
       setError('Template name is required to save.');
@@ -188,33 +203,10 @@ const TemplateForm = () => {
     setError(null);
     setStatus(null);
     const updatedTemplateData = await handleFileUpload()
+    console.log(updatedTemplateData,'updatedTemplateDataupdatedTemplateData');
 
     try {
-      const response = await saveTemplate({ variables: { templateData: updatedTemplateData } });
-      const result = response.data;
-      setStatus(result);
-    } catch (err: any) {
-      setError(err.message || 'Failed to save template');
-      console.error(err);
-
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
-
-
-  const handleUpdateTemplate = async (e: any) => {
-    if (!templateData.templateName) {
-      setError('Template name is required to save.');
-      return;
-    }
-    e.preventDefault();
-    setIsSubmitting(true);
-    setError(null);
-    setStatus(null);
-    const updatedTemplateData = await handleFileUpload()
-    try {
-      const response = await updateTemplate({ variables: { templateData: updatedTemplateData, dbTemplateId: selectedTemplateInfo.dbTemplateId } });
+      const response = await saveTemplate({ variables: { templateData: updatedTemplateData, dbTemplateId: selectedTemplateInfo.dbTemplateId } });
       const result = response.data;
       setStatus(result);
     } catch (err: any) {
@@ -292,46 +284,21 @@ const TemplateForm = () => {
                 <button
                   type="button"
                   onClick={handleSaveTemplate}
-                  disabled={selectedTemplateInfo.status !== ''}
+                  // disabled={selectedTemplateInfo.status !== ''}
                   className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-400 p-2"
                 >
                   {isSubmitting ? 'Saving...' : 'Save Template'}
                 </button>
                 <button
-                  type="button"
-                  onClick={handleUpdateTemplate}
-                  disabled={
-                    selectedTemplateInfo.status !== 'pending' &&
-                    selectedTemplateInfo.status !== 'saved' &&
-                    selectedTemplateInfo.status !== 'approved' &&
-                    selectedTemplateInfo.status !== 'rejected'}
-                  className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-400 p-2"
-                >
-                  {isSubmitting ? 'Editing...' : 'Edit Template'}
-                </button>
-                <button
                   type="submit"
                   disabled={
                     isSubmitting ||
-                    !isValidated ||
-                    (selectedTemplateInfo.status !== 'saved' && selectedTemplateInfo.status !== '')}
+                    !isValidated }
                   className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-400 p-2"
                 >
                   {isSubmitting ? 'Submitting...' : 'Submit Template'}
                 </button>
-                <button
-                  type="submit"
-                  disabled={
-                    isSubmitting ||
-                    !isValidated ||
-                    !(selectedTemplateInfo.status === 'approved' || selectedTemplateInfo.status === 'rejected')
-                  }
-                  className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-400 p-2"
-                >
-                  {isSubmitting ? 'Updating...' : 'Update & Submit Template'}
-                </button>
               </div>
-
             </div>
           </div>
         </div>
@@ -342,13 +309,6 @@ const TemplateForm = () => {
           <pre className="bg-gray-100 p-4 rounded-md overflow-auto">
             {JSON.stringify(status, null, 2)}
           </pre>
-          {/* {templateId && (
-            <button type="button"
-              className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
-            >
-              Refresh Status
-            </button>
-          )} */}
         </div>
       )}
       {error && (

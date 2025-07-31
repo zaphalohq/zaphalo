@@ -24,7 +24,7 @@ export const CloseButton = ({ title, type, onClick, Icon } : {
 }) => {
   return (
     <div>
-      <button type={type} onClick={onClick} className='w-full cursor-pointer bg-red-500 hover:bg-red-600 text-white rounded p-2 px-8 flex items-center justify-center gap-4' >
+      <button type={type} onClick={onClick} className='w-full cursor-pointer bg-red-500 hover:bg-red-600 text-white rounded p-2 px-8 flex items-center justify-center gap-2' >
         <div  className='text-xl'>{Icon ? <Icon /> : null }</div>
         <div>{title}</div>
       </button>

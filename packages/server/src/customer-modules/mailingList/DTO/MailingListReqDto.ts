@@ -2,7 +2,10 @@
 import { InputType, Field } from '@nestjs/graphql';
 
 @InputType()
-class MailingContact {
+export class MailingContact {
+  @Field({ nullable : true })
+  id?: string;
+  
   @Field()
   contactName: string;
 

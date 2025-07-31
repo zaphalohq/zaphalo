@@ -5,7 +5,7 @@ import { WhatsAppAccount } from '../entities/whatsapp-account.entity';
 import { WhatsAppTemplate } from 'src/customer-modules/whatsapp/entities/whatsapp-template.entity';
 import { ContactsService } from 'src/customer-modules/contacts/contacts.service';
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
-import { WaAccountUpdateDTO } from '../dtos/whatsapp-account-update.dto';
+import { WaAccountDto } from '../dtos/whatsapp-account-update.dto';
 
 @Injectable()
 export class WaAccountService {
@@ -19,7 +19,7 @@ export class WaAccountService {
     this.waTemplateRepository = connection.getRepository(WhatsAppTemplate);
   }
 
-  async WaAccountCreate(WhatsappInstantsData: WaAccountUpdateDTO): Promise<WhatsAppAccount> {
+  async WaAccountCreate(WhatsappInstantsData: WaAccountDto): Promise<WhatsAppAccount> {
     const waAccounts = await this.waAccountRepository.find();
     let defaultWaAccount = false;
     if (waAccounts.length < 1) {
@@ -124,12 +124,13 @@ export class WaAccountService {
     });
   }
 
-  async UpdateInstants(id: string, updatedInstants: WaAccountUpdateDTO): Promise<WhatsAppAccount | null> {
+  async UpdateInstants(id: string, updatedInstants: WaAccountDto): Promise<WhatsAppAccount | null> {
     const existingInstants = await this.waAccountRepository.findOne({ where: { id } });
     if (!existingInstants) {
       throw new NotFoundException(`Instant with ID ${id} not found`);
     }
     Object.assign(existingInstants, updatedInstants);
+    await this.waAccountRepository.save(existingInstants);
     const existingContact = await this.contactsService.findOneContact(Number(existingInstants.phoneNumberId))
     if(!existingContact) throw Error("contact not found")
       await this.contactsService.UpdateContact({
@@ -137,7 +138,7 @@ export class WaAccountService {
         contactName: existingContact?.contactName,
         phoneNo: Number(updatedInstants?.phoneNumberId)
       })
-    return this.waAccountRepository.save(existingInstants);
+    return existingInstants
   }
 
   async DeleteInstants(id: string): Promise<WhatsAppAccount | null> {

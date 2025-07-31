@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { FiEdit2 } from 'react-icons/fi'
 import { MdDelete } from 'react-icons/md'
 import { ContactsContext } from '@components/Context/ContactsContext'
@@ -13,8 +13,8 @@ const ContactsTable = () => {
 
   } : any = useContext(ContactsContext)
 
+
   return (
-    <div>
       <div className="relative overflow-x-auto md:pt-4 md:p-4 rounded-lg">
         <table className="w-full text-sm text-left rtl:text-right text-stone-500 rounded-2xl">
           <thead className="text-xs text-stone-700 uppercase bg-stone-200 truncate">
@@ -68,7 +68,6 @@ const ContactsTable = () => {
           </tbody>
         </table>
       </div>
-    </div>
   )
 }
 

@@ -13,12 +13,12 @@ async function bootstrap() {
   app.use(new WorkspaceMiddleware().use);
   app.use(bodyParser.json({ limit: '5mb' }));
   app.use(bodyParser.urlencoded({ limit: '5mb', extended: true }));
-  app.enableCors({
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-  });
   app.use(new WorkspaceMiddleware().use);
-  app.enableCors();
+  app.enableCors({
+  origin: '*',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+});
   app.useStaticAssets(path.join(__dirname, "../uploads"))
 
   await app.listen(Number(process.env.PORT));

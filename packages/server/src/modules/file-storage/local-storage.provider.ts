@@ -20,7 +20,7 @@ export class LocalStorageProvider {
     const folder = this.getWorkspaceFolderName(workspaceId);
 
     return diskStorage({
-      destination: `./uploads/${folder}`,
+      destination: `./.local-storage/files-storage/${folder}`,
       filename: (req, file, callback) => {
         const uniqueSuffix = `${uuidv4()}${extname(file.originalname)}`;
         callback(null, uniqueSuffix);

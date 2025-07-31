@@ -18,7 +18,7 @@ export class FileService {
     filename: string;
   }): Promise<Readable> {
     const filePath = join(process.cwd(),
-  `uploads/`,
+  `.local-storage/files-storage/`,
   params.folderPath,
   params.filename,
   );

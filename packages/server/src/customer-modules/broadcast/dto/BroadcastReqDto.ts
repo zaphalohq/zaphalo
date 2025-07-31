@@ -3,26 +3,15 @@ import { Field, InputType } from "@nestjs/graphql";
 @InputType()
 export class BroadcastReqDto {
   @Field()
-  templateId: string;
+  accountId: string;
 
   @Field()
-  templateName: string;
+  broadcastName: string;
+
+  @Field()
+  templateId: string;
 
   @Field()
   mailingListId: string;
 
-  @Field()
-  mailingListName: string;
-
-  @Field(() => [String], { nullable: true })
-  variables?: string[];
-
-  @Field({ nullable: true })
-  URL?: string;
-
-  @Field()
-  headerType: string;
-
-  @Field()
-  language: string;
 }

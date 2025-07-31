@@ -4,12 +4,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   Relation
 } from 'typeorm';
 import { MailingContacts } from './mailingContacts.entity';
 import { UUIDScalarType } from 'src/modules/api/scalars/uuid.scalar';
+import { Broadcast } from '../broadcast/broadcast.entity';
 
 @Entity({ name: 'MailingList' })
 @ObjectType()

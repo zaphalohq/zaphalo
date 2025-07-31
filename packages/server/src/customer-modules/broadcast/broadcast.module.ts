@@ -15,12 +15,9 @@ import { MailingListModule } from "src/customer-modules/mailingList/mailingList.
       NestjsQueryGraphQLModule.forFeature({
           imports: [
             NestjsQueryTypeOrmModule.forFeature([Broadcast, BroadcastContacts]),
-            TypeORMModule,
-            WorkspaceModule,
             MailingListModule,
-            WhatsAppModule
+            WhatsAppModule,
           ],
-          services: [BroadcastService],
         }),],
     providers : [BroadcastService, BroadcastResolver],
     exports: [BroadcastService],

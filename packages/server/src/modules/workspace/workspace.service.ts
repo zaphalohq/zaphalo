@@ -142,6 +142,7 @@ export class WorkspaceService {
     if (!workspace) throw Error('workspace not found');
     workspace.name = workspaceName;
     if(profileImg) workspace.profileImg = profileImg;
+    
     workspace.isWorkspaceSetup = true;
     await this.workspaceRepository.save(workspace)
     return workspace

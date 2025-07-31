@@ -14,6 +14,7 @@ import { GqlAuthGuard } from 'src/modules/auth/guards/gql-auth.guard';
 import { TestTemplateOutput, WaTestTemplateInput } from "./dtos/test-input.template.dto";
 import { WaTemplateResponseDto } from "./dtos/whatsapp.response.dto";
 import { WaTemplateRequestInput } from "./dtos/whatsapp.template.dto";
+import { WaAccountDto } from "./dtos/whatsapp-account-update.dto";
 
 @Resolver(() => WhatsAppAccount)
 export class WhatsAppResolver {
@@ -94,6 +95,8 @@ export class WhatsAppResolver {
       if (template.attachment) {
         const header_handle = await wa_api.uploadDemoDocument(template.attachment);
         payload = await this.waTemplateService.generatePayload(templateData, header_handle);
+      } else {
+        payload = await this.waTemplateService.generatePayload(templateData);
       }
       const payload_json = JSON.stringify({ ...payload });
       response = await wa_api.submitTemplateUpdate(payload_json, template.waTemplateId);
@@ -109,6 +112,8 @@ export class WhatsAppResolver {
         if (template.attachment) {
           const header_handle = await wa_api.uploadDemoDocument(template.attachment);
           payload = await this.waTemplateService.generatePayload(templateData, header_handle);
+        } else {
+          payload = await this.waTemplateService.generatePayload(templateData);
         }
 
         const payload_json = JSON.stringify({ ...payload });
@@ -162,36 +167,89 @@ export class WhatsAppResolver {
 
   }
 
-  @UseGuards(GqlAuthGuard)
-  @Query(() => [WhatsAppTemplate])
-  async findAllTemplate(@Context('req') req): Promise<WhatsAppTemplate[]> {
-    const data = await this.waTemplateService.findAllTemplate();
-    return data
-  }
 
   @Mutation(() => TestTemplateOutput)
   async testTemplate(@Args('testTemplateData') testTemplateData: WaTestTemplateInput) {
     const wa_api = await this.getWhatsAppApi()
 
-    const template: any = await this.waTemplateService.findtemplateById(testTemplateData.dbTemplateId)
+    const template: any = await this.waTemplateService.findtemplateByDbId(testTemplateData.dbTemplateId)
     console.log(template, '.....');
 
     if (!template) throw Error('template doesnt exist')
 
     let generateTemplatePayload
-    if (template.attachment) {
-      // const mediaLink = await wa_api.uploadDemoDocument(template.attachment);
+    if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(template.headerType)) {
       const mediaLink = 'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png'
+      // const mediaLink = template.templateImg;
+      console.log("...........tempaltegenereated ");
+      
       generateTemplatePayload = await this.waTemplateService.generateSendMessagePayload(template, testTemplateData.testPhoneNo, mediaLink);
+    } else {
+      generateTemplatePayload = await this.waTemplateService.generateSendMessagePayload(template, testTemplateData.testPhoneNo);
     }
 
+    console.log(generateTemplatePayload,'genereated pauyload');
 
-    const testTemplate = await wa_api.testTemplate(JSON.stringify(generateTemplatePayload))
-    console.log(testTemplate, '....................testTemplate');
+    console.log(generateTemplatePayload.components,'genereated pauyload components');
+    
+
+    const testTemplate = await wa_api.sendTemplateMsg(JSON.stringify(generateTemplatePayload))
 
     return { success: 'test template send successfully' }
   }
 
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => WhatsAppAccount)
+  async SyncAndSaveInstants(
+    @Args('whatsappInstantsData') whatsappInstantsData: WaAccountDto,
+    @Args('instanceId', { nullable: true }) instanceId?: string
+  ): Promise<WhatsAppAccount | null | string> {
+    if (!instanceId) {
+      const instances = await this.waAccountService.WaAccountCreate(whatsappInstantsData);
+      const wa_api = await this.getWhatsAppApi(instances.id)
+      if (instances) {
+        const syncTemplate = await wa_api.syncTemplate();
+        await this.waTemplateService.saveSyncTemplates(syncTemplate, instances)
+      }
+      return instances;
+    } else {
+      const wa_api = await this.getWhatsAppApi(instanceId)
+      const instances = await this.waAccountService.UpdateInstants(instanceId, whatsappInstantsData);
+      if (instances) {
+        const syncTemplate = await wa_api.syncTemplate();
+        await this.waTemplateService.saveSyncTemplates(syncTemplate, instances)
+      }
+      return instances;
+    }
+
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => WhatsAppAccount)
+  async TestAndSaveInstants(
+    @Args('whatsappInstantsData') whatsappInstantsData: WaAccountDto,
+    @Args('instanceId', { nullable: true }) instanceId?: string
+  ): Promise<WhatsAppAccount | null> {
+    if (!instanceId) {
+      const instances = await this.waAccountService.WaAccountCreate(whatsappInstantsData);
+      const wa_api = await this.getWhatsAppApi(instances.id)
+      if (instances) {
+        const testTemplate = await wa_api.testInstants()
+        console.log(testTemplate, ".testTemplate.testTemplate");
+
+      }
+      return instances
+    } else {
+      const instances = await this.waAccountService.UpdateInstants(instanceId, whatsappInstantsData);
+      const wa_api = await this.getWhatsAppApi(instanceId)
+      if (instances) {
+        const testTemplate = await wa_api.testInstants()
+      }
+      return instances;
+    }
+
+  }
 
 
 }

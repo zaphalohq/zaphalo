@@ -16,7 +16,7 @@ const TemplateMain = () => {
       <div className='font-bold text-lg border-gray-300 p-4 border-b'>Mailing List</div>
       <div className='h-[calc(100vh-100px)]  overflow-y-scroll'>
         <div className="grid grid-cols-4 pt-4 px-4 ">
-          <div className="md:col-start-4 md:pb-0 col-start-1 col-end-4 pb-4">
+          <div className="md:col-start-8 md:pb-0 col-start-1 col-end-8 pb-4">
             {!isTemplateFormVis ?
               <SubmitButton type='button' onClick={() => {
                 setTemplateFormData({
@@ -30,10 +30,8 @@ To track the shipping: {{4}}
 Thank you.`,
                   footerText: '',
                   headerType: 'NONE',
-                  header_handle: '',
                   button: [],
                   variables: [],
-                  fileUrl: '',
                   attachmentId: null
                 })
                 setSelectedTemplateInfo({
@@ -42,7 +40,7 @@ Thank you.`,
                 })
                 setIsTemplateFormVis(true)
               }} title="Create New Template" Icon={FaPlus} />
-              : <CloseButton type='button' onClick={() => setIsTemplateFormVis(false)} title="Close Create Template" Icon={FiX} />}
+              : <CloseButton type='button' onClick={() => setIsTemplateFormVis(false)} title="Discard" Icon={FiX} />}
           </div>
         </div>
         {isTemplateFormVis ?
@@ -66,7 +64,6 @@ Thank you.`,
                     bodyText: '',
                     footerText: '',
                     headerType: 'NONE',
-                    header_handle: '',
                     button: [],
                     variables: [],
                     attachmentId: null

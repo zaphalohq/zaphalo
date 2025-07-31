@@ -136,29 +136,30 @@ export const GetCurrentUserDocument = gql`
   }
 }
     ${UserQueryFragmentFragmentDoc}`;
-export type GetCurrentUserQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: any, firstName: string, lastName: string, email: string, canAccessFullAdminPanel: boolean, canImpersonate: boolean, supportUserHash?: string | null, userVars: any, workspaceMember?: { __typename?: 'WorkspaceMember', id: any, colorScheme: string, avatarUrl?: string | null, locale?: string | null, userEmail: string, timeZone?: string | null, dateFormat?: any | null, timeFormat?: any | null, name: { __typename?: 'FullName', firstName: string, lastName: string } } | null, workspaceMembers?: Array<{ __typename?: 'WorkspaceMember', id: any, colorScheme: string, avatarUrl?: string | null, locale?: string | null, userEmail: string, timeZone?: string | null, dateFormat?: any | null, timeFormat?: any | null, name: { __typename?: 'FullName', firstName: string, lastName: string } }> | null, deletedWorkspaceMembers?: Array<{ __typename?: 'DeletedWorkspaceMember', id: any, avatarUrl?: string | null, userEmail: string, name: { __typename?: 'FullName', firstName: string, lastName: string } }> | null, currentUserWorkspace?: { __typename?: 'UserWorkspace', settingsPermissions?: Array<any> | null, objectRecordsPermissions?: Array<any> | null } | null, currentWorkspace?: { __typename?: 'Workspace', id: any, displayName?: string | null, logo?: string | null, inviteHash?: string | null, allowImpersonation: boolean, isPublicInviteLinkEnabled: boolean, isGoogleAuthEnabled: boolean, isMicrosoftAuthEnabled: boolean, isPasswordAuthEnabled: boolean, subdomain: string, hasValidEnterpriseKey: boolean, customDomain?: string | null, isCustomDomainEnabled: boolean, metadataVersion: number, workspaceMembersCount?: number | null, workspaceUrls: { __typename?: 'WorkspaceUrls', subdomainUrl: string, customUrl?: string | null }, featureFlags?: Array<{ __typename?: 'FeatureFlagDTO', value: boolean }> | null, currentBillingSubscription?: { __typename?: 'BillingSubscription', id: any, billingSubscriptionItems?: Array<{ __typename?: 'BillingSubscriptionItem', id: any, hasReachedCurrentPeriodCap: boolean, billingProduct?: { __typename?: 'BillingProduct', name: string, description: string, metadata: { __typename?: 'BillingProductMetadata' } } | null }> | null } | null, billingSubscriptions: Array<{ __typename?: 'BillingSubscription', id: any }>, defaultRole?: { __typename?: 'Role', id: string, label: string, description?: string | null, icon?: string | null, canUpdateAllSettings: boolean, isEditable: boolean, canReadAllObjectRecords: boolean, canUpdateAllObjectRecords: boolean, canSoftDeleteAllObjectRecords: boolean, canDestroyAllObjectRecords: boolean } | null } | null, workspaces: Array<{ __typename?: 'UserWorkspace', workspace?: { __typename?: 'Workspace', id: any, logo?: string | null, displayName?: string | null, subdomain: string, customDomain?: string | null, workspaceUrls: { __typename?: 'WorkspaceUrls', subdomainUrl: string, customUrl?: string | null } } | null }> }
- User: {
-  __typename?: 'User';
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  currentWorkspace?: {
-    __typename?: 'Workspace';
+export type GetCurrentUserQuery = {
+  __typename?: 'Query', currentUser: { __typename?: 'User', id: any, firstName: string, lastName: string, email: string, canAccessFullAdminPanel: boolean, canImpersonate: boolean, supportUserHash?: string | null, userVars: any, workspaceMember?: { __typename?: 'WorkspaceMember', id: any, colorScheme: string, avatarUrl?: string | null, locale?: string | null, userEmail: string, timeZone?: string | null, dateFormat?: any | null, timeFormat?: any | null, name: { __typename?: 'FullName', firstName: string, lastName: string } } | null, workspaceMembers?: Array<{ __typename?: 'WorkspaceMember', id: any, colorScheme: string, avatarUrl?: string | null, locale?: string | null, userEmail: string, timeZone?: string | null, dateFormat?: any | null, timeFormat?: any | null, name: { __typename?: 'FullName', firstName: string, lastName: string } }> | null, deletedWorkspaceMembers?: Array<{ __typename?: 'DeletedWorkspaceMember', id: any, avatarUrl?: string | null, userEmail: string, name: { __typename?: 'FullName', firstName: string, lastName: string } }> | null, currentUserWorkspace?: { __typename?: 'UserWorkspace', settingsPermissions?: Array<any> | null, objectRecordsPermissions?: Array<any> | null } | null, currentWorkspace?: { __typename?: 'Workspace', id: any, displayName?: string | null, logo?: string | null, inviteHash?: string | null, allowImpersonation: boolean, isPublicInviteLinkEnabled: boolean, isGoogleAuthEnabled: boolean, isMicrosoftAuthEnabled: boolean, isPasswordAuthEnabled: boolean, subdomain: string, hasValidEnterpriseKey: boolean, customDomain?: string | null, isCustomDomainEnabled: boolean, metadataVersion: number, workspaceMembersCount?: number | null, workspaceUrls: { __typename?: 'WorkspaceUrls', subdomainUrl: string, customUrl?: string | null }, featureFlags?: Array<{ __typename?: 'FeatureFlagDTO', value: boolean }> | null, currentBillingSubscription?: { __typename?: 'BillingSubscription', id: any, billingSubscriptionItems?: Array<{ __typename?: 'BillingSubscriptionItem', id: any, hasReachedCurrentPeriodCap: boolean, billingProduct?: { __typename?: 'BillingProduct', name: string, description: string, metadata: { __typename?: 'BillingProductMetadata' } } | null }> | null } | null, billingSubscriptions: Array<{ __typename?: 'BillingSubscription', id: any }>, defaultRole?: { __typename?: 'Role', id: string, label: string, description?: string | null, icon?: string | null, canUpdateAllSettings: boolean, isEditable: boolean, canReadAllObjectRecords: boolean, canUpdateAllObjectRecords: boolean, canSoftDeleteAllObjectRecords: boolean, canDestroyAllObjectRecords: boolean } | null } | null, workspaces: Array<{ __typename?: 'UserWorkspace', workspace?: { __typename?: 'Workspace', id: any, logo?: string | null, displayName?: string | null, subdomain: string, customDomain?: string | null, workspaceUrls: { __typename?: 'WorkspaceUrls', subdomainUrl: string, customUrl?: string | null } } | null }> }
+  User: {
+    __typename?: 'User';
     id: string;
-    name: string;
-  } | null;
-  workspaces: Array<{
-    __typename?: 'WorkspaceMember';
-    id: string;
-    role: string;
-    workspace: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    currentWorkspace?: {
       __typename?: 'Workspace';
       id: string;
       name: string;
-    };
-  }>;
-};
+    } | null;
+    workspaces: Array<{
+      __typename?: 'WorkspaceMember';
+      id: string;
+      role: string;
+      workspace: {
+        __typename?: 'Workspace';
+        id: string;
+        name: string;
+      };
+    }>;
+  };
 };
 
 export type GetCurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
@@ -307,7 +308,7 @@ export const updateChannelNameById = gql`
   }
 `
 
-export const GenerateInviteLink =  gql`
+export const GenerateInviteLink = gql`
   mutation GenerateInviteLink($workspaceId: String!) {
     generateWorkspaceInvitation(workspaceId: $workspaceId)
   }
@@ -338,23 +339,9 @@ mutation DeleteContact(
 `
 
 
-export const WhatsappInstantsCreation = gql`
-mutation WaAccountCreate(
-  $name: String!,
-  $appId: String!,
-  $phoneNumberId: String!,
-  $businessAccountId: String!,
-  $accessToken: String!,
-  $appSecret: String!
-) {
-  WaAccountCreate(waAccount: {
-    name: $name,
-    appId: $appId,
-    phoneNumberId: $phoneNumberId,
-    businessAccountId: $businessAccountId,
-    accessToken: $accessToken,
-    appSecret: $appSecret
-  }) {
+export const WhatsappInstantsSave = gql`
+mutation WaAccountSave($whatsappInstantsData: WaAccountDto!, $instanceId: String) {
+  WaAccountSave(whatsappInstantsData: $whatsappInstantsData, instanceId: $instanceId) {
     id
     name
   }
@@ -362,22 +349,8 @@ mutation WaAccountCreate(
 `;
 
 export const WhatsappInstantsSyncAndSave = gql`
-mutation SyncAndSaveInstants(
-  $name: String!,
-  $appId: String!,
-  $phoneNumberId: String!,
-  $businessAccountId: String!,
-  $accessToken: String!,
-  $appSecret: String!
-) {
-  SyncAndSaveInstants(InstantsData: {
-    name: $name,
-    appId: $appId,
-    phoneNumberId: $phoneNumberId,
-    businessAccountId: $businessAccountId,
-    accessToken: $accessToken,
-    appSecret: $appSecret
-  }) {
+mutation SyncAndSaveInstants($whatsappInstantsData: WaAccountDto!, $instanceId: String) {
+  SyncAndSaveInstants(whatsappInstantsData: $whatsappInstantsData, instanceId: $instanceId) {
     id
     name
   }
@@ -385,26 +358,13 @@ mutation SyncAndSaveInstants(
 `;
 
 export const WhatsappInstantsTestAndSave = gql(`
-  mutation TestAndSaveInstants(
-  $name: String!,
-  $appId: String!,
-  $phoneNumberId: String!,
-  $businessAccountId: String!,
-  $accessToken: String!,
-  $appSecret: String!
-) {
-  TestAndSaveInstants(InstantsData: {
-    name: $name,
-    appId: $appId,
-    phoneNumberId: $phoneNumberId,
-    businessAccountId: $businessAccountId,
-    accessToken: $accessToken,
-    appSecret: $appSecret
-  }) {
+mutation TestAndSaveInstants($whatsappInstantsData: WaAccountDto!, $instanceId: String) {
+  TestAndSaveInstants(whatsappInstantsData: $whatsappInstantsData, instanceId: $instanceId) {
     id
     name
   }
-}`)
+}`
+)
 
 
 export const findAllInstants = gql`
@@ -528,12 +488,7 @@ export const findCountForDash = gql`query findWorkspaceByIdForDash($workspaceId:
 
 
 
-export const FindAll_Mailing_List = gql`query findAllMailingList {
-  findAllMailingList {
-    id
-    mailingListName
-  }
-}`
+
 
 
 
@@ -584,6 +539,42 @@ query findAllTemplate {
   }
 }`
 
+
+export const findAllApprovedTemplate = gql`
+query findAllApprovedTemplate {
+    findAllApprovedTemplate {
+    account {
+      id
+    }
+    attachment {
+      id
+      originalname
+      name
+    }
+    bodyText
+    category
+    button {
+      phone_number
+      text
+      type
+      url
+    }
+    footerText
+    headerText
+    headerType
+    id
+    language
+    status
+    templateName
+    waTemplateId
+    templateImg
+    variables {
+      name
+      value
+    }
+  }
+}`
+
 export const SUBMIT_TEMPLATE = gql`
 mutation SubmitTemplate($templateData: WaTemplateRequestInput!, $waTemplateId: String, $dbTemplateId: String) {
   submitWaTemplate(templateData: $templateData, waTemplateId: $waTemplateId, dbTemplateId: $dbTemplateId) {
@@ -593,16 +584,16 @@ mutation SubmitTemplate($templateData: WaTemplateRequestInput!, $waTemplateId: S
   }
 }`;
 
-export const SAVE_TEMPLATE = gql`
-mutation saveTemplate($templateData: WaTemplateRequestInput!) {
-  saveTemplate(templateData: $templateData) {
-    id
-  }
-}`;
+// export const SAVE_TEMPLATE = gql`
+// mutation saveTemplate($templateData: WaTemplateRequestInput!) {
+//   saveTemplate(templateData: $templateData) {
+//     id
+//   }
+// }`;
 
-export const UPDATE_TEMPLATE = gql`
-mutation updateTemplate($templateData: WaTemplateRequestInput!, $dbTemplateId: String!) {
-  updateTemplate(templateData: $templateData, dbTemplateId: $dbTemplateId) {
+export const SAVE_TEMPLATE = gql`
+mutation saveTemplate($templateData: WaTemplateRequestInput!, $dbTemplateId: String) {
+  saveTemplate(templateData: $templateData, dbTemplateId: $dbTemplateId) {
     id
   }
 }`;
@@ -624,8 +615,9 @@ export const Send_Template_Message = gql`
 export const SEND_TEMPLATE_TO_WHATSAPP = gql`
   mutation BroadcastTemplate($broadcastData: BroadcastReqDto!) {
     BroadcastTemplate(broadcastData: $broadcastData){
-    URL
-    broadcastName
+    success
+    message
+    error
   }
   }
 `;
@@ -657,14 +649,14 @@ export const getSystemStatus = gql`
   }
 `;
 
-export function useGetSystemStatus(){
+export function useGetSystemStatus() {
   return Apollo.useQuery(getSystemStatus);
 }
 
 
 
 export type CreateOneAttachmentVariables = Exact<{
-    name: Scalars['String'];
+  name: Scalars['String'];
 
 }>;
 
@@ -692,3 +684,156 @@ export const CreateOneAttachmentDoc = gql`
     }
   }
 `;
+
+
+
+export const findAllMailingList = gql`
+  query FindAllMailingList {
+    findAllMailingList {
+      id
+      mailingListName
+      createdAt
+      mailingContacts {
+        contactName
+        contactNo
+        id
+    }
+    }
+  }
+`;
+
+export const SaveMailingContact = gql`
+mutation saveMailingContact($saveMailingContact: MailingContact!){
+  saveMailingContact(saveMailingContact : $saveMailingContact){
+    success
+  }
+}
+`
+
+export const FindAllMailingContact = gql`
+query findAllMailingContactByMailingListId($mailingListId : String!){
+ findAllMailingContactByMailingListId(mailingListId : $mailingListId){
+    contactName
+    contactNo
+    id
+ }
+}
+`
+
+export const DeleteMailingContact = gql`
+mutation deleteMailingContact($mailingContactId : String!){
+  deleteMailingContact(mailingContactId: $mailingContactId){
+    success
+ }
+}
+`
+
+export const findAllBroadcasts = gql`
+query findAllBroadcast($currentPage : Int!, $itemsPerPage : Int!) {
+  findAllBroadcast(currentPage: $currentPage, itemsPerPage: $itemsPerPage) {
+  allBroadcast {
+      id
+    broadcastName
+    totalBroadcast
+    totalBroadcastSend
+    isBroadcastDone
+    account {
+      id
+    }
+    template {
+      id
+    }
+    mailingList {
+      id
+      }
+  }
+  totalPages
+    }
+}`
+
+export const SearchedBroadcast = gql`
+query searchBroadcast($searchTerm: String){
+  searchBroadcast(searchTerm: $searchTerm){
+  searchedData
+  totalCount
+  }
+}
+`
+
+// export const FindtemplateByDbId = gql`
+// query findtemplateByDbId($dbTemplateId: String!){
+//   findtemplateByDbId(dbTemplateId: $dbTemplateId){
+//     id
+//   }
+// }
+// `
+
+export const FindTemplateByDbId = gql`
+  query FindTemplateByDbId($dbTemplateId: String!) {
+    findtemplateByDbId(dbTemplateId: $dbTemplateId) {
+       account {
+      id
+    }
+    attachment {
+      id
+      originalname
+      name
+    }
+    bodyText
+    category
+    button {
+      phone_number
+      text
+      type
+      url
+    }
+    footerText
+    headerText
+    headerType
+    id
+    language
+    status
+    templateName
+    waTemplateId
+    templateImg
+    variables {
+      name
+      value
+    }
+    }
+  }
+`;
+
+
+export const SelectedMailingContact = gql`
+  query SelectedMailingContact($mailingListId: String!, $currentPage: Int!, $itemsPerPage: Int!) {
+    selectedMailingContact(
+      mailingListId: $mailingListId
+      currentPage: $currentPage
+      itemsPerPage: $itemsPerPage
+    ) {
+      mailingContact {
+        contactName
+        contactNo
+        createdAt
+        id
+      }
+      totalPages
+    }
+  }
+`;
+
+export const GetMailingContacts = gql`
+query GetMailingContacts($mailingListId: String!, 
+                         $searchTerm: String) {
+  searchAndPaginateContact(mailingListId: $mailingListId, 
+                         searchTerm: $searchTerm) {
+    totalCount
+    mailingContact {
+      id
+      contactName
+      contactNo
+      createdAt
+    }
+  }
+}`
