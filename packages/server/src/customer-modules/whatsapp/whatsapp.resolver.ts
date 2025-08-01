@@ -181,17 +181,10 @@ export class WhatsAppResolver {
     if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(template.headerType)) {
       const mediaLink = 'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png'
       // const mediaLink = template.templateImg;
-      console.log("...........tempaltegenereated ");
-      
       generateTemplatePayload = await this.waTemplateService.generateSendMessagePayload(template, testTemplateData.testPhoneNo, mediaLink);
     } else {
       generateTemplatePayload = await this.waTemplateService.generateSendMessagePayload(template, testTemplateData.testPhoneNo);
     }
-
-    console.log(generateTemplatePayload,'genereated pauyload');
-
-    console.log(generateTemplatePayload.components,'genereated pauyload components');
-    
 
     const testTemplate = await wa_api.sendTemplateMsg(JSON.stringify(generateTemplatePayload))
 

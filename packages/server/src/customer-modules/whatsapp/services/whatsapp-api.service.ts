@@ -279,6 +279,10 @@ export class WhatsAppApiService {
       "data": json_data
     })
     const response_data = response.data
+    console.log(response,'..................');
+    console.log(response.data,'..................');
+
+    
     return response_data
     // throw new Error(this.prepare_error_response(response))
   }
