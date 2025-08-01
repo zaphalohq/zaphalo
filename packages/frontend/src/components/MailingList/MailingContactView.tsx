@@ -55,10 +55,7 @@ const MailingContactView = ({
     }, [mailingContactData, selectedListId, mailingContactLoading, currentPage])
 
     const [searchTerm, setSearchTerm] = useState('')
-    const {
-        data: searchedMailingContactData,
-        loading: searchedMailingContactLoading,
-        refetch: searchedMailingContactRefetch } = useQuery(GetMailingContacts, {
+    const { refetch: searchedMailingContactRefetch } = useQuery(GetMailingContacts, {
             variables: {
                 mailingListId: selectedListId,
                 searchTerm
