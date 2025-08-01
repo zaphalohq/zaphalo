@@ -33,6 +33,7 @@ const MailingContactView = ({
     } =  usePagination()
 
     const [currentContacts, setCurrentContacts] = useState([])
+    const [searchTerm, setSearchTerm] = useState('')
     const {
         data: mailingContactData,
         loading: mailingContactLoading,
@@ -46,15 +47,14 @@ const MailingContactView = ({
         });
 
     useEffect(() => {
-        if (selectedListId) {
+        if (selectedListId && !searchTerm) {
             mailingContactRefetch().then(({ data }) => {
                 setCurrentContacts(data.selectedMailingContact.mailingContact)
                 setTotalPages(data.selectedMailingContact.totalPages)
             });
         }
-    }, [mailingContactData, selectedListId, mailingContactLoading, currentPage])
+    }, [mailingContactData, selectedListId, mailingContactLoading, searchTerm])
 
-    const [searchTerm, setSearchTerm] = useState('')
     const { refetch: searchedMailingContactRefetch } = useQuery(GetMailingContacts, {
             variables: {
                 mailingListId: selectedListId,

@@ -18,7 +18,7 @@ const MailingList = () => {
       {(!isSaveMailingListVis && !isMailingContactVis) &&
         <div className="grid grid-cols-4 pt-4 px-4 ">
           <div className="md:col-start-8 md:pb-0 col-start-1 col-end-8 pb-4">
-            <SubmitButton type='button' onClick={() => setIsSaveMailingListVis(true)} title="Upload" Icon={FaPlus} />
+            <SubmitButton type='button' onClick={() => setIsSaveMailingListVis(true)} title="Import" Icon={FaPlus} />
           </div>
         </div>
       }

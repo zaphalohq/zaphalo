@@ -12,6 +12,7 @@ import Pagination from '../UI/Pagination';
 export default function MailingListView({ isMailingContactVis, setIsMailingContactVis }: any) {
 
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('')
   const {
     currentPage,
     setCurrentPage,
@@ -44,7 +45,7 @@ export default function MailingListView({ isMailingContactVis, setIsMailingConta
   }
 
   useEffect(() => {
-    if (data && !loading) {
+    if (data && !loading && !searchTerm) {
       const mailingLists = data?.findAllMailingList?.mailingList || [];
       setMailingLists(mailingLists)
       setTotalPages(data?.findAllMailingList?.totalPages)
@@ -56,7 +57,7 @@ export default function MailingListView({ isMailingContactVis, setIsMailingConta
       }
     }
 
-  }, [data, selectedListId, loading])
+  }, [data, selectedListId, loading, searchTerm])
 
 
   const [deleteMailingContact] = useMutation(DeleteMailingContact)
@@ -75,7 +76,6 @@ export default function MailingListView({ isMailingContactVis, setIsMailingConta
 
 
 
-  const [searchTerm, setSearchTerm] = useState('')
   const {
     data: searchMailingListData,
     loading: searchMailingListLoading,

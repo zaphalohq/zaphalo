@@ -75,7 +75,7 @@ const SaveMailingList = () => {
             accept=".xlsx, .xls"
           />
           <div className="text-5xl font-extrabold text-violet-500"><FiUpload /></div>
-          <div className="bg-violet-500 p-2 px-6 mt-4 rounded-full text-white font-semibold">Browse</div>
+          <div className="bg-violet-500 p-2 px-6 mt-4 rounded-full text-white font-semibold">Upload</div>
           <span className="text-gray-600 pt-4">{fileName || "Suppoted files: .xlsx, .xls"}</span>
         </label>
 
