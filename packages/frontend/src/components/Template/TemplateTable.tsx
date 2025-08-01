@@ -81,7 +81,7 @@ const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) =
 
     return (
         <div>
-            <div className="relative w-5xl md:pt-4 md:p-4 rounded-lg">
+            <div className="relative w-5xl overflow-y-scroll md:pt-4 md:p-4 rounded-lg">
                 <table className="w-full text-sm text-left rtl:text-right text-stone-500 rounded-2xl">
                     <thead className="text-xs text-stone-700 uppercase bg-stone-200 truncate">
                         <tr>
