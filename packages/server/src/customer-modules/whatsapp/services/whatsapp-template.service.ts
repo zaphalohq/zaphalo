@@ -2,7 +2,7 @@ import axios from "axios";
 import cron from 'node-cron';
 import path from 'path';
 import fs from 'fs/promises';
-import { Connection, In, Repository } from 'typeorm';
+import { Connection, ILike, In, Repository } from 'typeorm';
 import { Inject, Injectable } from "@nestjs/common";
 import { WhatsAppTemplate } from "../entities/whatsapp-template.entity";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
@@ -12,6 +12,7 @@ import { WaAccountService } from "./whatsapp-account.service";
 import { Attachment } from "src/customer-modules/attachment/attachment.entity";
 import { Account } from "aws-sdk";
 import { WhatsAppAccount } from "../entities/whatsapp-account.entity";
+import { FindAllTemplate } from "../dtos/findAllTemplate.dto";
 
 
 @Injectable()
@@ -335,16 +336,22 @@ export class TemplateService {
     }
   }
 
-  async findAllTemplate(): Promise<WhatsAppTemplate[]> {
-    return await this.templateRepository.find({
+  async findAllTemplate(currentPage, itemsPerPage): Promise<FindAllTemplate> {
+    const totalItems = await this.templateRepository.count();
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const allTemplates =  await this.templateRepository.find({
       order: { createdAt: 'DESC' },
-      relations: ["account", "attachment"]
+      relations: ["account", "attachment"],
+      skip: startIndex,
+      take: itemsPerPage,
     })
+    return { allTemplates, totalPages}
   }
 
-    async findAllApprovedTemplate(): Promise<WhatsAppTemplate[]> {
+  async findAllApprovedTemplate(): Promise<WhatsAppTemplate[]> {
     return await this.templateRepository.find({
-      where: { status : In(['APPROVED', 'approved'])},
+      where: { status: In(['APPROVED', 'approved']) },
       order: { createdAt: 'DESC' },
       relations: ["account", "attachment"]
     })
@@ -549,6 +556,18 @@ export class TemplateService {
     };
   }
 
+
+  
+    async searchedTemplate(
+      searchTerm?: string,
+    ) {
+      const [broadcasts, totalCount] = await this.templateRepository.findAndCount({
+        where: { templateName: ILike(`%${searchTerm}%`) },
+        order: { createdAt: 'ASC' },
+      });
+  
+      return { searchedData: broadcasts, totalCount };
+    }
 
 }
 

@@ -1,4 +1,4 @@
-import { Args, Context, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import { UseGuards } from "@nestjs/common";
 import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
 import { WhatsAppTemplate } from "../entities/whatsapp-template.entity";
@@ -6,6 +6,8 @@ import { TemplateService } from "../services/whatsapp-template.service";
 import { WaTemplateRequestInput } from "../dtos/whatsapp.template.dto";
 import { WaTemplateResponseDto } from "../dtos/whatsapp.response.dto";
 import { FileService } from "src/modules/file-storage/services/file.service";
+import { FindAllTemplate } from "../dtos/findAllTemplate.dto";
+import { SearchedRes } from "../dtos/searched.dto";
 // import { TemplateResponseDto } from "src/customer-modules/template/dto/TemplateResponseDto";
 
 @Resolver(() => WhatsAppTemplate)
@@ -16,10 +18,19 @@ export class WhatsAppTemplateResolver {
   ) { }
 
   @UseGuards(GqlAuthGuard)
-  @Query(() => [WhatsAppTemplate])
-  async findAllTemplate(@Context('req') req): Promise<WhatsAppTemplate[]> {
-    const data = await this.templateService.findAllTemplate();
-    return data
+  @Query(() => FindAllTemplate)
+  async findAllTemplate(
+    @Args('currentPage', { type: () => Int }) currentPage: number,
+    @Args('itemsPerPage', { type: () => Int }) itemsPerPage: number
+  ): Promise<FindAllTemplate> {
+    return await this.templateService.findAllTemplate(currentPage, itemsPerPage);
+  }
+
+  @Query(() => SearchedRes)
+  async searchedTemplate(
+    @Args('searchTerm', { type: () => String, nullable: true }) searchTerm?: string,
+  ): Promise<SearchedRes | null> {
+    return this.templateService.searchedTemplate(searchTerm);
   }
 
   @UseGuards(GqlAuthGuard)

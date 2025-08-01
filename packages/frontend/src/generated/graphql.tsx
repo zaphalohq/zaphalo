@@ -505,36 +505,39 @@ mutation getTemplateStatus($templateId: String!) {
 
 
 export const findWaAllTemplate = gql`
-query findAllTemplate {
-    findAllTemplate {
-    account {
+query findAllTemplate($currentPage : Int!, $itemsPerPage : Int!){
+    findAllTemplate(currentPage: $currentPage, itemsPerPage: $itemsPerPage){
+    totalPages
+    allTemplates{
+      account {
+        id
+      }
+      attachment {
+        id
+        originalname
+        name
+      }
+      bodyText
+      category
+      button {
+        phone_number
+        text
+        type
+        url
+      }
+      footerText
+      headerText
+      headerType
       id
-    }
-    attachment {
-      id
-      originalname
-      name
-    }
-    bodyText
-    category
-    button {
-      phone_number
-      text
-      type
-      url
-    }
-    footerText
-    headerText
-    headerType
-    id
-    language
-    status
-    templateName
-    waTemplateId
-    templateImg
-    variables {
-      name
-      value
+      language
+      status
+      templateName
+      waTemplateId
+      templateImg
+      variables {
+        name
+        value
+      }
     }
   }
 }`
@@ -757,8 +760,17 @@ query findAllBroadcast($currentPage : Int!, $itemsPerPage : Int!) {
 export const SearchedBroadcast = gql`
 query searchBroadcast($searchTerm: String){
   searchBroadcast(searchTerm: $searchTerm){
-  searchedData
-  totalCount
+    searchedData
+    totalCount
+  }
+}
+`
+
+export const SearchedTemplate = gql`
+query searchedTemplate($searchTerm: String){
+  searchedTemplate(searchTerm: $searchTerm){
+    searchedData
+    totalCount
   }
 }
 `
@@ -766,8 +778,8 @@ query searchBroadcast($searchTerm: String){
 export const searchMailingList = gql`
 query searchMailingList($searchTerm: String){
   searchMailingList(searchTerm: $searchTerm){
-  searchedData
-  totalCount
+    searchedData
+    totalCount
   }
 }
 `

@@ -26,6 +26,8 @@ const CurrentChannel = ({ channelName, channelId, memberIds, unseen, setIsChanne
 
   const HandleCurrentChannel = async () => {
     const allMemberNumbers = memberIds.map((member: any) => member.phoneNo)
+    console.log(memberIds,allMemberNumbers,'.......................');
+    
     // const receiverNumbers = allMemberNumbers.filter((number: any) => number != import.meta.env.VITE_SENDER_PHONENO)
     const currentChannel = {
       channelName,

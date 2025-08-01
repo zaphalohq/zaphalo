@@ -1,6 +1,8 @@
 import { FiArrowLeft, FiEdit2 } from 'react-icons/fi'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { ChatsContext } from '@components/Context/ChatsContext'
+import { useQuery } from '@apollo/client'
+import { findDefaultSelectedInstants } from '@src/generated/graphql'
 
 const CurrentChannelNav = () => {
     const { chatsDetails }: any = useContext(ChatsContext)
@@ -22,6 +24,14 @@ const CurrentChannelNav = () => {
         };
     }, []);
 
+  const [selectedPhoneNo, setSelectedPhoneNo ] = useState<number | null>(null);
+      const { data: selectedInstantsData, loading: selectedInstantsLoading } = useQuery(findDefaultSelectedInstants);
+      useEffect(() => {
+        if(!selectedInstantsLoading && selectedInstantsData){
+          setSelectedPhoneNo(Number(selectedInstantsData.findDefaultSelectedInstants.phoneNumberId))
+        }
+      },[selectedInstantsData,selectedInstantsLoading])
+
     return (
         <div className="px-4 py-1 pr-4 flex items-center justify-between border-b border-gray-300">
             <div onClick={() => setIsChannelDetails(!isChannelDetails)} className="flex items-center hover:cursor-pointer gap-4 p-[7px]">
@@ -42,7 +52,7 @@ const CurrentChannelNav = () => {
                         <span className='font-semibold text-violet-700'>{`  ${chatsDetails.channelName}`}</span></li>
                     <li className='w-full bg-gray-200 px-4 p-2'>
                         phone no :
-                        <span className='font-semibold text-violet-700'>{`  ${chatsDetails.receiverId[0]}`} </span>
+                        <span className='font-semibold text-violet-700'>{`  ${JSON.stringify(chatsDetails.receiverId.find((number : number) => number !== selectedPhoneNo))}`} </span>
                     </li>
                 </ul>
             </div> : <></>}

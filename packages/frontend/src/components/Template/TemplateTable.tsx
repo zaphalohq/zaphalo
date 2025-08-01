@@ -2,14 +2,18 @@ import { useNavigate } from "react-router-dom"
 import { useContext, useEffect, useState } from "react"
 import { useMutation, useQuery } from "@apollo/client"
 import { TemplateContext } from "@components/Context/TemplateContext"
-import { findWaAllTemplate, GET_TEMPLATE_STATUS, WaTestTemplate } from "@src/generated/graphql"
+import { findWaAllTemplate, GET_TEMPLATE_STATUS, SearchedTemplate, WaTestTemplate } from "@src/generated/graphql"
 import { GrDocumentUpdate } from "react-icons/gr";
 import { languagesCode } from "./LanguageCode"
+import usePagination from "@src/utils/usePagination"
+import Pagination from "../UI/Pagination"
+import { SearchWhite } from "../UI/Search"
 
 const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) => {
     const { setTemplateFormData, setSelectedTemplateInfo }: any = useContext(TemplateContext)
     const [testTemplate] = useMutation(WaTestTemplate);
     const [showSendPopup, setShowSendPopup] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('')
     const [testTemplateData, setTestTemplateData] = useState({
         dbTemplateId: '',
         testPhoneNo: '',
@@ -37,17 +41,29 @@ const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) =
     //     });
     // }
 
+    const {
+        currentPage,
+        setCurrentPage,
+        itemsPerPage,
+        totalPages,
+        setTotalPages
+    } = usePagination()
+
     const { data: templateData,
         loading: templateLoading,
         refetch: templateRefetch }: any = useQuery(findWaAllTemplate, {
-            fetchPolicy: 'no-cache',
+            variables: {
+                currentPage,
+                itemsPerPage
+            }
         });
     useEffect(() => {
         templateRefetch()
-        if (templateData && !templateLoading) {
-            setTemplates(templateData.findAllTemplate)
+        if (templateData && !templateLoading && !searchTerm) {
+            setTemplates(templateData.findAllTemplate.allTemplates)
+            setTotalPages(templateData.findAllTemplate.totalPages)
         }
-    }, [templateData])
+    }, [templateData, searchTerm])
 
     const HandleTempalteStatus = (templateId: string) => {
         GetTemplateStatus({
@@ -74,16 +90,40 @@ const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) =
         });
     };
 
-    const HandleLanguage = (languageCode : string) => {
-    const languageValue = languagesCode.find((language) => language.value == languageCode)
-    return languageValue?.label
+    const HandleLanguage = (languageCode: string) => {
+        const languageValue = languagesCode.find((language) => language.value == languageCode)
+        return languageValue?.label
     }
+
+    const {
+        data: searchedTemplateData,
+        loading: searchedTemplateLoading,
+        refetch: searchedTemplateRefetch } = useQuery(SearchedTemplate, {
+            variables: {
+                searchTerm
+            },
+            skip: !searchTerm
+        });
+
+    useEffect(() => {
+        if (searchTerm) {
+            searchedTemplateRefetch().then(({ data }) => {
+                setTemplates(data.searchedTemplate?.searchedData)
+                setTotalPages(0)
+            });
+        }
+    }, [searchTerm])
 
     return (
         <div>
-            <div className="relative w-5xl md:pt-4 md:p-4 rounded-lg">
+            <div className="grid grid-cols-4 my-4">
+                <div className='col-start-4'>
+                    <SearchWhite HandleSearch={(e: any) => setSearchTerm(e.target.value)} />
+                </div>
+            </div>
+            <div className="relative w-full h-[65vh] overflow-y-scroll mt-4 md:px-4">
                 <table className="w-full text-sm text-left rtl:text-right text-stone-500 rounded-2xl">
-                    <thead className="text-xs text-stone-700 uppercase bg-stone-200 truncate">
+                    <thead className="sticky top-0 text-xs text-stone-700 uppercase bg-stone-200 truncate">
                         <tr>
                             <th scope="col" className="px-6 py-4 w-64 text-left truncate">Template Name</th>
                             <th scope="col" className="px-6 py-4 text-center truncate">Template Id</th>
@@ -93,7 +133,7 @@ const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) =
                             <th scope="col" className="px-6 py-4 text-center truncate">Update</th>
                             <th scope="col" className="px-6 py-4 text-center truncate">Check Status</th>
                             <th scope="col" className="px-6 py-4 text-center truncate">Preview</th>
-                            <th scope="col" className="px-6 py-4 text-center truncate">Test Template</th>
+                            <th scope="col" className="px-6 py-4 text-center truncate">Test</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -134,8 +174,8 @@ const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) =
                                 <td
                                     className="px-6 py-4 text-center truncate max-w-[150px]"
                                     title={template.language}
-                                >  
-                                {`${HandleLanguage(template.language)}`}
+                                >
+                                    {`${HandleLanguage(template.language)}`}
                                     {/* {template.language} */}
                                 </td>
                                 <td className="px-4 py-2 text-center">
@@ -152,13 +192,13 @@ const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) =
                                                 button,
                                                 templateImg,
                                                 ...restTemplate } = template;
-                                            const cleanedButtons = button.map(({ __typename , ...rest }) => rest);
-                                            const cleanedVariables = variables.map(({ __typename , ...rest }) => rest);
+                                            const cleanedButtons = button.map(({ __typename, ...rest } : any) => rest);
+                                            const cleanedVariables = variables.map(({ __typename, ...rest } : any) => rest);
                                             setTemplateFormData({
                                                 accountId: account?.id,
                                                 attachmentId: attachment?.id,
                                                 variables: cleanedVariables,
-                                                button : cleanedButtons,
+                                                button: cleanedButtons,
                                                 ...restTemplate
                                             })
                                             setSelectedTemplateInfo({
@@ -182,32 +222,32 @@ const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) =
                                     Check Status
                                 </td>
                                 <td onClick={() => {
-                                      const { account,
-                                                attachment,
-                                                status,
-                                                __typename,
-                                                id,
-                                                waTemplateId,
-                                                variables,
-                                                button,
-                                                templateImg,
-                                                ...restTemplate } = template;
-                                            const cleanedButtons = button.map(({ __typename , ...rest }) => rest);
-                                            const cleanedVariables = variables.map(({ __typename , ...rest }) => rest);
-                                            setTemplateFormData({
-                                                accountId: account?.id,
-                                                attachmentId: attachment?.id,
-                                                variables: cleanedVariables,
-                                                button : cleanedButtons,
-                                                ...restTemplate
-                                            })
-                                            setSelectedTemplateInfo({
-                                                dbTemplateId: template.id,
-                                                waTemplateId: template.waTemplateId,
-                                                status: template.status.toLowerCase(),
-                                                templateImg: template.templateImg,
-                                                templateOriginaName: attachment?.originalname
-                                            })
+                                    const { account,
+                                        attachment,
+                                        status,
+                                        __typename,
+                                        id,
+                                        waTemplateId,
+                                        variables,
+                                        button,
+                                        templateImg,
+                                        ...restTemplate } = template;
+                                    const cleanedButtons = button.map(({ __typename, ...rest }) => rest);
+                                    const cleanedVariables = variables.map(({ __typename, ...rest }) => rest);
+                                    setTemplateFormData({
+                                        accountId: account?.id,
+                                        attachmentId: attachment?.id,
+                                        variables: cleanedVariables,
+                                        button: cleanedButtons,
+                                        ...restTemplate
+                                    })
+                                    setSelectedTemplateInfo({
+                                        dbTemplateId: template.id,
+                                        waTemplateId: template.waTemplateId,
+                                        status: template.status.toLowerCase(),
+                                        templateImg: template.templateImg,
+                                        templateOriginaName: attachment?.originalname
+                                    })
                                     setIsTemplatePreviewVis(true)
                                 }}
                                     className="px-6 py-4 text-center truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
@@ -227,49 +267,55 @@ const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) =
                                     className="px-6 py-4 text-center truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
                                     title="Test Template"
                                 >
-                                    Test Template
+                                    Test
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
-                {showSendPopup && (
-                    <div className="fixed inset-0 bg-gray-800/30 bg-opacity-40 flex items-center justify-center z-50">
-                        <div className="bg-white p-6 rounded-lg shadow-xl w-80">
-                            <h2 className="text-lg text-gray-800 font-semibold mb-2">Test Template</h2>
-                            <p className="text-sm text-gray-600 mb-4">Template: <strong>{testTemplateData.templateName}</strong></p>
+            </div>
 
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Test Phone No</label>
-                            <input
-                                name='testPhoneNo'
-                                type="text"
-                                value={testTemplateData.testPhoneNo}
-                                onChange={(e) => setTestTemplateData((prev) => ({
-                                    ...prev,
-                                    [e.target.name]: e.target.value
-                                }))}
-                                placeholder="Enter phone number"
-                                className="w-full p-2 border rounded-md mb-4 text-sm"
-                            />
+            <Pagination
+                totalPages={totalPages}
+                currentPage={currentPage}
+                onPageChange={setCurrentPage}
+            />
+            {showSendPopup && (
+                <div className="fixed inset-0 bg-gray-800/30 bg-opacity-40 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-xl w-80">
+                        <h2 className="text-lg text-gray-800 font-semibold mb-2">Test Template</h2>
+                        <p className="text-sm text-gray-600 mb-4">Template: <strong>{testTemplateData.templateName}</strong></p>
 
-                            <div className="flex justify-between">
-                                <button
-                                    onClick={() => setShowSendPopup(false)}
-                                    className="bg-gray-300 text-gray-700 px-4 py-1 rounded hover:bg-gray-400"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={() => handleSendTemplateToPhone("showSendPopup.id")}
-                                    className="bg-indigo-600 text-white px-4 py-1 rounded hover:bg-indigo-700"
-                                >
-                                    Send
-                                </button>
-                            </div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Test Phone No</label>
+                        <input
+                            name='testPhoneNo'
+                            type="text"
+                            value={testTemplateData.testPhoneNo}
+                            onChange={(e) => setTestTemplateData((prev) => ({
+                                ...prev,
+                                [e.target.name]: e.target.value
+                            }))}
+                            placeholder="Enter phone number"
+                            className="w-full p-2 border rounded-md mb-4 text-sm"
+                        />
+
+                        <div className="flex justify-between">
+                            <button
+                                onClick={() => setShowSendPopup(false)}
+                                className="bg-gray-300 text-gray-700 px-4 py-1 rounded hover:bg-gray-400"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => handleSendTemplateToPhone("showSendPopup.id")}
+                                className="bg-indigo-600 text-white px-4 py-1 rounded hover:bg-indigo-700"
+                            >
+                                Send
+                            </button>
                         </div>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
         </div>
     )
 }
