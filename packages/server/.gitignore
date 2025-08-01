@@ -53,7 +53,7 @@ pids
 *.pid.lock
 
 #Uploaded Files
-uploads/
+.local-storage
 
 
 # Diagnostic reports (https://nodejs.org/api/report.html)

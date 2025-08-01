@@ -15,37 +15,38 @@ export class WhatsAppTemplateResolver {
     private fileService: FileService
   ) { }
 
-    @UseGuards(GqlAuthGuard)
-    @Query(() => [WhatsAppTemplate])
-    async findAllTemplate(@Context('req') req): Promise<WhatsAppTemplate[]> {
-      const data = await this.templateService.findAllTemplate();
-      return data
-    }
-  
-    @UseGuards(GqlAuthGuard)
-    @Query(() => [WhatsAppTemplate])
-    async findAllApprovedTemplate(@Context('req') req): Promise<WhatsAppTemplate[]> {
-      const data = await this.templateService.findAllApprovedTemplate();
-      return data
-    }
-  
+  @UseGuards(GqlAuthGuard)
+  @Query(() => [WhatsAppTemplate])
+  async findAllTemplate(@Context('req') req): Promise<WhatsAppTemplate[]> {
+    const data = await this.templateService.findAllTemplate();
+    return data
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => [WhatsAppTemplate])
+  async findAllApprovedTemplate(@Context('req') req): Promise<WhatsAppTemplate[]> {
+    const data = await this.templateService.findAllApprovedTemplate();
+    return data
+  }
+
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => WhatsAppTemplate)
   async saveTemplate(@Args('templateData') templateData: WaTemplateRequestInput,
-    @Args('dbTemplateId', { nullable : true }) dbTemplateId?: string): Promise<WhatsAppTemplate> {
+    @Args('dbTemplateId', { nullable: true }) dbTemplateId?: string): Promise<WhatsAppTemplate> {
 
     if (dbTemplateId) {
-      console.log('updated.....................');
-      
       return await this.templateService.updateTemplate(templateData, dbTemplateId, templateData.accountId);
-
     } else {
-      console.log('saved....................');
-      
       return await this.templateService.saveTemplate(templateData, templateData.accountId);
     }
 
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => WhatsAppTemplate)
+  async findtemplateByDbId(@Args('dbTemplateId') dbTemplateId: string): Promise<WhatsAppTemplate | null> {
+    return await this.templateService.findtemplateByDbId(dbTemplateId)
   }
 
   @UseGuards(GqlAuthGuard)
@@ -64,7 +65,6 @@ export class WhatsAppTemplateResolver {
   @UseGuards(GqlAuthGuard)
   @ResolveField(() => String)
   async templateImg(@Parent() template: WhatsAppTemplate, @Context() context): Promise<string> {
-    console.log(context.req.headers['x-workspace-id'], '.................');
     const workspaceId = context.req.headers['x-workspace-id']
     if (template.templateImg) {
       try {

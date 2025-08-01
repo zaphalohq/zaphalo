@@ -1,7 +1,7 @@
 import axios, { all } from 'axios';
 import * as cron from 'node-cron';
 import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
-import { Connection, Repository, In } from 'typeorm';
+import { Connection, Repository, In, ILike } from 'typeorm';
 import { Broadcast } from "./broadcast.entity";
 import { BroadcastContacts } from "./broadcastContacts.entity";
 import { MailingListService } from "src/customer-modules/mailingList/mailingList.service";
@@ -9,15 +9,15 @@ import { TemplateService } from "src/customer-modules/whatsapp/services/whatsapp
 import { WaAccountService } from "src/customer-modules/whatsapp/services/whatsapp-account.service";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 import { WhatsAppSDKService } from '../whatsapp/services/whatsapp-api.service';
+import { FindAllBrodcastRes } from './dto/FindAllBrodcastRes';
 
 @Injectable()
 export class BroadcastService implements OnModuleInit {
   private broadcastRepository: Repository<Broadcast>
   private broadcastContactsRepository: Repository<BroadcastContacts>
   onModuleInit() {
-    console.log("...................started.........................");
 
-    this.sendMessagesInBackground();
+    // this.sendMessagesInBackground();
   }
   constructor(
     @Inject(CONNECTION) connection: Connection,
@@ -29,7 +29,6 @@ export class BroadcastService implements OnModuleInit {
   ) {
     this.broadcastRepository = connection.getRepository(Broadcast);
     this.broadcastContactsRepository = connection.getRepository(BroadcastContacts);
-    console.log("..................serv..........");
 
     this.onModuleInit()
   }
@@ -190,7 +189,7 @@ export class BroadcastService implements OnModuleInit {
     if (this.job) return;
 
     this.job = cron.schedule('*/30 * * * *', async () => {
-      console.log('⏰ Running scheduled broadcast sender...');
+      console.log('Running.........................');
       await this.sendMessagesInBackground();
     });
   }
@@ -202,7 +201,6 @@ export class BroadcastService implements OnModuleInit {
       where: { isBroadcastDone: false },
       relations: ['template', 'account'],
     });
-    console.log(broadcasts, 'broadcastsfalse');
 
 
     if (broadcasts.length === 0) {
@@ -246,8 +244,8 @@ export class BroadcastService implements OnModuleInit {
               currentBroadcastContact.status = 'SENT';
               await this.broadcastContactsRepository.save(currentBroadcastContact);
             }
-            console.log(broadcast.totalBroadcastSend,'........................broadcast.totalBroadcastSend');
-            
+            console.log(broadcast.totalBroadcastSend, '........................broadcast.totalBroadcastSend');
+
             await this.broadcastRepository.update(broadcast.id, {
               totalBroadcastSend: String(Number(broadcast.totalBroadcastSend ?? 1) + 1),
             });
@@ -281,104 +279,12 @@ export class BroadcastService implements OnModuleInit {
       }
     }
   }
-    // const remainingBroadcasts = await this.broadcastRepository.find({
-    //   where: { isBroadcastDone: false },
-    // });
 
-    // if (remainingBroadcasts.length === 0) {
-    //   console.log(' All broadcasts completed. Stopping cron.');
-    //   if (this.job) {
-    //     this.job.stop();
-    //     this.job = null;
-    //   }
-    // }
-
-
-    // async cronForPendingBroadcasts() {
-    //   cron.schedule('*/30 * * * *', async () => {
-    //     await this.sendMessagesInBackground()
-    //   })
-    // }
-
-    // async sendMessagesInBackground() {
-
-    //   const broadcasts = await this.broadcastRepository.find({
-    //     where: {
-    //       isBroadcastDone: false
-    //     },
-    //     relations: ['template', 'account']
-    //   });
-
-
-    //   broadcasts.forEach(async (broadcast) => {
-    //     const { template } = broadcast;
-
-    //     const wa_api = await this.getWhatsAppApi(broadcast?.account?.id)
-
-
-    //     if (!broadcast) throw new Error('broadcast not found')
-    //     const allBroadcastContacts = await this.broadcastContactsRepository.find({
-    //       where: {
-    //         broadcast: { id: broadcast.id },
-    //         status: In(['PENDING', 'FAILED'])
-    //       }
-    //     })
-    //     console.log(allBroadcastContacts);
-
-    //     for (const broadcastContact of allBroadcastContacts) {
-    //       let generateTemplatePayload
-    //       if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(template.headerType)) {
-    //         const mediaLink = 'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png'
-    //         // const mediaLink = template.templateImg;
-    //         generateTemplatePayload = await this.waTemplateService.generateSendMessagePayload(template, broadcastContact.contactNo, mediaLink);
-    //       } else {
-    //         generateTemplatePayload = await this.waTemplateService.generateSendMessagePayload(template, broadcastContact.contactNo);
-    //       }
-
-    //       try {
-    //         const sendTemplate = await wa_api.sendTemplateMsg(JSON.stringify(generateTemplatePayload))
-    //         const currentBroadcastContact = await this.broadcastContactsRepository.findOne({ where: { id: broadcastContact.id } })
-    //         if (currentBroadcastContact) {
-    //           currentBroadcastContact.status = 'SENT'
-    //           await this.broadcastContactsRepository.save(currentBroadcastContact)
-    //         }
-
-    //         await this.broadcastRepository.update(broadcast.id, {
-    //           totalBroadcastSend: String(Number(broadcast.totalBroadcastSend) + 1)
-    //         });
-
-    //       } catch (error) {
-    //         const currentBroadcastContact = await this.broadcastContactsRepository.findOne({ where: { id: broadcastContact.id } })
-    //         if (currentBroadcastContact) {
-    //           currentBroadcastContact.status = 'FAILED'
-    //           await this.broadcastContactsRepository.save(currentBroadcastContact)
-    //         }
-    //         console.error(`Failed to send to ${broadcastContact.contactNo}`, error.response?.data || error.message);
-    //       }
-
-    //       await new Promise((resolve) => setTimeout(resolve, 6000));
-    //     }
-
-    //     const hasPendingOrFailed = await this.broadcastContactsRepository.findOne({
-    //       where: {
-    //         broadcast: { id: broadcast.id },
-    //         status: In(['PENDING', 'FAILED'])
-    //       }
-    //     });
-
-    //     if (!hasPendingOrFailed) {
-    //       await this.broadcastRepository.update(broadcast.id, {
-    //         isBroadcastDone: true
-    //       });
-    //     }
-
-    //   });
-
-
-
-
-  async findAllBroadcast(): Promise<Broadcast[]> {
-    return await this.broadcastRepository.find({
+  async findAllBroadcast(currentPage, itemsPerPage): Promise<FindAllBrodcastRes> {
+    const totalItems = await this.broadcastRepository.count();
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const allBroadcast =  await this.broadcastRepository.find({
       relations: {
         template: {
           attachment: true
@@ -388,9 +294,27 @@ export class BroadcastService implements OnModuleInit {
         },
         account: true
       },
+      skip: startIndex,
+      take: itemsPerPage,
       order: { createdAt: 'DESC' }
     });
+    return { allBroadcast, totalPages}
+  }
+    // const remainingBroadcasts = await this.broadcastRepository.find({
+    //   where: { isBroadcastDone: false },
+    // });
 
+
+
+  async searchBroadcast(
+    searchTerm?: string,
+  ) {
+    const [broadcasts, totalCount] = await this.broadcastRepository.findAndCount({
+      where: { broadcastName: ILike(`%${searchTerm}%`) },
+      order: { createdAt: 'ASC' },
+    });
+
+    return { searchedData: broadcasts, totalCount };
   }
 
 }

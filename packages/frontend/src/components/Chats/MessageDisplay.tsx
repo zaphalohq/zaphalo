@@ -27,7 +27,7 @@ const MessageDisplay = () => {
 
   const { data, loading, error, refetch } = useQuery(findMsgByChannelId, {
     variables: { channelId: chatsDetails?.channelId },
-    skip: chatsDetails.channelId == '',
+    skip: !chatsDetails.channelId,
   })
 
   const FetchMessage = async () => {

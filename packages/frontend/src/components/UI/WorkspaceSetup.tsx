@@ -6,6 +6,7 @@ import { useMutation } from '@apollo/client';
 import { UpdateWorkspaceDetails, CreateOneAttachmentDoc } from '@src/generated/graphql';
 import { currentUserWorkspaceState } from '@src/modules/auth/states/currentUserWorkspaceState';
 import { Post } from '@src/modules/domain-manager/hooks/axios';
+import { toast } from 'react-toastify';
 
 const WorkspaceSetup = () => {
     const [currentUserWorkspace] = useRecoilState(currentUserWorkspaceState);
@@ -28,8 +29,11 @@ const WorkspaceSetup = () => {
         }
     }
 
-    const HandleUpdateWokspace = async (event: any) => {
-        event.preventDefault()
+    const HandleUpdateWokspace = async () => {
+        if(!workspaceName){
+            toast.error("Enter workspace Name")
+            return
+        }
         try {
             const formData = new FormData();
             if (file !== null && currentUserWorkspace?.id) {
@@ -51,7 +55,7 @@ const WorkspaceSetup = () => {
                             updatedAt: "",
                         }
                     })
-                    const workspace = WorkspaceDetails({
+                    const workspace = await WorkspaceDetails({
                         variables: {
                             workspaceId: currentUserWorkspace?.id,
                             workspaceName,
@@ -61,7 +65,7 @@ const WorkspaceSetup = () => {
                 }
             } else {
                 if (currentUserWorkspace?.id) {
-                    const workspace = WorkspaceDetails({
+                    const workspace = await WorkspaceDetails({
                         variables: {
                             workspaceId: currentUserWorkspace?.id,
                             workspaceName,
@@ -70,7 +74,6 @@ const WorkspaceSetup = () => {
                 }
             }
             window.location.reload();
-
         } catch (error) {
             console.error(`Error uploading file `, error);
         }
@@ -100,7 +103,7 @@ const WorkspaceSetup = () => {
                         </div>
                     </div>
                     <div className='p-8'>
-                        <form onSubmit={HandleUpdateWokspace} className='space-y-8'>
+                        <div className='space-y-8'>
                             <div className='space-y-3'>
                                 <label className='block text-sm font-semibold text-gray-200 mb-3'>
                                     Workspace Name
@@ -145,7 +148,6 @@ const WorkspaceSetup = () => {
                                         </div>
                                     </label>
                                     <input
-                                        // required
                                         accept="image/*"
                                         onChange={HandleUploadImg}
                                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
@@ -162,9 +164,9 @@ const WorkspaceSetup = () => {
                                 )}
                             </div>
                             <div className='pt-2'>
-                                <SubmitButton title='Update Workspace' type='submit' />
+                                <SubmitButton onClick={HandleUpdateWokspace} title='Update Workspace' type='button' />
                             </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -10,19 +10,28 @@ import { FiArrowLeft, FiX } from "react-icons/fi";
 
 const MailingList = () => {
   const [isSaveMailingListVis, setIsSaveMailingListVis] = useState(false);
-
+  const [isMailingContactVis, setIsMailingContactVis] = useState(false);
 
   return (
     <div>
       <div className='font-bold text-lg border-gray-300 p-4 border-b'>Mailing List</div>
-      {!isSaveMailingListVis ?
+      {(!isSaveMailingListVis && !isMailingContactVis) &&
         <div className="grid grid-cols-4 pt-4 px-4 ">
           <div className="md:col-start-8 md:pb-0 col-start-1 col-end-8 pb-4">
             <SubmitButton type='button' onClick={() => setIsSaveMailingListVis(true)} title="Upload" Icon={FaPlus} />
           </div>
-        </div> :
-        <div onClick={() => setIsSaveMailingListVis(false)}
-          className='m-6 flex items-center justify-center h-10 w-10 rounded-full bg-violet-400 hover:bg-violet-500 cursor-pointer text-white text-lg font-bold'>
+        </div>
+      }
+      {(isSaveMailingListVis || isMailingContactVis) &&
+        <div onClick={() => {
+          if(isSaveMailingListVis){
+          setIsSaveMailingListVis(false)
+          }
+          if(isMailingContactVis){
+            setIsMailingContactVis(false)
+          }
+        }}
+          className='mx-6 mt-4 flex items-center justify-center h-10 w-10 rounded-full bg-violet-400 hover:bg-violet-500 cursor-pointer text-white text-lg font-bold'>
           <FiArrowLeft />
         </div>
       }
@@ -30,7 +39,7 @@ const MailingList = () => {
       {isSaveMailingListVis ?
         <SaveMailingList />
         :
-        <MailingListView />}
+        <MailingListView setIsMailingContactVis={setIsMailingContactVis} isMailingContactVis={isMailingContactVis} />}
 
     </div>
   );

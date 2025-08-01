@@ -8,7 +8,6 @@ interface TemplatePreviewProps {
 }
 
 const TemplatePreview = ({ templatePreviewData, selectedTemplateInfo }: TemplatePreviewProps) => {
-  console.log(templatePreviewData,'templatePreviewData');
   
   return (
     <>

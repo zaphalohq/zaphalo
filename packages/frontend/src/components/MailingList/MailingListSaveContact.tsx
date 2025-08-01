@@ -2,11 +2,11 @@ import SaveContact from "../UI/SaveContact"
 import { useMutation } from "@apollo/client"
 import { SaveMailingContact } from "@src/generated/graphql"
 
-const MailingListSaveContact = ({ contactData, setContactData, HandleSaveContactVis, handleFetchMailingContact } : any) => {
+const MailingListSaveContact = ({ contactData, setContactData, HandleSaveContactVis, handleFetchMailingContact }: any) => {
     const [saveMailingContact] = useMutation(SaveMailingContact);
 
     const HandleChangeData = (event: any) => {
-        setContactData((prev : any) => ({
+        setContactData((prev: any) => ({
             ...prev,
             [event.target.name]: String(event.target.value)
         }))
@@ -15,14 +15,12 @@ const MailingListSaveContact = ({ contactData, setContactData, HandleSaveContact
     const HandleSubmitContact = async (event: any) => {
         event.preventDefault()
         const { __typename, ...restContactData } = contactData
-        console.log(contactData,'..........');
-        
         const response = await saveMailingContact({
             variables: {
-                saveMailingContact : restContactData
+                saveMailingContact: restContactData
             }
         })
-        if(response.data){
+        if (response.data) {
             handleFetchMailingContact()
             HandleSaveContactVis()
         }

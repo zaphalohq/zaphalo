@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
-import { useCreateOneAttachmentMutation } from '@src/generated/graphql';
+import { UpdateWorkspaceDetails, useCreateOneAttachmentMutation } from '@src/generated/graphql';
+import { useMutation } from '@apollo/client';
 
 
 export const useWorkspaceUpdate = () => {
