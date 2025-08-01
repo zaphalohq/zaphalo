@@ -40,14 +40,14 @@ const InstantsForm = () => {
 					<SubmitButton type="button" onClick={async () => {
 							await HandleCreateInstants()
 							HandaleFeatchData()
-					}} Icon={FaSave} title='Save Template' />
+					}} Icon={FaSave} title='Save Account' />
 					<SubmitButton type="button" onClick={async () => {
 							await HandleSyncAndSaveInstants()
 							HandaleFeatchData()
 					}} Icon={FaSyncAlt} title='Sync Template' />
 					<SubmitButton type="button" onClick={async () => {
 							await HandleTestAndSaveInstants()
-					}} Icon={SiTestrail} title='Test Template' />
+					}} Icon={SiTestrail} title='Test Account' />
 				</div>
 			</form>
 		</div>

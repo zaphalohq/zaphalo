@@ -81,7 +81,7 @@ const MailingContactView = ({
             </div>
             <div className="relative w-6xl overflow-x-auto bg-white px-4 h-[68vh] overflow-y-auto">
                 <table className="w-full text-sm text-left text-stone-500 rounded-2xl ">
-                    <thead className="text-xs text-stone-700 uppercase bg-stone-200">
+                    <thead className="text-xs sticky top-0 text-stone-700 uppercase bg-stone-200">
                         <tr>
                             <th className="px-6 py-4 w-64">Contact Name</th>
                             <th className="px-6 py-4 text-center">Contact Number</th>

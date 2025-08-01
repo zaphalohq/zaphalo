@@ -12,7 +12,6 @@ import { WaAccountService } from "./whatsapp-account.service";
 import { Attachment } from "src/customer-modules/attachment/attachment.entity";
 import { Account } from "aws-sdk";
 import { WhatsAppAccount } from "../entities/whatsapp-account.entity";
-import { log } from "util";
 
 
 @Injectable()
@@ -261,7 +260,6 @@ export class TemplateService {
       if (status === 'approved') {
         templateFromDb.status = 'approved';
         await this.templateRepository.save(templateFromDb);
-        console.log('Template approved and saved in DB.');
         return true;
       }
 
@@ -537,41 +535,6 @@ export class TemplateService {
       });
     }
 
-    if (templateData.button?.length > 0) {
-      const buttons = templateData.button.map((btn: any, index: number) => {
-        const { type, url, phone_number, text } = btn;
-
-        switch (type) {
-          case 'URL':
-            return {
-              type: 'button',
-              sub_type: 'url',
-              index: index.toString(),
-              // parameters: [{ type: 'text', text: url }],
-            };
-          case 'PHONE_NUMBER':
-            return {
-              type: 'button',
-              sub_type: 'phone_number',
-              index: index.toString(),
-              parameters: [{ type: 'phone_number', phone_number }],
-            };
-          case 'QUICK_REPLY':
-          default:
-            return {
-              type: 'button',
-              sub_type: 'quick_reply',
-              index: index.toString(),
-              parameters: [{ type: 'payload', payload: text }],
-            };
-        }
-      });
-
-      components.push(...buttons);
-    }
-
-
-    
     return {
       messaging_product: 'whatsapp',
       to: recipientPhone,
