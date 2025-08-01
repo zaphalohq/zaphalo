@@ -65,7 +65,6 @@ export class WhatsAppTemplateResolver {
   @UseGuards(GqlAuthGuard)
   @ResolveField(() => String)
   async templateImg(@Parent() template: WhatsAppTemplate, @Context() context): Promise<string> {
-    console.log(context.req.headers['x-workspace-id'], '.................');
     const workspaceId = context.req.headers['x-workspace-id']
     if (template.templateImg) {
       try {

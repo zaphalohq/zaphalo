@@ -16,7 +16,6 @@ export class BroadcastService implements OnModuleInit {
   private broadcastRepository: Repository<Broadcast>
   private broadcastContactsRepository: Repository<BroadcastContacts>
   onModuleInit() {
-    console.log("...................started.........................");
 
     // this.sendMessagesInBackground();
   }
@@ -30,7 +29,6 @@ export class BroadcastService implements OnModuleInit {
   ) {
     this.broadcastRepository = connection.getRepository(Broadcast);
     this.broadcastContactsRepository = connection.getRepository(BroadcastContacts);
-    console.log("..................serv..........");
 
     this.onModuleInit()
   }
@@ -191,7 +189,7 @@ export class BroadcastService implements OnModuleInit {
     if (this.job) return;
 
     this.job = cron.schedule('*/30 * * * *', async () => {
-      console.log('⏰ Running scheduled broadcast sender...');
+      console.log('Running.........................');
       await this.sendMessagesInBackground();
     });
   }
@@ -203,7 +201,6 @@ export class BroadcastService implements OnModuleInit {
       where: { isBroadcastDone: false },
       relations: ['template', 'account'],
     });
-    console.log(broadcasts, 'broadcastsfalse');
 
 
     if (broadcasts.length === 0) {
@@ -303,6 +300,9 @@ export class BroadcastService implements OnModuleInit {
     });
     return { allBroadcast, totalPages}
   }
+    // const remainingBroadcasts = await this.broadcastRepository.find({
+    //   where: { isBroadcastDone: false },
+    // });
 
 
 

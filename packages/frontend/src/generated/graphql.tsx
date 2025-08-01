@@ -688,8 +688,9 @@ export const CreateOneAttachmentDoc = gql`
 
 
 export const findAllMailingList = gql`
-  query FindAllMailingList {
-    findAllMailingList {
+  query FindAllMailingList($currentPage: Int!, $itemsPerPage: Int!) {
+    findAllMailingList(currentPage: $currentPage, itemsPerPage: $itemsPerPage) {
+    mailingList {
       id
       mailingListName
       createdAt
@@ -697,7 +698,9 @@ export const findAllMailingList = gql`
         contactName
         contactNo
         id
+      }
     }
+    totalPages
     }
   }
 `;
@@ -754,6 +757,15 @@ query findAllBroadcast($currentPage : Int!, $itemsPerPage : Int!) {
 export const SearchedBroadcast = gql`
 query searchBroadcast($searchTerm: String){
   searchBroadcast(searchTerm: $searchTerm){
+  searchedData
+  totalCount
+  }
+}
+`
+
+export const searchMailingList = gql`
+query searchMailingList($searchTerm: String){
+  searchMailingList(searchTerm: $searchTerm){
   searchedData
   totalCount
   }

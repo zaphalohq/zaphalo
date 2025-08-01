@@ -1,17 +1,31 @@
 import { useMutation, useQuery } from '@apollo/client';
-import { findAllMailingList, FindAllMailingContact, DeleteMailingContact, SelectedMailingContact } from '@src/generated/graphql';
+import { findAllMailingList, FindAllMailingContact, DeleteMailingContact, searchMailingList } from '@src/generated/graphql';
 import { useEffect, useState } from 'react';
 import { FiEdit2 } from 'react-icons/fi';
 import { MdDelete } from 'react-icons/md';
 import MailingListSaveContact from './MailingListSaveContact';
 import MailingContactView from './MailingContactView';
+import { SearchWhite } from '../UI/Search';
+import usePagination from '@src/utils/usePagination';
+import Pagination from '../UI/Pagination';
 
 export default function MailingListView({ isMailingContactVis, setIsMailingContactVis }: any) {
-  const { data, loading, error } = useQuery(findAllMailingList);
+
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
+  const {
+    currentPage,
+    setCurrentPage,
+    itemsPerPage,
+    totalPages,
+    setTotalPages
+  } = usePagination()
 
-
-
+  const { data, loading, error } = useQuery(findAllMailingList, {
+    variables: {
+      currentPage,
+      itemsPerPage
+    }
+  });
   const { data: mailingContactdata,
     loading: mailingContactLoading,
     refetch: mailingContactRefetch,
@@ -31,9 +45,9 @@ export default function MailingListView({ isMailingContactVis, setIsMailingConta
 
   useEffect(() => {
     if (data && !loading) {
-      const mailingLists = data?.findAllMailingList || [];
+      const mailingLists = data?.findAllMailingList?.mailingList || [];
       setMailingLists(mailingLists)
-
+      setTotalPages(data?.findAllMailingList?.totalPages)
       if (selectedListId) {
         setSelectedListId(selectedListId)
         handleFetchMailingContact()
@@ -61,7 +75,27 @@ export default function MailingListView({ isMailingContactVis, setIsMailingConta
 
 
 
+  const [searchTerm, setSearchTerm] = useState('')
+  const {
+    data: searchMailingListData,
+    loading: searchMailingListLoading,
+    refetch: searchMailingListRefetch } = useQuery(searchMailingList, {
+      variables: {
+        searchTerm
+      },
+      skip: !searchTerm
+    });
 
+  useEffect(() => {
+    if (searchTerm) {
+      searchMailingListRefetch().then(({ data }) => {
+        console.log(data,'mailisnlisei');
+        
+      setMailingLists(data.searchMailingList?.searchedData)
+      setTotalPages(0)
+      });
+    }
+  }, [searchTerm])
 
 
 
@@ -69,69 +103,82 @@ export default function MailingListView({ isMailingContactVis, setIsMailingConta
     <div className='flex flex-col items-center'>
       {
         !isMailingContactVis ?
-          <div className="relative overflow-x-auto md:pt-4 md:p-4 rounded-lg">
-            <table className="w-6xl text-sm text-left rtl:text-right text-stone-500 rounded-2xl">
-              <thead className="text-xs text-stone-700 uppercase bg-stone-200 truncate">
-                <tr>
-                  <th scope="col" className="px-6 py-4 w-64 text-left truncate">Mailing List Name</th>
-                  <th scope="col" className="px-6 py-4 text-center truncate">Total Contacts</th>
-                  <th scope="col" className="px-6 py-4 text-center truncate">View Broadcast</th>
-                  <th scope="col" className="px-6 py-4 text-center truncate">View Contacts</th>
-                  {/* <th scope="col" className="px-6 py-4 text-center truncate">Updated Date</th> */}
-                  <th scope="col" className="px-6 py-4 text-center truncate">Delete</th>
-                </tr>
-              </thead>
-              <tbody>
-                {mailingLists?.map((mailingList: any, index: number) => (
-                  <tr key={index} className="bg-white border-b border-stone-200">
-                    <th
-                      scope="row"
-                      className="px-6 py-4 font-medium text-left text-stone-900 max-w-[200px] truncate"
-                      title={mailingList.mailingListName}
-                    >
-                      {mailingList.mailingListName}
-                    </th>
-                    <td
-                      className="px-6 py-4 text-center truncate max-w-[150px]"
-                      title={String(mailingList.phoneNo)}
-                    >
-                      {mailingList.mailingContacts.length}
-                    </td>
-                    <td onClick={() => {
-
-                    }}
-                      className="px-6 py-4 text-center truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
-                      title="preview"
-                    >
-                      View
-                    </td>
-                    <td onClick={() => {
-                      setSelectedListId(mailingList.id)
-                      setIsMailingContactVis(true)
-                    }}
-                      className="px-6 py-4 text-center truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
-                      title="preview"
-                    >
-                      View
-                    </td>
-                    <td className="px-4 py-2 text-center">
-                      <button
-                        onClick={async () => {
-                        }}
-                        className='text-lg text-center text-[#ED4337] cursor-pointer hover:bg-stone-200 p-2 rounded'
-                      >
-                        <MdDelete />
-                      </button>
-                    </td>
+          <div>
+            <div className="grid grid-cols-4 my-4">
+              <div className='col-start-4'>
+                <SearchWhite HandleSearch={(e: any) => setSearchTerm(e.target.value)} />
+              </div>
+            </div>
+            <div className="relative h-[65vh] overflow-y-auto overflow-x-auto">
+              <table className="w-6xl text-sm text-left text-stone-500">
+                <thead className="text-xs sticky top-0 text-stone-700 uppercase bg-stone-200 truncate">
+                  <tr>
+                    <th scope="col" className="px-6 py-4 w-64 text-left truncate">Mailing List Name</th>
+                    <th scope="col" className="px-6 py-4 text-center truncate">Total Contacts</th>
+                    <th scope="col" className="px-6 py-4 text-center truncate">View Broadcast</th>
+                    <th scope="col" className="px-6 py-4 text-center truncate">View Contacts</th>
+                    {/* <th scope="col" className="px-6 py-4 text-center truncate">Updated Date</th> */}
+                    <th scope="col" className="px-6 py-4 text-center truncate">Delete</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {mailingLists?.map((mailingList: any, index: number) => (
+                    <tr key={index} className="bg-white border-b border-stone-200">
+                      <th
+                        scope="row"
+                        className="px-6 py-4 font-medium text-left text-stone-900 max-w-[200px] truncate"
+                        title={mailingList.mailingListName}
+                      >
+                        {mailingList.mailingListName}
+                      </th>
+                      <td
+                        className="px-6 py-4 text-center truncate max-w-[150px]"
+                        title={String(mailingList.phoneNo)}
+                      >
+                        {mailingList.mailingContacts.length}
+                      </td>
+                      <td onClick={() => {
+
+                      }}
+                        className="px-6 py-4 text-center truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
+                        title="preview"
+                      >
+                        View
+                      </td>
+                      <td onClick={() => {
+                        setSelectedListId(mailingList.id)
+                        setIsMailingContactVis(true)
+                      }}
+                        className="px-6 py-4 text-center truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
+                        title="preview"
+                      >
+                        View
+                      </td>
+                      <td className="px-4 py-2 text-center">
+                        <button
+                          onClick={async () => {
+                          }}
+                          className='text-lg text-center text-[#ED4337] cursor-pointer hover:bg-stone-200 p-2 rounded'
+                        >
+                          <MdDelete />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <Pagination
+              totalPages={totalPages}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+            />
           </div>
+
           :
-          <MailingContactView 
-          selectedListId={selectedListId}
-          contactsData={contactsData}
+          <MailingContactView
+            selectedListId={selectedListId}
+            contactsData={contactsData}
             HandleDeleteMailingContact={HandleDeleteMailingContact}
             handleFetchMailingContact={handleFetchMailingContact}
           />}

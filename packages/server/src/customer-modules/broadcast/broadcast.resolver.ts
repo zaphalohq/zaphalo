@@ -14,8 +14,8 @@ export class BroadcastResolver {
     constructor(
         private readonly broadcastService: BroadcastService,
     ) {
-
     }
+
 
     @UseGuards(GqlAuthGuard)
     @Query(() => FindAllBrodcastRes)

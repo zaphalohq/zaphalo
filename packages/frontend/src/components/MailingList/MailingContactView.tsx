@@ -48,7 +48,6 @@ const MailingContactView = ({
     useEffect(() => {
         if (selectedListId) {
             mailingContactRefetch().then(({ data }) => {
-                console.log('pagenation...refetched data');
                 setCurrentContacts(data.selectedMailingContact.mailingContact)
                 setTotalPages(data.selectedMailingContact.totalPages)
             });
@@ -70,7 +69,6 @@ const MailingContactView = ({
     useEffect(() => {
         if (searchTerm) {
             searchedMailingContactRefetch().then(({ data }) => {
-        console.log( "............search................");
                 setCurrentContacts(data.searchAndPaginateContact.mailingContact)
                 setTotalPages(0)
             });

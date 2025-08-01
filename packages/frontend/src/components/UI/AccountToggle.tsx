@@ -13,7 +13,6 @@ const AccountToggle = () => {
   const [currentUserWorkspace] = useRecoilState(currentUserWorkspaceState);
   const navigate = useNavigate()
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false)
-  console.log(currentUserWorkspace?.profileImg,'currentUserWorkspace?.profileImg');
   
   return (
     <div className="border-b mt-2 mb-4 pb-4 border-gray-700 relative">

@@ -4,6 +4,8 @@ import { MailingContact, MailingListInputDto } from "./DTO/MailingListReqDto";
 import { MailingContacts } from "./mailingContacts.entity";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 import { Connection, ILike, Repository } from 'typeorm';
+import { FindAllMailingListRes } from "./DTO/FindAllMailingListDto";
+import { serialize } from "v8";
 
 
 @Injectable()
@@ -39,13 +41,18 @@ export class MailingListService {
         })
     }
 
-    async findAllMailingList(): Promise<MailingList[]> {
-        const mailinglist = await this.mailingListRepository.find({
+    async findAllMailingList(currentPage, itemsPerPage): Promise<FindAllMailingListRes> {
+        const totalItems = await this.mailingListRepository.count();
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const mailingList = await this.mailingListRepository.find({
             relations: ['mailingContacts'],
-            order: { createdAt: 'ASC' }
+            order: { createdAt: 'ASC' },
+            skip: startIndex,
+            take: itemsPerPage
         })
 
-        return mailinglist
+        return { mailingList, totalPages }
     }
 
 
@@ -127,6 +134,21 @@ export class MailingListService {
 
     async deleteMailingContact(mailingContactId: string) {
         return await this.mailingContactsRepository.delete({ id: mailingContactId })
+    }
+
+    async searchMailingList(
+        searchTerm?: string,
+    ) {
+        console.log(searchTerm,'searchTerm................');
+        
+        const [mailingList, totalCount] = await this.mailingListRepository.findAndCount({
+            where: { mailingListName: ILike(`%${searchTerm}%`) },
+            order: { createdAt: 'ASC' },
+            relations: ['mailingContacts']
+        });
+        console.log(mailingList,'mailingList');
+        
+        return { searchedData: mailingList, totalCount };
     }
 
 

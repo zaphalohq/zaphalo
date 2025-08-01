@@ -27,13 +27,16 @@ const MailingListSaveContact = ({ contactData, setContactData, HandleSaveContact
 
     }
 
+
+
+
     return (
         <div>
-            <SaveContact HandleSaveContactVis={HandleSaveContactVis}
-                HandleSubmitContact={HandleSubmitContact}
-                contactData={contactData}
-                HandleChangeData={HandleChangeData}
-            />
+            <SaveContact HandleSaveContactVis={HandleSaveContactVis} 
+                         HandleSubmitContact={HandleSubmitContact} 
+                         contactData={contactData} 
+                         HandleChangeData={HandleChangeData} 
+                         />
         </div>
     )
 }

@@ -8,6 +8,8 @@ import { SuccessResponse } from "../whatsapp/dtos/success.dto";
 import { MailingContactResDto } from "./DTO/MailingContactResDto";
 import { MailingContacts } from "./mailingContacts.entity";
 import { SearchAndPaginateContactResDto, SelectedMailingContactResDto } from "./DTO/SelectedMailingContactResDto";
+import { FindAllMailingListRes } from "./DTO/FindAllMailingListDto";
+import { SearchedRes } from "../whatsapp/dtos/searched.dto";
 
 @Resolver(() => MailingList)
 export class MailingListResolver {
@@ -16,10 +18,13 @@ export class MailingListResolver {
   ) { }
 
 
-  @Query(() => [MailingList])
+  @Query(() => FindAllMailingListRes)
   @UseGuards(GqlAuthGuard)
-  async findAllMailingList(): Promise<MailingList[]> {
-    return this.mailingListService.findAllMailingList()
+  async findAllMailingList(
+    @Args('currentPage', { type: () => Int }) currentPage: number,
+    @Args('itemsPerPage', { type: () => Int }) itemsPerPage: number
+  ): Promise<FindAllMailingListRes> {
+    return this.mailingListService.findAllMailingList(currentPage, itemsPerPage)
   }
 
   @Query(() => [MailingContacts])
@@ -68,6 +73,12 @@ export class MailingListResolver {
     return this.mailingListService.searchAndPaginateContact(mailingListId, searchTerm);
   }
 
+  @Query(() => SearchedRes)
+  async searchMailingList(
+    @Args('searchTerm', { type: () => String, nullable: true }) searchTerm?: string,
+  ): Promise<SearchedRes | null> {
+    return this.mailingListService.searchMailingList(searchTerm);
+  }
 
 }
 
