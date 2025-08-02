@@ -1,13 +1,9 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
 import { Channel } from "./channel.entity";
 import { Message } from "./message.entity";
 import { ContactsService } from "../contacts/contacts.service";
-import { join } from "path";
-import { existsSync, unlinkSync } from "fs";
-import axios, { AxiosResponse } from "axios"
-import fs from "fs"
-import { UserService } from "src/modules/user/user.service";
+import { unlinkSync } from "fs";
+import axios from "axios"
 import { Connection, Repository, In } from 'typeorm';
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 
@@ -18,6 +14,7 @@ export class ChannelService {
     constructor(
         @Inject(CONNECTION) connection: Connection,
         private readonly contactsservice: ContactsService,
+
     ) {
         this.channelRepository = connection.getRepository(Channel);
         this.messageRepository = connection.getRepository(Message);
@@ -56,7 +53,7 @@ export class ChannelService {
 
             return channelPhoneNoStr == membersIdsStr;
         })
-        
+
         return stillChannelExist
     }
 
@@ -239,7 +236,8 @@ export class ChannelService {
 
         let messagePayload = {};
 
-
+        console.log(receiverId,'.....receiverId');
+        
         if (messageType === 'text' && textMessage) {
             messagePayload = {
                 type: 'text',
@@ -287,22 +285,25 @@ export class ChannelService {
 
             const finalPayload = {
                 messaging_product: 'whatsapp',
-                to: '917202031718',
+                to: receiverId[0],
                 ...messagePayload,
             };
 
-            
+
             const response = await axios.post(url, finalPayload, {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                 },
             });
-            
+
             return response.data;
         });
 
     }
+
+
+
 
 
 }
