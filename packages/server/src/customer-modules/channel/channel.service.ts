@@ -236,8 +236,6 @@ export class ChannelService {
 
         let messagePayload = {};
 
-        console.log(receiverId,'.....receiverId');
-        
         if (messageType === 'text' && textMessage) {
             messagePayload = {
                 type: 'text',
@@ -297,6 +295,8 @@ export class ChannelService {
                 },
             });
 
+            console.log(response.data,'message response');
+            
             return response.data;
         });
 
