@@ -51,7 +51,6 @@ const routes = createRoutesFromElements(
     <Route path="/invite/:workspaceInviteToken" element={<SignUpPage />} />
     <Route path="/verify" element={<VerifyLoginTokenEffect />} />
     <Route index path='/login' element={<Login />} />
-    <Route path='/login2' element={<SignUpPage />} />
     <Route element={<ProtectedRoute />}>
       <Route path="/w/:workspaceId" element={<MainLayout />}>
         <Route index element={<Navigate to="dashboard" replace />} />

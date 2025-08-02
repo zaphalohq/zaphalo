@@ -13,5 +13,8 @@ rawDataSource
       'CREATE SCHEMA IF NOT EXISTS "core"',
       'create schema "core"',
     );
-
+    await performQuery(
+      'CREATE SCHEMA IF NOT EXISTS "workspace_default"',
+      'create schema "workspace_default"',
+    );
 });

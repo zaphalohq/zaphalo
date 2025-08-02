@@ -6,7 +6,6 @@ import { NestjsQueryTypeOrmModule } from '@ptc-org/nestjs-query-typeorm';
 import { AuthService } from './services/auth.service';
 import { AuthResolver } from './auth.resolver';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { GoogleStrategy } from './strategies/google.auth.strategy';
 import { User } from 'src/modules/user/user.entity';
 import { UserModule } from 'src/modules/user/user.module';
 import { UserService } from 'src/modules/user/user.service';
@@ -55,7 +54,6 @@ import { GoogleAuthController } from 'src/modules/auth/controllers/google.auth.c
     AuthService,
     AuthResolver,
     JwtStrategy,
-    GoogleStrategy,
     AuthSsoService,
     SignInUpService,
     WorkspaceMemberService,
