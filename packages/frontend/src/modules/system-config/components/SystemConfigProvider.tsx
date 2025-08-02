@@ -12,17 +12,6 @@ export const SystemConfigProvider: React.FC<React.PropsWithChildren> = ({
     systemConfigApiStatusState,
   );
 
-  // const { isMatchingLocation } = useIsMatchingLocation();
-  console.log("..............isLoaded..............", isLoaded, isErrored, error);
-  // TODO: Implement a better loading strategy
-  if (
-    !isLoaded
-    // &&
-    // !isMatchingLocation(AppPath.Verify) &&
-    // !isMatchingLocation(AppPath.VerifyEmail)
-  )
-    return null;
-
   return isErrored && error instanceof Error ? (
     <AppErrorFullScreen
       error={error}
