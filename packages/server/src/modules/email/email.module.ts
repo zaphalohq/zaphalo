@@ -12,16 +12,16 @@ import { DomainManagerModule } from 'src/modules/domain-manager/domain-manager.m
     MailerModule.forRootAsync({
       useFactory: async (config: ConfigService) => ({
         transport: {
-          host: config.get('SMTP_HOST'),
-          port: config.get('SMTP_PORT'),
+          host: config.get('EMAIL_SMTP_HOST'),
+          port: config.get('EMAIL_SMTP_PORT'),
           secure: true,
           auth: {
-            user: config.get('SMTP_USERNAME'),
-            pass: config.get('SMTP_PASSWORD'),
+            user: config.get('EMAIL_SMTP_USERNAME'),
+            pass: config.get('EMAIL_SMTP_PASSWORD'),
           },
         },
         defaults: {
-          from: `"YaariAPI" <${config.get('SMTP_USERNAME')}>`,
+          from: `"YaariAPI" <${config.get('EMAIL_SMTP_USERNAME')}>`,
         },
         template: {
           dir: join(__dirname, 'templates'),
