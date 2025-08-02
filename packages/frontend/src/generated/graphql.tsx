@@ -647,8 +647,12 @@ mutation UpdateWorkspaceDetails(
 `
 
 export const getSystemStatus = gql`
-  query SystemStatus {
-    getSystemStatus
+  query systemConfig {
+    systemConfig {
+      authProviders {
+        google
+      }
+    }
   }
 `;
 
