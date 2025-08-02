@@ -14,10 +14,6 @@ export class AttachmentService {
         this.attachmentRepository = connection.getRepository(Attachment);
     }
 
-    // async findOneAttachment(senderId: number) {
-    //     return await this.attachmentRepository.findOne({ where: { phoneNo: senderId }})
-    // }
-
     async createOneAttachment(createAttachmentDto: CreateAttachmentDto) {
         const attachment = this.attachmentRepository.create({
             name : createAttachmentDto.name,
@@ -33,15 +29,5 @@ export class AttachmentService {
     async findOneAttachmentById(attachmentId : string) {
         return await this.attachmentRepository.findOne({ where : { id : attachmentId }})
     }
-
-    // async DeleteContact(contactId : string){
-    //     const deleteContact = await this.contactsRepository.findOne({ where : { id : contactId }});
-    //     if (deleteContact)
-    //         return  await this.contactsRepository.remove(deleteContact)
-    //     else
-    //         return null
-
-    // }
-
 
 }

@@ -1,13 +1,8 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { Connection, Repository } from 'typeorm';
+import { Injectable } from "@nestjs/common";
 import { HttpService } from '@nestjs/axios';
-import axios from "axios";
-import path from 'path';
 import fs from 'fs/promises';
 
 import { WhatsAppAccount } from "src/customer-modules/whatsapp/entities/whatsapp-account.entity";
-// import { WhatsAppAccountService } from "./whatsapp-account.service";
-import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 
 const DEFAULT_ENDPOINT = "https://graph.facebook.com/v23.0"
 
@@ -33,7 +28,6 @@ export class WhatsAppApiService {
     this.token = whatsAppAccount.accessToken;
     this.httpService = new HttpService();
     this.is_shared_account = false
-    // this.templateRepository = connection.getRepository(Template);
   }
 
   async apiRequests(params: {
@@ -48,7 +42,6 @@ export class WhatsAppApiService {
   }) {
 
     let headers = params.headers || {}
-    // const params = params.params || {}
     let res;
     if (!this.token || !this.phone_uid) {
       throw new Error("To use WhatsApp Configure it first")
@@ -83,7 +76,6 @@ export class WhatsAppApiService {
       return err;
     }
 
-    // raise if json-parseable and 'error' in json
     try {
       if ('error' in res)
         throw new Error(JSON.stringify(res.data))
@@ -126,7 +118,6 @@ export class WhatsAppApiService {
 
     let final_response: any[] = new Array()
     if (fetch_all) {
-      // # Fetch 200 templates at once
       template_url = template_url + "&limit=1";
       let endpoint_include = false;
       while (template_url) {
@@ -234,8 +225,8 @@ export class WhatsAppApiService {
 
   private countWhatsappSend = 0
   async submitTemplateNew(json_data) {
-    console.log(this.countWhatsappSend +1,'countWhatsappSendcountWhatsappSendcountWhatsappSend');
-    
+    console.log(this.countWhatsappSend + 1, 'countWhatsappSendcountWhatsappSendcountWhatsappSend');
+
     // """
     //     This method is used to submit template for approval
     //     If template was submitted before, we have wa_template_uid and we call template update URL
@@ -279,10 +270,10 @@ export class WhatsAppApiService {
       "data": json_data
     })
     const response_data = response.data
-    console.log(response,'..................');
-    console.log(response.data,'..................');
+    console.log(response, '..................');
+    console.log(response.data, '..................');
 
-    
+
     return response_data
     // throw new Error(this.prepare_error_response(response))
   }
@@ -417,12 +408,6 @@ export class WhatsAppApiService {
 
     const files = [['file', [filename, buffer, mimetype]]]
     const payload = { 'messaging_product': 'whatsapp', 'file': files }
-    // const params = {
-    //     'file_name': filename,
-    //     'file_length': attachment.file_size,
-    //     'file_type': attachment.mimetype,
-    //     'access_token': this.token,
-    // }
     console.info("Upload document of mimetype %s for phone uid %s", mimetype, this.phone_uid)
     const response = self.apiRequests({
       "request_type": "POST",
@@ -445,7 +430,6 @@ export class WhatsAppApiService {
     const response = await this.apiRequests({
       "request_type": "GET",
       "url": `/${this.wa_account_id.phoneNumberId}?access_token=${this.token}`,
-      // "auth_type": "bearer"
     })
     return response.data
   }

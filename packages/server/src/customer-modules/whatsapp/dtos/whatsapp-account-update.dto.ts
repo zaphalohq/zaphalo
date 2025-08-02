@@ -3,6 +3,9 @@ import { InputType, Field } from '@nestjs/graphql';
 
 @InputType()
 export class WaAccountDto {
+  @Field({nullable: true})
+  accountId: string;
+
   @Field()
   name: string;
 

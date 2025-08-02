@@ -4,7 +4,6 @@ import {
     UseGuards,
     UseInterceptors,
     UploadedFile,
-    Req,
     Body,
     HttpException,
     HttpStatus

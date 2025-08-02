@@ -4,8 +4,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   Relation,
@@ -13,7 +11,6 @@ import {
 } from "typeorm";
 import { UUIDScalarType } from "src/modules/api/scalars/uuid.scalar";
 import { WhatsAppTemplate } from "src/customer-modules/whatsapp/entities/whatsapp-template.entity";
-import { MailingList } from "src/customer-modules/mailingList/mailingList.entity";
 
 @Entity({ name: 'attachment' })
 @ObjectType('attachment')

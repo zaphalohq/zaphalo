@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { NestjsQueryTypeOrmModule } from '@ptc-org/nestjs-query-typeorm';
 import { NestjsQueryGraphQLModule } from '@ptc-org/nestjs-query-graphql';
 import { HttpModule } from '@nestjs/axios';
-
 import { WhatsAppAccount } from './entities/whatsapp-account.entity';
 import { WhatsAppMessage } from './entities/whatsapp-message.entity';
 import { WhatsAppTemplate } from './entities/whatsapp-template.entity';
@@ -17,6 +16,7 @@ import { WaAccountResolver } from './resolvers/account.resolver';
 import { AttachmentModule } from '../attachment/attachment.module';
 import { WhatsAppTemplateResolver } from './resolvers/template.resolver';
 import { FileStorageModule } from 'src/modules/file-storage/file-storage.module';
+import { JwtModule } from 'src/modules/jwt/jwt.module';
 
 @Module({
   imports: [
@@ -27,7 +27,8 @@ import { FileStorageModule } from 'src/modules/file-storage/file-storage.module'
         ContactsModule,
         WorkspaceModule,
         AttachmentModule,
-        FileStorageModule
+        FileStorageModule,
+        JwtModule
       ],
       services: [WaAccountService, WhatsAppSDKService, TemplateService],
     }),

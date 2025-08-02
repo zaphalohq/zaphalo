@@ -5,8 +5,6 @@ import { BroadcastService } from "./broadcast.service";
 import { BroadcastResolver } from "./broadcast.resolver";
 import { Broadcast } from "./broadcast.entity";
 import { BroadcastContacts } from "./broadcastContacts.entity";
-import { WorkspaceModule } from "src/modules/workspace/workspace.module";
-import { TypeORMModule } from "src/database/typeorm/typeorm.module";
 import { WhatsAppModule } from "src/customer-modules/whatsapp/whatsapp.module";
 import { MailingListModule } from "src/customer-modules/mailingList/mailingList.module";
 

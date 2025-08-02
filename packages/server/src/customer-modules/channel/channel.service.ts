@@ -96,47 +96,7 @@ export class ChannelService {
             )
             .orderBy('latest_message_time', 'DESC', 'NULLS LAST')
             .getMany();
-
-        // return await this.channelRepository
-        // .createQueryBuilder('channel')
-        // .leftJoinAndSelect('channel.contacts', 'contacts')
-        // .leftJoinAndSelect('channel.messages',
-        //                    'messages',
-        //                    "messages.unseen = :unseen", // Filter messages where unseen is false
-        //                     { unseen: false }
-        //                 )
-        // .addSelect(
-        //   (subQuery) =>
-        //     subQuery
-        //       .select('MAX(m.createdAt)', 'latest_time')
-        //       .from(Message, 'm')
-        //       .where('m.channelId = channel.id'),
-        //   'latest_message_time'
-        // )
-        // .orderBy('latest_message_time', 'DESC', 'NULLS LAST')
-        // .getMany();
     }
-
-    // async findAllChannel(): Promise<Channel[]> {
-    //     return await this.channelRepository
-    //       .createQueryBuilder('channel')
-    //       .leftJoinAndSelect('channel.contacts', 'contacts')
-    //       .leftJoinAndSelect('channel.messages', 'messages') // Join messages
-    //       .groupBy('channel.id') // Group by channel to avoid duplicates
-    //       .orderBy('MAX(messages.createdAt)', 'DESC', 'NULLS LAST') // Sort by latest message
-    //       .getMany();
-    //   }
-
-    //   async findMsgByChannelId(channelId: string): Promise<Message[]> {
-
-    //     return await this.messageRepository
-    //       .createQueryBuilder('message')
-    //       .leftJoinAndSelect('message.channel', 'channel')
-    //       .leftJoinAndSelect('message.sender', 'sender')
-    //       .where('channel.id = :channelId', { channelId })
-    //       .orderBy('message.createdAt', 'ASC')
-    //       .getMany();
-    //   }
 
     async findMsgByChannelId(channelId: any): Promise<Message[]> {
 
@@ -301,9 +261,5 @@ export class ChannelService {
         });
 
     }
-
-
-
-
 
 }
