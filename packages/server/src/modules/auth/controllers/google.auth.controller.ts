@@ -3,7 +3,8 @@ import { Response } from 'express';
 import { Controller, UseGuards, Get, Req, Res } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { GoogleOauthGuard } from 'src/modules/auth/guards/google.auth.guard';
+import { GoogleOauthGuard } from 'src/modules/auth/guards/google-auth.guard';
+import { GoogleAuthEnabledGuard } from 'src/modules/auth/guards/google-auth-enabled.guard';
 import { AuthService } from 'src/modules/auth/services/auth.service';
 import { User } from "src/modules/user/user.entity";
 
@@ -16,13 +17,13 @@ export class GoogleAuthController {
   ) { }
 
   @Get()
-  @UseGuards(GoogleOauthGuard)
+  @UseGuards(GoogleAuthEnabledGuard, GoogleOauthGuard)
   async googleAuth() {
     return;
   }
 
   @Get('redirect')
-  @UseGuards(GoogleOauthGuard)
+  @UseGuards(GoogleAuthEnabledGuard, GoogleOauthGuard)
   async googleAuthCallback(@Req() req, @Res() res: Response) {
     const {
       firstName,
