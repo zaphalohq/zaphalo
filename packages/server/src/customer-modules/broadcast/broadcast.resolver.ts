@@ -16,7 +16,6 @@ export class BroadcastResolver {
     ) {
     }
 
-
     @UseGuards(GqlAuthGuard)
     @Query(() => FindAllBrodcastRes)
     async findAllBroadcast(
@@ -24,7 +23,6 @@ export class BroadcastResolver {
         @Args('itemsPerPage', { type: () => Int }) itemsPerPage: number) {
         return await this.broadcastService.findAllBroadcast(currentPage, itemsPerPage)
     }
-
 
     @UseGuards(GqlAuthGuard)
     @Mutation(() => SuccessResponse)
@@ -39,12 +37,11 @@ export class BroadcastResolver {
         }
     }
 
-    
-      @Query(() => SearchedRes)
-      async searchBroadcast(
+    @Query(() => SearchedRes)
+    async searchBroadcast(
         @Args('searchTerm', { type: () => String, nullable: true }) searchTerm?: string,
-      ): Promise<SearchedRes | null> {
+    ): Promise<SearchedRes | null> {
         return this.broadcastService.searchBroadcast(searchTerm);
-      }
+    }
 
 }

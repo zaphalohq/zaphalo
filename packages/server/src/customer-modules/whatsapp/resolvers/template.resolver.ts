@@ -8,7 +8,6 @@ import { WaTemplateResponseDto } from "../dtos/whatsapp.response.dto";
 import { FileService } from "src/modules/file-storage/services/file.service";
 import { FindAllTemplate } from "../dtos/findAllTemplate.dto";
 import { SearchedRes } from "../dtos/searched.dto";
-// import { TemplateResponseDto } from "src/customer-modules/template/dto/TemplateResponseDto";
 
 @Resolver(() => WhatsAppTemplate)
 export class WhatsAppTemplateResolver {

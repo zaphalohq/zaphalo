@@ -15,6 +15,7 @@ import { WorkspaceModule } from "src/modules/workspace/workspace.module";
 import { TypeORMModule } from "src/database/typeorm/typeorm.module";
 import { WhatsAppModule } from "src/customer-modules/whatsapp/whatsapp.module";
 import { ContactsModule } from "src/customer-modules/contacts/contacts.module";
+import { JwtModule } from "src/modules/jwt/jwt.module";
 
 @Module({
   imports: [
@@ -26,7 +27,8 @@ import { ContactsModule } from "src/customer-modules/contacts/contacts.module";
         ContactsModule,
         UserModule,
         WorkspaceModule,
-        WhatsAppModule
+        WhatsAppModule,
+        JwtModule
       ],
       services: [ChannelService],
     })

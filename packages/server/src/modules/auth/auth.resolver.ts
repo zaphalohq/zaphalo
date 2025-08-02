@@ -42,10 +42,8 @@ export class AuthResolver {
       lastName,
       email,
       password,
-      // picture,
       workspaceId,
       workspaceInviteToken,
-      // local,
     } = UserInput;
 
       const existingUser = await this.userRepository.findOne({
@@ -106,7 +104,6 @@ export class AuthResolver {
   @Mutation(() => AuthResponse)
   async getAuthTokensFromLoginToken(
     @Args('loginToken') loginToken: string,
-    // @OriginHeader() origin: string,
   ) {
     return this.authService.verifyToken(loginToken)
   }

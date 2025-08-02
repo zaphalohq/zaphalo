@@ -5,7 +5,6 @@ import { MailingContacts } from "./mailingContacts.entity";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 import { Connection, ILike, Repository } from 'typeorm';
 import { FindAllMailingListRes } from "./DTO/FindAllMailingListDto";
-import { serialize } from "v8";
 
 
 @Injectable()

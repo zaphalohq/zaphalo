@@ -1,28 +1,33 @@
-import { Controller, Get, Post, Query, Request } from '@nestjs/common';
+import { Controller, Get, Post, Query, Request, UseGuards, Req } from '@nestjs/common';
 import { ChannelService } from './channel.service';
 import { WebSocketService } from './chat-socket';
 import { ContactsService } from 'src/customer-modules/contacts/contacts.service';
 import { WaAccountService } from 'src/customer-modules/whatsapp/services/whatsapp-account.service';
+import { WaWebhookGuard } from './guards/wa_webhook_guard';
+import { JwtWrapperService } from 'src/modules/jwt/jwt-wrapper.service';
 const token = 'my-token'
 
-@Controller('webhook')
+@Controller('whatsapp')
 export class channelController {
   constructor(
     private readonly webSocketService: WebSocketService,
     private readonly channelservice: ChannelService,
     private readonly contactsservice: ContactsService,
     private readonly waAccountService: WaAccountService,
+    private readonly jwtWrapperService: JwtWrapperService,                  
+    
     ) { }
-  @Get()
-  getWhatsappApi(@Query() query: any): string {
-    const mode = query['hub.mode']
+
+  @Get('/:workspace/webhook')
+  @UseGuards(WaWebhookGuard)
+  getWhatsappApi(@Query() query: any) {
     const challenge = query['hub.challenge']
     const verify_token = query['hub.verify_token']
-
-    if (mode && verify_token === token) {
+    const verified =  this.jwtWrapperService.verifyWorkspaceToken(verify_token,'API_KEY')
+    
+    if (verified) {
       return challenge
     }
-    return 'This action returns all cats';
   }
 
   @Post()
