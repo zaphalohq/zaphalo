@@ -1,11 +1,11 @@
 import { useContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
-import { ChatsContext } from "../../Context/ChatsContext";
+import { ChatsContext } from "@components/Context/ChatsContext";
 
 interface Message {
     channelId: string;
     phoneNo: string;
-    textMessage: string[]; // Array of messages
+    textMessage: string[];
     unseen: number;
 }
 
@@ -17,12 +17,11 @@ export async function useWebSocket() {
         [{
             channelId: '',
             phoneNo: '',
-            textMessage: [], // Array of messages
+            textMessage: [],
             unseen: 0,
         }])
 
     useEffect(() => {
-        console.log(newUnseenMessage, "yeaaaaaaaaaaaaaaaaaaa");
         setNewMessage(newUnseenMessage)
     }, [newUnseenMessage])
 
@@ -33,36 +32,25 @@ export async function useWebSocket() {
         });
 
         socketIo.on("connect", () => {
-            console.log("Connected to Socket.IO server:", socketIo.id);
         });
 
         socketIo.on("joined", (data) => {
-            console.log("Joined channel:", data);
         });
 
         socketIo.on("message", (messageData) => {
             try {
                 const newMsg = JSON.parse(messageData);
-                console.log("Parsed message:", newMsg);
-                console.log(newMsg.newChannelCreated);
-                
                 setIsNewChannelCreated(newMsg.newChannelCreated)
                 if (!newMsg.messages) {
                     console.error("Message payload missing 'messages' field:", newMsg);
                     return;
                 }
-
-
                 setNewUnseenMessage((prevMessages) => {
-                    // Find if a channel with the same channelId exists
                     const channelIndex = prevMessages.findIndex(
                         (message) => message.channelId === newMsg.channelId
                     );
-                    console.log(prevMessages, "this is newessa",);
-                    console.log('this is current channelindex', channelIndex);
 
                     if (channelIndex !== -1) {
-                        // Channel exists, append the new message to its message array
                         const updatedMessages = [...prevMessages];
                         updatedMessages[channelIndex] = {
                             ...updatedMessages[channelIndex],
@@ -74,7 +62,6 @@ export async function useWebSocket() {
                         };
                         return updatedMessages;
                     } else {
-                        // Channel doesn’t exist, add a new entry
                         return [
                             ...prevMessages,
                             {
@@ -93,20 +80,17 @@ export async function useWebSocket() {
         });
 
         socketIo.on("error", (data) => {
-            console.log("Error:", data);
+            console.error("Error:", data);
         });
 
         socketIo.on("disconnect", () => {
-            console.log("Disconnected from Socket.IO server");
         });
 
         setSocket(socketIo);
-
-        // Cleanup on unmount or when channelId changes
         return () => {
             socketIo.disconnect();
         };
-    }, []); 
+    }, []);
 
     return { socket, newUnseenMessage };
 }

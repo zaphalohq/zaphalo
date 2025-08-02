@@ -1,0 +1,54 @@
+import { Field, ObjectType } from "@nestjs/graphql";
+import { IDField } from "@ptc-org/nestjs-query-graphql";
+import { Broadcast } from "src/customer-modules/broadcast/broadcast.entity";
+import { UUIDScalarType } from "src/modules/api/scalars/uuid.scalar";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Relation
+} from "typeorm";
+
+
+@Entity({ name: 'whatsAppAccount'})
+@ObjectType('whatsAppAccount')
+export class WhatsAppAccount {
+  @IDField(() => UUIDScalarType)
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column()
+  @Field()
+  name: string;
+
+  @Column()
+  @Field()
+  appId: string;
+
+  @Column()
+  @Field()
+  phoneNumberId: string;
+
+  @Column()
+  @Field()
+  businessAccountId: string;
+
+  @Column()
+  @Field()
+  accessToken: string;
+
+  @Column()
+  @Field()
+  appSecret: string;
+
+  @CreateDateColumn()
+  @Field()
+  createdAt: Date;
+
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  defaultSelected: boolean;
+
+}

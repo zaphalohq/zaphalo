@@ -3,32 +3,28 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
   OneToMany,
-  ManyToOne,
   Relation,
 } from 'typeorm';
 import { IDField } from '@ptc-org/nestjs-query-graphql';
-import { UUIDScalarType } from '../api/scalars/uuid.scalar';
+import { UUIDScalarType } from 'src/modules/api/scalars/uuid.scalar';
 import { IsOptional, IsString } from 'class-validator';
 import { Role } from 'src/enums/role.enum';
-import { Workspace } from 'src/modules/workspace/workspace.entity';
 import { WorkspaceMember } from 'src/modules/workspace/workspaceMember.entity';
-
+import { Workspace } from 'src/modules/workspace/workspace.entity';
 
 @Entity({ name: 'user', schema: 'core' })
-@ObjectType('User')
+@ObjectType('user')
 export class User {
   @IDField(() => UUIDScalarType)
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({nullable : true})
+  @Column({ nullable: true })
   @Field()
   firstName: string
 
-  @Column({nullable : true})
+  @Column({ nullable: true })
   @Field()
   lastName: string
 
@@ -36,7 +32,7 @@ export class User {
   @Field()
   email: string;
 
-  // @Field({ nullable: true })
+  @Field({ nullable: true })
   @Column({ nullable: true })
   password: string;
 

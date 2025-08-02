@@ -1,20 +1,6 @@
 import { useCallback } from 'react';
-import { VITE_BACKEND_URL } from '@src/config';
-import { ApolloError, useApolloClient } from '@apollo/client';
-import { useRedirect } from '@src/modules/domain-manager/hooks/useRedirect';
-import {
-  useGetAuthTokensFromLoginTokenMutation,
-  useGetCurrentUserLazyQuery,
-} from 'src/generated/graphql';
+import { useApolloClient } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
-import { setItem } from 'src/components/utils/localStorage';
-import { tokenPairState } from '../states/tokenPairState';
-import { currentUserState } from '../states/currentUserState';
-import { currentUserWorkspaceState } from '../states/currentUserWorkspaceState';
-import { workspacesState } from '../states/workspaces';
-
-import { cookieStorage } from 'src/utils/cookie-storage';
-import { isDefined } from 'src/utils/validation/isDefined';
 import {
   snapshot_UNSTABLE,
   useGotoRecoilSnapshot,
@@ -23,7 +9,19 @@ import {
   useRecoilValue,
   useSetRecoilState,
 } from 'recoil';
-import { currentWorkspaceIdState } from '../states/currentWorkspaceIdState';
+import {
+  useGetAuthTokensFromLoginTokenMutation,
+  useGetCurrentUserLazyQuery,
+} from '@src/generated/graphql';
+import { VITE_BACKEND_URL } from '@src/config';
+import { cookieStorage } from '@src/utils/cookie-storage';
+import { isDefined } from '@src/utils/validation/isDefined';
+import { workspacesState } from '@src/modules/auth/states/workspaces';
+import { tokenPairState } from '@src/modules/auth/states/tokenPairState';
+import { currentUserState } from '@src/modules/auth/states/currentUserState';
+import { useRedirect } from '@src/modules/domain-manager/hooks/useRedirect';
+import { currentWorkspaceIdState } from '@src/modules/auth/states/currentWorkspaceIdState';
+import { currentUserWorkspaceState } from '@src/modules/auth/states/currentUserWorkspaceState';
 
 export const useAuth = () => {
   const { redirect } = useRedirect();
@@ -41,7 +39,6 @@ export const useAuth = () => {
   const goToRecoilSnapshot = useGotoRecoilSnapshot();
 
   const setCurrentWorkspaceId = useSetRecoilState(currentWorkspaceIdState)
-
     const workspaceId = useRecoilValue(currentWorkspaceIdState);
 
   const buildRedirectUrl = useCallback(
@@ -57,21 +54,16 @@ export const useAuth = () => {
       }
       return url.toString();
     },
-    [], //workspacePublicData
+    [],
   );
 
   const loadCurrentUser = useCallback(async () => {
     const currentUserResult = await getCurrentUser({
       fetchPolicy: 'network-only',
     });
-
     const user = currentUserResult.data?.currentUser;
-
     if(!user) throw Error("user not found")
     setCurrentUser(user);
-
-    // const currentUserWorkspace =  user?.currentUserWorkspace
-    // if(!currentUserWorkspace) throw Error('currentUserWorkspace doesnt exist in useAuth')
     if (isDefined(user?.currentWorkspace)) {
       setCurrentUserWorkspace(user?.currentWorkspace);
       setCurrentWorkspaceId(user?.currentWorkspace?.id)
@@ -148,10 +140,8 @@ export const useAuth = () => {
           }}
         ),
       );
-
       
       await loadCurrentUser();
-
       navigate('/login')
     }
   ,[]);

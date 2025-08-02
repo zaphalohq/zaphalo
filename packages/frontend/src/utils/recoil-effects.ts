@@ -1,23 +1,23 @@
+import { z } from 'zod';
 import omit from 'lodash/omit';
 import { AtomEffect } from 'recoil';
-import { isDefined } from 'src/utils/validation/isDefined';
-import { z } from 'zod';
-import { cookieStorage } from 'src/utils/cookie-storage';
+import { cookieStorage } from '@src/utils/cookie-storage';
+import { isDefined } from '@src/utils/validation/isDefined';
 
 export const localStorageEffect =
   <T>(key?: string): AtomEffect<T> =>
-  ({ setSelf, onSet, node }) => {
-    const savedValue = localStorage.getItem(key ?? node.key);
-    if (savedValue != null) {
-      setSelf(JSON.parse(savedValue));
-    }
+    ({ setSelf, onSet, node }) => {
+      const savedValue = localStorage.getItem(key ?? node.key);
+      if (savedValue != null) {
+        setSelf(JSON.parse(savedValue));
+      }
 
-    onSet((newValue, _, isReset) => {
-      isReset
-        ? localStorage.removeItem(key ?? node.key)
-        : localStorage.setItem(key ?? node.key, JSON.stringify(newValue));
-    });
-  };
+      onSet((newValue, _, isReset) => {
+        isReset
+          ? localStorage.removeItem(key ?? node.key)
+          : localStorage.setItem(key ?? node.key, JSON.stringify(newValue));
+      });
+    };
 
 const customCookieAttributeZodSchema = z.object({
   cookieAttributes: z.object({
@@ -41,44 +41,44 @@ export const cookieStorageEffect =
       validateInitFn?: (payload: T) => boolean;
     },
   ): AtomEffect<T | null> =>
-  ({ setSelf, onSet }) => {
-    const savedValue = cookieStorage.getItem(key);
-    if (
-      isDefined(savedValue) &&
-      savedValue.length !== 0 &&
-      (!isDefined(hooks?.validateInitFn) ||
-        hooks.validateInitFn(JSON.parse(savedValue)))
-    ) {
-      setSelf(JSON.parse(savedValue));
-    }
-
-    const defaultAttributes = {
-      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
-      ...(attributes ?? {}),
-    };
-
-    onSet((newValue, _, isReset) => {
-      const cookieAttributes = {
-        ...defaultAttributes,
-        ...(isCustomCookiesAttributesValue(newValue)
-          ? newValue.cookieAttributes
-          : {}),
-      };
+    ({ setSelf, onSet }) => {
+      const savedValue = cookieStorage.getItem(key);
       if (
-        !newValue ||
-        (Object.keys(newValue).length === 1 &&
-          isCustomCookiesAttributesValue(newValue))
+        isDefined(savedValue) &&
+        savedValue.length !== 0 &&
+        (!isDefined(hooks?.validateInitFn) ||
+          hooks.validateInitFn(JSON.parse(savedValue)))
       ) {
-        cookieStorage.removeItem(key, cookieAttributes);
-        return;
+        setSelf(JSON.parse(savedValue));
       }
 
-      isReset
-        ? cookieStorage.removeItem(key, cookieAttributes)
-        : cookieStorage.setItem(
+      const defaultAttributes = {
+        expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+        ...(attributes ?? {}),
+      };
+
+      onSet((newValue, _, isReset) => {
+        const cookieAttributes = {
+          ...defaultAttributes,
+          ...(isCustomCookiesAttributesValue(newValue)
+            ? newValue.cookieAttributes
+            : {}),
+        };
+        if (
+          !newValue ||
+          (Object.keys(newValue).length === 1 &&
+            isCustomCookiesAttributesValue(newValue))
+        ) {
+          cookieStorage.removeItem(key, cookieAttributes);
+          return;
+        }
+
+        isReset
+          ? cookieStorage.removeItem(key, cookieAttributes)
+          : cookieStorage.setItem(
             key,
             JSON.stringify(omit(newValue, ['cookieAttributes'])),
             cookieAttributes,
           );
-    });
-  };
+      });
+    };

@@ -1,11 +1,10 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PassportStrategy } from '@nestjs/passport';
-import { Repository } from 'typeorm';
-
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { UserService } from '../../user/user.service';
-import { User } from '../../user/user.entity';
+import { User } from 'src/modules/user/user.entity';
+import { UserService } from 'src/modules/user/user.service';
 import { Workspace } from 'src/modules/workspace/workspace.entity';
 
 
@@ -19,7 +18,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: 'secretKey', // Replace with your own secret
+      secretOrKey: 'secretKey',
     });
   }
   async validate(payload: any) {
@@ -27,8 +26,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const workspace = await this.workspaceRepository.findOneBy({
       id: payload['workspaceId'],
     });
-
-
     if (!workspace) {
       throw new Error('Workspace not found');
     }
@@ -38,7 +35,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user) {
       throw new Error('User not found');
     }
-
     return { user, workspace, userId: payload.sub, role: payload.role, workspaceIds: payload.workspaceIds};
   }
 }

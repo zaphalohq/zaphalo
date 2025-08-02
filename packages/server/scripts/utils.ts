@@ -1,4 +1,4 @@
-import console from 'console';
+// import console from 'console';
 
 import { rawDataSource } from '../src/database/typeorm/raw/raw.datasource';
 
@@ -14,7 +14,7 @@ export const performQuery = async (
   try {
     const result = await rawDataSource.query(query);
 
-    withLog && console.log(`Performed '${consoleDescription}' successfully`);
+    withLog
 
     return result;
   } catch (err) {

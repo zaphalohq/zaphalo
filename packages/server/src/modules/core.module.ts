@@ -1,39 +1,30 @@
 import { Module } from '@nestjs/common';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
-import { ContactsModule } from './contacts/contacts.module';
-import { channelModule } from './channel/channel.module';
 import { WorkspaceModule } from './workspace/workspace.module';
-import { TemplateModule } from './template/template.module';
-import { MailingListModule } from './mailingList/mailingList.module';
-import { BroadcastModule } from './broadcast/broadcast.module';
 import { WorkspaceManagerModule } from 'src/modules/workspace-manager/workspace.manager.module';
-import { FileUploadModule } from './file-upload/fileUpload.module';
+import { SystemConfigModule } from 'src/modules/system-config/system-config.module';
+import { FileStorageModule } from 'src/modules/file-storage/file-storage.module';
+import { JwtModule } from 'src/modules/jwt/jwt.module';
 
 @Module({
   imports: [
-    UserModule, 
+    UserModule,
     AuthModule,
-    ContactsModule,
-    channelModule,
     WorkspaceModule,
-    TemplateModule,
-    MailingListModule,
-    BroadcastModule,
     WorkspaceManagerModule,
-    FileUploadModule
+    SystemConfigModule,
+    FileStorageModule,
+    JwtModule,
   ],
   exports: [
     UserModule,
     AuthModule,
-    ContactsModule,
-    channelModule,
     WorkspaceModule,
-    TemplateModule,
-    MailingListModule,
-    BroadcastModule,
     WorkspaceManagerModule,
-    FileUploadModule
+    SystemConfigModule,
+    FileStorageModule,
+    JwtModule,
   ],
 })
-export class CoreModule {}
+export class CoreModule { }

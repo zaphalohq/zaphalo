@@ -9,7 +9,7 @@ export class WorkspaceResponceDTO {
   @Field()
   name: string;
 
-  @Field()
-  profileImg: string;
+  @Field({ nullable : true })
+  profileImg?: string;
   
 }

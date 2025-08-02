@@ -1,4 +1,4 @@
-import console from 'console';
+// import console from 'console';
 
 import { rawDataSource } from '../src/database/typeorm/raw/raw.datasource';
 
@@ -35,7 +35,6 @@ async function dropSchemasSequentially() {
       );
     }
 
-    console.log('All schemas dropped successfully.');
   } catch (err) {
     console.error('Error during schema dropping:', err);
   }

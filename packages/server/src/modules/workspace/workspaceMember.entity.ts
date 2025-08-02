@@ -3,9 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinTable,
   JoinColumn,
-  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
   Relation
@@ -14,9 +12,8 @@ import { UUIDScalarType } from "../api/scalars/uuid.scalar";
 import { IDField } from "@ptc-org/nestjs-query-graphql";
 import { User } from "../user/user.entity";
 import { Workspace } from "./workspace.entity";
-import { Role } from 'src/enums/role.enum';
+import { Role } from '../../enums/role.enum';
 
-// WorkspaceMember Entity
 @Entity({ name: 'workspace_member', schema: 'core' })
 @ObjectType('WorkspaceMember')
 export class WorkspaceMember {
@@ -32,7 +29,7 @@ export class WorkspaceMember {
   @Field({ nullable: false })
   @Column()
   userId: string;
-  
+
   @Field(() => Workspace, { nullable: true })
   @ManyToOne(() => Workspace, (workspace) => workspace.members, { nullable: true })
   @JoinColumn({ name: 'workspaceId' })

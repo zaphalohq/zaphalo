@@ -1,11 +1,10 @@
 import './App.css'
-
+import { HelmetProvider } from 'react-helmet-async';
 import { RecoilRoot } from 'recoil';
+import { AppRouter } from '@src/modules/app/components/AppRouter';
 import { AppErrorBoundary } from '@src/modules/error/components/AppErrorBoundary';
 import { AppErrorFallback } from '@src/modules/error/components/AppErrorFallback';
-import { AppRouter } from '@src/modules/app/components/AppRouter';
-import GetCurrentUserWrapper from './modules/customWrapper/GetCurrentUserWrapper';
-import { HelmetProvider } from 'react-helmet-async';
+import { ToastContainer } from 'react-toastify';
 
 
 function App() {
@@ -15,6 +14,7 @@ function App() {
         resetOnLocationChange={false}
         FallbackComponent={AppErrorFallback}>
           <HelmetProvider>
+            <ToastContainer />
             <AppRouter />
           </HelmetProvider>
       </AppErrorBoundary>

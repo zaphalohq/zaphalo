@@ -1,5 +1,5 @@
-import { Workspace } from 'src/generated/graphql';
-import { createState } from 'src/utils/createState';
+import { Workspace } from '@src/generated/graphql';
+import { createState } from '@src/utils/createState';
 
 export type Workspaces = Pick<
   Workspace,

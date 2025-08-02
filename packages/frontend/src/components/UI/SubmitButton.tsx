@@ -2,9 +2,9 @@ import React from 'react'
 
 const SubmitButton = ({ title, type, onClick, Icon } : {
   title: string;
-  type?: 'button' | 'submit' | 'reset' | undefined; // Optional 'type' prop, defaulting to 'button'
-  onClick?: () => void; // Optional onClick handler
-  Icon?: React.ComponentType<any>; // Optional icon component
+  type?: 'button' | 'submit' | 'reset' | undefined;
+  onClick?: () => void;
+  Icon?: React.ComponentType<any>;
 }) => {
   return (
     <div>
@@ -18,13 +18,13 @@ const SubmitButton = ({ title, type, onClick, Icon } : {
 
 export const CloseButton = ({ title, type, onClick, Icon } : {
   title: string;
-  type?: 'button' | 'submit' | 'reset' | undefined; // Optional 'type' prop, defaulting to 'button'
-  onClick?: () => void; // Optional onClick handler
-  Icon?: React.ComponentType<any>; // Optional icon component
+  type?: 'button' | 'submit' | 'reset' | undefined;
+  onClick?: () => void;
+  Icon?: React.ComponentType<any>;
 }) => {
   return (
     <div>
-      <button type={type} onClick={onClick} className='w-full cursor-pointer bg-red-500 hover:bg-red-600 text-white rounded p-2 px-8 flex items-center justify-center gap-4' >
+      <button type={type} onClick={onClick} className='w-full cursor-pointer bg-red-500 hover:bg-red-600 text-white rounded p-2 px-8 flex items-center justify-center gap-2' >
         <div  className='text-xl'>{Icon ? <Icon /> : null }</div>
         <div>{title}</div>
       </button>

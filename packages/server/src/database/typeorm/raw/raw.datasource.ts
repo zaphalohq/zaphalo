@@ -12,8 +12,8 @@ const typeORMRawModuleOptions: DataSourceOptions = {
   ssl:
     process.env.PG_SSL_ALLOW_SELF_SIGNED === 'true'
       ? {
-          rejectUnauthorized: false,
-        }
+        rejectUnauthorized: false,
+      }
       : undefined,
 };
 

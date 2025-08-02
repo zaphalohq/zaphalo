@@ -1,18 +1,17 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useState } from "react";
 
 interface TemplateContextProps {
   templateFormData: any,
   setTemplateFormData: Function,
-  templateData: any,
-  setTemplateData: Function
+  selectedTemplateInfo: any,
+  setSelectedTemplateInfo: Function
 }
 
 export const TemplateContext = createContext<TemplateContextProps | undefined>(undefined)
 
-
 export const TemplateProvider = ({ children }: any) => {
   const [templateFormData, setTemplateFormData] = useState({
-    account: '',
+    accountId: '',
     templateName: '',
     category: 'UTILITY',
     language: 'en_US',
@@ -22,41 +21,26 @@ To track the shipping: {{4}}
 Thank you.`,
     footerText: '',
     headerType: 'NONE',
-    header_handle: '',
     button: [],
     variables: [],
-    fileUrl: ''
+    headerText: '',
+    attachmentId: null
   });
-
-  const [templateData, setTemplateData] = useState({
-    account: '',
-    templateName: '',
-    category: 'UTILITY',
-    language: 'en_US',
-    bodyText: `Hi {{1}},
-Your order *{{2}}* from *{{3}}* has been shipped.
-To track the shipping: {{4}}
-Thank you.`,
-    footerText: '',
-    button: [],
-    variables: [],
-    headerType: 'NONE',
-    header_handle: '',
-    fileUrl: ''
+  const [ selectedTemplateInfo, setSelectedTemplateInfo ] = useState({
+    dbTemplateId : '',
+    waTemplateId: '',
+    status : '',
+    attachmentId: null,
+    templateOriginaName : '',
+    templateImg : ''
   });
-
-  //   useEffect(() => {
-  //     console.log(templateFormData,".............................................");
-
-  //       },[templateFormData])
-
 
   return (
     <TemplateContext.Provider value={{
       templateFormData,
       setTemplateFormData,
-      templateData,
-      setTemplateData
+      selectedTemplateInfo, 
+      setSelectedTemplateInfo
     }}>
       {children}
     </TemplateContext.Provider>

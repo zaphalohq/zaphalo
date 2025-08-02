@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react"
-import { TemplateContext } from "../Context/TemplateContext"
+import { TemplateContext } from "@components/Context/TemplateContext"
 
 const TemplateVariables = ({ setTemplateData }: any) => {
   const { templateFormData, setTemplateFormData }: any = useContext(TemplateContext)
@@ -11,22 +11,22 @@ const TemplateVariables = ({ setTemplateData }: any) => {
     }
   })
 
-useEffect(() => {
-  const variableMatches = templateFormData.bodyText.match(/{{\d+}}/g) || [];
+  useEffect(() => {
+    const variableMatches = templateFormData.bodyText.match(/{{\d+}}/g) || [];
 
-  const newVariables = variableMatches.map((variableName: string) => {
-    const matchedVariable = templateFormData.variables?.find(
-      (v: any) => v.name === variableName
-    );
+    const newVariables = variableMatches.map((variableName: string) => {
+      const matchedVariable = templateFormData.variables?.find(
+        (v: any) => v.name === variableName
+      );
 
-    return {
-      name: variableName,
-      value: matchedVariable ? matchedVariable.value : '',
-    };
-  });
+      return {
+        name: variableName,
+        value: matchedVariable ? matchedVariable.value : '',
+      };
+    });
 
-  setVariables(newVariables);
-}, [templateFormData.bodyText]);
+    setVariables(newVariables);
+  }, [templateFormData.bodyText]);
 
   const HandleVariableChange = (event: any, index: number) => {
     const variablesCopy = [...variables]

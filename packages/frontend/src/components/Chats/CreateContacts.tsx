@@ -1,31 +1,26 @@
-import { useEffect, useRef, useState } from 'react';
-import CloseButton from '@UI/CloseButton'
-import InputLabel from '@UI/InputLabel'
-import SubmitButton from '@UI/SubmitButton'
+import { useState } from 'react';
 import { useMutation } from '@apollo/client';
-import { CreateContactMute } from '@pages/Mutation/Chats';
+import CloseButton from '@components/UI/CloseButton'
+import InputLabel from '@components/UI/InputLabel'
+import SubmitButton from '@components/UI/SubmitButton'
+import { CreateContactMute } from '@src/generated/graphql';
 
 const CreateContacts = ({ HandleCreateContactVis }: any) => {
 
-    const [contactFormData, setContactFormData] : any = useState({
+    const [contactFormData, setContactFormData]: any = useState({
         contactName: "",
         phoneNo: 0.1,
         profileImg: ""
     })
-    //----------------Handle the change data and set the data-------------------
     const HandleChangeData = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target
-        console.log(contactFormData);
-
         setContactFormData({
             ...contactFormData,
             [name]: value
         })
     }
 
-    //---------------Mutation create contact------------------------
     const [CreateContact] = useMutation(CreateContactMute);
-    //-----------------Handle create contact ------------------------
     const HandleSubmitContact = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
 
@@ -37,7 +32,7 @@ const CreateContacts = ({ HandleCreateContactVis }: any) => {
                     profileImg: contactFormData.profileImg
                 }
             })
-            HandleCreateContactVis()
+            HandleCreateContactVis();
         } catch (err) {
             console.error('Error during updating', err)
         }
@@ -45,9 +40,7 @@ const CreateContacts = ({ HandleCreateContactVis }: any) => {
     }
 
     const [fileError, setFileError] = useState("")
-    //------------------Handle Uploaded Image-----------------------
     const HandleUploadImg = (e: React.ChangeEvent<HTMLInputElement>) => {
-        console.log(".................start");
 
         const file = e.target.files?.[0]
         if (file) {
@@ -58,10 +51,7 @@ const CreateContacts = ({ HandleCreateContactVis }: any) => {
                 setFileError("Upload file size of 2mb")
                 return;
             }
-
-            //-----------Clear the setFileError if error is set-----------
             setFileError('');
-            //-------------Convert image into base64--------------------
 
             const reader = new FileReader();
             reader.addEventListener("load", () => {
@@ -73,24 +63,20 @@ const CreateContacts = ({ HandleCreateContactVis }: any) => {
 
             reader.readAsDataURL(file)
         }
-
     }
-
 
     return (
         <div className='fixed inset-0 h-screen w-screen top-0 left-0 right-0 bottom-0 z-11 bg-stone-900/30'>
             <div className='bg-white  m-[10%] mx-[30%] p-6 pb-12 rounded-lg'>
-                {/* --------------Close Button (X) when the create contact is popup--------- */}
                 <CloseButton onClick={HandleCreateContactVis} top="top-30" right="right-100" />
                 <div className='text-2xl font-semibold p-4 text-center'>Create Contact</div>
                 <div className='px-6'>
-                    {/* -------------Create Contact form-------------------------- */}
                     <form onSubmit={HandleSubmitContact}>
                         <InputLabel type="text" HandleInputChange={HandleChangeData} name="contactName" title="Contact name" placeholder="Enter contact name" />
                         <InputLabel type="number" HandleInputChange={HandleChangeData} name="phoneNo" title="Phone number" placeholder="Enter phone number" />
                         <div className='bg-stone-200 flex gap-2 mt-4 rounded-2xl'>
                             <label className="cursor-pointer bg-violet-500 hover:bg-violet-600 p-2  rounded-l-2xl text-stone-50" htmlFor="file_input">Upload Image</label>
-                            <input required accept="image/*" onChange={HandleUploadImg} className="cursor-pointer p-2 text-stone-950 " type="file" name="file_input" id="file_input" />
+                            <input accept="image/*" onChange={HandleUploadImg} className="cursor-pointer p-2 text-stone-950 " type="file" name="file_input" id="file_input" />
                         </div>
                         {fileError && <p className="text-red-500">{fileError}</p>}
                         <div className='mt-4 h-full'>

@@ -1,12 +1,16 @@
-
 {
   "extends": "./tsconfig.base.json",
   "compileOnSave": false,
   "files": [],
-  "references": [],
-  "ts-node": {
-    "compilerOptions": {
-      "module": "commonjs"
+  "references": [
+    {
+      "path": "./packages/server"
+    },
+    {
+      "path": "./packages/frontend-e2e"
+    },
+    {
+      "path": "./packages/frontend"
     }
-  }
+  ]
 }

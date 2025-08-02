@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { cookieStorage } from '@src/utils/cookie-storage';
-import { useGetCurrentUser } from '../auth/hooks/useGetCurrentUser';
+import { useGetCurrentUser } from '@src/modules/auth/hooks/useGetCurrentUser';
 
 type MyWrapperProps = {
   children: React.ReactNode;

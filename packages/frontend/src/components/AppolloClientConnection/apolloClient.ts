@@ -1,17 +1,15 @@
 
 import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
-import { cookieStorage } from 'src/utils/cookie-storage';
-import { useParams } from 'react-router-dom';
+import { cookieStorage } from '@src/utils/cookie-storage';
+import { VITE_BACKEND_URL } from '@src/config';
 
 const httpLink = createHttpLink({
-
-  uri: `${import.meta.env.VITE_BACKEND_URL}/graphql`,  // Replace with your NestJS GraphQL endpoint
+  uri: `${VITE_BACKEND_URL}/graphql`,
 });
 
 const authLink = setContext((_, { headers }) => {
   const accessToken = cookieStorage.getItem('accessToken')
-
   let workspaceId = '';
   const path = window.location.pathname;
   const segments = path.split('/');
@@ -24,8 +22,7 @@ const authLink = setContext((_, { headers }) => {
   return {
     headers: {
       ...headers,
-
-      Authorization: authtoken ? `Bearer ${authtoken.token}` : '',  // Attach JWT in Authorization header
+      Authorization: authtoken ? `Bearer ${authtoken.token}` : '',
       'x-workspace-id': workspaceId || '',
     }
   };

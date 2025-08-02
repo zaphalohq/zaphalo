@@ -1,10 +1,9 @@
-import { useQuery } from '@apollo/client'
-import { findAllInstants } from '@src/pages/Mutation/WhatsappInstants'
 import { useEffect, useState } from 'react'
+import { useQuery } from '@apollo/client'
+import { findAllInstants } from '@src/generated/graphql'
 
 const AccountSelection = ({ templateData, handleInputChange} : any) => {
      const { data : instantsData, loading, refetch } = useQuery(findAllInstants)
-    
         const [allInstants, setAllInstants] = useState([{
             id: "",
             name: "",
@@ -15,14 +14,10 @@ const AccountSelection = ({ templateData, handleInputChange} : any) => {
         const HandleFetchInstants = async () => {
             try {
                 const data = await instantsData
-                
-                // Check if data exists and has the expected structure
               if (data?.findAllInstants) {
                 setAllInstants(data?.findAllInstants)
                 refetch();
                 const currentInstants = data?.findAllInstants.filter((instants : any) => instants.defaultSelected == true)
-                
-                
               } 
             } catch (err) {
                 console.error('Error fetching data', err)
@@ -34,27 +29,27 @@ const AccountSelection = ({ templateData, handleInputChange} : any) => {
         }, [instantsData, templateData])
     
   return (
-    <div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Account</label>
-        <select
-          name="account"
-          value={templateData.account}
-          onChange={handleInputChange}
-          className="mt-1 block w-full rounded-md outline-none shadow-sm p-2"
-        >
-          <option className='p-4' value="NONE">
-            NONE
-          </option>
-          { allInstants.map((instant : any, index) => 
-          <option key={index} className='p-4' value={instant.id}>
-            {`${instant.name} — ${instant.phoneNumberId}`}
-          </option>
-        
-      )}
-      </select>
-      </div>
-    </div>
+   <div>
+  <div>
+    <label className="block text-sm font-medium text-gray-700">Account</label>
+    <select
+      name="accountId"
+      value={templateData.accountId}
+      onChange={handleInputChange}
+      required
+      className="mt-1 block w-full rounded-md outline-none shadow-sm p-2"
+    >
+      <option value="" disabled>
+        -- Select Account --
+      </option>
+      {allInstants.map((instant: any, index) => (
+        <option key={index} value={instant.id}>
+          {`${instant.name} — ${instant.phoneNumberId}`}
+        </option>
+      ))}
+    </select>
+  </div>
+</div>
   )
 }
 

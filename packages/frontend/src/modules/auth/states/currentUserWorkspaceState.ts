@@ -1,8 +1,8 @@
-import { UserWorkspace } from 'src/generated/graphql';
-import { createState } from 'src/utils/createState';
+import { UserWorkspace } from '@src/generated/graphql';
+import { createState } from '@src/utils/createState';
 
 export type CurrentUserWorkspace = Pick<
-  UserWorkspace, 'id' | 'name'| 'isWorkspaceSetup'
+  UserWorkspace, 'id' | 'name'| 'isWorkspaceSetup' | 'profileImg'
 >;
 
 export const currentUserWorkspaceState =

@@ -9,7 +9,6 @@ export const AppErrorFallback = ({
   resetErrorBoundary,
   title = 'Sorry, something went wrong',
 }: AppRootErrorFallbackProps) => {
-  // const { resetBoundary } = useErrorBoundary();
 
   return (
     <div className="grid justify-center items-center" role="alert">

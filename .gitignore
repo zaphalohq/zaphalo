@@ -1,4 +1,4 @@
-# See http://help.github.com/ignore-files/ for more about ignoring files.
+# See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
 # compiled output
 dist
@@ -40,6 +40,14 @@ Thumbs.db
 
 .nx/cache
 .nx/workspace-data
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md
 
+test-output
 
-storybook-static
+vite.config.*.timestamp*
+vitest.config.*.timestamp*
+
+.env
+uploads/*
+

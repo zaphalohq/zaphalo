@@ -2,11 +2,9 @@ import { WorkspaceAuthProvider } from 'src/modules/workspace/types/workspace.typ
 import { User } from 'src/modules/user/user.entity';
 import { Workspace } from 'src/modules/workspace/workspace.entity';
 
-
 export type SignInUpBaseParams = {
   invitation?: string;
   workspace?: Workspace | null;
-  // billingCheckoutSessionState?: string | null;
 };
 
 export type SignInUpNewUserPayload = {
@@ -14,8 +12,7 @@ export type SignInUpNewUserPayload = {
   firstName?: string | null;
   lastName?: string | null;
   picture?: string | null;
-  passwordHash?: string | null;
-  // locale?: keyof typeof APP_LOCALES | null;
+  password?: string | null;
 };
 
 export type PartialUserWithPicture = {

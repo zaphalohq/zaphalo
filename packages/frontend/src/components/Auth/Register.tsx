@@ -1,7 +1,25 @@
-import { useMutation } from '@apollo/client';
+import { z } from 'zod';
+import { ZodError } from 'zod';
 import { useState } from 'react';
+import { useMutation } from '@apollo/client';
 import { useNavigate, useParams } from 'react-router-dom';
-import { RegisterMutation } from './AuthMutations/RegisterMutation';
+import { RegisterMutation } from '@src/generated/graphql';
+
+const registerSchema = z.object({
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  email: z.string().email('Invalid email address'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Must contain an uppercase letter')
+    .regex(/[a-z]/, 'Must contain a lowercase letter')
+    .regex(/[0-9]/, 'Must contain a number'),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  path: ['confirmPassword'],
+  message: 'Passwords do not match',
+});
 
 const Register = () => {
   const [lastName, setLastName] = useState('');
@@ -17,37 +35,42 @@ const Register = () => {
   const { workspaceInviteToken } = useParams();
   const [register, { data, loading: registerLoading, error: registerError }] = useMutation(RegisterMutation);
 
+const handleSubmit = async (e: any) => {
+  e.preventDefault();
 
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
-    if (password !== confirmPassword) {
-      setError({ message: 'Passwords do not match' });
-      return;
-    }
-
-    try {
-      const response = await register({
-        variables: {
-          firstName,
-          lastName,
-          email,
-          password,
-          inviteToken: workspaceInviteToken,
-        },
-      });
-      console.log('Registration successful', response.data.Register);
-      // localStorage.setItem('authToken', response.data.Register.access_token);
-      navigate('/login'); 
-    } catch (err) {
-      console.error('Error registering', err);
-    }
-
-    setLoading(true);
-    setError({
-      message: ''
+  try {
+    registerSchema.parse({
+      firstName,
+      lastName,
+      email,
+      password,
+      confirmPassword,
     });
 
-  };
+    setError({ message: '' });
+    setLoading(true);
+
+    const response = await register({
+      variables: {
+        firstName,
+        lastName,
+        email,
+        password,
+        workspaceInviteToken,
+      },
+    });
+
+    navigate('/login');
+  } catch (err) {
+    if (err instanceof ZodError) {
+      setError({ message: err.errors[0].message });
+    } else {
+      setError({ message: `${err}` });
+    }
+  } finally {
+    setLoading(false);
+  }
+};
 
     return (
     <div className="min-h-screen bg-blacky-900  flex items-center justify-center p-4 relative overflow-hidden">
@@ -60,7 +83,7 @@ const Register = () => {
                   <path fill-rule="evenodd" d="M9 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4H7Zm8-1a1 1 0 0 1 1-1h1v-1a1 1 0 1 1 2 0v1h1a1 1 0 1 1 0 2h-1v1a1 1 0 1 1-2 0v-1h-1a1 1 0 0 1-1-1Z" clip-rule="evenodd" />
                 </svg>
               </div>
-              <h2 className="text-3xl font-bold text-white mb-2">Create Account</h2>
+              <h2 className="text-3xl font-bold text-white mb-2">Sign Up</h2>
               <p className="text-gray-300">Join us and start your journey</p>
             </div>
             {error?.message !== '' && (
@@ -69,7 +92,7 @@ const Register = () => {
                   <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
-                  {/* {error.message} */}
+                  {error.message} 
                 </p>
               </div>
             )}

@@ -1,51 +1,23 @@
-// import { useSignInWithGoogle } from '@src/modules/auth/hooks/useSignInWithGoogle';
-
-// export default function SignUpPage() {
-
-//   const { signInWithGoogle } = useSignInWithGoogle();
-
-//   return (
-//     <button
-//       type="button"
-//       className="text-white bg-[#4285F4] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#4285F4]/55 me-2 mb-2"
-//       onClick={signInWithGoogle}>
-//       <svg className="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 19">
-//       <path fill-rule="evenodd" d="M8.842 18.083a8.8 8.8 0 0 1-8.65-8.948 8.841 8.841 0 0 1 8.8-8.652h.153a8.464 8.464 0 0 1 5.7 2.257l-2.193 2.038A5.27 5.27 0 0 0 9.09 3.4a5.882 5.882 0 0 0-.2 11.76h.124a5.091 5.091 0 0 0 5.248-4.057L14.3 11H9V8h8.34c.066.543.095 1.09.088 1.636-.086 5.053-3.463 8.449-8.4 8.449l-.186-.002Z" clip-rule="evenodd"/>
-//       </svg>
-//       Sign in with Google
-//     </button>
-//   );
-// }
-
 import { useMutation } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { cookieStorage } from '@src/utils/cookie-storage';
-import { useSignInWithGoogle } from '@src/modules/auth/hooks/useSignInWithGoogle';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { tokenPairState } from '@src/modules/auth/states/tokenPairState';
-import { useAuth } from '@src/modules/auth/hooks/useAuth';
+import { LoginMutation } from '@src/generated/graphql';
+import { cookieStorage } from '@src/utils/cookie-storage';
 import { workspacesState } from '@src/modules/auth/states/workspaces';
-import { useVerifyLoginToken } from '@src/modules/auth/hooks/useVerifyLoginToken';
-import { useAtomValue } from 'jotai';
+import { useSignInWithGoogle } from '@src/modules/auth/hooks/useSignInWithGoogle';
 import { currentWorkspaceIdState } from '@src/modules/auth/states/currentWorkspaceIdState';
-import { setItem } from '@src/components/utils/localStorage';
-import { LoginMutation } from '@src/components/Auth/AuthMutations/LoginMutation';
+
 
 function Invite() {
-    const { workspaceInviteToken } = useParams()
-  const [TokenPair, setTokenPair] = useRecoilState(tokenPairState);
+  const { workspaceInviteToken } = useParams()
   const { signInWithGoogle } = useSignInWithGoogle();
   const setWorkspaces = useSetRecoilState(workspacesState);
   const [login, { data, loading, error }] = useMutation(LoginMutation);
   const navigate = useNavigate();
-  const { verifyLoginToken } = useVerifyLoginToken();
   const workspaceId = useRecoilValue(currentWorkspaceIdState);
 
-
-
   useEffect(() => {
-    // const accessToken = Cookies.get('accessToken');
     const accessToken = cookieStorage.getItem('accessToken')
     if (accessToken && workspaceId) {
       navigate(`/w/${workspaceId}/dashboard`)
@@ -66,8 +38,6 @@ function Invite() {
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
-    console.log();
-
     try {
       const response = await login({
         variables: {
@@ -76,46 +46,20 @@ function Invite() {
           inviteToken: workspaceInviteToken || null
         },
       });
-      console.log('Login Success:', response.data);
-      setItem('access_token', response.data.login.accessToken);
       cookieStorage.setItem(
         'accessToken',
         JSON.stringify(
           response.data.login.accessToken
         ),
       );
-      const workspaceIds = JSON.parse(response.data.login.workspaceIds)
-      setItem('workspaceIds', workspaceIds)
-      sessionStorage.setItem('workspaceId', workspaceIds[0]);
-      // setItem('userDetails', { name: response.data.login.userDetails.firstName, email: response.data.login.userDetails.email })
-
       setWorkspaces(response.data.login.workspaces)
 
       const token: string = response.data.login.accessToken.token;
-      // const expiresAt = response.data.login.accessToken.expiresAt;
-      console.log(token, 'tokentokentoken....................');
-
-      await verifyLoginToken(token)
-
-      // setTokenPair({
-      //     accessToken: {
-      //       token,
-      //       expiresAt
-      //     }
-      //   });
-      // cookieStorage.setItem(
-      //   'accessToken',
-      //   JSON.stringify(
-      //     token
-      //   ),
-      // );
+      navigate(`/verify/${token}`);
     } catch (err) {
       console.error('Error logging in:', err);
     }
   }
-
-
-
 
   return (
     <div className="min-h-screen bg-blacky-900 flex items-center justify-center p-4 relative overflow-hidden">

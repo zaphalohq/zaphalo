@@ -1,63 +1,122 @@
-import { useContext, useState } from "react";
-import { useMutation, useQuery } from "@apollo/client";
-import { GET_TEMPLATE_STATUS, SUBMIT_TEMPLATE } from "@pages/Mutation/Template";
-import { TemplateContext } from "@Context/TemplateContext";
+import { useContext, useEffect, useState } from "react";
 import axios from 'axios';
-import { getItem } from "@utils/localStorage";
 import TemplateBasic from "./TemplateBasic";
 import TemplateBody from "./TemplateBody";
 import TemplateButton from "./TemplateButton";
 import TemplateVariables from "./TemplateVariables";
+import { useMutation } from "@apollo/client";
+import { cookieStorage } from '@src/utils/cookie-storage';
+import { CreateOneAttachmentDoc, SUBMIT_TEMPLATE, SAVE_TEMPLATE } from "@src/generated/graphql";
+import { TemplateContext } from "@components/Context/TemplateContext";
+import { Post } from "@src/modules/domain-manager/hooks/axios";
+
+type WaButtonInput = {
+  type: string;
+  text: string;
+  url?: string;
+  phone_number?: string;
+};
+
+type WaVariableInput = {
+  name: string;
+  value: string;
+};
+
+type TemplateData = {
+  accountId: string;
+  templateName: string;
+  category: 'UTILITY' | 'MARKETING' | 'AUTHENTICATION' | string;
+  language: string;
+  bodyText: string;
+  footerText: string;
+  button: WaButtonInput[];
+  headerText: string;
+  variables: WaVariableInput[];
+  headerType: 'NONE' | 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT';
+  attachmentId: string | null;
+};
 
 const TemplateForm = () => {
-  const [templateData, setTemplateData] = useState({
-    account: '',
-    templateName: '',
-    category: 'UTILITY',
-    language: 'en_US',
-    bodyText: `Hi {{1}},
-Your order *{{2}}* from *{{3}}* has been shipped.
-To track the shipping: {{4}}
-Thank you.`,
-    footerText: '',
-    button: [],
-    variables : [],
-    headerType: 'NONE',
-    header_handle: '',
-    fileUrl: ''
-  });
+  const { templateFormData, setTemplateFormData, selectedTemplateInfo }: any = useContext(TemplateContext)
+  const [templateData, setTemplateData] = useState<TemplateData>(() => ({ ...templateFormData }));
   const [status, setStatus] = useState(null);
-  const [templateId, setTemplateId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<String | null>(null);
   const [submitTemplate] = useMutation(SUBMIT_TEMPLATE);
-  const { templateFormData, setTemplateFormData }: any = useContext(TemplateContext)
-  const [file, setFile] = useState<File | null>(null);
+  // const [saveTemplate] = useMutation(SAVE_TEMPLATE);
+  const [saveTemplate] = useMutation(SAVE_TEMPLATE);
+  const [createOneAttachment] = useMutation(CreateOneAttachmentDoc);
 
+
+
+  const [file, setFile] = useState<File | null>(null);
+  const [isValidated, setIsValidated] = useState(false)
   const handleInputChange = (e: any) => {
     setTemplateData({ ...templateData, [e.target.name]: e.target.value });
     setTemplateFormData({ ...templateFormData, [e.target.name]: e.target.value });
-    console.log(templateData);
-
   };
+
+  useEffect(() => {
+    const validateTemplate = () => {
+      const { headerType, headerText, variables } = templateData;
+      const variableMatches = templateData.bodyText.match(/{{\d+}}/g) || [];
+
+      if (headerType === "TEXT" && !headerText?.trim()) {
+        return false;
+      }
+
+      if (
+        ["IMAGE", "VIDEO", "DOCUMENT"].includes(headerType) &&
+        (!file && !selectedTemplateInfo.templateOriginaName?.trim())
+      ) {        
+        return false;
+      }
+
+      if (variableMatches.length !== variables.length) {
+        return false;
+      }
+
+      for (let i = 0; i < variables.length; i++) {
+        if (!variables[i].value || variables[i].value.trim() === "") {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    if (validateTemplate()) {
+      setIsValidated(true)
+    }
+
+  }, [templateData])
 
   const handleFileUpload = async () => {
     let updatedTemplateData = { ...templateData };
     if (file !== null) {
-      const formData = new FormData();
-      formData.append('file', file);
       try {
-        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/templateFileUpload`, formData, {
-          headers: {
-            Authorization: `Bearer ${getItem('access_token')}`,
-            'Content-Type': 'multipart/form-data'
-          },
-        });
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await Post(
+          `/upload`,
+          formData,
+          { headers: { 'Content-Type': 'multipart/form-data' } }
+        );
 
-        updatedTemplateData['header_handle'] = response.data.file_handle;
-        updatedTemplateData['fileUrl'] = response.data.fileUrl;
+        if (response.data) {
+          const attachment: any = await createOneAttachment({
+            variables: {
+              name: response.data.file.filename,
+              originalname: response.data.file.originalname,
+              mimetype: response.data.file.mimetype,
+              size: response.data.file.size,
+              path: response.data.file.path,
+              createdAt: "",
+              updatedAt: "",
+            }
+          })
+          updatedTemplateData['attachmentId'] = attachment.data.CreateOneAttachment.id;
+        }
         setTemplateData(updatedTemplateData);
-        console.log('File uploaded successfully:', response.data);
         return updatedTemplateData
       } catch (error) {
         console.error('Error uploading file:', error);
@@ -72,8 +131,6 @@ Thank you.`,
     const file = e.target.files[0];
     if (file) {
       setFile(file)
-      const imageURL = URL.createObjectURL(file)
-      setTemplateFormData({ ...templateFormData, ["fileUrl"]: imageURL })
     }
   }
 
@@ -82,21 +139,22 @@ Thank you.`,
     setIsSubmitting(true);
     setError(null);
     setStatus(null);
+
+    if (!validateTemplate()) {
+      setIsSubmitting(false);
+      return;
+    }
+
+
     const updatedTemplateData = await handleFileUpload()
-    console.log(templateData);
     
     try {
-      const response = await submitTemplate({ variables: { templateData: updatedTemplateData } });
+      const response = await submitTemplate({ variables: { templateData: updatedTemplateData, waTemplateId: selectedTemplateInfo.waTemplateId , dbTemplateId: selectedTemplateInfo.dbTemplateId } });
       const result = response.data;
-      console.log(response.data);
-
       setStatus(result);
-      if (result.success) {
-        setTemplateId(JSON.parse(result.data).id);
-      }
     } catch (err: any) {
       setError(err.message || 'Failed to submit template');
-      console.log(err);
+      console.error(err);
 
     } finally {
       setIsSubmitting(false);
@@ -106,59 +164,151 @@ Thank you.`,
   const [currentComponent, setCurrentComponent] = useState("Body")
   const templateComponents = ["Body", "Buttons", "Variables"]
 
+
+  // const handleSaveTemplate = async (e: any) => {
+  //   if (!templateData.templateName) {
+  //     setError('Template name is required to save.');
+  //     return;
+  //   }
+  //   e.preventDefault();
+  //   setIsSubmitting(true);
+  //   setError(null);
+  //   setStatus(null);
+
+  //   console.log(templateData,'.....................templateData');
+    
+  //   // const updatedTemplateData = await handleFileUpload()
+
+  //   // try {
+  //   //   const response = await saveTemplate({ variables: { templateData: updatedTemplateData } });
+  //   //   const result = response.data;
+  //   //   setStatus(result);
+  //   // } catch (err: any) {
+  //   //   setError(err.message || 'Failed to save template');
+  //   //   console.error(err);
+
+  //   // } finally {
+  //   //   setIsSubmitting(false);
+  //   // }
+  // }
+
+
+  const handleSaveTemplate = async (e: any) => {
+    if (!templateData.templateName) {
+      setError('Template name is required to save.');
+      return;
+    }
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+    setStatus(null);
+    const updatedTemplateData = await handleFileUpload()
+    console.log(updatedTemplateData,'updatedTemplateDataupdatedTemplateData');
+
+    try {
+      const response = await saveTemplate({ variables: { templateData: updatedTemplateData, dbTemplateId: selectedTemplateInfo.dbTemplateId } });
+      const result = response.data;
+      setStatus(result);
+    } catch (err: any) {
+      setError(err.message || 'Failed to update template');
+      console.error(err);
+
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+
+  const validateTemplate = () => {
+    const { headerType, headerText, variables } = templateData;
+    const variableMatches = templateData.bodyText.match(/{{\d+}}/g) || [];
+
+    if (headerType === "TEXT" && !headerText?.trim()) {
+      setError("Header text is required when header type is TEXT.");
+      return false;
+    }
+
+    if (
+      ["IMAGE", "VIDEO", "DOCUMENT"].includes(headerType) &&
+      !file && !selectedTemplateInfo.templateOriginaName?.trim()
+    ) {
+      setError(`File upload is required when header type is ${headerType}.`);
+      return false;
+    }
+
+    if (variableMatches.length !== variables.length) {
+      setError(`Expected ${variableMatches.length} variables but found ${variables.length}.`);
+      return false;
+    }
+
+    for (let i = 0; i < variables.length; i++) {
+      if (!variables[i].value || variables[i].value.trim() === "") {
+        setError(`Value for variable ${variables[i].name} is required.`);
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+
   return (
     <div>
       <h1 className="text-3xl font-bold mb-6 text-gray-800">WhatsApp Template Manager</h1>
+      <form onSubmit={handleSubmit}>
+        <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+          <h2 className="text-xl font-semibold mb-4">Submit New Template</h2>
+          <TemplateBasic templateData={templateData} handleInputChange={handleInputChange} handleFileChange={handleFileChange} />
+          <div className="flex mb-6 mt-4">
+            {templateComponents.map((component, index) =>
+              <button type="button" key={index} onClick={() => setCurrentComponent(component)}
+                className={`${currentComponent === component ? 'border-l-1 border-r-1 border-t-1 border-gray-400 rounded-t' : 'border-b-1 border-gray-400'} cursor-pointer text-center px-2`}>
+                {component}
+              </button>)}
+            <div className="flex-1 border-b border-gray-400"></div>
+          </div>
 
-      <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Submit New Template</h2>
-        <TemplateBasic templateData={templateData} handleInputChange={handleInputChange} handleFileChange={handleFileChange} />
-        <div className="flex mb-6 mt-4">
-          {templateComponents.map((component, index) =>
-            <button key={index} onClick={() => setCurrentComponent(component)}
-              className={`${currentComponent === component ? 'border-l-1 border-r-1 border-t-1 border-gray-400 rounded-t' : 'border-b-1 border-gray-400'} cursor-pointer text-center px-2`}>
-              {component}
-            </button>)}
-          <div className="flex-1 border-b border-gray-400"></div>
-        </div>
+          <div>
+            <div className="space-y-4">
+              {currentComponent === "Body" ?
+                <TemplateBody templateData={templateFormData} handleInputChange={handleInputChange} />
+                : <></>}
+              {currentComponent === "Buttons" ?
+                <TemplateButton templateData={templateFormData} setTemplateData={setTemplateData} />
+                : <></>}
 
-        <div>
-          <div className="space-y-4">
-            {currentComponent == "Body" ?
-              <TemplateBody templateData={templateFormData} handleInputChange={handleInputChange} />
-              : <></>}
-            {currentComponent == "Buttons" ?
-              <TemplateButton templateData={templateFormData} setTemplateData={setTemplateData} />
-              : <></>}
-
-            {currentComponent == "Variables" ?
-              <TemplateVariables setTemplateData={setTemplateData} />
-              : <></>} 
-            <button
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-400 p-2"
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit Template'}
-            </button>
+              {currentComponent === "Variables" ?
+                <TemplateVariables setTemplateData={setTemplateData} />
+                : <></>}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={handleSaveTemplate}
+                  // disabled={selectedTemplateInfo.status !== ''}
+                  className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-400 p-2"
+                >
+                  {isSubmitting ? 'Saving...' : 'Save Template'}
+                </button>
+                <button
+                  type="submit"
+                  disabled={
+                    isSubmitting ||
+                    !isValidated }
+                  className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-400 p-2"
+                >
+                  {isSubmitting ? 'Submitting...' : 'Submit Template'}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-
+      </form>
       {status && (
         <div className="bg-white shadow-md rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-4">Template Status</h2>
           <pre className="bg-gray-100 p-4 rounded-md overflow-auto">
             {JSON.stringify(status, null, 2)}
           </pre>
-          {templateId && (
-            <button
-              // onClick={() => checkStatus(templateId)}
-              className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
-            >
-              Refresh Status
-            </button>
-          )}
         </div>
       )}
       {error && (

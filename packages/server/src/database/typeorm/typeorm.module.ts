@@ -5,16 +5,6 @@ import { typeORMCoreModuleOptions } from './core/core.datasource';
 import { TypeORMService } from './typeorm.service';
 import { typeORMWorkspaceModuleOptions } from 'src/database/typeorm/workspace/workspace.datasource';
 
-// import { EnvironmentModule } from 'src/constro/integrations/environment/environment.module';
-
-// import { TypeORMService } from './typeorm.service';
-
-
-// const metadataTypeORMFactory = async (): Promise<TypeOrmModuleOptions> => ({
-//   ...typeORMMetadataModuleOptions,
-//   name: 'metadata',
-// });
-
 const coreTypeORMFactory = async (): Promise<TypeOrmModuleOptions> => ({
   ...typeORMCoreModuleOptions,
   name: 'core',
@@ -28,9 +18,8 @@ const coreTypeORMFactory = async (): Promise<TypeOrmModuleOptions> => ({
       useFactory: coreTypeORMFactory,
       name: 'core',
     }),
-    // EnvironmentModule,
   ],
   providers: [TypeORMService,],
   exports: [TypeORMService],
 })
-export class TypeORMModule {}
+export class TypeORMModule { }

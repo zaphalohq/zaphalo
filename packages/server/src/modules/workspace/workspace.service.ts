@@ -1,15 +1,12 @@
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
-import { getManager, Repository } from 'typeorm';
+import { Injectable } from "@nestjs/common";
+import { Repository } from 'typeorm';
 import { InjectRepository } from "@nestjs/typeorm";
-import { log } from "console";
 import { Workspace } from "./workspace.entity";
 import { WorkspaceMember } from "./workspaceMember.entity";
-import { UserService } from "../user/user.service";
 import { WorkspaceInvitation } from "./workspaceInvitation.entity";
 import { v4 as uuidv4 } from 'uuid';
-import { ContactsService } from "../contacts/contacts.service";
-import { Contacts } from "../contacts/contacts.entity";
 import { Role } from 'src/enums/role.enum';
+import { UserService } from "src/modules/user/user.service";
 import { TypeORMService } from 'src/database/typeorm/typeorm.service';
 
 
@@ -23,8 +20,6 @@ export class WorkspaceService {
     private workspaceMemberRepository: Repository<WorkspaceMember>,
     @InjectRepository(WorkspaceInvitation, 'core')
     private invitationRepository: Repository<WorkspaceInvitation>,
-    @InjectRepository(Contacts, 'core')
-    private contactsRepository: Repository<Contacts>,
     private readonly userService: UserService,
     private readonly typeormService: TypeORMService,
   ) { }
@@ -34,7 +29,6 @@ export class WorkspaceService {
     const workspace = await this.workspaceRepository.findOne({ where: { id: workspaceId } });
     if (!workspace) {
       throw new Error('Workspace not found');
-
     }
 
     const user = await this.userService.findByUserId(userId);
@@ -50,7 +44,7 @@ export class WorkspaceService {
     });
     await this.invitationRepository.save(invitation);
 
-    return `http://localhost:5173/invite/${token}`; // Replace with your app's URL
+    return `http://localhost:5173/invite/${token}`;
   }
 
   async acceptInvitation(token: string, userId: string): Promise<Workspace> {
@@ -67,8 +61,6 @@ export class WorkspaceService {
     if (!user) {
       throw new Error('User not found');
     }
-
-    // Check if user is already a member
     const existingMembership = await this.workspaceMemberRepository.findOne({
       where: { user: { id: userId }, workspace: { id: invitation.workspace.id } },
     });
@@ -76,8 +68,6 @@ export class WorkspaceService {
     if (existingMembership) {
       return existingMembership.workspace[0];
     }
-
-    // Create membership
     const membership = this.workspaceMemberRepository.create({
       user,
       workspace: invitation.workspace,
@@ -85,7 +75,6 @@ export class WorkspaceService {
     });
     await this.workspaceMemberRepository.save(membership);
 
-    // Mark invitation as used
     invitation.isUsed = true;
     await this.invitationRepository.save(invitation);
 
@@ -93,10 +82,8 @@ export class WorkspaceService {
   }
 
   async getOrCreateWorkspaceForUser(userId: string, invitationToken?: string): Promise<Workspace[]> {
-    // Handle invitation if token is provided
     if (invitationToken) {
       const invitedWorkspace = await this.acceptInvitation(invitationToken, userId);
-      // Fetch all workspaces, including the invited one
       const memberships = await this.workspaceMemberRepository.find({
         where: { user: { id: userId } },
         relations: ['workspace'],
@@ -104,7 +91,6 @@ export class WorkspaceService {
       return memberships.map((membership) => membership.workspace).flat();
     }
 
-    // Find existing workspace memberships
     const memberships = await this.workspaceMemberRepository.find({
       where: { user: { id: userId } },
       relations: ['workspace'],
@@ -115,7 +101,6 @@ export class WorkspaceService {
       return workspaces;
     }
 
-    // Create a new workspace if none exist
     const user = await this.userService.findByUserId(userId);
     if (!user) {
       throw new Error('User not found');
@@ -127,14 +112,12 @@ export class WorkspaceService {
       inviteToken: uuidv4(),
     });
     await this.workspaceRepository.save(workspace);
-
     const membership = this.workspaceMemberRepository.create({
       user,
       workspace: workspace,
       role: Role.ADMIN,
     });
     await this.workspaceMemberRepository.save(membership);
-
     return [workspace];
   }
 
@@ -144,40 +127,22 @@ export class WorkspaceService {
     return await this.workspaceRepository.findOne({ where: { id: workspaceId } });
   }
 
-  async findWorkspaceByIdForDash(workspaceId) {
-    const workspace = await this.workspaceRepository.findOne({
-      where: { id: workspaceId, channels: { workspace: { id: workspaceId } } },
-      relations: ['channels', 'channels.contacts', 'channels.messages']
-    });
-
-    const contacts = this.contactsRepository.find({ where : { workspace : { id : workspaceId}}})
-    return {
-      workspace, 
-      contacts
-    }
-
-  }
-
   async createWorkspaceSchema(workspace: Workspace): Promise<Workspace> {
     const schemaName = `workspace_${workspace.id}`;
     await this.typeormService.createSchema(schemaName);
-
     const workspaceDataSource = await this.typeormService.getWorkspaceConnection(schemaName);
-
     await workspaceDataSource.runMigrations()
     await workspaceDataSource.close();
-
     return workspace
   }
 
 
-  async updateWorkspaceDetails ( workspaceId: string , workspaceName: string, profileImg: string) {
-    const workspace = await this.workspaceRepository.findOne({ where: { id: workspaceId }})
-    console.log(workspace, workspaceId, '.........................................');
-    
-    if(!workspace) throw Error('workspace not found');
+  async updateWorkspaceDetails(workspaceId: string, workspaceName: string, profileImg?: string) {
+    const workspace = await this.workspaceRepository.findOne({ where: { id: workspaceId } })
+    if (!workspace) throw Error('workspace not found');
     workspace.name = workspaceName;
-    workspace.profileImg = profileImg;
+    if(profileImg) workspace.profileImg = profileImg;
+    
     workspace.isWorkspaceSetup = true;
     await this.workspaceRepository.save(workspace)
     return workspace

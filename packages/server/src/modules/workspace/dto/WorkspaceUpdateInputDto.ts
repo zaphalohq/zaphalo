@@ -1,6 +1,5 @@
 import { Field, InputType } from "@nestjs/graphql";
 
-
 @InputType()
 export class WorkspaceUpdateInputDto {
   @Field()
@@ -9,7 +8,7 @@ export class WorkspaceUpdateInputDto {
   @Field()
   workspaceName: string;
 
-  @Field()
-  profileImg: string;
+  @Field({ nullable : true })
+  profileImg?: string;
 
 }

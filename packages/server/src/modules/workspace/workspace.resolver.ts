@@ -1,17 +1,20 @@
 import { UseGuards } from "@nestjs/common";
-import { Args, Context, Mutation, Query, Resolver } from "@nestjs/graphql";
-import { GqlAuthGuard } from "../auth/guards/gql-auth.guard";
+import { Args, Context, Mutation, Query, Resolver, Parent, ResolveField } from "@nestjs/graphql";
 import { Workspace } from "./workspace.entity";
 import { WorkspaceService } from "./workspace.service";
-import { Contacts } from "../contacts/contacts.entity";
-import { WorkspaceDashboardOutput } from "./dto/WorkspaceDashboardOutput";
+import { WorkspaceResponceDTO } from "./dto/WorkspaceResponceDTO";
 import { WorkspaceUpdateInputDto } from "./dto/WorkspaceUpdateInputDto";
-import { WorkspaceResponceDTO } from "./dto/workspaceResponceDTO";
+import { WorkspaceDashboardOutput } from "./dto/WorkspaceDashboardOutput";
+import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
+import { FileService } from "src/modules/file-storage/services/file.service";
 
-// WorkspaceResolver
+
 @Resolver(() => Workspace)
 export class workspaceResolver {
-  constructor(private workspaceService: WorkspaceService) { }
+  constructor(
+    private workspaceService: WorkspaceService,
+    private fileService: FileService
+  ) { }
 
   @Query(() => [Workspace], { name: 'myWorkspaces' })
   @UseGuards(GqlAuthGuard)
@@ -35,7 +38,7 @@ export class workspaceResolver {
   
   @Query(() => WorkspaceDashboardOutput)
   async findWorkspaceByIdForDash(@Args('workspaceId') workspaceId : string) {
-    return this.workspaceService.findWorkspaceByIdForDash(workspaceId)
+    // return this.workspaceService.findWorkspaceByIdForDash(workspaceId)
   }
 
   @Mutation(() => WorkspaceResponceDTO)
@@ -43,7 +46,23 @@ export class workspaceResolver {
   async updateWorkspaceDetails(
     @Args('WorkspaceUpdateInput') WorkspaceUpdateInput: WorkspaceUpdateInputDto,
   ): Promise<WorkspaceResponceDTO> {
-    return this.workspaceService.updateWorkspaceDetails(WorkspaceUpdateInput.workspaceId, WorkspaceUpdateInput.workspaceName, WorkspaceUpdateInput.profileImg);
+    return this.workspaceService.updateWorkspaceDetails(WorkspaceUpdateInput.workspaceId, WorkspaceUpdateInput.workspaceName, WorkspaceUpdateInput?.profileImg);
+  }
+
+  @ResolveField(() => String)
+  async profileImg(@Parent() workspace: Workspace): Promise<string> {
+    if (workspace.profileImg) {
+      try {
+        const workspaceLogoToken = this.fileService.encodeFileToken({
+          workspaceId: workspace.id,
+        });
+        return `${workspace.profileImg}?token=${workspaceLogoToken}`;
+      } catch (e) {
+        return workspace.profileImg;
+      }
+    }
+
+    return workspace.profileImg ?? '';
   }
 
 }
