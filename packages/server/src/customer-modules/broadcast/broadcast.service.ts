@@ -79,96 +79,6 @@ export class BroadcastService implements OnModuleInit {
     return broadcast
   }
 
-  async BroadcastTemplate(accessToken, broadcastData, phoneNumberId) {
-    // const url = `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`;
-    const { templateName, variables = [], URL, headerType, language } = broadcastData;
-    // const headerComponent =
-    //   headerType === 'IMAGE' && URL
-    //     ? [
-    //       {
-    //         type: 'header',
-    //         parameters: [
-    //           {
-    //             type: 'image',
-    //             image: {
-    //               link: URL,
-    //             },
-    //           },
-    //         ],
-    //       },
-    //     ]
-    //     : headerType === 'VIDEO' && URL
-    //       ? [
-    //         {
-    //           type: 'header',
-    //           parameters: [
-    //             {
-    //               type: 'video',
-    //               video: {
-    //                 link: URL,
-    //               },
-    //             },
-    //           ],
-    //         },
-    //       ]
-    //       : headerType === 'DOCUMENT' && URL
-    //         ? [
-    //           {
-    //             type: 'header',
-    //             parameters: [
-    //               {
-    //                 type: 'document',
-    //                 document: {
-    //                   link: URL,
-    //                 },
-    //               },
-    //             ],
-    //           },
-    //         ]
-    //         : [];
-
-    // const bodyComponent = {
-    //   type: 'body',
-    //   parameters: variables.map((value) => ({
-    //     type: 'text',
-    //     text: value,
-    //   })),
-    // };
-
-    // const mailingList = await this.mailingListService.findMailingListById(broadcastData.mailingListId)
-    // if (!mailingList) throw new Error('mailingList not found');
-    // const template = await this.templateService.findTemplateByTemplateId(broadcastData.templateId)
-    // console.log(broadcastData.templateId, ".......................broadcastData.templateId");
-
-    // if (!template) throw new Error('template not found');
-
-    // const account = await this.waAccountService.findInstantsByInstantsId(instantsId);
-
-    // const broadcastName = 'default'
-    // const broadcast = this.broadcastRepository.create({
-    //   account
-    //   broadcastName,
-    //   template,
-    //   mailingList,
-    //   URL,
-    //   variables,
-    // })
-    // await this.broadcastRepository.save(broadcast)
-
-    // const allContacts = await this.mailingListService.findAllContactsOfMailingList(broadcastData.mailingListId)
-    // allContacts.forEach(async (contact) => {
-    //   const broadcastContacts = this.broadcastContactsRepository.create({
-    //     contactNo: contact.contactNo,
-    //     broadcast,
-    //   })
-
-    //   await this.broadcastContactsRepository.save(broadcastContacts)
-    // });
-
-    // this.cronForPendingBroadcasts()
-    // return broadcast
-  }
-
   async getWhatsAppApi(instantsId?: string) {
     if (instantsId) {
       const instants = await this.waAccountService.findInstantsByInstantsId(instantsId)
@@ -189,14 +99,11 @@ export class BroadcastService implements OnModuleInit {
     if (this.job) return;
 
     this.job = cron.schedule('*/30 * * * *', async () => {
-      console.log('Running.........................');
       await this.sendMessagesInBackground();
     });
   }
 
   async sendMessagesInBackground() {
-    console.log("...................started.........................");
-
     const broadcasts = await this.broadcastRepository.find({
       where: { isBroadcastDone: false },
       relations: ['template', 'account'],
@@ -244,8 +151,6 @@ export class BroadcastService implements OnModuleInit {
               currentBroadcastContact.status = 'SENT';
               await this.broadcastContactsRepository.save(currentBroadcastContact);
             }
-            console.log(broadcast.totalBroadcastSend, '........................broadcast.totalBroadcastSend');
-
             await this.broadcastRepository.update(broadcast.id, {
               totalBroadcastSend: String(Number(broadcast.totalBroadcastSend ?? 1) + 1),
             });
@@ -300,11 +205,6 @@ export class BroadcastService implements OnModuleInit {
     });
     return { allBroadcast, totalPages}
   }
-    // const remainingBroadcasts = await this.broadcastRepository.find({
-    //   where: { isBroadcastDone: false },
-    // });
-
-
 
   async searchBroadcast(
     searchTerm?: string,

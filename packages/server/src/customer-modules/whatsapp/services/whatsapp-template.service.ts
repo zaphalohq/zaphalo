@@ -22,67 +22,11 @@ export class TemplateService {
   constructor(
     @Inject(CONNECTION) connection: Connection,
     private readonly waAccountService: WaAccountService,
-    private readonly whatsAppApiService: WhatsAppSDKService,
     private readonly attachmentService: AttachmentService,
 
   ) {
     this.templateRepository = connection.getRepository(WhatsAppTemplate);
   }
-
-  // async submitTemplate(templateData: WaTemplateRequestInput): Promise<any> {
-  //   const findSelectedInstants = await this.waAccountService.findInstantsByInstantsId(templateData.accountId)
-  //   if (!findSelectedInstants)
-  //     throw new Error("Whatsapp configration missing!")
-  //   const wa_api = this.whatsAppApiService.getWhatsApp(findSelectedInstants)
-
-  //   if (!findSelectedInstants) throw new Error('findSelectedInstants not found');
-  //   const businessId = findSelectedInstants?.businessAccountId
-  //   const accessToken = findSelectedInstants?.accessToken
-  //   // const variablesValue = templateData.variables.map((variable: any) => variable.value)
-  //   const payload = await this.generatePayload(templateData);
-
-  //   // try {
-  //   // const response = await axios({
-  //   //   url: `https://graph.facebook.com/v22.0/${businessId}/message_templates`,
-  //   //   method: 'POST',
-  //   //   headers: {
-  //   //     Authorization: `Bearer ${accessToken}`,
-  //   //     'Content-Type': 'application/json',
-  //   //   },
-  //   //   data: 
-  //   // });
-  //   const payload_json = JSON.stringify({ ...payload });
-  //   const response = await wa_api.submitTemplateNew(payload_json)
-  //   return response
-  //   //   const templateAPiResponse = response.data
-
-  //   //   if (templateAPiResponse.success || templateAPiResponse.id) {
-  //   //     const templateCreation = this.templateRepository.create({
-  //   //       templateId: templateAPiResponse.id,
-  //   //       status: templateAPiResponse.status.toLowerCase(),
-  //   //       ...templateData,
-  //   //     })
-
-  //   //     await this.templateRepository.save(templateCreation)
-
-  //   //     this.getTemplateStatusByCron(templateAPiResponse.id)
-  //   //     return {
-  //   //       success: true,
-  //   //       data: response.data,
-  //   //     };
-  //   //   }
-  //   // } catch (error) {
-  //   //   console.error({
-  //   //     success: false,
-  //   //     error: error.response?.data || error.message,
-  //   //   });
-  //   //   return {
-  //   //     success: false,
-  //   //     error: error.response?.data || error.message,
-  //   //   };
-  //   // }
-
-  // }
 
   async saveTemplate(templateData, instantsId) {
     let account: WhatsAppAccount | null = null;
@@ -122,40 +66,6 @@ export class TemplateService {
 
     await this.templateRepository.save(template);
     return template;
-    // if (templateData.attachmentId) {
-    //   const attachment = await this.attachmentService.findOneAttachmentById(templateData.attachmentId)
-    //   if (!attachment) throw Error('attachment doesnt exist')
-    //   const newTemplate = this.templateRepository.create({
-    //     account: account,
-    //     templateName: templateData.templateName,
-    //     status: 'saved',
-    //     category: templateData.category,
-    //     language: templateData.language,
-    //     headerType: templateData.headerType,
-    //     bodyText: templateData.bodyText,
-    //     footerText: templateData.footerText,
-    //     button: templateData.button,
-    //     variables: templateData.variables,
-    //     templateImg: attachment.name,
-    //     attachment: attachment
-    //   });
-    //   await this.templateRepository.save(newTemplate);
-    //   return newTemplate;
-    // } else {
-    //   const newTemplate = this.templateRepository.create({
-    //     account: instantsId,
-    //     templateName: templateData.templateName,
-    //     status: 'saved',
-    //     category: templateData.category,
-    //     language: templateData.language,
-    //     headerType: templateData.headerType,
-    //     bodyText: templateData.bodyText,
-    //     footerText: templateData.footerText,
-    //     button: templateData.button,
-    //     variables: templateData.variables,
-    //   });
-    //   await this.templateRepository.save(newTemplate);
-    //   return newTemplate;
   }
 
 
@@ -276,7 +186,7 @@ export class TemplateService {
     }
 
     const task = cron.schedule('*/10 * * * * *', async () => {
-      console.log('🔁 Running cron to check template status...');
+      console.log('Running cron to check template status...');
       const approved = await checkStatus();
 
       if (approved) {
@@ -317,24 +227,6 @@ export class TemplateService {
     }
   }
 
-  async getAllTemplates() {
-    const url = `https://graph.facebook.com/v22.0/467842749737629/message_templates`;
-
-    try {
-      const response = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer EAAL391PN5tABOxIYkjT5MS0XG1467ookiRaAdsZC7j1i5zXelAUdRwAvlg8hqwcZB9i5bzvfsD37VU4wCPZBOPndgCZBUyiTsFxl6eKVce9ZCzyXcUSOjKg3zlOfJlfm9swpyNrJf8DDNZCljA5kE6SEwwV8H8A4DsMWGJZAfCaZCiD9wkyZCxva6iTjDNxPj04ZBhrEzsnEnqWoMfaScRss0ZB8Dqf6O5s26Woi5ayov2VIwZAHt1mZA`,
-        },
-      });
-
-      const templates = response;
-
-      return "fsds"
-    } catch (err) {
-      console.error('Error fetching templates:', err.response?.data || err.message);
-      return "fsds"
-    }
-  }
 
   async findAllTemplate(currentPage, itemsPerPage): Promise<FindAllTemplate> {
     const totalItems = await this.templateRepository.count();
@@ -368,46 +260,6 @@ export class TemplateService {
     return await this.templateRepository.findOne({ where: { waTemplateId } })
   }
 
-  async uploadFile(url) {
-    const response1 = await axios.get(url, { responseType: 'arraybuffer' });
-    const filename = path.basename(url);
-    const buffer = Buffer.from(response1.data);
-    const mimetype = response1.headers['content-type'];
-    const size = parseInt(response1.headers['content-length'] || `${buffer.length}`);
-    // const { filename, mimetype, size, buffer }: any = file;
-    // const buffer = await fs.readFile(path)
-
-    const findSelectedInstants = await this.waAccountService.FindSelectedInstants()
-    if (!findSelectedInstants) throw new Error('findSelectedInstants not found');
-    const appId = findSelectedInstants?.appId
-    const accessToken = findSelectedInstants?.accessToken
-
-    const uploadSessionRes = await axios.post(
-      `https://graph.facebook.com/v22.0/${appId}/uploads`,
-      null,
-      {
-        params: {
-          file_name: filename,
-          file_length: size,
-          file_type: mimetype,
-          access_token: `${accessToken}`,
-        },
-      }
-    );
-
-    const response = await axios({
-      url: `https://graph.facebook.com/v22.0/${uploadSessionRes.data.id}`,
-      method: 'POST',
-      headers: {
-        Authorization: `OAuth ${accessToken}`,
-        file_offset: 0
-      },
-      data: {
-        'data-binary': buffer
-      }
-    });
-    return response.data.h
-  }
 
   async saveSyncTemplates(templates, instants) {
     const dbTemplates = await this.templateRepository.find();

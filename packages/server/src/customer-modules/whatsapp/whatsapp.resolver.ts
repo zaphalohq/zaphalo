@@ -1,27 +1,20 @@
 import { Args, Context, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { UseGuards } from '@nestjs/common';
 import graphqlTypeJson from 'graphql-type-json';
-
-
 import { WhatsAppAccount } from './entities/whatsapp-account.entity';
-import { WhatsAppTemplate } from './entities/whatsapp-template.entity';
 import { WaAccountService } from './services/whatsapp-account.service';
 import { WhatsAppSDKService } from './services/whatsapp-api.service'
 import { TemplateService } from './services/whatsapp-template.service';
-// import { WaAccountService } from "src/customer-modules/whatsapp/services/whatsapp-account.service";
-// import { WhatsAppAccount } from 'src/customer-modules/whatsapp/entities/whatsapp-account.entity';
 import { GqlAuthGuard } from 'src/modules/auth/guards/gql-auth.guard';
 import { TestTemplateOutput, WaTestTemplateInput } from "./dtos/test-input.template.dto";
 import { WaTemplateResponseDto } from "./dtos/whatsapp.response.dto";
 import { WaTemplateRequestInput } from "./dtos/whatsapp.template.dto";
 import { WaAccountDto } from "./dtos/whatsapp-account-update.dto";
+import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
+import { Workspace } from "src/modules/workspace/workspace.entity";
 
 @Resolver(() => WhatsAppAccount)
 export class WhatsAppResolver {
-  // constructor(
-  //   private readonly whatsAppApiService: WhatsAppSDKService,
-  //   private readonly instantsService: instantsService) { }
-
   constructor(
     private readonly waAccountService: WaAccountService,
     private readonly whatsAppApiService: WhatsAppSDKService,
@@ -29,7 +22,7 @@ export class WhatsAppResolver {
   ) { }
 
 
-  // @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard)
   @Mutation(() => String)
   async testConnection(
     @Context('req') req,
@@ -173,21 +166,17 @@ export class WhatsAppResolver {
     const wa_api = await this.getWhatsAppApi()
 
     const template: any = await this.waTemplateService.findtemplateByDbId(testTemplateData.dbTemplateId)
-    console.log(template, '.....');
 
     if (!template) throw Error('template doesnt exist')
 
     let generateTemplatePayload
     if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(template.headerType)) {
       const mediaLink = 'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png'
-      // const mediaLink = template.templateImg;
       generateTemplatePayload = await this.waTemplateService.generateSendMessagePayload(template, testTemplateData.testPhoneNo, mediaLink);
     } else {
       generateTemplatePayload = await this.waTemplateService.generateSendMessagePayload(template, testTemplateData.testPhoneNo);
     }
-
     const testTemplate = await wa_api.sendTemplateMsg(JSON.stringify(generateTemplatePayload))
-
     return { success: 'test template send successfully' }
   }
 
@@ -195,11 +184,11 @@ export class WhatsAppResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => WhatsAppAccount)
   async SyncAndSaveInstants(
-    @Args('whatsappInstantsData') whatsappInstantsData: WaAccountDto,
-    @Args('instanceId', { nullable: true }) instanceId?: string
+    @Context('req') req,
+    @Args('whatsappInstantsData') waAccount: WaAccountDto,
   ): Promise<WhatsAppAccount | null | string> {
-    if (!instanceId) {
-      const instances = await this.waAccountService.WaAccountCreate(whatsappInstantsData);
+    if (!waAccount.accountId) {
+      const instances = await this.waAccountService.WaAccountCreate(req, waAccount);
       const wa_api = await this.getWhatsAppApi(instances.id)
       if (instances) {
         const syncTemplate = await wa_api.syncTemplate();
@@ -207,8 +196,8 @@ export class WhatsAppResolver {
       }
       return instances;
     } else {
-      const wa_api = await this.getWhatsAppApi(instanceId)
-      const instances = await this.waAccountService.UpdateInstants(instanceId, whatsappInstantsData);
+      const wa_api = await this.getWhatsAppApi(waAccount.accountId)
+      const instances = await this.waAccountService.UpdateInstants(waAccount.accountId, waAccount);
       if (instances) {
         const syncTemplate = await wa_api.syncTemplate();
         await this.waTemplateService.saveSyncTemplates(syncTemplate, instances)
@@ -221,21 +210,20 @@ export class WhatsAppResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => WhatsAppAccount)
   async TestAndSaveInstants(
-    @Args('whatsappInstantsData') whatsappInstantsData: WaAccountDto,
-    @Args('instanceId', { nullable: true }) instanceId?: string
+    @AuthWorkspace() workspace: Workspace,
+    @Context('req') req,
+    @Args('whatsappInstantsData') waAccount: WaAccountDto,
   ): Promise<WhatsAppAccount | null> {
-    if (!instanceId) {
-      const instances = await this.waAccountService.WaAccountCreate(whatsappInstantsData);
+    if (!waAccount.accountId) {
+      const instances = await this.waAccountService.WaAccountCreate(req, waAccount);
       const wa_api = await this.getWhatsAppApi(instances.id)
       if (instances) {
         const testTemplate = await wa_api.testInstants()
-        console.log(testTemplate, ".testTemplate.testTemplate");
-
       }
       return instances
     } else {
-      const instances = await this.waAccountService.UpdateInstants(instanceId, whatsappInstantsData);
-      const wa_api = await this.getWhatsAppApi(instanceId)
+      const instances = await this.waAccountService.UpdateInstants(waAccount.accountId, waAccount);
+      const wa_api = await this.getWhatsAppApi(waAccount.accountId)
       if (instances) {
         const testTemplate = await wa_api.testInstants()
       }

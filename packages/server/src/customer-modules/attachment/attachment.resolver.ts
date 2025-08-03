@@ -17,15 +17,4 @@ export class AttachmentResolver {
         return await this.attachmentService.createOneAttachment(createAttachmentDto)
     }
 
-    // @UseGuards(GqlAuthGuard)
-    // @Query(() => [Contacts])
-    // async findAllContacts() {
-    //     return await this.contactsservice.findAllContacts()
-    // }
-
-    // @UseGuards(GqlAuthGuard)
-    // @Mutation(() => Contacts)
-    // async DeleteContact(@Args('contactId') contactId: string) {
-    //     return this.contactsservice.DeleteContact(contactId)
-    // }
 }

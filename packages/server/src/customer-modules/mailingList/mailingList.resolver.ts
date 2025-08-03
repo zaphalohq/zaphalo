@@ -1,11 +1,10 @@
-import { Args, Context, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { Args, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { UseGuards } from "@nestjs/common";
 import { MailingList } from "./mailingList.entity";
 import { MailingListService } from "./mailingList.service";
 import { MailingContact } from "./DTO/MailingListReqDto";
 import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
 import { SuccessResponse } from "../whatsapp/dtos/success.dto";
-import { MailingContactResDto } from "./DTO/MailingContactResDto";
 import { MailingContacts } from "./mailingContacts.entity";
 import { SearchAndPaginateContactResDto, SelectedMailingContactResDto } from "./DTO/SelectedMailingContactResDto";
 import { FindAllMailingListRes } from "./DTO/FindAllMailingListDto";
@@ -47,9 +46,6 @@ export class MailingListResolver {
     const deleteContact = await this.mailingListService.deleteMailingContact(mailingContactId)
     console.log(deleteContact, 'deletecontact');
 
-    // if(deleteContact.raw){
-
-    // }
     return {
       success: true,
       message: 'Mailing Contact Deleted successfully'

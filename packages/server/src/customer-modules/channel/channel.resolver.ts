@@ -75,27 +75,8 @@ export class ChannelResolver {
     if (!findTrueInstants) throw new Error('findTrueInstants not found');
     const senderId = Number(findTrueInstants?.phoneNumberId)
     const accessToken = findTrueInstants?.accessToken
-    // const response = await axios({
-    //   url: `https://graph.facebook.com/v22.0/${senderId}/messages`,
-    //   method: 'POST',
-    //   headers: {
-    //     Authorization: `Bearer ${findTrueInstants?.accessToken}`,
-    //     'Content-Type': 'application/json',
-    //   },
-    //   data: JSON.stringify({
-    //     messaging_product: 'whatsapp',
-    //     to: receiverId[0], 
-    //     type: 'text',
-    //     text: {
-    //       body: textMessage,
-    //     },
-    //   }),
-    // });
-
 
     const receiverId1 = receiverId.filter((number: any) => number != senderId)
-    console.log(input,'receiverId1...............');
-    
     if ((!uploadedFiles || uploadedFiles.length === 0) && textMessage) {
       const messageType = 'text'
       await this.channelService.sendWhatsappMessage({

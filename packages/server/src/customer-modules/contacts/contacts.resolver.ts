@@ -1,5 +1,5 @@
 import { UseGuards } from "@nestjs/common";
-import { Args, Context, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { Contacts } from "./contacts.entity";
 import { ContactsService } from "./contacts.service";
 import { createContactsDto } from "./dto/createContactsDto";
