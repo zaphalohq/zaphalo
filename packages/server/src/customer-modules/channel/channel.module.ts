@@ -7,7 +7,6 @@ import { channelController } from './channel.controller'
 import { Message } from "./message.entity";
 import { WebSocketService } from "./chat-socket";
 import { ChannelResolver } from "./channel.resolver";
-import { fileupload } from "./fileupload.controller";
 import { User } from "src/modules/user/user.entity";
 import { UserService } from "src/modules/user/user.service";
 import { UserModule } from "src/modules/user/user.module";
@@ -33,8 +32,8 @@ import { JwtModule } from "src/modules/jwt/jwt.module";
       services: [ChannelService],
     })
   ],
-  controllers: [fileupload, channelController],
-  providers: [fileupload, ChannelService, channelController, WebSocketService, ChannelResolver, UserService],
+  controllers: [ channelController],
+  providers: [ ChannelService, channelController, WebSocketService, ChannelResolver, UserService],
   exports: [channelController],
 })
 

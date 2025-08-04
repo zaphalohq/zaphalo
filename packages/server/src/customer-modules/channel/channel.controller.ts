@@ -5,7 +5,6 @@ import { ContactsService } from 'src/customer-modules/contacts/contacts.service'
 import { WaAccountService } from 'src/customer-modules/whatsapp/services/whatsapp-account.service';
 import { WaWebhookGuard } from './guards/wa_webhook_guard';
 import { JwtWrapperService } from 'src/modules/jwt/jwt-wrapper.service';
-const token = 'my-token'
 
 @Controller('whatsapp')
 export class channelController {
@@ -30,9 +29,10 @@ export class channelController {
     }
   }
 
-  @Post()
+  @Post('/:workspace/webhook')
   async postWhatsappApi(@Request() req: Request): Promise<any> {
     const data = JSON.parse(JSON.stringify(req.body, null, 2))
+    console.log(data,'...........................');
     
     if (data && data.entry[0].changes[0].value.messages) {
       const textMessage = data.entry[0].changes[0].value.messages[0].text.body
