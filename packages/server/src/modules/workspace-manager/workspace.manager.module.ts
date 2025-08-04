@@ -1,5 +1,6 @@
 import { Global, Module, Scope } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
+
 import { CONNECTION } from './workspace.manager.symbols';
 import { getWorkspaceConnection } from './workspace.manager.utils';
 
@@ -16,8 +17,6 @@ const connectionFactory = {
       if (request.headers['x-workspace-id']) {
         workspaceId = request.headers['x-workspace-id'];
       } else {
-        console.log(request,'//////////////////////request');
-        
         workspaceId = request.params.workspace;
       }
     }
