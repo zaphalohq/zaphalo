@@ -16,6 +16,8 @@ const connectionFactory = {
       if (request.headers['x-workspace-id']) {
         workspaceId = request.headers['x-workspace-id'];
       } else {
+        console.log(request,'//////////////////////request');
+        
         workspaceId = request.params.workspace;
       }
     }

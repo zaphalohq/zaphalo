@@ -19,7 +19,6 @@ async function bootstrap() {
   app.enableCors({
     origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
   });
   const configService = app.get(ConfigService);
   app.useStaticAssets(path.join(__dirname, "../uploads"))
