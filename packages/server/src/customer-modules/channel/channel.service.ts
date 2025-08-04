@@ -103,18 +103,19 @@ export class ChannelService {
         var messages = await this.messageRepository.find({
             where: { channel: { id: channelId } },
             relations: ['channel', 'sender'],
-            order: { createdAt: 'ASC' }
+            order: { createdAt: 'ASC' },
+            skip: 0,
+            take: 100
         })
         return messages;
     }
 
     async makeUnseenSeen(messages: Message[]): Promise<void> {
-        const messageIds = messages.map(message => message.id); // Extract IDs
+        const messageIds = messages.map(message => message.id);
 
-        // Update all matching messages in one query
         await this.messageRepository.update(
-            { id: In(messageIds) }, // Where clause with IDs
-            { unseen: true },       // Fields to update
+            { id: In(messageIds) },
+            { unseen: true },
         );
     }
 

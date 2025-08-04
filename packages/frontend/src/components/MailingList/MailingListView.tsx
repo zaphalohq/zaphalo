@@ -60,19 +60,19 @@ export default function MailingListView({ isMailingContactVis, setIsMailingConta
   }, [data, selectedListId, loading, searchTerm])
 
 
-  const [deleteMailingContact] = useMutation(DeleteMailingContact)
-  const HandleDeleteMailingContact = async (mailingContactId: string) => {
+  // const [deleteMailingContact] = useMutation(DeleteMailingContact)
+  // const HandleDeleteMailingContact = async (mailingContactId: string) => {
 
-    const response = await deleteMailingContact({
-      variables: {
-        mailingContactId
-      }
-    })
+  //   const response = await deleteMailingContact({
+  //     variables: {
+  //       mailingContactId
+  //     }
+  //   })
 
-    if (response.data) {
-      handleFetchMailingContact()
-    }
-  }
+  //   if (response.data) {
+  //     handleFetchMailingContact()
+  //   }
+  // }
 
 
 
@@ -179,7 +179,7 @@ export default function MailingListView({ isMailingContactVis, setIsMailingConta
           <MailingContactView
             selectedListId={selectedListId}
             contactsData={contactsData}
-            HandleDeleteMailingContact={HandleDeleteMailingContact}
+            // HandleDeleteMailingContact={HandleDeleteMailingContact}
             handleFetchMailingContact={handleFetchMailingContact}
           />}
 

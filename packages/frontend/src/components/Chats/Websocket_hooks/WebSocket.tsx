@@ -6,6 +6,7 @@ interface Message {
     channelId: string;
     phoneNo: string;
     textMessage: string[];
+    messagesIds: string[];
     unseen: number;
 }
 
@@ -18,6 +19,7 @@ export async function useWebSocket() {
             channelId: '',
             phoneNo: '',
             textMessage: [],
+            messagesIds: [],
             unseen: 0,
         }])
 
@@ -45,9 +47,9 @@ export async function useWebSocket() {
                     console.error("Message payload missing 'messages' field:", newMsg);
                     return;
                 }
-                setNewUnseenMessage((prevMessages) => {
+                setNewUnseenMessage((prevMessages: any) => {
                     const channelIndex = prevMessages.findIndex(
-                        (message) => message.channelId === newMsg.channelId
+                        (message: any) => message.channelId === newMsg.channelId
                     );
 
                     if (channelIndex !== -1) {
@@ -56,10 +58,16 @@ export async function useWebSocket() {
                             ...updatedMessages[channelIndex],
                             textMessage: [
                                 ...updatedMessages[channelIndex].textMessage,
-                                newMsg.messages,
+                                newMsg.messages.textMessage,
+                            ],
+                            messagesIds: [
+                                ...updatedMessages[channelIndex].messagesIds,
+                                newMsg.messages.id,
                             ],
                             unseen: updatedMessages[channelIndex].unseen + 1,
                         };
+                        console.log(updatedMessages,'updatedMessagesupdatedMessages');
+                        
                         return updatedMessages;
                     } else {
                         return [

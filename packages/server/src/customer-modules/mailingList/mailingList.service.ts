@@ -122,6 +122,31 @@ export class MailingListService {
 
 
     async saveMailingContact(saveMailingContact: MailingContact) {
+        console.log(saveMailingContact,'saveMailingContact..................');
+        
+        if (saveMailingContact.id) {
+            console.log('id........................');
+            
+            const mailingContact = await this.mailingContactsRepository.findOne({ where: { id: saveMailingContact.id } })
+            if (!mailingContact) throw new Error('mailing List contact doesnt exist');
+            mailingContact.contactName = saveMailingContact.contactName;
+            mailingContact.contactNo = saveMailingContact.contactNo;
+            await this.mailingContactsRepository.save(mailingContact);
+        } else {
+            const mailingList = await this.mailingListRepository.findOne({ 
+                where : { id: saveMailingContact.mailingListId},
+                relations: ['mailingContacts']
+            })
+            console.log(mailingList,'........mailingList....................');
+            
+            if(!mailingList) throw Error('mailing list doesnt exist')
+            const mailingContact = this.mailingContactsRepository.create({
+                contactName: saveMailingContact.contactName,
+                contactNo: saveMailingContact.contactNo,
+                mailingList
+            })
+            this.mailingContactsRepository.save(mailingContact);
+        }
         const mailingContact = await this.mailingContactsRepository.findOne({ where: { id: saveMailingContact.id } })
         if (!mailingContact) throw new Error('mailing List contact doesnt exist');
         mailingContact.contactName = saveMailingContact.contactName;
@@ -138,15 +163,15 @@ export class MailingListService {
     async searchMailingList(
         searchTerm?: string,
     ) {
-        console.log(searchTerm,'searchTerm................');
-        
+        console.log(searchTerm, 'searchTerm................');
+
         const [mailingList, totalCount] = await this.mailingListRepository.findAndCount({
             where: { mailingListName: ILike(`%${searchTerm}%`) },
             order: { createdAt: 'ASC' },
             relations: ['mailingContacts']
         });
-        console.log(mailingList,'mailingList');
-        
+        console.log(mailingList, 'mailingList');
+
         return { searchedData: mailingList, totalCount };
     }
 

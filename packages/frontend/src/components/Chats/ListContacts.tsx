@@ -52,17 +52,17 @@ const ListContacts = ({ contactName, phoneNo, HandleNewChatVisiablity, profileIm
 
     const { setIsChatOpen }: any = useContext(ChatsContext);
 
-    const [deleteContact] = useMutation(DeleteContact)
-    const HandleDeleteContact = async () => {
-        try {
-            await deleteContact({
-                variables: {
-                }
-            })
-        } catch (err) {
-            console.error("error from HandleDeleteInstants", err)
-        }
-    }
+    // const [deleteContact] = useMutation(DeleteContact)
+    // const HandleDeleteContact = async () => {
+    //     try {
+    //         await deleteContact({
+    //             variables: {
+    //             }
+    //         })
+    //     } catch (err) {
+    //         console.error("error from HandleDeleteInstants", err)
+    //     }
+    // }
 
     return (
         <div>

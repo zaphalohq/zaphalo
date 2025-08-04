@@ -80,10 +80,8 @@ const TableListView = () => {
                 </td>
                 <td className="px-4 py-2 text-center">
                   <button
-                    onClick={async () => {
-                      HandleDeleteInstants(
-                        instantsdata.id,
-                      )
+                    onClick={() => {
+                      HandleDeleteInstants(instantsdata.id)
                     }}
                     className='text-lg text-center text-[#ED4337] cursor-pointer hover:bg-stone-200 p-2 rounded'
                   >

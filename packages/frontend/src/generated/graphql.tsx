@@ -349,8 +349,8 @@ mutation WaAccountSave($whatsappInstantsData: WaAccountDto!, $instanceId: String
 `;
 
 export const WhatsappInstantsSyncAndSave = gql`
-mutation SyncAndSaveInstants($whatsappInstantsData: WaAccountDto!, $instanceId: String) {
-  SyncAndSaveInstants(whatsappInstantsData: $whatsappInstantsData, instanceId: $instanceId) {
+mutation SyncAndSaveInstants($whatsappInstantsData: WaAccountDto!) {
+  SyncAndSaveInstants(whatsappInstantsData: $whatsappInstantsData) {
     id
     name
   }
@@ -358,8 +358,8 @@ mutation SyncAndSaveInstants($whatsappInstantsData: WaAccountDto!, $instanceId: 
 `;
 
 export const WhatsappInstantsTestAndSave = gql(`
-mutation TestAndSaveInstants($whatsappInstantsData: WaAccountDto!, $instanceId: String) {
-  TestAndSaveInstants(whatsappInstantsData: $whatsappInstantsData, instanceId: $instanceId) {
+mutation TestAndSaveInstants($whatsappInstantsData: WaAccountDto!) {
+  TestAndSaveInstants(whatsappInstantsData: $whatsappInstantsData) {
     id
     name
   }
@@ -456,9 +456,9 @@ mutation TestAndUpdateInstants(
 
 export const DeleteInstantsMutation = gql`
 mutation DeleteInstants(
-  $id : String!,
+  $waAccountId : String!
   ){
-    DeleteInstants(DeleteInstants: {id: $id}) {
+    DeleteInstants(waAccountId: $waAccountId) {
       accessToken
       appId
       createdAt
