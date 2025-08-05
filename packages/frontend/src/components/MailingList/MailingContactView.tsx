@@ -10,10 +10,7 @@ import usePagination from "@src/utils/usePagination"
 import SubmitButton from "../UI/SubmitButton"
 import { FaPlus } from "react-icons/fa"
 
-const MailingContactView = ({
-    selectedListId,
-    // HandleDeleteMailingContact,
-    handleFetchMailingContact }: any) => {
+const MailingContactView = ({ selectedListId }: any) => {
     const [triggerRefetch, setTriggerRefetch] = useState(false)
     const [contactData, setContactData] = useState({
         contactName: '',
@@ -153,7 +150,11 @@ const MailingContactView = ({
                     </tbody>
                 </table>
                 {isSaveContactVis &&
-                    <MailingListSaveContact handleFetchMailingContact={handleFetchMailingContact} contactData={contactData} setContactData={setContactData} HandleSaveContactVis={HandleSaveContactVis} />
+                    <MailingListSaveContact 
+                        setTriggerRefetch={setTriggerRefetch} 
+                        contactData={contactData} 
+                        setContactData={setContactData} 
+                        HandleSaveContactVis={HandleSaveContactVis} />
                 }
 
             </div>

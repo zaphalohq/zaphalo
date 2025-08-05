@@ -1,9 +1,7 @@
-import { useMutation, useQuery } from '@apollo/client';
-import { findAllMailingList, FindAllMailingContact, DeleteMailingContact, searchMailingList } from '@src/generated/graphql';
+import { useQuery } from '@apollo/client';
+import { findAllMailingList, FindAllMailingContact, searchMailingList } from '@src/generated/graphql';
 import { useEffect, useState } from 'react';
-import { FiEdit2 } from 'react-icons/fi';
 import { MdDelete } from 'react-icons/md';
-import MailingListSaveContact from './MailingListSaveContact';
 import MailingContactView from './MailingContactView';
 import { SearchWhite } from '../UI/Search';
 import usePagination from '@src/utils/usePagination';
@@ -21,12 +19,14 @@ export default function MailingListView({ isMailingContactVis, setIsMailingConta
     setTotalPages
   } = usePagination()
 
-  const { data, loading, error } = useQuery(findAllMailingList, {
-    variables: {
-      currentPage,
-      itemsPerPage
-    }
-  });
+  const { data: mailingListData,
+    loading: mailingListLoading,
+    refetch: mailingListRefetch } = useQuery(findAllMailingList, {
+      variables: {
+        currentPage,
+        itemsPerPage
+      }
+    });
   const { data: mailingContactdata,
     loading: mailingContactLoading,
     refetch: mailingContactRefetch,
@@ -39,41 +39,28 @@ export default function MailingListView({ isMailingContactVis, setIsMailingConta
   const [contactsData, setContactsData] = useState([]);
   const [mailingLists, setMailingLists] = useState([])
 
-  const handleFetchMailingContact = async () => {
-    const { data: newData } = await mailingContactRefetch()
-    setContactsData(newData?.findAllMailingContactByMailingListId)
-  }
-
-  useEffect(() => {
-    if (data && !loading && !searchTerm) {
-      const mailingLists = data?.findAllMailingList?.mailingList || [];
-      setMailingLists(mailingLists)
-      setTotalPages(data?.findAllMailingList?.totalPages)
-      if (selectedListId) {
-        setSelectedListId(selectedListId)
-        handleFetchMailingContact()
-      } else {
-        setSelectedListId(mailingLists[0]?.id)
-      }
-    }
-
-  }, [data, selectedListId, loading, searchTerm])
-
-
-  // const [deleteMailingContact] = useMutation(DeleteMailingContact)
-  // const HandleDeleteMailingContact = async (mailingContactId: string) => {
-
-  //   const response = await deleteMailingContact({
-  //     variables: {
-  //       mailingContactId
-  //     }
-  //   })
-
-  //   if (response.data) {
-  //     handleFetchMailingContact()
-  //   }
+  // const handleFetchMailingContact = async () => {
+  //   const { data: newData } = await mailingContactRefetch()
+  //   setContactsData(newData?.findAllMailingContactByMailingListId)
   // }
 
+  useEffect(() => {
+    if (mailingListData && !mailingListLoading && !searchTerm) {
+      // const mailingLists = mailingListData?.findAllMailingList?.mailingList || [];
+      mailingListRefetch().then((mailingListData: any) => {
+        setMailingLists(mailingListData?.data?.findAllMailingList?.mailingList);
+        setTotalPages(mailingListData?.data?.findAllMailingList?.totalPages);
+      })
+
+      // if (selectedListId) {
+      //   setSelectedListId(selectedListId)
+      //   handleFetchMailingContact()
+      // } else {
+      //   setSelectedListId(mailingLists[0]?.id)
+      // }
+    }
+
+  }, [mailingListData, selectedListId, mailingListLoading, searchTerm]);
 
 
   const {
@@ -89,10 +76,10 @@ export default function MailingListView({ isMailingContactVis, setIsMailingConta
   useEffect(() => {
     if (searchTerm) {
       searchMailingListRefetch().then(({ data }) => {
-        console.log(data,'mailisnlisei');
-        
-      setMailingLists(data.searchMailingList?.searchedData)
-      setTotalPages(0)
+        console.log(data, 'mailisnlisei');
+
+        setMailingLists(data.searchMailingList?.searchedData)
+        setTotalPages(0)
       });
     }
   }, [searchTerm])
@@ -101,8 +88,7 @@ export default function MailingListView({ isMailingContactVis, setIsMailingConta
 
   return (
     <div className='flex flex-col items-center'>
-      {
-        !isMailingContactVis ?
+      {!isMailingContactVis ?
           <div>
             <div className="grid grid-cols-4 my-4">
               <div className='col-start-4'>
@@ -113,11 +99,10 @@ export default function MailingListView({ isMailingContactVis, setIsMailingConta
               <table className="w-6xl text-sm text-left text-stone-500">
                 <thead className="text-xs sticky top-0 text-stone-700 uppercase bg-stone-200 truncate">
                   <tr>
-                    <th scope="col" className="px-6 py-4 w-64 text-left truncate">Mailing List Name</th>
+                    <th scope="col" className="px-6 py-4 w-64 text-left truncate">Contact List Name</th>
                     <th scope="col" className="px-6 py-4 text-center truncate">Total Contacts</th>
-                    <th scope="col" className="px-6 py-4 text-center truncate">View Broadcast</th>
                     <th scope="col" className="px-6 py-4 text-center truncate">View Contacts</th>
-                    {/* <th scope="col" className="px-6 py-4 text-center truncate">Updated Date</th> */}
+                    <th scope="col" className="px-6 py-4 text-center truncate">Created Date</th>
                     <th scope="col" className="px-6 py-4 text-center truncate">Delete</th>
                   </tr>
                 </thead>
@@ -133,18 +118,11 @@ export default function MailingListView({ isMailingContactVis, setIsMailingConta
                       </th>
                       <td
                         className="px-6 py-4 text-center truncate max-w-[150px]"
-                        title={String(mailingList.phoneNo)}
+                        title={String(mailingList.totalContacts)}
                       >
-                        {mailingList.mailingContacts.length}
+                        {mailingList.totalContacts}
                       </td>
-                      <td onClick={() => {
 
-                      }}
-                        className="px-6 py-4 text-center truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
-                        title="preview"
-                      >
-                        View
-                      </td>
                       <td onClick={() => {
                         setSelectedListId(mailingList.id)
                         setIsMailingContactVis(true)
@@ -153,6 +131,12 @@ export default function MailingListView({ isMailingContactVis, setIsMailingConta
                         title="preview"
                       >
                         View
+                      </td>
+                      <td
+                        className="px-6 py-4 text-center truncate max-w-[150px]"
+                        title={mailingList.createdAt}
+                      >
+                        {new Date(Number(mailingList.createdAt)).toLocaleString()}
                       </td>
                       <td className="px-4 py-2 text-center">
                         <button
@@ -180,39 +164,10 @@ export default function MailingListView({ isMailingContactVis, setIsMailingConta
             selectedListId={selectedListId}
             contactsData={contactsData}
             // HandleDeleteMailingContact={HandleDeleteMailingContact}
-            handleFetchMailingContact={handleFetchMailingContact}
+            // handleFetchMailingContact={handleFetchMailingContact}
           />}
 
     </div>
 
   );
 }
-
-//  <div className=" h-full grid grid-cols-1 md:grid-cols-4 gap-4 p-4">
-//       <div className="col-span-1 bg-stone-100 p-4 rounded-lg">
-//         <h2 className="text-lg font-semibold mb-3 text-stone-700">Mailing Lists</h2>
-
-
-//         {/* <ul className="space-y-2 h-[75vh] overflow-y-auto">
-//           {mailingLists.map((list: any) => (
-//             <li
-//               key={list.id}
-//               className={`cursor-pointer p-2 rounded-md ${selectedListId === list.id ? 'bg-violet-200 font-medium' : 'hover:bg-stone-200'
-//                 }`}
-//               onClick={() => setSelectedListId(list.id)}
-//             >
-//               {list.mailingListName || 'Unnamed List'}{` (${list.mailingContacts.length})`}
-//             </li>
-//           ))}
-//         </ul> */}
-//       </div>
-
-//       {/* <div className="col-span-3 ">
-//         <h2 className="text-xl font-semibold pl-4 mb-4 text-stone-700">Contacts</h2>
-
-//           <p className="text-stone-600">Select a mailing list to view contacts.</p>
-//       </div> */}
-//       {isSaveContactVis &&
-//         <MailingListSaveContact handleFetchMailingContact={handleFetchMailingContact}  contactData={contactData} setContactData={setContactData} HandleSaveContactVis={HandleSaveContactVis} />
-//       }
-//     </div>

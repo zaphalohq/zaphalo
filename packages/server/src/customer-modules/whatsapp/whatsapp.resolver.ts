@@ -12,6 +12,7 @@ import { WaTemplateRequestInput } from "./dtos/whatsapp.template.dto";
 import { WaAccountDto } from "./dtos/whatsapp-account-update.dto";
 import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
 import { Workspace } from "src/modules/workspace/workspace.entity";
+import { SuccessResponse } from "./dtos/success.dto";
 
 @Resolver(() => WhatsAppAccount)
 export class WhatsAppResolver {
@@ -72,12 +73,12 @@ export class WhatsAppResolver {
   }
 
   @UseGuards(GqlAuthGuard)
-  @Mutation(() => WaTemplateResponseDto)
+  @Mutation(() => SuccessResponse)
   async submitWaTemplate(
     @Context('req') req, @Args('templateData') templateData: WaTemplateRequestInput,
     @Args('waTemplateId', { nullable: true }) waTemplateId?: string,
     @Args('dbTemplateId', { nullable: true }) dbTemplateId?: string
-  ): Promise<WaTemplateResponseDto> {
+  ): Promise<SuccessResponse> {
     const wa_api = await this.getWhatsAppApi(templateData.accountId)
 
     let response;
@@ -132,7 +133,11 @@ export class WhatsAppResolver {
       }
 
     }
-    return response
+    return {
+      success : response.success,
+      message : JSON.stringify(response.data),
+      error : response.error
+    }
   }
 
   async getWhatsAppApi(instantsId?: string) {

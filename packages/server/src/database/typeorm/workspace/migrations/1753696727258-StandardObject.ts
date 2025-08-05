@@ -1,11 +1,11 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
-export class Broadcast1753696727258 implements MigrationInterface {
-    name = 'Broadcast1753696727258'
+export class StandardObject1753696727258 implements MigrationInterface {
+    name = 'StandardObject1753696727258'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-                const { schema } = queryRunner.connection.options as PostgresConnectionOptions;
+        const { schema } = queryRunner.connection.options as PostgresConnectionOptions;
         
         await queryRunner.query(`CREATE TABLE "${schema}"."MailingList" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "mailingListName" character varying, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_299711d5186281126fbfe146921" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "${schema}"."MailingContacts" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "contactName" character varying NOT NULL, "contactNo" character varying NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "mailingListId" uuid, CONSTRAINT "PK_02ba24b71511900125e363bf6b8" PRIMARY KEY ("id"))`);

@@ -18,6 +18,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
+    "command:prod": "node dist/src/command/command",
     "database:init:prod": "yarn ts-node ./scripts/setup-db.ts && yarn database:migrate:run",
     "database:migrate:workspace:generate": "nx run server:typeorm migration:generate src/database/typeorm/workspace/migrations/new -d src/database/typeorm/workspace/workspace.datasource.ts",
     "database:migrate:workspace:run": "nx run server:typeorm migration:run -d src/database/typeorm/workspace/workspace.datasource.ts",

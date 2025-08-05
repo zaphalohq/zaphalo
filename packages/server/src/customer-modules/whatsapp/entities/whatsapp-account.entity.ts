@@ -51,7 +51,7 @@ export class WhatsAppAccount {
   @Field({ nullable: true })
   defaultSelected: boolean;
 
-  @Column({ nullable : true })
-  @Field({ nullable : true })
+  @Column({default: ''})
+  @Field()
   waWebhookToken: string;
 }

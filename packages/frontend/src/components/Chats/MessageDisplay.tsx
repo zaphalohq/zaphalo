@@ -1,11 +1,11 @@
 import { useContext, useEffect, useRef, useState } from "react"
 import { useWebSocket } from "./Websocket_hooks/WebSocket";
-import { useQuery } from "@apollo/client";
-import { findDefaultSelectedInstants, findMsgByChannelId } from "@src/generated/graphql";
+import { useMutation, useQuery } from "@apollo/client";
+import { findDefaultSelectedInstants, findMsgByChannelId, MakeUnseenMsgSeen } from "@src/generated/graphql";
 import { ChatsContext } from "@components/Context/ChatsContext"
 
 const MessageDisplay = () => {
-  const [selectedPhoneNo, setSelectedPhoneNo ] = useState<number | null>(null);
+  const [selectedPhoneNo, setSelectedPhoneNo] = useState<number | null>(null);
   const { myCurrentMessage }: any = useContext(ChatsContext)
   const { chatsDetails }: any = useContext(ChatsContext)
   const [allMessages, setAllMessages] = useState([{
@@ -20,10 +20,10 @@ const MessageDisplay = () => {
 
   const { data: selectedInstantsData, loading: selectedInstantsLoading } = useQuery(findDefaultSelectedInstants);
   useEffect(() => {
-    if(!selectedInstantsLoading && selectedInstantsData){
+    if (!selectedInstantsLoading && selectedInstantsData) {
       setSelectedPhoneNo(Number(selectedInstantsData.findDefaultSelectedInstants.phoneNumberId))
     }
-  },[selectedInstantsData,selectedInstantsLoading])
+  }, [selectedInstantsData, selectedInstantsLoading])
 
   const { data, loading, error, refetch } = useQuery(findMsgByChannelId, {
     variables: { channelId: chatsDetails?.channelId },
@@ -91,14 +91,19 @@ const MessageDisplay = () => {
   }, [myCurrentMessage])
 
   const { newMessage, setNewMessage }: any = useContext(ChatsContext)
+  const currentChannel = newMessage.find((message: any) => message.channelId === chatsDetails.channelId) || null;
+
+  const [makeUnseenMsgSeen, { data: makeSeenMsgUnseenData }] = useMutation(MakeUnseenMsgSeen);
+
+
   useEffect(() => {
     if (!newMessage) return
     if (newMessage != undefined) {
       const currentChannel = newMessage.find((message: any) => message.channelId === chatsDetails.channelId) || null;
       const currentChannelIndex = newMessage.findIndex((message: any) => message.channelId === chatsDetails.channelId);
       if (currentChannel && JSON.parse(JSON.stringify(currentChannel)).channelId != "") {
-        const newMessages = currentChannel?.textMessage.map((message: any) => ({
-          textMessage: message.textMessage,
+        const newMessages = currentChannel.textMessage.map((message: any) => ({
+          textMessage: message,
           sender: {
             id: "",
             phoneNo: currentChannel.phoneNo,
@@ -107,7 +112,12 @@ const MessageDisplay = () => {
         setAllMessages((prev) => [...prev, ...newMessages]);
         newMessage.splice(currentChannelIndex, 1);
         setNewMessage(newMessage)
-        localStorage.setItem("messages", newMessage);
+
+        if (currentChannel.messagesId) {
+          makeUnseenMsgSeen({
+            variables: { messageId: currentChannel?.messagesId || '' },
+          })
+        }
       }
     }
   }, [newMessage]);

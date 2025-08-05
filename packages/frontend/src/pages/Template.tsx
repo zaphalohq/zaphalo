@@ -44,9 +44,11 @@ Thank you.`,
           </div>
         </div>
         {isTemplateFormVis ?
-          <div className="grid grid-cols-2 gap-6 p-6 overflow-y-auto ">
-            <TemplateForm />
-            <div className=' absolute right-35 top-60 flex justify-center items-center'>
+          <div className="grid grid-cols-5 gap-6 p-6 overflow-y-auto">
+            <div className='col-span-3'>
+            <TemplateForm setIsTemplateFormVis={setIsTemplateFormVis} />
+            </div>
+            <div className='col-span-2'>
               <TemplatePreview templatePreviewData={templateFormData} selectedTemplateInfo={selectedTemplateInfo} />
             </div>
           </div>
@@ -73,7 +75,8 @@ Thank you.`,
                     status: ''
                   })
                   setIsTemplatePreviewVis(false)
-                }} className='ml-6 flex items-center justify-center h-10 w-10 rounded-full bg-violet-400 hover:bg-violet-500 cursor-pointer text-white text-lg font-bold'><FiArrowLeft /></div>
+                }} className='ml-6 flex items-center justify-center h-10 w-10 rounded-full bg-violet-400 hover:bg-violet-500 cursor-pointer text-white text-lg font-bold'><FiArrowLeft />
+                </div>
                 <TemplatePreview templatePreviewData={templateFormData} selectedTemplateInfo={selectedTemplateInfo} />
               </div>)
               : <TemplateTable setIsTemplateFormVis={setIsTemplateFormVis} setIsTemplatePreviewVis={setIsTemplatePreviewVis} />)

@@ -8,6 +8,7 @@ import { SendMessageInput, SendMessageResponse } from "./dto/SendMessageInputDto
 import { WaAccountService } from "src/customer-modules/whatsapp/services/whatsapp-account.service";
 import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
 import { ContactsService } from "src/customer-modules/contacts/contacts.service";
+import { SuccessResponse } from "../whatsapp/dtos/success.dto";
 
 @Resolver(() => Channel)
 export class ChannelResolver {
@@ -60,6 +61,17 @@ export class ChannelResolver {
     const unseenMessages = await this.channelService.findAllUnseen()
     return unseenMessages
   }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => SuccessResponse)
+  async makeUnseenMsgSeenByMsgId(@Args('messageId') messageId : string) {
+    const unseenMessages = await this.channelService.makeUnseenSeen(undefined,messageId)
+    return {
+      success : true,
+      message : 'All messages seen'
+    }
+  }
+
 
 
 

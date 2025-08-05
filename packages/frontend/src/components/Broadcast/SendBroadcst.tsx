@@ -188,7 +188,7 @@ const SendBroadcast = ({ setIsSendBroadcastVis } : any) => {
                                 setShowAccountDropdown(false);
                             }}
                         >
-                            {selectedBroadcastData.mailingListName || "Select Mailing List"}
+                            {selectedBroadcastData.mailingListName || "Select Contact List"}
                             <FiChevronDown />
                         </div>
                         {showMailingDropdown && (

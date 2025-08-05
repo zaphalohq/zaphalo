@@ -1,5 +1,6 @@
 import { Global, Module, Scope } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
+
 import { CONNECTION } from './workspace.manager.symbols';
 import { getWorkspaceConnection } from './workspace.manager.utils';
 

@@ -9,6 +9,7 @@ import { cookieStorage } from '@src/utils/cookie-storage';
 import { CreateOneAttachmentDoc, SUBMIT_TEMPLATE, SAVE_TEMPLATE } from "@src/generated/graphql";
 import { TemplateContext } from "@components/Context/TemplateContext";
 import { Post } from "@src/modules/domain-manager/hooks/axios";
+import { toast } from "react-toastify";
 
 type WaButtonInput = {
   type: string;
@@ -36,14 +37,12 @@ type TemplateData = {
   attachmentId: string | null;
 };
 
-const TemplateForm = () => {
+const TemplateForm = ({setIsTemplateFormVis}: any) => {
   const { templateFormData, setTemplateFormData, selectedTemplateInfo }: any = useContext(TemplateContext)
   const [templateData, setTemplateData] = useState<TemplateData>(() => ({ ...templateFormData }));
-  const [status, setStatus] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<String | null>(null);
   const [submitTemplate] = useMutation(SUBMIT_TEMPLATE);
-  // const [saveTemplate] = useMutation(SAVE_TEMPLATE);
   const [saveTemplate] = useMutation(SAVE_TEMPLATE);
   const [createOneAttachment] = useMutation(CreateOneAttachmentDoc);
 
@@ -138,8 +137,6 @@ const TemplateForm = () => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
-    setStatus(null);
-
     if (!validateTemplate()) {
       setIsSubmitting(false);
       return;
@@ -149,9 +146,18 @@ const TemplateForm = () => {
     const updatedTemplateData = await handleFileUpload()
     
     try {
-      const response = await submitTemplate({ variables: { templateData: updatedTemplateData, waTemplateId: selectedTemplateInfo.waTemplateId , dbTemplateId: selectedTemplateInfo.dbTemplateId } });
-      const result = response.data;
-      setStatus(result);
+      const response = await submitTemplate({ 
+        variables: { 
+          templateData: updatedTemplateData, 
+          waTemplateId: selectedTemplateInfo.waTemplateId, 
+          dbTemplateId: selectedTemplateInfo.dbTemplateId
+        } 
+      });
+      const result = response.data?.submitWaTemplate;
+      if(result.success){
+        toast.success('Template submitted successfully!');
+        setIsTemplateFormVis(false);
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to submit template');
       console.error(err);
@@ -165,34 +171,6 @@ const TemplateForm = () => {
   const templateComponents = ["Body", "Buttons", "Variables"]
 
 
-  // const handleSaveTemplate = async (e: any) => {
-  //   if (!templateData.templateName) {
-  //     setError('Template name is required to save.');
-  //     return;
-  //   }
-  //   e.preventDefault();
-  //   setIsSubmitting(true);
-  //   setError(null);
-  //   setStatus(null);
-
-  //   console.log(templateData,'.....................templateData');
-    
-  //   // const updatedTemplateData = await handleFileUpload()
-
-  //   // try {
-  //   //   const response = await saveTemplate({ variables: { templateData: updatedTemplateData } });
-  //   //   const result = response.data;
-  //   //   setStatus(result);
-  //   // } catch (err: any) {
-  //   //   setError(err.message || 'Failed to save template');
-  //   //   console.error(err);
-
-  //   // } finally {
-  //   //   setIsSubmitting(false);
-  //   // }
-  // }
-
-
   const handleSaveTemplate = async (e: any) => {
     if (!templateData.templateName) {
       setError('Template name is required to save.');
@@ -201,14 +179,22 @@ const TemplateForm = () => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
-    setStatus(null);
     const updatedTemplateData = await handleFileUpload()
-    console.log(updatedTemplateData,'updatedTemplateDataupdatedTemplateData');
 
     try {
-      const response = await saveTemplate({ variables: { templateData: updatedTemplateData, dbTemplateId: selectedTemplateInfo.dbTemplateId } });
-      const result = response.data;
-      setStatus(result);
+      const response = await saveTemplate({ 
+        variables: { 
+          templateData: updatedTemplateData,
+          dbTemplateId: selectedTemplateInfo.dbTemplateId 
+        }
+      });
+      const result = response.data?.saveTemplate;
+      if(result.success){
+        toast.success(result.message);
+        setIsTemplateFormVis(false);
+      }else{
+        toast.error(result.error)
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to update template');
       console.error(err);
@@ -251,11 +237,14 @@ const TemplateForm = () => {
     return true;
   };
 
+  useEffect(() => {
+    toast.error(error)
+  },[error])
 
   return (
     <div>
       <h1 className="text-3xl font-bold mb-6 text-gray-800">WhatsApp Template Manager</h1>
-      <form onSubmit={handleSubmit}>
+      <form className="overflow-y-auto h-[70vh]" onSubmit={handleSubmit}>
         <div className="bg-white shadow-md rounded-lg p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">Submit New Template</h2>
           <TemplateBasic templateData={templateData} handleInputChange={handleInputChange} handleFileChange={handleFileChange} />
@@ -284,7 +273,7 @@ const TemplateForm = () => {
                 <button
                   type="button"
                   onClick={handleSaveTemplate}
-                  // disabled={selectedTemplateInfo.status !== ''}
+                  disabled={isSubmitting}
                   className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-400 p-2"
                 >
                   {isSubmitting ? 'Saving...' : 'Save Template'}
@@ -303,19 +292,19 @@ const TemplateForm = () => {
           </div>
         </div>
       </form>
-      {status && (
+      {/* {status && (
         <div className="bg-white shadow-md rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-4">Template Status</h2>
           <pre className="bg-gray-100 p-4 rounded-md overflow-auto">
             {JSON.stringify(status, null, 2)}
           </pre>
         </div>
-      )}
-      {error && (
+      )} */}
+      {/* {error && (
         <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mt-4" role="alert">
           <p>{error}</p>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

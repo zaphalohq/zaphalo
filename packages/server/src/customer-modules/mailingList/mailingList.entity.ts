@@ -22,6 +22,11 @@ export class MailingList {
   @Column({ nullable: true })
   mailingListName: string;
 
+  @Field(() => Number, { nullable: true })
+  @Column({ nullable: true })
+  totalContacts: number;
+
+
   @Field(() => [MailingContacts])
   @OneToMany(() => MailingContacts, MailingContacts => MailingContacts.mailingList)
   mailingContacts: Relation<MailingContacts[]>

@@ -280,6 +280,14 @@ export const findAllUnseen = gql`query MyQuery {
   }
 }`
 
+export const MakeUnseenMsgSeen = gql`
+mutation makeUnseenMsgSeenByMsgId($messageId : String!){
+  makeUnseenMsgSeenByMsgId(messageId: $messageId){
+    success
+    message
+  }
+}`
+
 export const findMsgByChannelId = gql`query GetMessagesByChannel($channelId: String!) {
   findMsgByChannelId(channelId: $channelId) {
     textMessage
@@ -582,22 +590,18 @@ export const SUBMIT_TEMPLATE = gql`
 mutation SubmitTemplate($templateData: WaTemplateRequestInput!, $waTemplateId: String, $dbTemplateId: String) {
   submitWaTemplate(templateData: $templateData, waTemplateId: $waTemplateId, dbTemplateId: $dbTemplateId) {
     success
-    data
+    message
     error
   }
 }`;
 
-// export const SAVE_TEMPLATE = gql`
-// mutation saveTemplate($templateData: WaTemplateRequestInput!) {
-//   saveTemplate(templateData: $templateData) {
-//     id
-//   }
-// }`;
 
 export const SAVE_TEMPLATE = gql`
 mutation saveTemplate($templateData: WaTemplateRequestInput!, $dbTemplateId: String) {
   saveTemplate(templateData: $templateData, dbTemplateId: $dbTemplateId) {
-    id
+    success
+    message
+    error
   }
 }`;
 
@@ -701,6 +705,7 @@ export const findAllMailingList = gql`
       id
       mailingListName
       createdAt
+      totalContacts
       mailingContacts {
         contactName
         contactNo
