@@ -8,6 +8,7 @@ import { WaTemplateResponseDto } from "../dtos/whatsapp.response.dto";
 import { FileService } from "src/modules/file-storage/services/file.service";
 import { FindAllTemplate } from "../dtos/findAllTemplate.dto";
 import { SearchedRes } from "../dtos/searched.dto";
+import { SuccessResponse } from "../dtos/success.dto";
 
 @Resolver(() => WhatsAppTemplate)
 export class WhatsAppTemplateResolver {
@@ -41,14 +42,31 @@ export class WhatsAppTemplateResolver {
 
 
   @UseGuards(GqlAuthGuard)
-  @Mutation(() => WhatsAppTemplate)
+  @Mutation(() => SuccessResponse)
   async saveTemplate(@Args('templateData') templateData: WaTemplateRequestInput,
-    @Args('dbTemplateId', { nullable: true }) dbTemplateId?: string): Promise<WhatsAppTemplate> {
+    @Args('dbTemplateId', { nullable: true }) dbTemplateId?: string): Promise<SuccessResponse | undefined> {
 
-    if (dbTemplateId) {
-      return await this.templateService.updateTemplate(templateData, dbTemplateId, templateData.accountId);
-    } else {
-      return await this.templateService.saveTemplate(templateData, templateData.accountId);
+    try {
+      if (dbTemplateId) {
+        const template = await this.templateService.updateTemplate(templateData, dbTemplateId, templateData.accountId);
+        if (template)
+          return {
+            success: true,
+            message: 'template saved successfully!'
+          }
+      } else {
+        const template = await this.templateService.saveTemplate(templateData, templateData.accountId);
+        if (template)
+          return {
+            success: true,
+            message: 'template saved successfully!'
+          }
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: String(error)
+      }
     }
 
   }

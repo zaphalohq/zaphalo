@@ -89,8 +89,7 @@ export const InstantsProvider = ({ children }: { children: ReactNode }) => {
         try {
             const response = await SyncAndSaveInstants({
                 variables: {
-                    whatsappInstantsData: { ...restFormData },
-                    instanceId: id
+                    whatsappInstantsData: { accountId: id,...restFormData },
                 }
             })
             if (response.data) {
@@ -113,8 +112,7 @@ export const InstantsProvider = ({ children }: { children: ReactNode }) => {
         try {
             const response = await TestAndSaveInstants({
                 variables: {
-                    whatsappInstantsData: { ...restFormData },
-                    instanceId: id
+                    whatsappInstantsData: { accountId : id, ...restFormData },
                 }
             })
 
@@ -149,11 +147,13 @@ export const InstantsProvider = ({ children }: { children: ReactNode }) => {
 
 
 
-    const HandleDeleteInstants = async (id: string) => {
+    const HandleDeleteInstants = async (waAccountId: string) => {
+        console.log(waAccountId,'deleteid.......................');
+        
         try {
             await DeleteInstants({
                 variables: {
-                    id: id
+                    waAccountId
                 }
             })
             HandaleFeatchData()

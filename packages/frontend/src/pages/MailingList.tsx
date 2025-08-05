@@ -14,7 +14,7 @@ const MailingList = () => {
 
   return (
     <div>
-      <div className='font-bold text-lg border-gray-300 p-4 border-b'>Mailing List</div>
+      <div className='font-bold text-lg border-gray-300 p-4 border-b'>Contact List</div>
       {(!isSaveMailingListVis && !isMailingContactVis) &&
         <div className="grid grid-cols-4 pt-4 px-4 ">
           <div className="md:col-start-8 md:pb-0 col-start-1 col-end-8 pb-4">
@@ -37,7 +37,7 @@ const MailingList = () => {
       }
 
       {isSaveMailingListVis ?
-        <SaveMailingList />
+        <SaveMailingList setIsSaveMailingListVis={setIsSaveMailingListVis} />
         :
         <MailingListView setIsMailingContactVis={setIsMailingContactVis} isMailingContactVis={isMailingContactVis} />}
 

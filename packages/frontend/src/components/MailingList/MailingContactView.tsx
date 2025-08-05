@@ -3,20 +3,20 @@ import { FiEdit2 } from "react-icons/fi"
 import { MdDelete } from "react-icons/md"
 import MailingListSaveContact from "./MailingListSaveContact"
 import Pagination from "../UI/Pagination"
-import { useQuery } from "@apollo/client"
-import { GetMailingContacts, SelectedMailingContact } from "@src/generated/graphql"
+import { useMutation, useQuery } from "@apollo/client"
+import { DeleteMailingContact, GetMailingContacts, SelectedMailingContact } from "@src/generated/graphql"
 import { SearchWhite } from "../UI/Search"
 import usePagination from "@src/utils/usePagination"
+import SubmitButton from "../UI/SubmitButton"
+import { FaPlus } from "react-icons/fa"
 
-const MailingContactView = ({
-    selectedListId,
-    HandleDeleteMailingContact,
-    handleFetchMailingContact }: any) => {
-
+const MailingContactView = ({ selectedListId }: any) => {
+    const [triggerRefetch, setTriggerRefetch] = useState(false)
     const [contactData, setContactData] = useState({
         contactName: '',
         contactNo: '',
-        id: ''
+        id: '',
+        mailingListId: ''
     })
 
     const [isSaveContactVis, setIsSaveContactVis] = useState(false)
@@ -24,13 +24,13 @@ const MailingContactView = ({
         setIsSaveContactVis(!isSaveContactVis)
     }
 
- const {
+    const {
         currentPage,
         setCurrentPage,
         itemsPerPage,
         totalPages,
         setTotalPages
-    } =  usePagination()
+    } = usePagination()
 
     const [currentContacts, setCurrentContacts] = useState([])
     const [searchTerm, setSearchTerm] = useState('')
@@ -53,15 +53,15 @@ const MailingContactView = ({
                 setTotalPages(data.selectedMailingContact.totalPages)
             });
         }
-    }, [mailingContactData, selectedListId, mailingContactLoading, searchTerm])
+    }, [mailingContactData, selectedListId, mailingContactLoading, searchTerm, triggerRefetch])
 
     const { refetch: searchedMailingContactRefetch } = useQuery(GetMailingContacts, {
-            variables: {
-                mailingListId: selectedListId,
-                searchTerm
-            },
-            skip: !searchTerm
-        });
+        variables: {
+            mailingListId: selectedListId,
+            searchTerm
+        },
+        skip: !searchTerm
+    });
 
     useEffect(() => {
         if (searchTerm) {
@@ -72,13 +72,41 @@ const MailingContactView = ({
         }
     }, [searchTerm])
 
+
+    const [deleteMailingContact] = useMutation(DeleteMailingContact)
+    const HandleDeleteMailingContact = async (mailingContactId: string) => {
+
+        const response = await deleteMailingContact({
+            variables: {
+                mailingContactId
+            }
+        })
+
+        if (response.data) {
+            setTriggerRefetch(!triggerRefetch)
+        }
+    }
+
     return (
         <div >
-            <div className="grid grid-cols-4 mb-4">
-                <div className='col-start-4'>
-                    <SearchWhite HandleSearch={(e : any) => setSearchTerm(e.target.value)} />
+            <div className="grid grid-cols-4 items-center gap-4 mb-4">
+                <div className='col-start-1 pl-4 pt-4'>
+                    <SearchWhite HandleSearch={(e: any) => setSearchTerm(e.target.value)} />
+                </div>
+                <div className='col-start-4 end pr-8 pb-4 md:pb-0 '>
+                    <SubmitButton type='button'
+                        onClick={() => {
+                            setContactData({
+                                contactName: '',
+                                contactNo: '',
+                                id: '',
+                                mailingListId: selectedListId
+                            })
+                            HandleSaveContactVis()
+                        }} title="Create" Icon={FaPlus} />
                 </div>
             </div>
+
             <div className="relative w-6xl overflow-x-auto bg-white px-4 h-[68vh] overflow-y-auto">
                 <table className="w-full text-sm text-left text-stone-500 rounded-2xl ">
                     <thead className="text-xs sticky top-0 text-stone-700 uppercase bg-stone-200">
@@ -99,7 +127,7 @@ const MailingContactView = ({
                                 <td className="px-4 py-2 text-center">
                                     <button
                                         onClick={() => {
-                                            setContactData(contact)
+                                            setContactData({ ...contact, mailingListId: selectedListId })
                                             HandleSaveContactVis()
                                         }}
                                         className="text-lg text-violet-500 hover:bg-stone-200 p-2 rounded cursor-pointer"
@@ -122,7 +150,11 @@ const MailingContactView = ({
                     </tbody>
                 </table>
                 {isSaveContactVis &&
-                    <MailingListSaveContact handleFetchMailingContact={handleFetchMailingContact} contactData={contactData} setContactData={setContactData} HandleSaveContactVis={HandleSaveContactVis} />
+                    <MailingListSaveContact 
+                        setTriggerRefetch={setTriggerRefetch} 
+                        contactData={contactData} 
+                        setContactData={setContactData} 
+                        HandleSaveContactVis={HandleSaveContactVis} />
                 }
 
             </div>

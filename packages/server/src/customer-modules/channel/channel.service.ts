@@ -103,19 +103,28 @@ export class ChannelService {
         var messages = await this.messageRepository.find({
             where: { channel: { id: channelId } },
             relations: ['channel', 'sender'],
-            order: { createdAt: 'ASC' }
+            order: { createdAt: 'ASC' },
+            skip: 0,
+            take: 100
         })
         return messages;
     }
 
-    async makeUnseenSeen(messages: Message[]): Promise<void> {
-        const messageIds = messages.map(message => message.id); // Extract IDs
+    async makeUnseenSeen(messages?: Message[], messageId?: string): Promise<void> {
+        if (messages) {
+            const messageIds = messages.map(message => message.id);
 
-        // Update all matching messages in one query
-        await this.messageRepository.update(
-            { id: In(messageIds) }, // Where clause with IDs
-            { unseen: true },       // Fields to update
-        );
+            await this.messageRepository.update(
+                { id: In(messageIds) },
+                { unseen: true },
+            );
+        } else {
+            await this.messageRepository.update(
+                { id: messageId },
+                { unseen: true },
+            );
+        }
+
     }
 
     async findAllUnseen(): Promise<Message[]> {
@@ -255,8 +264,8 @@ export class ChannelService {
                 },
             });
 
-            console.log(response.data,'message response');
-            
+            console.log(response.data, 'message response');
+
             return response.data;
         });
 

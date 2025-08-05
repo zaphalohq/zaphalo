@@ -14,10 +14,10 @@ const UpdateChannelName = () => {
   const { chatsDetails } : any = useContext(ChatsContext)
   
   const HandleUpdateChannelName = async (event : FormEvent) => {
-    localStorage.setItem("chatsDetails", JSON.stringify({
-      ...chatsDetails,
-      channelName : channelNameChange
-    }))
+    // localStorage.setItem("chatsDetails", JSON.stringify({
+    //   ...chatsDetails,
+    //   channelName : channelNameChange
+    // }))
     
     try {
       const response = await UpdateChannel({ variables : {

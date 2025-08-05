@@ -23,6 +23,8 @@ export class WaAccountService {
   }
 
   async WaAccountCreate(req, waAccount: WaAccountDto): Promise<WhatsAppAccount> {
+    console.log("...........................................1");
+
     const waAccounts = await this.waAccountRepository.find();
     let defaultWaAccount = false;
     if (waAccounts.length < 1) {
@@ -36,6 +38,7 @@ export class WaAccountService {
       accessToken: waAccount.accessToken,
       appSecret: waAccount.appSecret,
       defaultSelected: defaultWaAccount,
+      waWebhookToken: 'd'
     })
     await this.contactsService.createContacts({
       contactName: waAccount.name,
@@ -43,12 +46,12 @@ export class WaAccountService {
       defaultContact: true,
     })
 
-    const waAccountId = this.waAccountRepository.save(whatappInstants)
-    const waWebhookToken = this.encodeWaWebhookToken({ sub: req.user.userId, workspaceId : req.user.workspace, waAccount })
-    whatappInstants.waWebhookToken = waWebhookToken
-    await this.waAccountRepository.save(whatappInstants)
+    const waAccountSaved = await this.waAccountRepository.save(whatappInstants)
+    const waWebhookToken = this.encodeWaWebhookToken({ sub: req.user.userId, workspaceId: req.user.workspace, waAccount })
+    waAccountSaved.waWebhookToken = waWebhookToken
+    await this.waAccountRepository.save(waAccountSaved)
 
-    return whatappInstants;
+    return waAccountSaved;
   }
 
 
@@ -123,7 +126,7 @@ export class WaAccountService {
       'API_KEY',
       payloadToEncode.workspaceId
     );
-    
+
     const signedPayload = this.jwtWrapperService.sign(
       {
         ...payloadToEncode,

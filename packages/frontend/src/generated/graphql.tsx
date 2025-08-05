@@ -280,6 +280,14 @@ export const findAllUnseen = gql`query MyQuery {
   }
 }`
 
+export const MakeUnseenMsgSeen = gql`
+mutation makeUnseenMsgSeenByMsgId($messageId : String!){
+  makeUnseenMsgSeenByMsgId(messageId: $messageId){
+    success
+    message
+  }
+}`
+
 export const findMsgByChannelId = gql`query GetMessagesByChannel($channelId: String!) {
   findMsgByChannelId(channelId: $channelId) {
     textMessage
@@ -349,8 +357,8 @@ mutation WaAccountSave($whatsappInstantsData: WaAccountDto!, $instanceId: String
 `;
 
 export const WhatsappInstantsSyncAndSave = gql`
-mutation SyncAndSaveInstants($whatsappInstantsData: WaAccountDto!, $instanceId: String) {
-  SyncAndSaveInstants(whatsappInstantsData: $whatsappInstantsData, instanceId: $instanceId) {
+mutation SyncAndSaveInstants($whatsappInstantsData: WaAccountDto!) {
+  SyncAndSaveInstants(whatsappInstantsData: $whatsappInstantsData) {
     id
     name
   }
@@ -358,8 +366,8 @@ mutation SyncAndSaveInstants($whatsappInstantsData: WaAccountDto!, $instanceId: 
 `;
 
 export const WhatsappInstantsTestAndSave = gql(`
-mutation TestAndSaveInstants($whatsappInstantsData: WaAccountDto!, $instanceId: String) {
-  TestAndSaveInstants(whatsappInstantsData: $whatsappInstantsData, instanceId: $instanceId) {
+mutation TestAndSaveInstants($whatsappInstantsData: WaAccountDto!) {
+  TestAndSaveInstants(whatsappInstantsData: $whatsappInstantsData) {
     id
     name
   }
@@ -456,9 +464,9 @@ mutation TestAndUpdateInstants(
 
 export const DeleteInstantsMutation = gql`
 mutation DeleteInstants(
-  $id : String!,
+  $waAccountId : String!
   ){
-    DeleteInstants(DeleteInstants: {id: $id}) {
+    DeleteInstants(waAccountId: $waAccountId) {
       accessToken
       appId
       createdAt
@@ -582,22 +590,18 @@ export const SUBMIT_TEMPLATE = gql`
 mutation SubmitTemplate($templateData: WaTemplateRequestInput!, $waTemplateId: String, $dbTemplateId: String) {
   submitWaTemplate(templateData: $templateData, waTemplateId: $waTemplateId, dbTemplateId: $dbTemplateId) {
     success
-    data
+    message
     error
   }
 }`;
 
-// export const SAVE_TEMPLATE = gql`
-// mutation saveTemplate($templateData: WaTemplateRequestInput!) {
-//   saveTemplate(templateData: $templateData) {
-//     id
-//   }
-// }`;
 
 export const SAVE_TEMPLATE = gql`
 mutation saveTemplate($templateData: WaTemplateRequestInput!, $dbTemplateId: String) {
   saveTemplate(templateData: $templateData, dbTemplateId: $dbTemplateId) {
-    id
+    success
+    message
+    error
   }
 }`;
 
@@ -701,6 +705,7 @@ export const findAllMailingList = gql`
       id
       mailingListName
       createdAt
+      totalContacts
       mailingContacts {
         contactName
         contactNo

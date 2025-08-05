@@ -5,7 +5,9 @@ import { ChatsContext } from "@components/Context/ChatsContext";
 interface Message {
     channelId: string;
     phoneNo: string;
+    messagesId: string;
     textMessage: string[];
+    // messagesIds: string[];
     unseen: number;
 }
 
@@ -18,6 +20,7 @@ export async function useWebSocket() {
             channelId: '',
             phoneNo: '',
             textMessage: [],
+            messagesId: '',
             unseen: 0,
         }])
 
@@ -40,26 +43,37 @@ export async function useWebSocket() {
         socketIo.on("message", (messageData) => {
             try {
                 const newMsg = JSON.parse(messageData);
+                console.log(newMsg.messages,'....................newMsg.messages');
+                
                 setIsNewChannelCreated(newMsg.newChannelCreated)
                 if (!newMsg.messages) {
                     console.error("Message payload missing 'messages' field:", newMsg);
                     return;
                 }
-                setNewUnseenMessage((prevMessages) => {
+                setNewUnseenMessage((prevMessages: any) => {
                     const channelIndex = prevMessages.findIndex(
-                        (message) => message.channelId === newMsg.channelId
+                        (message: any) => message.channelId === newMsg.channelId
                     );
-
+                    
                     if (channelIndex !== -1) {
                         const updatedMessages = [...prevMessages];
+                    console.log(updatedMessages[channelIndex],'updatedMessages[channelIndex]/.....');
+
                         updatedMessages[channelIndex] = {
                             ...updatedMessages[channelIndex],
                             textMessage: [
                                 ...updatedMessages[channelIndex].textMessage,
-                                newMsg.messages,
+                                newMsg.messages.textMessage,
                             ],
+                            messagesId: newMsg.messages.id,
+                            // messagesIds: [
+                            //     ...updatedMessages[channelIndex].messagesIds,
+                            //     newMsg.messages.id,
+                            // ],
                             unseen: updatedMessages[channelIndex].unseen + 1,
                         };
+                        console.log(updatedMessages,'updatedMessagesupdatedMessages');
+                        
                         return updatedMessages;
                     } else {
                         return [
@@ -67,7 +81,9 @@ export async function useWebSocket() {
                             {
                                 channelId: newMsg.channelId || "",
                                 phoneNo: newMsg.phoneNo || "",
-                                textMessage: [newMsg.messages],
+                                textMessage: [newMsg.messages.textMessage],
+                                messagesId: newMsg.messages.id,
+                                // messagesIds: [newMsg.messages.id],
                                 unseen: 1,
                             },
                         ];

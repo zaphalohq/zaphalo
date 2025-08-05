@@ -22,6 +22,8 @@ const CurrentChannel = ({ channelName, channelId, memberIds, unseen, setIsChanne
 
   useEffect(() => {
     if (channelId !== chatsDetails.channelId) setUnseenMessageCount(unseen)
+      console.log(newMessage,'.........newMessage............');
+      
   }, [channelId])
 
   const HandleCurrentChannel = async () => {
@@ -38,7 +40,6 @@ const CurrentChannel = ({ channelName, channelId, memberIds, unseen, setIsChanne
     }
 
     await setChatsDetails(currentChannel)
-    localStorage.setItem('chatsDetails', JSON.stringify(currentChannel))
 
     const currentChannelIndex = await newMessage.findIndex((message: any) => message.channelId === chatsDetails.channelId);
 

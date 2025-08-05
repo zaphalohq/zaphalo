@@ -28,7 +28,7 @@ export class MailingListController {
             throw new HttpException(
                 {
                     status: HttpStatus.BAD_REQUEST,
-                    message: "mailing list with the same name already exists. Please try a different name.",
+                    message: "Contact List with the same name already exists. Please try a different name.",
                     errorCode: "DUPLICATE_MAILING_LIST"
                 },
                 HttpStatus.BAD_REQUEST
@@ -46,7 +46,13 @@ export class MailingListController {
         const firstColumnName = headers[0];
         const secondColumnName = headers[1];
         if (totalColumns === 2 && firstColumnName === 'contactName' && secondColumnName === 'contactNo') {
-            return this.mailingListService.CreateMailingList(mailingListName, { mailingContacts: mailingListData });
+            const mailingList = await this.mailingListService.CreateMailingList(mailingListName, { mailingContacts: mailingListData });
+            if (mailingList) {
+                return {
+                    success : true,
+                    message : 'Contact List is created'
+                }
+            }
         } else {
             throw new HttpException(
                 {

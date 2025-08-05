@@ -26,7 +26,7 @@ const Sidebar = ({ isToggleActivated, HandleToggleButton }: any) => {
         <SidebarElement HandleToggleButton={HandleToggleButton} Icon={IoChatbubbleEllipsesOutline} to={`/w/${workspaceId}/chats`} title={"Chats"} />
         <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiRadio} to={`/w/${workspaceId}/broadcast`} title={"Broadcast"} />
         <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiUsers} to={`/w/${workspaceId}/contacts`} title={"Contacts"} />
-        <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiUsers} to={`/w/${workspaceId}/mailinglist`} title={"Mailing List"} />
+        <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiUsers} to={`/w/${workspaceId}/mailinglist`} title={"Contact List"} />
         <SidebarElement
           HandleToggleButton={HandleToggleButton}
           Icon={FiSettings}
