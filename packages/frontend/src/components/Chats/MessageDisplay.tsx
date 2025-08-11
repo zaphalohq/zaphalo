@@ -3,6 +3,8 @@ import { useWebSocket } from "./Websocket_hooks/WebSocket";
 import { useMutation, useQuery } from "@apollo/client";
 import { findDefaultSelectedInstants, findMsgByChannelId, MakeUnseenMsgSeen } from "@src/generated/graphql";
 import { ChatsContext } from "@components/Context/ChatsContext"
+import { VITE_BACKEND_URL } from "@src/config";
+import { FiDownload } from "react-icons/fi";
 
 const MessageDisplay = () => {
   const [selectedPhoneNo, setSelectedPhoneNo] = useState<number | null>(null);
@@ -16,6 +18,10 @@ const MessageDisplay = () => {
     },
     createdAt: '',
     attachmentUrl: '',
+    messageType: '',
+    attachment: {
+      originalname: ''
+    }
   }])
 
   const { data: selectedInstantsData, loading: selectedInstantsLoading } = useQuery(findDefaultSelectedInstants);
@@ -31,7 +37,7 @@ const MessageDisplay = () => {
   })
 
   const FetchMessage = async () => {
-    if (chatsDetails.channelId !== '') {
+    // if (chatsDetails.channelId !== '') {
       if (data?.findMsgByChannelId) {
         setAllMessages(data.findMsgByChannelId);
       } else {
@@ -41,17 +47,21 @@ const MessageDisplay = () => {
       if (messagesContainerRef.current) {
         messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
       }
-    } else {
-      setAllMessages([{
-        textMessage: '',
-        sender: {
-          id: '',
-          phoneNo: ''
-        },
-        createdAt: '',
-        attachmentUrl: '',
-      }])
-    }
+    // } else {
+    //   setAllMessages([{
+    //     textMessage: '',
+    //     sender: {
+    //       id: '',
+    //       phoneNo: ''
+    //     },
+    //     createdAt: '',
+    //     attachmentUrl: '',
+    //     messageType: '',
+    //     attachment: {
+    //       originalname: ''
+    //     }
+    //   }])
+    // }
   };
 
   useEffect(() => {
@@ -70,6 +80,10 @@ const MessageDisplay = () => {
         },
         createdAt: '',
         attachmentUrl: '',
+        messageType: '',
+        attachment: {
+          originalname: ''
+        }
       }])
   }, [chatsDetails.channelId])
 
@@ -79,31 +93,31 @@ const MessageDisplay = () => {
   useEffect(() => {
     setAllMessages((prev) => [
       ...prev,
-      {
-        textMessage: myCurrentMessage.message,
-        sender: {
-          id: '',
-          phoneNo: JSON.stringify(selectedPhoneNo)
-        },
-        createdAt: '',
-        attachmentUrl: myCurrentMessage.attachmentUrl,
-      }])
+      ...myCurrentMessage
+    ])
   }, [myCurrentMessage])
 
   const { newMessage, setNewMessage }: any = useContext(ChatsContext)
-  const currentChannel = newMessage.find((message: any) => message.channelId === chatsDetails.channelId) || null;
+  // const currentChannel = newMessage.find((message: any) => message.channelId === chatsDetails.channelId) || null;
 
   const [makeUnseenMsgSeen, { data: makeSeenMsgUnseenData }] = useMutation(MakeUnseenMsgSeen);
 
 
   useEffect(() => {
     if (!newMessage) return
+    console.log(newMessage,'.....................newMessage');
+    
     if (newMessage != undefined) {
       const currentChannel = newMessage.find((message: any) => message.channelId === chatsDetails.channelId) || null;
       const currentChannelIndex = newMessage.findIndex((message: any) => message.channelId === chatsDetails.channelId);
       if (currentChannel && JSON.parse(JSON.stringify(currentChannel)).channelId != "") {
-        const newMessages = currentChannel.textMessage.map((message: any) => ({
-          textMessage: message,
+        const newMessages = currentChannel.messageData.map((message: any) => ({
+          textMessage: message.textMessage,
+          messageType: message.messageType,
+          attachmentUrl: message.attachmentUrl,
+          attachment: {
+            originalname: message.originalname
+          },
           sender: {
             id: "",
             phoneNo: currentChannel.phoneNo,
@@ -146,44 +160,138 @@ const MessageDisplay = () => {
           <div key={index} className="relative z-10 p-4">
             {Number(message.sender.phoneNo) != selectedPhoneNo ? (
               <div className="text-stone-900 flex justify-start text-lg ">
-                <div className="bg-[#ffffff] p-2 rounded-lg flex flex-col gap-1 max-w-[70%] md:max-w-[40%]">
+                {message.messageType === 'text' && <div className="bg-[#ffffff] p-2 rounded-lg flex flex-col gap-1 max-w-[70%] md:max-w-[40%]">
                   <div className="break-words">{message.textMessage}</div>
-                  {message.textMessage ? (
+                  {message.textMessage && (
                     <div className="text-xs flex text-gray-500">
                       {HandleCurrentDate(message.createdAt)}
                     </div>
-                  ) : null}
-                </div>
+                  )}
+                </div>}
+                {message.messageType === 'document' && message.attachment &&
+                  <div className="bg-blue-500/30 rounded p-4 max-w-[70%] md:max-w-[40%]">
+                    <div className="flex items-center gap-4">
+                      <div>{`${message.attachment.originalname}`}</div>
+                      <a
+                        href={`${VITE_BACKEND_URL}/files/${message.attachmentUrl}`}
+                        download={message.attachment.originalname}
+                        className="p-2 bg-blue-300 hover:bg-blue-400 cursor-pointer rounded"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <FiDownload />
+                      </a>
+                    </div>
+                    <div className="text-xs flex text-gray-500">
+                      {HandleCurrentDate(message.createdAt)}
+                    </div>
+                  </div>
+                }
+                {message.messageType === 'image' && message.attachment &&
+                  <div className="bg-[#ffffff] p-2 rounded-lg flex flex-col gap-1 max-w-[70%] md:max-w-[40%]">
+                    <img
+                      src={`${VITE_BACKEND_URL}/files/${message.attachmentUrl}`}
+                      alt="Media content"
+                      className="object-contain border-none"
+                    />
+                    <div className="break-words">{message.textMessage}</div>
+                    <div className="text-xs flex text-gray-500">
+                      {HandleCurrentDate(message.createdAt)}
+                    </div>
+                  </div>
+                }
+                {message.messageType === 'video' && message.attachment &&
+                  <div className="bg-[#ffffff] p-2 rounded-lg flex flex-col gap-1 max-w-[70%] md:max-w-[40%]">
+                    <video
+                      controls
+                      className="max-h-[300px] object-contain rounded"
+                      src={`${VITE_BACKEND_URL}/files/${message.attachmentUrl}`}
+                    ></video>
+                    <div className="break-words">{message.textMessage}</div>
+                    <div className="text-xs flex text-gray-500">
+                      {HandleCurrentDate(message.createdAt)}
+                    </div>
+                  </div>
+                }
+                {message.messageType === 'audio' && message.attachment &&
+                  <div className="bg-[#ffffff] p-2 rounded-lg flex flex-col gap-1 max-w-[70%] md:max-w-[40%]">
+                    <audio 
+                      controls
+                      src={`${VITE_BACKEND_URL}/files/${message.attachmentUrl}`}
+                      ></audio>
+                    <div className="break-words">{message.textMessage}</div>
+                    <div className="text-xs flex text-gray-500">
+                      {HandleCurrentDate(message.createdAt)}
+                    </div>
+                  </div>
+                }
               </div>
             ) : (
               <div className="flex justify-end rounded text-lg">
-                <div className=" bg-[#dbdff1] p-2 rounded-lg flex flex-col gap-1 max-w-[70%] md:max-w-[30%]">
-                  {message.attachmentUrl ? <div>
-                    {/\.(png|jpe?g|gif|webp|svg)$/i.test(message.attachmentUrl) ? (
-                      <img
-                        src={message.attachmentUrl}
-                        alt="Media content"
-                        className="w-[200px] h-[200px] object-contain border-none"
-                      />
-                    ) :
-                      (<iframe
-                        src={message.attachmentUrl}
-                        width="200"
-                        height="200"
-                        className="border-none object-contain"
-                      />)}
-                    <div onClick={() => window.open(message.attachmentUrl)}
-                      className="hover:cursor-pointer text-blue-700" >{message.attachmentUrl.split('-').pop()}
-                    </div>
-                  </div>
-                    : <></>}
-                  <div className="break-words">{message.textMessage}</div>
-                  {message.textMessage ? (
+                {message.messageType === 'text' &&
+                  <div className=" bg-[#dbdff1] p-2 rounded-lg flex flex-col gap-1 max-w-[70%] md:max-w-[30%]">
+                    <div className="break-words">{message.textMessage}</div>
                     <div className="text-xs text-gray-500 self-end">
                       {HandleCurrentDate(message.createdAt)}
                     </div>
-                  ) : null}
-                </div>
+                  </div>}
+                {message.messageType === 'document' && message.attachment &&
+                  <div className="bg-blue-500/30 rounded p-4 max-w-[70%] md:max-w-[40%]">
+                    <div className="flex items-center gap-4">
+                      <div>{`${message.attachment.originalname}`}</div>
+                      <a
+                        href={`${VITE_BACKEND_URL}/files/${message.attachmentUrl}`}
+                        download={message.attachment.originalname}
+                        className="p-2 bg-blue-300 hover:bg-blue-400 cursor-pointer rounded"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <FiDownload />
+                      </a>
+                    </div>
+                    <div className="text-xs flex text-gray-500">
+                      {HandleCurrentDate(message.createdAt)}
+                    </div>
+                  </div>
+                }
+                {message.messageType === 'image' && message.attachment &&
+                  <div className="bg-[#dbdff1] p-2 rounded-lg flex flex-col gap-1 max-w-[70%] md:max-w-[40%]">
+                    <img
+                      src={`${VITE_BACKEND_URL}/files/${message.attachmentUrl}`}
+                      alt="Media content"
+                      className="object-contain border-none"
+                    />
+                    <div className="break-words">{message.textMessage}</div>
+                    <div className="text-xs flex text-gray-500">
+                      {HandleCurrentDate(message.createdAt)}
+                    </div>
+                  </div>
+                }
+                {message.messageType === 'video' && message.attachment &&
+                  <div className="bg-[#dbdff1] p-2 rounded-lg flex flex-col gap-1 max-w-[70%] md:max-w-[40%]">
+                    <video
+                      controls
+                      className="max-h-[300px] object-contain rounded"
+                      src={`${VITE_BACKEND_URL}/files/${message.attachmentUrl}`}
+                    ></video>
+                    <div className="break-words">{message.textMessage}</div>
+                    <div className="text-xs flex text-gray-500">
+                      {HandleCurrentDate(message.createdAt)}
+                    </div>
+                  </div>
+                }
+                {message.messageType === 'audio' && message.attachment &&
+                  <div className="bg-[#dbdff1] p-2 rounded-lg flex flex-col gap-1 max-w-[70%] md:max-w-[40%]">
+                    <audio 
+                      controls
+                      src={`${VITE_BACKEND_URL}/files/${message.attachmentUrl}`}
+                      ></audio>
+                    <div className="break-words">{message.textMessage}</div>
+                    <div className="text-xs flex text-gray-500">
+                      {HandleCurrentDate(message.createdAt)}
+                    </div>
+                  </div>
+                }
               </div>
             )}
           </div>

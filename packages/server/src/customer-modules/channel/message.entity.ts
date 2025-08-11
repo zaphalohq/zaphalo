@@ -1,33 +1,42 @@
 import { Field, Float } from '@nestjs/graphql';
-import { 
+import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
   JoinColumn,
   CreateDateColumn,
-  Relation 
+  Relation,
+  OneToOne
 } from 'typeorm';
 import { Channel } from './channel.entity';
 import { IDField } from '@ptc-org/nestjs-query-graphql';
 import { ObjectType } from '@nestjs/graphql';
 import { Contacts } from '../contacts/contacts.entity';
 import { UUIDScalarType } from 'src/modules/api/scalars/uuid.scalar';
+import { Attachment } from '../attachment/attachment.entity';
 
-@Entity({ name: 'messages'})
+@Entity({ name: 'messages' })
 @ObjectType()
 export class Message {
-
   @IDField(() => UUIDScalarType)
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Field(() => String)
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  messageType: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  waMessageId: string;
+
+  @Field(() => String, { nullable: true })
   @Column()
   textMessage: string;
 
   @Field(() => Channel)
-  @ManyToOne(() => Channel , channel => channel.messages, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Channel, channel => channel.messages, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'channelId' })
   channel: Relation<Channel>;
 
@@ -47,4 +56,9 @@ export class Message {
   @Field(() => Boolean)
   @Column({ type: 'boolean', default: false, nullable: false })
   unseen: boolean;
+
+  @Field(() => Attachment, { nullable: true })
+  @OneToOne(() => Attachment, { nullable: true })
+  @JoinColumn({ name: 'attachmentId' })
+  attachment: Relation<Attachment>;
 }

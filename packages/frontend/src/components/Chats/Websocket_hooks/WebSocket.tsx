@@ -6,8 +6,7 @@ interface Message {
     channelId: string;
     phoneNo: string;
     messagesId: string;
-    textMessage: string[];
-    // messagesIds: string[];
+    messageData: [],
     unseen: number;
 }
 
@@ -16,13 +15,7 @@ export async function useWebSocket() {
     const { newMessage, setNewMessage, setIsNewChannelCreated }: any = useContext(ChatsContext)
 
     const [newUnseenMessage, setNewUnseenMessage] = useState<Message[]>(
-        [{
-            channelId: '',
-            phoneNo: '',
-            textMessage: [],
-            messagesId: '',
-            unseen: 0,
-        }])
+        [])
 
     useEffect(() => {
         setNewMessage(newUnseenMessage)
@@ -43,8 +36,6 @@ export async function useWebSocket() {
         socketIo.on("message", (messageData) => {
             try {
                 const newMsg = JSON.parse(messageData);
-                console.log(newMsg.messages,'....................newMsg.messages');
-                
                 setIsNewChannelCreated(newMsg.newChannelCreated)
                 if (!newMsg.messages) {
                     console.error("Message payload missing 'messages' field:", newMsg);
@@ -54,26 +45,25 @@ export async function useWebSocket() {
                     const channelIndex = prevMessages.findIndex(
                         (message: any) => message.channelId === newMsg.channelId
                     );
-                    
+
+                    const newMessageData = {
+                        textMessage: newMsg.messages.textMessage,
+                        messageType: newMsg.messages.messageType,
+                        originalname: newMsg.messages.attachment?.originalname || "",
+                        attachmentUrl: newMessage.messages?.attachmentUrl || ""
+                    };
+
                     if (channelIndex !== -1) {
                         const updatedMessages = [...prevMessages];
-                    console.log(updatedMessages[channelIndex],'updatedMessages[channelIndex]/.....');
-
                         updatedMessages[channelIndex] = {
                             ...updatedMessages[channelIndex],
-                            textMessage: [
-                                ...updatedMessages[channelIndex].textMessage,
-                                newMsg.messages.textMessage,
+                            messageData: [
+                                ...(updatedMessages[channelIndex].messageData || []),
+                                newMessageData
                             ],
                             messagesId: newMsg.messages.id,
-                            // messagesIds: [
-                            //     ...updatedMessages[channelIndex].messagesIds,
-                            //     newMsg.messages.id,
-                            // ],
                             unseen: updatedMessages[channelIndex].unseen + 1,
                         };
-                        console.log(updatedMessages,'updatedMessagesupdatedMessages');
-                        
                         return updatedMessages;
                     } else {
                         return [
@@ -81,9 +71,8 @@ export async function useWebSocket() {
                             {
                                 channelId: newMsg.channelId || "",
                                 phoneNo: newMsg.phoneNo || "",
-                                textMessage: [newMsg.messages.textMessage],
                                 messagesId: newMsg.messages.id,
-                                // messagesIds: [newMsg.messages.id],
+                                messageData: [newMessageData],
                                 unseen: 1,
                             },
                         ];

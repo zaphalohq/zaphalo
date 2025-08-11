@@ -3,6 +3,7 @@ import { Attachment } from "./attachment.entity";
 import { CreateAttachmentDto } from "./dto/createAttachmentDto";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 import { Connection, Repository } from 'typeorm';
+import { unlinkSync } from "fs";
 
 @Injectable()
 export class AttachmentService {
@@ -28,6 +29,15 @@ export class AttachmentService {
 
     async findOneAttachmentById(attachmentId : string) {
         return await this.attachmentRepository.findOne({ where : { id : attachmentId }})
+    }
+
+    async deleteOneAttachmentById(attachmentId : string, workspaceId) {
+        const attachment = await this.attachmentRepository.findOne({ where: { id: attachmentId }})
+        console.log(workspaceId,'workspace..................');
+        
+        if(!attachment) throw Error('attachement doesnt exist!')
+        unlinkSync(`.local-storage\\files-storage\\workspace-${workspaceId}\\${attachment?.name}`);
+        return await this.attachmentRepository.remove(attachment);
     }
 
 }

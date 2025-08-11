@@ -39,10 +39,6 @@ export default function MailingListView({ isMailingContactVis, setIsMailingConta
   const [contactsData, setContactsData] = useState([]);
   const [mailingLists, setMailingLists] = useState([])
 
-  // const handleFetchMailingContact = async () => {
-  //   const { data: newData } = await mailingContactRefetch()
-  //   setContactsData(newData?.findAllMailingContactByMailingListId)
-  // }
 
   useEffect(() => {
     if (mailingListData && !mailingListLoading && !searchTerm) {
@@ -134,7 +130,7 @@ export default function MailingListView({ isMailingContactVis, setIsMailingConta
                       </td>
                       <td
                         className="px-6 py-4 text-center truncate max-w-[150px]"
-                        title={mailingList.createdAt}
+                        title={JSON.stringify(mailingList.createdAt)}
                       >
                         {new Date(Number(mailingList.createdAt)).toLocaleString()}
                       </td>
@@ -163,8 +159,6 @@ export default function MailingListView({ isMailingContactVis, setIsMailingConta
           <MailingContactView
             selectedListId={selectedListId}
             contactsData={contactsData}
-            // HandleDeleteMailingContact={HandleDeleteMailingContact}
-            // handleFetchMailingContact={handleFetchMailingContact}
           />}
 
     </div>

@@ -7,6 +7,7 @@ import { ContactsService } from 'src/customer-modules/contacts/contacts.service'
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 import { WaAccountDto } from '../dtos/whatsapp-account-update.dto';
 import { JwtWrapperService } from 'src/modules/jwt/jwt-wrapper.service';
+import { WhatsAppSDKService } from './whatsapp-api.service';
 
 @Injectable()
 export class WaAccountService {
@@ -15,7 +16,9 @@ export class WaAccountService {
   constructor(
     @Inject(CONNECTION) connection: Connection,
     private readonly contactsService: ContactsService,
-    private readonly jwtWrapperService: JwtWrapperService
+    private readonly jwtWrapperService: JwtWrapperService,
+    private readonly whatsAppApiService: WhatsAppSDKService,
+
 
   ) {
     this.waAccountRepository = connection.getRepository(WhatsAppAccount);
@@ -139,5 +142,22 @@ export class WaAccountService {
 
     return signedPayload;
   }
+
+
+  async getWhatsAppApi(instantsId?: string) {
+    if (instantsId) {
+      const instants = await this.findInstantsByInstantsId(instantsId)
+      if (!instants)
+        throw new Error("Not found whatsappaccount")
+      return this.whatsAppApiService.getWhatsApp(instants)
+    } else {
+      const findTrueInstants = await this.FindSelectedInstants()
+      if (!findTrueInstants)
+        throw new Error("Not found whatsappaccount")
+
+      return this.whatsAppApiService.getWhatsApp(findTrueInstants)
+    }
+  }
+
 
 }

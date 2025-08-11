@@ -94,6 +94,8 @@ export class WhatsAppTemplateResolver {
   @ResolveField(() => String)
   async templateImg(@Parent() template: WhatsAppTemplate, @Context() context): Promise<string> {
     const workspaceId = context.req.headers['x-workspace-id']
+      console.log('..templateImage.............................');
+
     if (template.templateImg) {
       try {
         const workspaceLogoToken = this.fileService.encodeFileToken({

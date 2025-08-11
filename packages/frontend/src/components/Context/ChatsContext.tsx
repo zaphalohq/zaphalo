@@ -44,11 +44,7 @@ export const ChatsProvider = ({ children }: any) => {
 
     const [ isNewChannelCreated, setIsNewChannelCreated ] = useState(false);
 
-    const [myCurrentMessage, setMyCurrentMessage] = useState({
-        message: '',
-        count: 0,
-        attachmentUrl : ''
-    })
+    const [myCurrentMessage, setMyCurrentMessage] = useState([])
 
     const [ isUpdateChannelName, setIsUpdateChannelName] = useState(false)
 
