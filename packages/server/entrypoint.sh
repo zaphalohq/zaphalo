@@ -25,7 +25,7 @@ setup_and_migrate_db() {
         yarn database:migrate:run
     fi
     
-    #yarn command:prod upgrade
+    yarn command:prod upgrade
     echo "Successfully migrated DB!"
 }
 
