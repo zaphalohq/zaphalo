@@ -54,7 +54,7 @@ export class WhatsAppResolver {
   @UseGuards(GqlAuthGuard)
   @Query(() => graphqlTypeJson)
   async getAllWhatsAppTemplates() {
-    const wa_api = await this.getWhatsAppApi()
+    const wa_api = await this.waAccountService.getWhatsAppApi()
     const data = await wa_api.getAllTemplate();
     return data;
   }
@@ -79,7 +79,7 @@ export class WhatsAppResolver {
     @Args('waTemplateId', { nullable: true }) waTemplateId?: string,
     @Args('dbTemplateId', { nullable: true }) dbTemplateId?: string
   ): Promise<SuccessResponse> {
-    const wa_api = await this.getWhatsAppApi(templateData.accountId)
+    const wa_api = await this.waAccountService.getWhatsAppApi(templateData.accountId)
 
     let response;
     if (waTemplateId) {
@@ -140,20 +140,6 @@ export class WhatsAppResolver {
     }
   }
 
-  async getWhatsAppApi(instantsId?: string) {
-    if (instantsId) {
-      const instants = await this.waAccountService.findInstantsByInstantsId(instantsId)
-      if (!instants)
-        throw new Error("Not found whatsappaccount")
-      return this.whatsAppApiService.getWhatsApp(instants)
-    } else {
-      const findTrueInstants = await this.waAccountService.FindSelectedInstants()
-      if (!findTrueInstants)
-        throw new Error("Not found whatsappaccount")
-
-      return this.whatsAppApiService.getWhatsApp(findTrueInstants)
-    }
-  }
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => WaTemplateResponseDto)
@@ -161,14 +147,14 @@ export class WhatsAppResolver {
     @Context('req') req,
     @Args('waTemplateId') waTemplateId: string
   ) {
-    const wa_api = await this.getWhatsAppApi()
+    const wa_api = await this.waAccountService.getWhatsAppApi()
 
   }
 
 
   @Mutation(() => TestTemplateOutput)
   async testTemplate(@Args('testTemplateData') testTemplateData: WaTestTemplateInput) {
-    const wa_api = await this.getWhatsAppApi()
+    const wa_api = await this.waAccountService.getWhatsAppApi()
 
     const template: any = await this.waTemplateService.findtemplateByDbId(testTemplateData.dbTemplateId)
 
@@ -194,14 +180,14 @@ export class WhatsAppResolver {
   ): Promise<WhatsAppAccount | null | string> {
     if (!waAccount.accountId) {
       const instances = await this.waAccountService.WaAccountCreate(req, waAccount);
-      const wa_api = await this.getWhatsAppApi(instances.id)
+      const wa_api = await this.waAccountService.getWhatsAppApi(instances.id)
       if (instances) {
         const syncTemplate = await wa_api.syncTemplate();
         await this.waTemplateService.saveSyncTemplates(syncTemplate, instances)
       }
       return instances;
     } else {
-      const wa_api = await this.getWhatsAppApi(waAccount.accountId)
+      const wa_api = await this.waAccountService.getWhatsAppApi(waAccount.accountId)
       const instances = await this.waAccountService.UpdateInstants(waAccount.accountId, waAccount);
       if (instances) {
         const syncTemplate = await wa_api.syncTemplate();
@@ -221,14 +207,14 @@ export class WhatsAppResolver {
   ): Promise<WhatsAppAccount | null> {
     if (!waAccount.accountId) {
       const instances = await this.waAccountService.WaAccountCreate(req, waAccount);
-      const wa_api = await this.getWhatsAppApi(instances.id)
+      const wa_api = await this.waAccountService.getWhatsAppApi(instances.id)
       if (instances) {
         const testTemplate = await wa_api.testInstants()
       }
       return instances
     } else {
       const instances = await this.waAccountService.UpdateInstants(waAccount.accountId, waAccount);
-      const wa_api = await this.getWhatsAppApi(waAccount.accountId)
+      const wa_api = await this.waAccountService.getWhatsAppApi(waAccount.accountId)
       if (instances) {
         const testTemplate = await wa_api.testInstants()
       }

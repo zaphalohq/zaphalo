@@ -24,8 +24,8 @@ export class WebSocketService implements OnGatewayConnection, OnGatewayDisconnec
     this.server.emit("message", "brodcasting............")
   }
 
-  sendMessageToChannel(channelId,messages, phoneNo, newChannelCreated) {
-    const message = JSON.stringify({messages,channelId,phoneNo, newChannelCreated})
+  sendMessageToChannel(channelId, messages, phoneNo, newChannelCreated) {
+    const message = JSON.stringify({messages, channelId, phoneNo, newChannelCreated})
     this.server.emit('message', message);
   }
 
