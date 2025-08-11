@@ -1,9 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { HttpService } from '@nestjs/axios';
 import fs from 'fs/promises';
-
+import { join } from 'path';
 import { WhatsAppAccount } from "src/customer-modules/whatsapp/entities/whatsapp-account.entity";
-
+import FormData from 'form-data';
+import { createReadStream } from "fs";
 const DEFAULT_ENDPOINT = "https://graph.facebook.com/v23.0"
 
 @Injectable()
@@ -16,7 +17,7 @@ export class WhatsAppSDKService {
 export class WhatsAppApiService {
   private readonly wa_account_id: WhatsAppAccount;
   private readonly phone_uid: String;
-  private readonly token: String;
+  public readonly token: String;
   private readonly httpService: HttpService;
   private readonly is_shared_account: boolean;
 
@@ -223,10 +224,7 @@ export class WhatsAppApiService {
     return file_handle
   }
 
-  private countWhatsappSend = 0
   async submitTemplateNew(json_data) {
-    console.log(this.countWhatsappSend + 1, 'countWhatsappSendcountWhatsappSendcountWhatsappSend');
-
     // """
     //     This method is used to submit template for approval
     //     If template was submitted before, we have wa_template_uid and we call template update URL
@@ -316,28 +314,37 @@ export class WhatsAppApiService {
 
 
 
-  async sendWhatsApp(number, message_type, send_vals, parent_message_id = false) {
+  async sendWhatsApp(
+    json_data
+    // number, 
+    // message_type, 
+    // send_vals,
+    // parent_message_id = false
+  ) {
     // """ Send WA messages for all message type using WhatsApp Business Account
 
     // API Documentation:
     //     Normal        - https://developers.facebook.com/docs/whatsapp/cloud-api/guides/send-messages
     //     Template send - https://developers.facebook.com/docs/whatsapp/cloud-api/guides/send-message-templates
     // """
-    let data = [{
-      'messaging_product': 'whatsapp',
-      'recipient_type': 'individual',
-      'to': number
-    }];
-    // if there is parent_message_id then we send message as reply
-    if (parent_message_id) {
-      data['context'] = { 'message_id': parent_message_id };
-    }
-    if (message_type in ['template', 'text', 'document', 'image', 'audio', 'video']) {
-      data['type'] = message_type;
-      data['message_type'] = send_vals;
-    }
-    const json_data = JSON.stringify(data)
-    console.info("Send %s message from account %s [%s]", message_type, this.wa_account_id.name, this.wa_account_id.id)
+
+
+
+    // let data = [{
+    //   'messaging_product': 'whatsapp',
+    //   'recipient_type': 'individual',
+    //   'to': number
+    // }];
+    // // if there is parent_message_id then we send message as reply
+    // if (parent_message_id) {
+    //   data['context'] = { 'message_id': parent_message_id };
+    // }
+    // if (message_type in ['template', 'text', 'document', 'image', 'audio', 'video']) {
+    //   data['type'] = message_type;
+    //   data['message_type'] = send_vals;
+    // }
+    // const json_data = JSON.stringify(data)
+    // console.info("Send %s message from account %s [%s]", message_type, this.wa_account_id.name, this.wa_account_id.id)
     const response = await this.apiRequests({
       "request_type": "POST",
       "url": `/${this.phone_uid}/messages`,
@@ -349,6 +356,19 @@ export class WhatsAppApiService {
     if (response_data?.messages) {
       let msg_uid = response_data.messages[0].id;
       return msg_uid
+    }
+    throw new Error(this.prepare_error_response(response))
+  }
+
+  async getMediaUrl(mediaId: string) {
+    const response = await this.apiRequests({
+      "request_type": "GET",
+      "url": `/${mediaId}`,
+      "auth_type": "bearer",
+    })
+    const response_data = response.data
+    if (response_data) {
+      return response_data
     }
     throw new Error(this.prepare_error_response(response))
   }
@@ -368,7 +388,6 @@ export class WhatsAppApiService {
       throw new Error("Res is null");
     }
     const mimetype = res.headers;
-    console.log(".....................response..............", res);
     const data = response.data;
     return [data, mimetype]
   }
@@ -397,23 +416,33 @@ export class WhatsAppApiService {
     return file_response.content
   }
 
-  async _upload_whatsapp_document(self, attachment) {
+  async _upload_whatsapp_document(attachment) {
     // """
     //     This method is used to upload document for sending via WhatsApp
 
     //     API Documentation: https://developers.facebook.com/docs/whatsapp/cloud-api/reference/media
     // """
-    const { filename, mimetype, path, size }: any = attachment;
-    const buffer = await fs.readFile(path)
+    const { filename, originalname, mimetype, path, size }: any = attachment;
+    console.log(attachment, 'attachmentattachment..............');
 
-    const files = [['file', [filename, buffer, mimetype]]]
-    const payload = { 'messaging_product': 'whatsapp', 'file': files }
+    const filePath = join(
+      process.cwd(),
+      path
+    );
+
+    const form = new FormData();
+    form.append('messaging_product', 'whatsapp');
+    form.append('file', createReadStream(filePath), {
+      filename: originalname,
+      contentType: mimetype,
+    });
+
     console.info("Upload document of mimetype %s for phone uid %s", mimetype, this.phone_uid)
-    const response = self.apiRequests({
+    const response = await this.apiRequests({
       "request_type": "POST",
-      "url": `/${self.phone_uid}/media`,
+      "url": `/${this.phone_uid}/media`,
       "auth_type": 'bearer',
-      "data": payload,
+      "data": form,
     })
     const response_data = response.data
     if (response_data?.id) {

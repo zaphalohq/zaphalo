@@ -297,13 +297,27 @@ export const findMsgByChannelId = gql`query GetMessagesByChannel($channelId: Str
     }
     createdAt
     attachmentUrl
-  },
+    messageType
+    attachment {
+      originalname
+    }
+  }
 }`
 
 export const SEND_MESSAGE = gql`
-  mutation SendMessage($input: SendMessageInput!) {
-  sendMessage(input: $input) {
-    success
+  mutation SendMessage($sendMessageInput: SendMessageInput!) {
+  sendMessage(sendMessageInput: $sendMessageInput) {
+    textMessage
+    sender {
+      id
+      phoneNo
+    }
+    createdAt
+    attachmentUrl
+    messageType
+    attachment {
+      originalname
+    }
   }
 }
 `;
@@ -692,10 +706,20 @@ export const CreateOneAttachmentDoc = gql`
         }
       ) {
       id
+      name
+      originalname
     }
   }
 `;
 
+export const DeleteOneAttachment = gql`
+mutation DeleteOneAttachment($attachmentId: String!){
+  DeleteOneAttachment(attachmentId: $attachmentId){
+    success
+    message
+  }
+}
+`
 
 
 export const findAllMailingList = gql`

@@ -79,20 +79,20 @@ export class BroadcastService implements OnModuleInit {
     return broadcast
   }
 
-  async getWhatsAppApi(instantsId?: string) {
-    if (instantsId) {
-      const instants = await this.waAccountService.findInstantsByInstantsId(instantsId)
-      if (!instants)
-        throw new Error("Not found whatsappaccount")
-      return this.whatsAppApiService.getWhatsApp(instants)
-    } else {
-      const findTrueInstants = await this.waAccountService.FindSelectedInstants()
-      if (!findTrueInstants)
-        throw new Error("Not found whatsappaccount")
+  // async getWhatsAppApi(instantsId?: string) {
+  //   if (instantsId) {
+  //     const instants = await this.waAccountService.findInstantsByInstantsId(instantsId)
+  //     if (!instants)
+  //       throw new Error("Not found whatsappaccount")
+  //     return this.whatsAppApiService.getWhatsApp(instants)
+  //   } else {
+  //     const findTrueInstants = await this.waAccountService.FindSelectedInstants()
+  //     if (!findTrueInstants)
+  //       throw new Error("Not found whatsappaccount")
 
-      return this.whatsAppApiService.getWhatsApp(findTrueInstants)
-    }
-  }
+  //     return this.whatsAppApiService.getWhatsApp(findTrueInstants)
+  //   }
+  // }
 
 
   cronForPendingBroadcasts() {
@@ -122,7 +122,7 @@ export class BroadcastService implements OnModuleInit {
 
     for (const broadcast of broadcasts) {
       const { template, account } = broadcast;
-      const wa_api = await this.getWhatsAppApi(account?.id);
+      const wa_api = await this.waAccountService.getWhatsAppApi(account?.id);
 
       const allBroadcastContacts = await this.broadcastContactsRepository.find({
         where: {

@@ -3,9 +3,12 @@ import { Channel } from "./channel.entity";
 import { Message } from "./message.entity";
 import { ContactsService } from "../contacts/contacts.service";
 import { unlinkSync } from "fs";
-import axios from "axios"
 import { Connection, Repository, In } from 'typeorm';
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
+import { WaAccountService } from "../whatsapp/services/whatsapp-account.service";
+import { AttachmentService } from "../attachment/attachment.service";
+import fs from 'fs';
+import axios from "axios";
 
 @Injectable()
 export class ChannelService {
@@ -14,11 +17,12 @@ export class ChannelService {
     constructor(
         @Inject(CONNECTION) connection: Connection,
         private readonly contactsservice: ContactsService,
+        private readonly waAccountService: WaAccountService,
+        private readonly attachmentService: AttachmentService,
 
     ) {
         this.channelRepository = connection.getRepository(Channel);
         this.messageRepository = connection.getRepository(Message);
-
     }
 
 
@@ -57,23 +61,42 @@ export class ChannelService {
         return stillChannelExist
     }
 
-    async createMessage(textMessage: string, channelId: string, senderId: number, unseen?: boolean, attachmentUrl?: string) {
+    async createMessage(
+        textMessage: string,
+        channelId: string,
+        senderId: number,
+        messageType: string,
+        waMessageIds: string[],
+        unseen?: boolean,
+        attachemntId?: string): Promise<Message[]> {
+        let attachment;
+        if (attachemntId) {
+            attachment = await this.attachmentService.findOneAttachmentById(attachemntId);
+        }
         const sender = await this.contactsservice.findOneContact(senderId);
 
         if (!sender) throw new Error('Sender not found');
         const channel = await this.channelRepository.findOne({ where: { id: channelId } });
         if (!channel) throw new Error('Channel not found');
 
-        const message_rec = this.messageRepository.create({
-            textMessage,
-            attachmentUrl,
-            sender: sender,
-            channel: channel,
-            unseen: unseen,
-        })
-        await this.messageRepository.save(message_rec)
-
-        return message_rec
+        const messagesRepo: Message[] = []
+        for (const waMessageId of waMessageIds) {
+            const message_rec = this.messageRepository.create({
+                textMessage,
+                sender: sender,
+                channel: channel,
+                unseen: unseen,
+                waMessageId: waMessageId,
+                messageType,
+                attachmentUrl: attachment ? attachment.name : null,
+                attachment: attachment ? attachment : null
+            })
+            await this.messageRepository.save(message_rec)
+            messagesRepo.push(message_rec)
+        }
+        console.log(messagesRepo,'......................messagesRepo');
+        
+        return messagesRepo
     }
 
     async findAllChannel(): Promise<Channel[]> {
@@ -102,7 +125,7 @@ export class ChannelService {
 
         var messages = await this.messageRepository.find({
             where: { channel: { id: channelId } },
-            relations: ['channel', 'sender'],
+            relations: ['channel', 'sender', 'attachment'],
             order: { createdAt: 'ASC' },
             skip: 0,
             take: 100
@@ -193,16 +216,78 @@ export class ChannelService {
     }
 
 
+    // async sendWhatsappMessage({
+    //     receiverId,
+    //     messageType,
+    //     textMessage,
+    //     attachmentId
+    // }) {
+    //     const messagePayload = await this.generateMessagePayload(
+    //         messageType,
+    //         textMessage,
+    //     );
+    //     receiverId.forEach(async (receiver) => {
+
+    //         const finalPayload = {
+    //             messaging_product: 'whatsapp',
+    //             to: receiver,
+    //             ...messagePayload,
+    //         };
+
+
+    //         const wa_api = await this.waAccountService.getWhatsAppApi();
+    //         const message_id = await wa_api.sendWhatsApp(JSON.stringify(finalPayload))
+    //         if(!message_id) throw Error('message not send to whatsapp')
+    //         return message_id
+    //     });
+
+    // }
+
     async sendWhatsappMessage({
-        accessToken,
-        senderId,
         receiverId,
         messageType,
         textMessage,
-        attachmentUrl
-    }) {
-        const url = `https://graph.facebook.com/v23.0/${senderId}/messages`;
+        attachmentUploadtoWaApiId,
+    }): Promise<string[]> {
+        const messagePayload = await this.generateMessagePayload(
+            messageType,
+            textMessage,
+            attachmentUploadtoWaApiId
+        );
 
+        const waMessageIds: string[] = [];
+
+        for (const receiver of receiverId) {
+            const finalPayload = {
+                messaging_product: 'whatsapp',
+                to: receiver,
+                ...messagePayload,
+            };
+
+            const wa_api = await this.waAccountService.getWhatsAppApi();
+            const message_id = await wa_api.sendWhatsApp(JSON.stringify(finalPayload));
+            if (!message_id) throw new Error('Message not sent to WhatsApp');
+
+            waMessageIds.push(message_id);
+        }
+
+        return waMessageIds;
+    }
+
+    async getMediaUrl(mediaId: string, writePath: string) {
+        const wa_api = await this.waAccountService.getWhatsAppApi();
+        const mediaData = await wa_api.getMediaUrl(mediaId);
+        const response = await axios.get(mediaData.url, {
+            headers: {
+                Authorization: `Bearer ${wa_api?.token}`,
+            },
+            responseType: 'arraybuffer',
+        });
+        await fs.writeFileSync(writePath, response.data);
+        return mediaData
+    }
+
+    async generateMessagePayload(messageType, textMessage, attachmentUploadtoWaApiId?) {
         let messagePayload = {};
 
         if (messageType === 'text' && textMessage) {
@@ -216,7 +301,7 @@ export class ChannelService {
             messagePayload = {
                 type: 'image',
                 image: {
-                    link: "https://images.unsplash.com/photo-1575936123452-b67c3203c357?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aW1hZ2V8ZW58MHx8MHx8fDA%3D",
+                    id: attachmentUploadtoWaApiId,
                     caption: textMessage || '',
                 },
             };
@@ -225,7 +310,7 @@ export class ChannelService {
             messagePayload = {
                 type: 'document',
                 document: {
-                    link: attachmentUrl,
+                    id: attachmentUploadtoWaApiId,
                     filename: textMessage || 'file.pdf',
                 },
             };
@@ -233,7 +318,7 @@ export class ChannelService {
             messagePayload = {
                 type: 'video',
                 video: {
-                    link: attachmentUrl,
+                    id: attachmentUploadtoWaApiId,
                     caption: textMessage || '',
                 },
             };
@@ -241,34 +326,14 @@ export class ChannelService {
             messagePayload = {
                 type: 'audio',
                 audio: {
-                    link: attachmentUrl,
+                    id: attachmentUploadtoWaApiId,
                 },
             };
         } else {
             throw new Error(`Unsupported message type: ${messageType}`);
         }
 
-        receiverId.forEach(async (receiver) => {
-
-            const finalPayload = {
-                messaging_product: 'whatsapp',
-                to: receiverId[0],
-                ...messagePayload,
-            };
-
-
-            const response = await axios.post(url, finalPayload, {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            console.log(response.data, 'message response');
-
-            return response.data;
-        });
-
+        return messagePayload;
     }
 
 }
