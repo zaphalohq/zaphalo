@@ -8,6 +8,7 @@ import { languagesCode } from "./LanguageCode"
 import usePagination from "@src/utils/usePagination"
 import Pagination from "../UI/Pagination"
 import { SearchWhite } from "../UI/Search"
+import { toast } from "react-toastify"
 
 const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) => {
     const { setTemplateFormData, setSelectedTemplateInfo }: any = useContext(TemplateContext)
@@ -72,9 +73,9 @@ const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) =
     }
 
 
-    const handleSendTemplateToPhone = async (templateId: string) => {
+    const handleSendTemplateToPhone = async () => {
         if (!testTemplateData.testPhoneNo.trim()) {
-            alert("Please enter a phone number.");
+            toast.error("Please enter a phone number.")
             return;
         }
         const response = await testTemplate({
@@ -302,13 +303,13 @@ const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) =
                         <div className="flex justify-between">
                             <button
                                 onClick={() => setShowSendPopup(false)}
-                                className="bg-gray-300 text-gray-700 px-4 py-1 rounded hover:bg-gray-400"
+                                className="bg-gray-300 cursor-pointer text-gray-700 px-4 py-1 rounded hover:bg-gray-400"
                             >
                                 Cancel
                             </button>
                             <button
-                                onClick={() => handleSendTemplateToPhone("showSendPopup.id")}
-                                className="bg-indigo-600 text-white px-4 py-1 rounded hover:bg-indigo-700"
+                                onClick={() => handleSendTemplateToPhone()}
+                                className="bg-indigo-600 cursor-pointer text-white px-4 py-1 rounded hover:bg-indigo-700"
                             >
                                 Send
                             </button>
