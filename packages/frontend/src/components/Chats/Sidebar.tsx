@@ -6,6 +6,7 @@ import ChannelLists from "./ChannelLists"
 import AllInstants from "./AllInstants"
 import { SearchWhite } from "@components/UI/Search"
 
+
 const ChatsSide = ({ setIsChatOpen }: any) => {
   const [isNewChatOpen, setIsNewChatOpen] = useState(false)
   const HandleNewChatVisiablity = () => setIsNewChatOpen(!isNewChatOpen)
@@ -34,7 +35,7 @@ const ChatsSide = ({ setIsChatOpen }: any) => {
 
   const [searchChannel, setSearchChannel] = useState("")
   return (
-    <div>
+    <aside className="w-80 bg-white border-r border-gray-200 flex flex-col">
       <div className='sticky inset-shadow-sm z-11'>
         <div className='flex justify-between p-4.5 bg-white border-b border-gray-300 '>
           <h2 className='text-xl font-bold text-stone-950'>Chats</h2>
@@ -62,7 +63,7 @@ const ChatsSide = ({ setIsChatOpen }: any) => {
           <ChannelLists searchChannel={searchChannel} />
         </div>
       </div>
-    </div>
+    </aside>
   )
 }
 

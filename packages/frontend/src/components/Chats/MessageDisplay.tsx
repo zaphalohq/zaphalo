@@ -154,16 +154,16 @@ const MessageDisplay = () => {
   }, [allMessages]);
 
   return (
-    <div className="relative h-[72.8vh]">
-      <div ref={messagesContainerRef} className="relative z-10 h-full overflow-y-scroll p-4">
+    <div className="flex-1 overflow-y-auto p-6" id="chat-scroll">
+      <div ref={messagesContainerRef} className="max-w-7xl mx-auto">
         {allMessages.map((message, index) =>
           <div key={index} className="relative z-10 p-4">
             {Number(message.sender.phoneNo) != selectedPhoneNo ? (
-              <div className="text-stone-900 flex justify-start text-lg ">
-                {message.messageType === 'text' && <div className="bg-[#ffffff] p-2 rounded-lg flex flex-col gap-1 max-w-[70%] md:max-w-[40%]">
-                  <div className="break-words">{message.textMessage}</div>
+              <div className="flex justify-start mb-4">
+                {message.messageType === 'text' && <div className="bg-white border rounded-br-2xl rounded-tl-xl rounded-tr-2xl p-3 max-w-md shadow-sm">
+                  <div className="whitespace-pre-wrap">{message.textMessage}</div>
                   {message.textMessage && (
-                    <div className="text-xs flex text-gray-500">
+                    <div className="text-xs mt-1 text-gray-400 text-right">
                       {HandleCurrentDate(message.createdAt)}
                     </div>
                   )}
@@ -229,9 +229,9 @@ const MessageDisplay = () => {
             ) : (
               <div className="flex justify-end rounded text-lg">
                 {message.messageType === 'text' &&
-                  <div className=" bg-[#dbdff1] p-2 rounded-lg flex flex-col gap-1 max-w-[70%] md:max-w-[30%]">
+                  <div className="bg-green-600 text-white rounded-bl-2xl rounded-tl-2xl rounded-tr-xl p-3 max-w-md shadow-sm">
                     <div className="break-words">{message.textMessage}</div>
-                    <div className="text-xs text-gray-500 self-end">
+                    <div className="text-green-100  text-right">
                       {HandleCurrentDate(message.createdAt)}
                     </div>
                   </div>}
