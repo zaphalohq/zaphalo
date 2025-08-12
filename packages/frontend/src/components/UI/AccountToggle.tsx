@@ -18,21 +18,21 @@ const AccountToggle = () => {
     <div className="border-b mt-2 mb-4 pb-4 border-gray-700 relative">
       <div className="flex p-0.5 w-full items-start gap-2 relative hover:bg-gray-800/50 rounded-xl">
         <div className="relative">
-          <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-md flex items-center justify-center shadow-lg">
-            <span className="text-white font-bold text-sm">
-              <img src={`${VITE_BACKEND_URL}/files/${currentUserWorkspace?.profileImg}`}/>
-            </span>
-          </div>
-          <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-gray-900"></div>
+          {!currentUserWorkspace?.profileImg && (
+            <div className="px-4 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {currentUserWorkspace?.profileImg ?
+                ( <img src={`${VITE_BACKEND_URL}/files/${currentUserWorkspace?.profileImg}`}/>) :
+                  (<div className="h-10 w-10 rounded-full bg-gradient-to-br from-green-400 to-teal-400 flex items-center justify-center text-white font-bold">Y</div>)
+                }
+                <div>
+                  <div className="font-semibold">{currentUserWorkspace?.name}</div>
+                  <div className="text-xs text-gray-500">Current workspace</div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-
-        <div className="text-start flex-1">
-          <span className="font-bold text-sm block text-gray-100 truncate w-32">
-            {currentUserWorkspace?.name}
-          </span>
-          <span className="block text-xs text-stone-500">current workspace</span>
-        </div>
-
         <ChevronDown
           onClick={() => setIsWorkspaceOpen(!isWorkspaceOpen)}
           className={`absolute top-3 right-4 w-5 h-5 rounded cursor-pointer text-white hover:text-gray-300 transition-all duration-200 ${isWorkspaceOpen ? 'rotate-180' : ''

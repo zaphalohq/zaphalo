@@ -44,7 +44,7 @@ const getDefaultWebSocketUrl = () => {
     // because the backend will serve the frontend
     // In prod context, we use index.html + window var to ovewrite it
     return `${window.location.protocol}//${window.location.hostname}${
-      window.location.port ? `:${window.location.port}` : ''
+      window.location.port ? `:4000` : ''
     }`;
   }
 };

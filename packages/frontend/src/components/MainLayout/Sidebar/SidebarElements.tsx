@@ -37,43 +37,39 @@ const SidebarElement = ({ title, to, Icon, HandleToggleButton, subItems = [] }: 
 
   return (
     <div>
-      <div
-        className={`flex pl-4 hover-blacky p-2 w-full rounded text-sm text-gray-200 gap-2 items-center cursor-pointer ${isPageActive ? 'bg-blacky-light shadow' : ''
-          }`}
-        onClick={toggleSubMenu}
-      >
-        <Icon className={`${isPageActive ? 'text-violet-500' : 'text-violet-400'}`} />
+      <divclassName={`flex items-center gap-3 p-3 rounded-lg transition-colors duration-200 ${
+        isPageActive ? 'bg-green-600' : 'hover:bg-gray-700'}`} onClick={toggleSubMenu}>
+        {Icon}
         {subItems.length > 0 || !to ? (
           <div className="flex gap-20 items-center">
             <span>{title}</span>
             <FiChevronDown />
           </div>
-        ) : (
+          ) : (
           <NavLink
             to={to}
             onClick={HandleToggleButton}
-            className="flex-1"
-          >
+            className="flex-1">
             {title}
           </NavLink>
         )}
-      </div>
-      {subItems.length > 0 && isSubMenuOpen && (
-        <div className="ml-2">
-          {subItems.map((subItem) => (
-            <NavLink
-              key={subItem.to}
-              to={subItem.to}
-              onClick={HandleToggleButton}
-              className={`flex pl-4 hover-blacky w-full rounded p-1.5 text-sm text-white gap-2 items-center whitespace-pre ${location.pathname === subItem.to ? 'bg-blacky-light shadow' : ''
-                }`}
+        </div>
+        {subItems.length > 0 && isSubMenuOpen && (
+          <div className="ml-2">
+            {subItems.map((subItem) => (
+              <NavLink
+                key={subItem.to}
+                to={subItem.to}
+                onClick={HandleToggleButton}
+                className={`flex pl-6 hover-blacky w-full rounded p-2.5 text-sm text-white gap-2 items-center whitespace-pre ${location.pathname === subItem.to ? ' shadow' : ''
+              }`}
             >
-              <subItem.Icon className={`${location.pathname === subItem.to ? 'text-violet-500' : 'text-violet-400'}`} />
+              {subItem.Icon}
               {subItem.title}
             </NavLink>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
     </div>
   )
 }

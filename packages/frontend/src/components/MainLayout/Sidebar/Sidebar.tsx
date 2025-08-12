@@ -1,49 +1,52 @@
 import { useRecoilState } from 'recoil'
 import SidebarElement from './SidebarElements'
-import {
-  FiGrid,
-  FiSettings,
-  FiUsers,
-  FiLink,
-  FiLayers,
-  FiMap,
-  FiRadio
-} from 'react-icons/fi'
 import { IoChatbubbleEllipsesOutline } from 'react-icons/io5'
 import Logout from '@components/Auth/Logout'
 import AccountToggle from '@components/UI/AccountToggle'
 import UserBottomToggle from '@src/components/UI/UserBottomToggle'
 import { currentUserWorkspaceState } from '@src/modules/auth/states/currentUserWorkspaceState'
+import {
+  Home,
+  MessageCircle,
+  Users,
+  Megaphone,
+  Settings,
+  Wrench,
+  Plug2,
+  BriefcaseBusiness,
+  UserRoundPen,
+  LayoutPanelTop
+} from 'lucide-react';
 
-const Sidebar = ({ isToggleActivated, HandleToggleButton }: any) => {
+export default function Sidebar({ activeTab, setActiveTab }) {
   const [currentUserWorkspace] = useRecoilState(currentUserWorkspaceState);
   const workspaceId = currentUserWorkspace?.id;
+
+  const menuItems = [
+    { name: 'Dashboard', icon: <Home size={20} />, key: 'dashboard' },
+    { name: 'Chats', icon: <MessageCircle size={20} />, key: 'chats' },
+    { name: 'Contacts', icon: <Users size={20} />, key: 'contacts' },
+    { name: 'Broadcasts', icon: <Megaphone size={20} />, key: 'Broadcast' },
+    { name: 'Settings', icon: <Settings size={20} />, key: 'settings', subItems: [
+      { title: "General", to: `/w/${workspaceId}/settings`, Icon: <Wrench size={16}/> },
+      { title: "Workspace", to: `/w/${workspaceId}/workspace`, Icon: <BriefcaseBusiness size={16}/> },
+      { title: "WhatsApp Accounts", to: `/w/${workspaceId}/whatsapp-account`, Icon: <UserRoundPen size={16}/> },
+      { title: "Templates", to: `/w/${workspaceId}/template`, Icon: <LayoutPanelTop size={16}/> }
+    ]}
+  ];
+
   return (
-    <div className='px-4'>
+    <div className="flex flex-col bg-gray-900 text-white w-64 min-h-screen p-4">
       <AccountToggle />
-      <div className={`${isToggleActivated ? '' : 'hidden md:block'} overflow-y-scroll custom-scrollbox custom-scroll sticky top-4 h-[calc(100vh-230px)]`}>
-        <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiGrid} to={`/w/${workspaceId}/dashboard`} title={"Dashboard"} />
-        <SidebarElement HandleToggleButton={HandleToggleButton} Icon={IoChatbubbleEllipsesOutline} to={`/w/${workspaceId}/chats`} title={"Chats"} />
-        <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiRadio} to={`/w/${workspaceId}/broadcast`} title={"Broadcast"} />
-        <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiUsers} to={`/w/${workspaceId}/contacts`} title={"Contacts"} />
-        <SidebarElement HandleToggleButton={HandleToggleButton} Icon={FiUsers} to={`/w/${workspaceId}/mailinglist`} title={"Contact List"} />
-        <SidebarElement
-          HandleToggleButton={HandleToggleButton}
-          Icon={FiSettings}
-          title={"Settings"}
-          subItems={[
-            { title: "General", to: `/w/${workspaceId}/settings`, Icon: FiLink },
-            { title: "Workspace", to: `/w/${workspaceId}/workspace`, Icon: FiLayers },
-            { title: "WhatsApp Accounts", to: `/w/${workspaceId}/whatsapp-account`, Icon: FiLink },
-            { title: "Templates", to: `/w/${workspaceId}/template`, Icon: FiMap },
-          ]}
-        />
+      <div className={`${activeTab ? '' : 'hidden md:block'} overflow-y-scroll custom-scrollbox custom-scroll sticky top-4 h-[calc(100vh-300px)]`}>
+        <nav className="flex flex-col gap-2">
+          {menuItems.map(item => (
+            <SidebarElement HandleToggleButton={setActiveTab} Icon={item.icon} to={`/w/${workspaceId}/${item.key}`} title={item.name} subItems={item.subItems}/>
+            ))}
+        </nav>
       </div>
       <Logout />
       <UserBottomToggle />
-
     </div>
-  )
+  );
 }
-
-export default Sidebar
