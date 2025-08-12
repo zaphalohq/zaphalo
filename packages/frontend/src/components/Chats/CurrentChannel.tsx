@@ -1,6 +1,13 @@
 import { useContext, useEffect, useState } from "react"
 import { ChatsContext } from "@src/components/Context/ChatsContext"
 
+function getInitials(name = "") {
+  const parts = name.split(' ');
+  const initials = (parts[0]?.[0] || '') + (parts[1]?.[0] || '');
+  return initials.toUpperCase();
+}
+
+
 const CurrentChannel = ({ channelName, channelId, memberIds, unseen, setIsChannelExist }: any) => {
   const { chatsDetails, setChatsDetails, newMessage, setNewMessage, isNewChannelCreated }: any = useContext(ChatsContext)
   const [unseenMessageCount, setUnseenMessageCount] = useState(0);
@@ -53,29 +60,23 @@ const CurrentChannel = ({ channelName, channelId, memberIds, unseen, setIsChanne
 
   const { setIsChatOpen }: any = useContext(ChatsContext);
   return (
-    <div>
-      <div onClick={() => {
-        HandleCurrentChannel()
-        setIsChatOpen(true)
+    <div
+      onClick={() => {
+          HandleCurrentChannel()
+          setIsChatOpen(true)
+        }
       }
-      }
-        className={`flex cursor-pointer items-center justify-between rounded mx-2 
-                       px-6 py-3 
-                       ${channelId === chatsDetails.channelId ? 'bg-light' : 'hover-light'}
-                       `}>
-        <div className='flex gap-4'>
-          <div className="w-8 h-8 bg-blue-200 rounded-full flex justify-center text-blue-500 font-bold text-sm items-center">{channelName?.slice(0, 1).toUpperCase()}</div>
-          <div className="flex items-center">
-            <p className='font-bold truncate w-[9rem]'>{channelName}</p>
-          </div>
+      className={`px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-gray-50 ${channelId === chatsDetails.channelId ? 'bg-green-50' : ''}`}
+    >
+      <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-semibold">{getInitials(channelName)}</div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between">
+          <div className="font-medium truncate">{channelName}</div>
+           {unseenMessageCount !== 0 ?
+             <div className='flex items-center w-5 h-5 text-xs justify-center bg-green-500 rounded-full text-white'>
+               {unseenMessageCount}
+             </div> : <></>}
         </div>
-        <span className='flex flex-col items-end text-sm'>
-          {unseenMessageCount !== 0 ?
-            <div className='flex items-center w-5 h-5 text-xs justify-center bg-green-500 rounded-full text-white'>
-              {unseenMessageCount}
-            </div>
-            : <></>}
-        </span>
       </div>
     </div>
   )

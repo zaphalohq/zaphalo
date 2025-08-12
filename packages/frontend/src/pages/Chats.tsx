@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ChatsSide from "@components/Chats/Sidebar";
 import ChatsMain from "@components/Chats/ChatLayout";
@@ -15,17 +15,12 @@ const Chats = () => {
     if (location.pathname == './chats') navigate(0)
   }, [])
   return (
-    <div className="bg-[#DDDCD1] border-stone-50 border-b-2 md:mt-0 mt-4 flex flex-col">
-      <div className="grid md:grid-cols-[300px_1fr] w-full h-full mx-auto rounded-lg flex-1">
-        <div className={`${isChatOpen ? "hidden" : "block"} md:block bg-gray-50  min-w-full max-w-full`}>
-          <ChatsSide />
-        </div>
-        <div className={`${isChatOpen ? "block" : "hidden"} md:block min-w-full max-w-full bg-white`}>
-          <ChatsMain />
-        </div>
-      </div>
-      <UpdateChannelName />
-    </div>
+
+     <div className="h-screen flex bg-gray-100">
+        <ChatsSide />
+        <ChatsMain />
+        <UpdateChannelName />
+     </div>
   );
 };
 

@@ -101,8 +101,11 @@ const ChannelLists = ({ searchChannel }: any) => {
     <div>
       {filteredChannels
         .map((channel, index) =>
-          <CurrentChannel key={index}
-            channelId={channel.id} channelName={channel.channelName}
+          <CurrentChannel
+            key={channel.id}
+            channelId={channel.id}
+            channelName={channel.channelName}
+            // isActive={channel.id === selectedContactId}
             memberIds={channel.contacts}
             unseen={channel.messages.length}
           />)}

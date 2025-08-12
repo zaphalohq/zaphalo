@@ -165,73 +165,82 @@ const MessageArea = () => {
   };
 
   return (
-    <div className="h-full w-full">
-      {chatsDetails.channelId ?
-        <form className='bg-white mx-6 mb-6 rounded-2xl' onSubmit={SubmitMsg}>
-          <div className="flex items-center justify-between p-6 px-8 relative">
-            <button
-              type="button"
-              className="text-2xl p-2 hover-light rounded cursor-pointer relative"
-              onClick={() => document.getElementById('fileInput')?.click()} >
-              <input
-                type="file"
-                id="fileInput"
-                className="hidden"
-                onChange={handleFileChange}
-                multiple
-              />
-              <FiPaperclip />
-            </button>
+    <div className="p-4 bg-white border-t">
+      <div className="max-w-3xl mx-auto flex items-end gap-3">
+        <div className="flex-1">
+          {chatsDetails.channelId ?
+            <form className='bg-white mx-6 mb-6 rounded-2xl' onSubmit={SubmitMsg}>
+              <div className="flex items-center justify-between p-6 px-8 relative">
+                <button
+                  type="button"
+                  className="mt-2 px-2 py-1 rounded hover:bg-gray-100"
+                  onClick={() => document.getElementById('fileInput')?.click()} >
+                  <input
+                    type="file"
+                    id="fileInput"
+                    className="hidden"
+                    onChange={handleFileChange}
+                    multiple
+                  />
+                  📎
+                </button>
 
-            {isFileUploaded && (
-              <div className="flex flex-col absolute bottom-20 gap-2 overflow-y-auto bg-white px-4 z-10 max-h-[400px] pb-4">
-                <div className="sticky top-0 bg-white p-4 font-semibold text-center text-lg">
-                  File Uploaded
-                </div>
-                {attachments.map((attachment, index) => (
-                  <div key={index} className="bg-violet-300 p-2 rounded flex justify-between gap-2">
-                    <span className="truncate w-[80%]">
-                      {attachment.originalname}</span>
-                    <button
-                      type="button"
-                      onClick={() => HandleDeleteFile(attachment.attachmentId, index)}
-                      className="text-stone-500 text-lg hover:bg-violet-200 px-2 rounded cursor-pointer"
-                    >
-                      X
-                    </button>
+                {isFileUploaded && (
+                  <div className="flex flex-col absolute bottom-20 gap-2 overflow-y-auto bg-white px-4 z-10 max-h-[400px] pb-4">
+                    <div className="sticky top-0 bg-white p-4 font-semibold text-center text-lg">
+                      File Uploaded
+                    </div>
+                    {attachments.map((attachment, index) => (
+                      <div key={index} className="bg-violet-300 p-2 rounded flex justify-between gap-2">
+                        <span className="truncate w-[80%]">
+                          {attachment.originalname}</span>
+                        <button
+                          type="button"
+                          onClick={() => HandleDeleteFile(attachment.attachmentId, index)}
+                          className="text-stone-500 text-lg hover:bg-violet-200 px-2 rounded cursor-pointer"
+                        >
+                          X
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            )}
+                )}
 
-            {isFileUploaded ? (
-              <input
-                onChange={(e) => setCurrentMsg(e.target.value)}
-                className="bg-white w-full mx-4 p-2 border-none outline-none"
-                value={currentMsg}
-                type="text"
-                placeholder="type a message here ..."
-              />
-            ) : (
-              <input
-                required
-                onChange={(e) => setCurrentMsg(e.target.value)}
-                className="bg-white w-full mx-4 p-2 border-none outline-none"
-                value={currentMsg}
-                type="text"
-                placeholder="type a message here ..."
-              />
-            )}
-            <button type="submit" className="text-2xl p-2 rounded hover:bg-violet-700  bg-violet-500 text-white cursor-pointer">
-              <RiSendPlaneFill />
-            </button>
-          </div>
-        </form>
-        :
-        <div className="bg-chat p-10 h-full w-full text-lg text-center font-semibold text-gray-500">
-          Select channel or contact for chat.
+                {isFileUploaded ? (
+                  <textarea
+                    rows={2}
+                    value={currentMsg}
+                    onChange={(e) => setCurrentMsg(e.target.value)}
+                    placeholder="Write a message..."
+                    className="w-full px-3 py-2 border rounded-md resize-none"
+                  />
+
+                ) : (
+                  <textarea
+                    required
+                    rows={2}
+                     value={currentMsg}
+                    onChange={(e) => setCurrentMsg(e.target.value)}
+                    placeholder="Write a message..."
+                    className="w-full px-3 py-2 border rounded-md resize-none"
+                  />
+                )}
+                <div className="flex flex-col items-center mx-4">
+                  <button
+                  type="submit"
+                  className="bg-green-600 text-white px-4 py-2 rounded-md hover:opacity-95">
+                    Send
+                  </button>
+                </div>
+              </div>
+            </form>
+            :
+            <div className="bg-chat p-10 h-full w-full text-lg text-center font-semibold text-gray-500">
+              Select channel or contact for chat.
+            </div>
+          }
         </div>
-      }
+      </div>
     </div>
   );
 };
