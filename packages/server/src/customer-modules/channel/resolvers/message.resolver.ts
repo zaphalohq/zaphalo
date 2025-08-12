@@ -59,14 +59,12 @@ export class MessageResolver {
     const receiverId = sendMessageInput?.receiverId.filter((number: any) => number != senderId)
     if ((!attachments || attachments.length === 0) && textMessage) {
       const messageType = 'text'
-      // const waMessageIds = await this.channelService.sendWhatsappMessage({
-      //   receiverId,
-      //   messageType,
-      //   textMessage,
-      //   attachmentUploadtoWaApiId: null,
-      // });
-
-      const waMessageIds = ['test1']
+      const waMessageIds = await this.channelService.sendWhatsappMessage({
+        receiverId,
+        messageType,
+        textMessage,
+        attachmentUploadtoWaApiId: null,
+      });
       if (!channelId || channelId === '') {
         const memberIds = [...receiverId, senderId];
         const channel: any = await this.channelService.findOrCreateChannel(
@@ -100,16 +98,14 @@ export class MessageResolver {
       for (const attachment of attachments) {
         const wa_api = await this.waAccountService.getWhatsAppApi();
         const dbAttachment = await this.attachmentService.findOneAttachmentById(attachment.attachmentId);
-        // const attachmentUploadtoWaApiId = await wa_api._upload_whatsapp_document(dbAttachment);
-        // console.log(attachmentUploadtoWaApiId, 'attachmentUploadtoWaApi...............................');
+        const attachmentUploadtoWaApiId = await wa_api._upload_whatsapp_document(dbAttachment);
 
-        // const waMessageIds = await this.channelService.sendWhatsappMessage({
-        //   receiverId,
-        //   messageType: attachment.messageType,
-        //   textMessage,
-        //   attachmentUploadtoWaApiId
-        // });
-      const waMessageIds = ['test1']
+        const waMessageIds = await this.channelService.sendWhatsappMessage({
+          receiverId,
+          messageType: attachment.messageType,
+          textMessage,
+          attachmentUploadtoWaApiId
+        });
 
         if (!waMessageIds) throw Error('message not send to whatsapp')
         if (!channelId || channelId === '') {
