@@ -22,7 +22,7 @@ const MainLayout = () => {
   }, [currentUserWorkspace]);
 
   return (
-    <div className="grid md:grid-cols-[260px_1fr] min-h-screen w-full bg-blacky-900 p-5 overflow-hidden ">
+    <div className="grid md:grid-cols-[260px_1fr] min-h-screen w-full bg-blacky-900 overflow-hidden ">
       <Sidebar HandleToggleButton={HandleToggleButton} isToggleActivated={isToggleActivated} />
       {currentUserWorkspace && !currentUserWorkspace?.isWorkspaceSetup && <WorkspaceSetup />}
       <div className="w-full overflow-hidden  rounded-2xl">
