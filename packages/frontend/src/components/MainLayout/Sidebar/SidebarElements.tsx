@@ -37,7 +37,7 @@ const SidebarElement = ({ title, to, Icon, HandleToggleButton, subItems = [] }: 
 
   return (
     <div>
-      <divclassName={`flex items-center gap-3 p-3 rounded-lg transition-colors duration-200 ${
+      <div className={`flex items-center gap-3 p-3 rounded-lg transition-colors duration-200 ${
         isPageActive ? 'bg-green-600' : 'hover:bg-gray-700'}`} onClick={toggleSubMenu}>
         {Icon}
         {subItems.length > 0 || !to ? (
