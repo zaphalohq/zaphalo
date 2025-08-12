@@ -165,8 +165,8 @@ const MessageArea = () => {
   };
 
   return (
-    <div className="p-4 bg-white border-t">
-      <div className="max-w-3xl mx-auto flex items-end gap-3">
+    <div>
+      <div className="mx-auto flex items-end gap-3">
         <div className="flex-1">
           {chatsDetails.channelId ?
             <form className='bg-white mx-6 mb-6 rounded-2xl' onSubmit={SubmitMsg}>
@@ -208,7 +208,7 @@ const MessageArea = () => {
 
                 {isFileUploaded ? (
                   <textarea
-                    rows={2}
+                    rows={1}
                     value={currentMsg}
                     onChange={(e) => setCurrentMsg(e.target.value)}
                     placeholder="Write a message..."
@@ -218,7 +218,7 @@ const MessageArea = () => {
                 ) : (
                   <textarea
                     required
-                    rows={2}
+                    rows={1}
                      value={currentMsg}
                     onChange={(e) => setCurrentMsg(e.target.value)}
                     placeholder="Write a message..."

@@ -155,7 +155,7 @@ const MessageDisplay = () => {
 
   return (
     <div className="flex-1 overflow-y-auto p-6" id="chat-scroll">
-      <div ref={messagesContainerRef} className="max-w-3xl mx-auto">
+      <div ref={messagesContainerRef} className="max-w-7xl mx-auto">
         {allMessages.map((message, index) =>
           <div key={index} className="relative z-10 p-4">
             {Number(message.sender.phoneNo) != selectedPhoneNo ? (
