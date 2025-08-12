@@ -8,6 +8,7 @@ import { Request as ExpressRequest } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { extension } from 'mime-types';
 import { AttachmentService } from '../attachment/attachment.service';
+import { FileService } from 'src/modules/file-storage/services/file.service';
 
 @Controller('whatsapp')
 export class channelController {
@@ -16,7 +17,9 @@ export class channelController {
     private readonly channelService: ChannelService,
     private readonly contactsservice: ContactsService,
     private readonly jwtWrapperService: JwtWrapperService,
-    private readonly attachmentService: AttachmentService
+    private readonly attachmentService: AttachmentService,
+    private fileService: FileService
+
   ) { }
 
   @Get('/:workspace/webhook')
@@ -103,7 +106,11 @@ export class channelController {
         true,
         attachement.id
       );
-    this.webSocketService.sendMessageToChannel('26fb2d84-dc67-4afc-8a80-853c4df52923', message[0], 917202031718, false);
+      const workspaceLogoToken = this.fileService.encodeFileToken({
+        workspaceId: workspaceId,
+      });
+      message[0].attachmentUrl = `${message[0].attachmentUrl}?token=${workspaceLogoToken}`
+      this.webSocketService.sendMessageToChannel(channel.id, message[0], Number(userPhoneNo), newChannelCreated);
     } else {
       throw new Error(`Received an unsupported message type: ${messageType}`)
     }

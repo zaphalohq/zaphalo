@@ -41,6 +41,7 @@ export const InstantsProvider = ({ children }: { children: ReactNode }) => {
         businessAccountId: "",
         accessToken: "",
         appSecret: "",
+        waWebhookToken: ""
     }
     const [formData, setFormData] = useState(initialFormData);
     const [instantsData, setInstantsData] = useState<any>([initialFormData])
@@ -55,6 +56,9 @@ export const InstantsProvider = ({ children }: { children: ReactNode }) => {
         try {
             const { data: newData } = await refetch();
             setInstantsData(newData?.findAllInstants)
+
+            console.log(newData,'...............newdata');
+            
         } catch (err) {
             console.error('Error fetching data', err)
         }
@@ -148,8 +152,6 @@ export const InstantsProvider = ({ children }: { children: ReactNode }) => {
 
 
     const HandleDeleteInstants = async (waAccountId: string) => {
-        console.log(waAccountId,'deleteid.......................');
-        
         try {
             await DeleteInstants({
                 variables: {

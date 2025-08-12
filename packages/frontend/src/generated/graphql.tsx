@@ -400,6 +400,7 @@ export const findAllInstants = gql`
       accessToken
       appSecret
       defaultSelected
+      waWebhookToken
     }
   }
 `;
