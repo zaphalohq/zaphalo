@@ -56,15 +56,10 @@ export class MessageResolver {
     if (!findTrueInstants) throw new Error('findTrueInstants not found');
     const senderId = Number(findTrueInstants?.phoneNumberId)
 
+    const returnMessage : Message[] = [];
     const receiverId = sendMessageInput?.receiverId.filter((number: any) => number != senderId)
     if ((!attachments || attachments.length === 0) && textMessage) {
       const messageType = 'text'
-      const waMessageIds = await this.channelService.sendWhatsappMessage({
-        receiverId,
-        messageType,
-        textMessage,
-        attachmentUploadtoWaApiId: null,
-      });
       if (!channelId || channelId === '') {
         const memberIds = [...receiverId, senderId];
         const channel: any = await this.channelService.findOrCreateChannel(
@@ -77,37 +72,28 @@ export class MessageResolver {
           textMessage,
           channel.channel.id,
           senderId, messageType,
-          waMessageIds,
+          // waMessageIds,
           true
         );
-        return [message[0]]
+        returnMessage.push(message[0])
       } else {
         const message = await this.channelService.createMessage(
           textMessage,
           channelId,
           senderId,
           messageType,
-          waMessageIds,
+          // waMessageIds,
           true
         );
-        return [message[0]]
+        returnMessage.push(message[0])
       }
     }
-    const returnMessage : Message[] = [];
     if (attachments && attachments.length > 0) {
       for (const attachment of attachments) {
         const wa_api = await this.waAccountService.getWhatsAppApi();
         const dbAttachment = await this.attachmentService.findOneAttachmentById(attachment.attachmentId);
         const attachmentUploadtoWaApiId = await wa_api._upload_whatsapp_document(dbAttachment);
-
-        const waMessageIds = await this.channelService.sendWhatsappMessage({
-          receiverId,
-          messageType: attachment.messageType,
-          textMessage,
-          attachmentUploadtoWaApiId
-        });
-
-        if (!waMessageIds) throw Error('message not send to whatsapp')
+        // if (!waMessageIds) throw Error('message not send to whatsapp')
         if (!channelId || channelId === '') {
           const memberIds = [...receiverId, senderId];
           const channel: any = await this.channelService.findOrCreateChannel(
@@ -121,7 +107,8 @@ export class MessageResolver {
             channel.channel.id,
             senderId,
             attachment.messageType,
-            waMessageIds, true,
+            // waMessageIds,
+            true,
             attachment.attachmentId
           );
           returnMessage.push(message[0])
@@ -131,13 +118,24 @@ export class MessageResolver {
             channelId,
             senderId,
             attachment.messageType,
-            waMessageIds,
+            // waMessageIds,
             true,
             attachment.attachmentId
           );
           returnMessage.push(message[0])
         }
       }
+    }
+    console.log("....................returnMessage.....................", returnMessage);
+
+    for (const channelMessage of returnMessage) {
+      const waMessageIds = await this.channelService.sendWhatsappMessage({
+        channelMessage,
+        receiverId,
+        messageType: channelMessage.messageType,
+        textMessage: channelMessage.textMessage,
+        attachmentUploadtoWaApiId: null,
+      });
     }
     return returnMessage
   }
