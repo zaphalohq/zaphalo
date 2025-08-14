@@ -69,7 +69,7 @@ export class channelController {
         channel.id,
         Number(userPhoneNo),
         messageType,
-        waMessageIds
+        // waMessageIds
       );
       this.webSocketService.sendMessageToChannel(channel.id, message[0], Number(userPhoneNo), newChannelCreated);
       return message;
@@ -102,9 +102,9 @@ export class channelController {
         channel.id,
         Number(userPhoneNo),
         messageType,
-        waMessageIds,
         true,
-        attachement.id
+        attachement.id,
+        // waMessageIds,
       );
       const workspaceLogoToken = this.fileService.encodeFileToken({
         workspaceId: workspaceId,

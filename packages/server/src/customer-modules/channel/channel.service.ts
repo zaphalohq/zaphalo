@@ -7,6 +7,9 @@ import { Connection, Repository, In } from 'typeorm';
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 import { WaAccountService } from "../whatsapp/services/whatsapp-account.service";
 import { AttachmentService } from "../attachment/attachment.service";
+import { WhatsAppMessage, messageTypes } from "src/customer-modules/whatsapp/entities/whatsapp-message.entity";
+
+
 import fs from 'fs';
 import axios from "axios";
 
@@ -14,6 +17,8 @@ import axios from "axios";
 export class ChannelService {
     private channelRepository: Repository<Channel>
     private messageRepository: Repository<Message>
+    private waMessageRepository: Repository<WhatsAppMessage>
+
     constructor(
         @Inject(CONNECTION) connection: Connection,
         private readonly contactsservice: ContactsService,
@@ -23,6 +28,7 @@ export class ChannelService {
     ) {
         this.channelRepository = connection.getRepository(Channel);
         this.messageRepository = connection.getRepository(Message);
+        this.waMessageRepository = connection.getRepository(WhatsAppMessage);
     }
 
 
@@ -66,9 +72,9 @@ export class ChannelService {
         channelId: string,
         senderId: number,
         messageType: string,
-        waMessageIds: string[],
         unseen?: boolean,
-        attachemntId?: string): Promise<Message[]> {
+        attachemntId?: string,
+        waMessageIds?: string[]): Promise<Message[]> {
         let attachment;
         if (attachemntId) {
             attachment = await this.attachmentService.findOneAttachmentById(attachemntId);
@@ -80,22 +86,20 @@ export class ChannelService {
         if (!channel) throw new Error('Channel not found');
 
         const messagesRepo: Message[] = []
-        for (const waMessageId of waMessageIds) {
-            const message_rec = this.messageRepository.create({
-                textMessage,
-                sender: sender,
-                channel: channel,
-                unseen: unseen,
-                waMessageId: waMessageId,
-                messageType,
-                attachmentUrl: attachment ? attachment.name : null,
-                attachment: attachment ? attachment : null
-            })
-            await this.messageRepository.save(message_rec)
-            messagesRepo.push(message_rec)
-        }
-        console.log(messagesRepo,'......................messagesRepo');
-        
+        // for (const waMessageId of waMessageIds) {
+        const message_rec = this.messageRepository.create({
+            textMessage,
+            sender: sender,
+            channel: channel,
+            unseen: unseen,
+            // waMessageId: waMessageId,
+            messageType,
+            attachmentUrl: attachment ? attachment.name : null,
+            attachment: attachment ? attachment : null
+        })
+        await this.messageRepository.save(message_rec)
+        messagesRepo.push(message_rec)
+        // }
         return messagesRepo
     }
 
@@ -215,39 +219,12 @@ export class ChannelService {
         }
     }
 
-
-    // async sendWhatsappMessage({
-    //     receiverId,
-    //     messageType,
-    //     textMessage,
-    //     attachmentId
-    // }) {
-    //     const messagePayload = await this.generateMessagePayload(
-    //         messageType,
-    //         textMessage,
-    //     );
-    //     receiverId.forEach(async (receiver) => {
-
-    //         const finalPayload = {
-    //             messaging_product: 'whatsapp',
-    //             to: receiver,
-    //             ...messagePayload,
-    //         };
-
-
-    //         const wa_api = await this.waAccountService.getWhatsAppApi();
-    //         const message_id = await wa_api.sendWhatsApp(JSON.stringify(finalPayload))
-    //         if(!message_id) throw Error('message not send to whatsapp')
-    //         return message_id
-    //     });
-
-    // }
-
     async sendWhatsappMessage({
+        channelMessage,
         receiverId,
         messageType,
         textMessage,
-        attachmentUploadtoWaApiId,
+        attachmentUploadtoWaApiId
     }): Promise<string[]> {
         const messagePayload = await this.generateMessagePayload(
             messageType,
@@ -255,14 +232,31 @@ export class ChannelService {
             attachmentUploadtoWaApiId
         );
 
+      const findTrueInstants = await this.waAccountService.FindSelectedInstants()
+      if (!findTrueInstants)
+        throw new Error("Not found whatsappaccount")
+
+
         const waMessageIds: string[] = [];
 
         for (const receiver of receiverId) {
+
             const finalPayload = {
                 messaging_product: 'whatsapp',
                 to: receiver,
                 ...messagePayload,
             };
+
+            const whatsappMessageVal = {
+                body: textMessage,
+                channelMessageId: channelMessage,
+                messageType: messageTypes.OUTBOUND,
+                mobileNumber: receiver,
+                waAccountId: findTrueInstants,
+                freeTextJson: JSON.stringify(finalPayload)
+            }
+            const waMessage = this.waMessageRepository.create(whatsappMessageVal)
+            await this.waMessageRepository.save(waMessage)
 
             const wa_api = await this.waAccountService.getWhatsAppApi();
             const message_id = await wa_api.sendWhatsApp(JSON.stringify(finalPayload));
