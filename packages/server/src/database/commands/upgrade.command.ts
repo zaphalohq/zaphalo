@@ -24,7 +24,7 @@ export class UpgradeCommand extends CommandRunner {
     passedParams: string[],
     options?: Record<string, any>,
   ): Promise<void> {
-    this.runWorkspaceMigration();
+    await this.runWorkspaceMigration();
     return Promise.resolve(undefined);
   }
 
