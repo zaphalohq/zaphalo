@@ -6,6 +6,11 @@ import { WorkspaceManagerModule } from 'src/modules/workspace-manager/workspace.
 import { SystemConfigModule } from 'src/modules/system-config/system-config.module';
 import { FileStorageModule } from 'src/modules/file-storage/file-storage.module';
 import { JwtModule } from 'src/modules/jwt/jwt.module';
+import { ConfigService } from '@nestjs/config';
+import { MessageQueueModule } from 'src/modules/message-queue/message-queue.module';
+import { QueueManagerModuleFactory } from 'src/modules/message-queue/message-queue-module.factory';
+
+
 
 @Module({
   imports: [
@@ -16,6 +21,10 @@ import { JwtModule } from 'src/modules/jwt/jwt.module';
     SystemConfigModule,
     FileStorageModule,
     JwtModule,
+    MessageQueueModule.registerAsync({
+      useFactory: QueueManagerModuleFactory,
+      inject: [ConfigService]
+    })
   ],
   exports: [
     UserModule,

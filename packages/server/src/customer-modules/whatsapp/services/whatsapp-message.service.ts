@@ -8,25 +8,35 @@ import { WhatsAppMessage } from "../entities/whatsapp-message.entity";
 import { AttachmentService } from "src/customer-modules/attachment/attachment.service";
 import { WaAccountService } from "./whatsapp-account.service";
 import { Workspace } from 'src/modules/workspace/workspace.entity';
+import { InjectMessageQueue } from 'src/modules/message-queue/decorators/message-queue.decorator';
+import { MessageQueue } from 'src/modules/message-queue/message-queue.constants';
+
+import {
+  SendWhatsAppMessageJob,
+  // WhatsAppMessageJobData,
+} from 'src/customer-modules/whatsapp/jobs/whatsapp-message.job';
+import PgBoss from 'pg-boss';
+import { PgBossDriver } from 'src/modules/message-queue/drivers/pgboss.driver';
+import { MessageQueueService } from 'src/modules/message-queue/services/message-queue.service';
+
+export type WhatsAppMessageJobData = { to: string, text: string };
 
 @Injectable()
 export class MessageService {
-  private messageRepository: Repository<WhatsAppMessage>
 
   constructor(
-    @InjectRepository(Workspace, 'core')
-    private usersRepository: Repository<Workspace>,
-    // @Inject(CONNECTION) connection: Connection,
-    // private readonly waAccountService: WaAccountService,
-    // private readonly attachmentService: AttachmentService,
-
+    @InjectMessageQueue(MessageQueue.sendWaQueue)
+    private readonly messageQueueService: MessageQueueService,
   ) {
-    // this.messageRepository = connection.getRepository(WhatsAppMessage);
   }
 
+  async queueMessage(to: string, text: string) {
 
-  @Cron('45 * * * * *')
-  handleCron() {
-    console.log('Called when the current second is 45');
+
+    await this.messageQueueService.add<WhatsAppMessageJobData>(
+      SendWhatsAppMessageJob.name,
+      { to: '000', text: 'Hello' },
+    );
   }
+  
 }

@@ -13,11 +13,14 @@ import { WaAccountDto } from "./dtos/whatsapp-account-update.dto";
 import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
 import { Workspace } from "src/modules/workspace/workspace.entity";
 import { SuccessResponse } from "./dtos/success.dto";
+import { MessageService } from './services/whatsapp-message.service';
+
 
 @Resolver(() => WhatsAppAccount)
 export class WhatsAppResolver {
   constructor(
     private readonly waAccountService: WaAccountService,
+    private readonly messageService: MessageService,
     private readonly whatsAppApiService: WhatsAppSDKService,
     private readonly waTemplateService: TemplateService
   ) { }
@@ -149,6 +152,15 @@ export class WhatsAppResolver {
   ) {
     const wa_api = await this.waAccountService.getWhatsAppApi()
 
+  }
+
+  @Mutation(() => String)
+  async waQueue(
+  ) {
+    const to = ''
+    const text = 'as12212'
+    await this.messageService.queueMessage(to, text)
+    return ""
   }
 
 

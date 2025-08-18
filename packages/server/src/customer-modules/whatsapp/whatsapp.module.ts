@@ -23,26 +23,27 @@ import { WhatsAppTemplateResolver } from './resolvers/template.resolver';
 import { FileStorageModule } from 'src/modules/file-storage/file-storage.module';
 import { JwtModule } from 'src/modules/jwt/jwt.module';
 import { Workspace } from 'src/modules/workspace/workspace.entity';
-
-
+import { MessageQueueModule } from 'src/modules/message-queue/message-queue.module';
+import { SendWhatsAppMessageJob } from './jobs/whatsapp-message.job';
 
 @Module({
   imports: [
     NestjsQueryGraphQLModule.forFeature({
       imports: [
-        ScheduleModule.forRoot(),
+        // ScheduleModule.forRoot(),
         NestjsQueryTypeOrmModule.forFeature([WhatsAppAccount, WhatsAppMessage, WhatsAppTemplate]),
-        NestjsQueryTypeOrmModule.forFeature([Workspace], 'core'),
+        // NestjsQueryTypeOrmModule.forFeature([Workspace], 'core'),
         TypeORMModule,
         ContactsModule,
         WorkspaceModule,
         AttachmentModule,
         FileStorageModule,
-        JwtModule
+        JwtModule,
       ],
       services: [WaAccountService, WhatsAppSDKService, TemplateService, MessageService],
     }),
     HttpModule,
+    MessageQueueModule,
   ],
   providers: [
     WaAccountService,
@@ -51,7 +52,8 @@ import { Workspace } from 'src/modules/workspace/workspace.entity';
     MessageService,
     WhatsAppResolver,
     WaAccountResolver,
-    WhatsAppTemplateResolver
+    WhatsAppTemplateResolver,
+    SendWhatsAppMessageJob
   ],
   exports: [WaAccountService, WhatsAppSDKService, TemplateService, MessageService],
 })

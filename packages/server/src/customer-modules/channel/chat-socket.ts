@@ -7,8 +7,11 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
+export const WEBSOCKET_PORT =
+  process.env.WEBSOCKET_PORT || 4000
 
-@WebSocketGateway(Number(process.env.WEBSOCKET_PORT), { cors: { origin: '*' } })
+
+@WebSocketGateway(Number(WEBSOCKET_PORT) || undefined, { namespace: '/chat', cors: { origin: '*' } })
 export class WebSocketService implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server : Server
