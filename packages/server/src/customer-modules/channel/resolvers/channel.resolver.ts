@@ -6,6 +6,7 @@ import { ContactsService } from "src/customer-modules/contacts/contacts.service"
 import { FileService } from "src/modules/file-storage/services/file.service";
 import { Channel } from "../channel.entity";
 import { ChannelService } from "../channel.service";
+import { WebSocketService } from '../chat-socket';
 
 @Resolver(() => Channel)
 export class ChannelResolver {
@@ -13,6 +14,7 @@ export class ChannelResolver {
     private readonly channelService: ChannelService,
     private readonly contactService: ContactsService,
     private readonly waAccountService: WaAccountService,
+    private readonly webSocketService: WebSocketService,
     private fileService: FileService
   ) { }
 
@@ -21,6 +23,21 @@ export class ChannelResolver {
   async findAllChannel(
     @Context('req') req): Promise<Channel[]> {
     return await this.channelService.findAllChannel();
+  }
+  @Mutation(() => String)
+  async waWebsocket(@Args('channelId') channelId: string,
+    @Args('mobileNumber') mobileNumber: number,
+    @Args('msg') msg: string
+  ) {
+      const message = await this.channelService.createMessage(
+        msg,
+        channelId,
+        mobileNumber,
+        "text",
+        // waMessageIds
+      );
+    this.webSocketService.sendMessageToChannel(channelId, {"name": msg}, mobileNumber, false);
+    return "done"
   }
 
   @UseGuards(GqlAuthGuard)

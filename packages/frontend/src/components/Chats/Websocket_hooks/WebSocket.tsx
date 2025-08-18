@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { ChatsContext } from "@components/Context/ChatsContext";
+import { VITE_WEBSOCKET_URL } from '@src/config';
 
 interface Message {
     channelId: string;
@@ -22,7 +23,7 @@ export async function useWebSocket() {
     }, [newUnseenMessage])
 
     useEffect(() => {
-        const socketIo = io(import.meta.env.VITE_WEBSOCKET_URL, {
+        const socketIo = io(VITE_WEBSOCKET_URL, {
             transports: ["websocket"],
             reconnection: true,
         });
