@@ -26,8 +26,6 @@ export class WaAccountService {
   }
 
   async WaAccountCreate(req, waAccount: WaAccountDto): Promise<WhatsAppAccount> {
-    console.log("...........................................1");
-
     const waAccounts = await this.waAccountRepository.find();
     let defaultWaAccount = false;
     if (waAccounts.length < 1) {
@@ -57,6 +55,24 @@ export class WaAccountService {
     return waAccountSaved;
   }
 
+  async WaAccountSave(updatedInstants: WaAccountDto): Promise<WhatsAppAccount | null> {
+      const id = updatedInstants.accountId;
+      const existingInstants = await this.waAccountRepository.findOne({ where: { id } });
+      if (!existingInstants) {
+        throw new NotFoundException(`Instant with ID ${id} not found`);
+      }
+      Object.assign(existingInstants, updatedInstants);
+      await this.waAccountRepository.save(existingInstants);
+      const existingContact = await this.contactsService.findOneContact(Number(existingInstants.phoneNumberId))
+      if (!existingContact) throw Error("contact not found")
+      await this.contactsService.UpdateContact({
+        id: existingContact?.id,
+        contactName: existingContact?.contactName,
+        phoneNo: Number(updatedInstants?.phoneNumberId)
+      })
+      return existingInstants
+    }
+
 
 
   async findAllAccounts(): Promise<WhatsAppAccount[]> {
@@ -65,22 +81,7 @@ export class WaAccountService {
     });
   }
 
-  async UpdateInstants(id: string, updatedInstants: WaAccountDto): Promise<WhatsAppAccount | null> {
-    const existingInstants = await this.waAccountRepository.findOne({ where: { id } });
-    if (!existingInstants) {
-      throw new NotFoundException(`Instant with ID ${id} not found`);
-    }
-    Object.assign(existingInstants, updatedInstants);
-    await this.waAccountRepository.save(existingInstants);
-    const existingContact = await this.contactsService.findOneContact(Number(existingInstants.phoneNumberId))
-    if (!existingContact) throw Error("contact not found")
-    await this.contactsService.UpdateContact({
-      id: existingContact?.id,
-      contactName: existingContact?.contactName,
-      phoneNo: Number(updatedInstants?.phoneNumberId)
-    })
-    return existingInstants
-  }
+
 
   async DeleteInstants(id: string): Promise<WhatsAppAccount | null> {
     const deleteInstants = await this.waAccountRepository.findOne({ where: { id } });

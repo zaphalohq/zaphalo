@@ -4,52 +4,106 @@ import { WhatsAppAccount } from '../entities/whatsapp-account.entity';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from 'src/modules/auth/guards/gql-auth.guard';
 import { WaAccountDto } from '../dtos/whatsapp-account-update.dto';
+import { TemplateService } from 'src/customer-modules/whatsapp/services/whatsapp-template.service';
+import { WhatsAppSDKService } from 'src/customer-modules/whatsapp/services/whatsapp-api.service'
+import { Workspace } from "src/modules/workspace/workspace.entity";
+import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
 
 
 @Resolver(() => WhatsAppAccount)
 export class WaAccountResolver {
-    constructor(
-        private readonly waAccountService: WaAccountService,
-                          
-    ) { }
+  constructor(
+    private readonly waAccountService: WaAccountService,
+    private readonly waTemplateService: TemplateService,
+    private readonly whatsAppApiService: WhatsAppSDKService,
+  ) { }
 
-    @UseGuards(GqlAuthGuard)
-    @Mutation(() => WhatsAppAccount)
-    async WaAccountSave(
-        @Context('req') req : Request,
-        @Args('whatsappInstantsData') whatsappInstantsData: WaAccountDto,
-        @Args('instanceId', { nullable: true}) instanceId?: string
-    ): Promise<WhatsAppAccount | null> {
-        if (!instanceId) {
-            return await this.waAccountService.WaAccountCreate(req, whatsappInstantsData);
-        } else {
-            return await this.waAccountService.UpdateInstants(instanceId, whatsappInstantsData);
-        }
-    }
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => WhatsAppAccount)
+  async WaAccountCreate(
+      @Context('req') req : Request,
+      @Args('whatsAppAccountData') whatsAppAccountData: WaAccountDto,
+  ): Promise<WhatsAppAccount | null> {
+      if (whatsAppAccountData.accountId){
+          throw Error("WhatsApp Account all ready created!")
+      }
+      return await this.waAccountService.WaAccountCreate(req, whatsAppAccountData);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => WhatsAppAccount)
+  async WaAccountSave(
+      @Context('req') req : Request,
+      @Args('whatsAppAccountData') whatsAppAccountData: WaAccountDto
+  ): Promise<WhatsAppAccount | null> {
+      if (!whatsAppAccountData.accountId){
+          throw Error("WhatsApp account ID not provided!")
+      }
+      return await this.waAccountService.WaAccountSave(whatsAppAccountData);
+  }
     
-    @UseGuards(GqlAuthGuard)
-    @Query(() => [WhatsAppAccount])
-    async findAllInstants(): Promise<WhatsAppAccount[]> {
-        return await this.waAccountService.findAllAccounts();
+  @UseGuards(GqlAuthGuard)
+  @Query(() => [WhatsAppAccount])
+  async findAllInstants(): Promise<WhatsAppAccount[]> {
+      return await this.waAccountService.findAllAccounts();
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => WhatsAppAccount)
+  async findDefaultSelectedInstants(): Promise<WhatsAppAccount | null> {
+      return await this.waAccountService.FindSelectedInstants();
+  }
+
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => WhatsAppAccount)
+  async DeleteInstants(@Args('waAccountId') waAccountId: string): Promise<WhatsAppAccount | null> {
+      return this.waAccountService.DeleteInstants(waAccountId)
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => [WhatsAppAccount])
+  async InstantsSelection(@Args('instantsId') instantsId: string): Promise<WhatsAppAccount[]> {
+      return await this.waAccountService.InstantsSelection(instantsId);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => WhatsAppAccount)
+  async WaAccountSync(
+    @Context('req') req,
+    @Args('whatsAppAccountData') waAccount: WaAccountDto,
+    ): Promise<WhatsAppAccount | null | string> {
+    if (!waAccount.accountId){
+      throw Error("WhatsApp account id not provided")
     }
 
-    @UseGuards(GqlAuthGuard)
-    @Query(() => WhatsAppAccount)
-    async findDefaultSelectedInstants(): Promise<WhatsAppAccount | null> {
-        return await this.waAccountService.FindSelectedInstants();
+    const WaAccounts = await this.waAccountService.findInstantsByInstantsId(waAccount.accountId)
+    const wa_api = await this.waAccountService.getWhatsAppApi(waAccount.accountId)
+    if (WaAccounts) {
+      const syncTemplate = await wa_api.syncTemplate();
+      await this.waTemplateService.saveSyncTemplates(syncTemplate, WaAccounts)
     }
+    return WaAccounts;
+  }
 
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => WhatsAppAccount)
+  async WaAccountTestConnection(
+    @AuthWorkspace() workspace: Workspace,
+    @Context('req') req,
+    @Args('whatsAppAccountData') waAccount: WaAccountDto,
+  ): Promise<void | string | null> {
+      if (!waAccount.accountId){
+        throw Error("WhatsApp account id not provided")
+      }
+      const WaAccounts = await this.waAccountService.findInstantsByInstantsId(waAccount.accountId)
 
-    @UseGuards(GqlAuthGuard)
-    @Mutation(() => WhatsAppAccount)
-    async DeleteInstants(@Args('waAccountId') waAccountId: string): Promise<WhatsAppAccount | null> {
-        return this.waAccountService.DeleteInstants(waAccountId)
-    }
+      if (!WaAccounts){
+        throw Error("WhatsApp account id provided is wrong.")
+      }
 
-    @UseGuards(GqlAuthGuard)
-    @Mutation(() => [WhatsAppAccount])
-    async InstantsSelection(@Args('instantsId') instantsId: string): Promise<WhatsAppAccount[]> {
-        return await this.waAccountService.InstantsSelection(instantsId);
-    }
+      const wa_api = await this.waAccountService.getWhatsAppApi(waAccount.accountId)
+      return wa_api._test_connection()
+  }
 
 }
