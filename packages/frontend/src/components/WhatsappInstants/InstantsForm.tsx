@@ -12,12 +12,13 @@ const InstantsForm = () => {
 		isNewInstants,
 		setIsNewInstants,
 		HandleFormVisibility,
-		HandleCreateInstants,
+		HandleWhatsAppAccountCreateOrSave,
 		formData,
 		HandleInputChange,
-		HandleSyncAndSaveInstants,
+		HandleWhatsAppAccountSave,
+		HandleWhatsAppAccountSync,
 		HandaleFeatchData,
-		HandleTestAndSaveInstants,
+		HandleWhatsAppAccountTestConnection,
 	}: any = useContext(InstantsContext)
 	return (
 		<div className="fixed inset-0 bg-stone-900/30 flex items-center justify-center">
@@ -38,15 +39,17 @@ const InstantsForm = () => {
 				</div>
 				<div className="grid grid-cols-3 col-span-2 gap-4 pt-4">
 					<SubmitButton type="button" onClick={async () => {
-							await HandleCreateInstants()
+							await HandleWhatsAppAccountCreateOrSave()
 							HandaleFeatchData()
 					}} Icon={FaSave} title='Save Account' />
 					<SubmitButton type="button" onClick={async () => {
-							await HandleSyncAndSaveInstants()
+							await HandleWhatsAppAccountCreateOrSave()
+							await HandleWhatsAppAccountSync()
 							HandaleFeatchData()
 					}} Icon={FaSyncAlt} title='Sync Template' />
 					<SubmitButton type="button" onClick={async () => {
-							await HandleTestAndSaveInstants()
+							await HandleWhatsAppAccountCreateOrSave()
+							await HandleWhatsAppAccountTestConnection()
 					}} Icon={SiTestrail} title='Test Account' />
 				</div>
 			</form>

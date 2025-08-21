@@ -306,6 +306,9 @@ export class WhatsAppApiService {
       "url": `/${this.wa_account_id.businessAccountId}/message_templates`,
       "auth_type": "bearer"
     })
+    if(response.status == 401){
+      throw Error(response.response.statusText);
+    }
     return response.data.data
   }
 
@@ -449,16 +452,16 @@ export class WhatsAppApiService {
   }
 
 
-  async testInstants() {
-    if (this.is_shared_account) {
-      throw new Error("Account not properly configured")
-    }
-    const response = await this.apiRequests({
-      "request_type": "GET",
-      "url": `/${this.wa_account_id.phoneNumberId}?access_token=${this.token}`,
-    })
-    return response.data
-  }
+  // async testInstants() {
+  //   if (this.is_shared_account) {
+  //     throw new Error("Account not properly configured")
+  //   }
+  //   const response = await this.apiRequests({
+  //     "request_type": "GET",
+  //     "url": `/${this.wa_account_id.phoneNumberId}?access_token=${this.token}`,
+  //   })
+  //   return response.data
+  // }
 
   async _test_connection() {
     // """ This method is used to test connection of WhatsApp Business Account"""
@@ -468,6 +471,9 @@ export class WhatsAppApiService {
       'url': `/${this.wa_account_id.businessAccountId}/phone_numbers`,
       'auth_type': 'bearer',
     })
+    if(response.status == 401){
+      throw Error(this.prepare_error_response(response));
+    }
     const data = response.data.data
     let phone_values: String[] = new Array();
 

@@ -359,29 +359,36 @@ mutation DeleteContact(
     }
   }
 `
+// WhatsApp Account
 
+export const WhatsAppAccountCreate = gql`
+mutation WaAccountSave($whatsAppAccountData: WaAccountDto!) {
+  WaAccountSave(whatsAppAccountData: $whatsAppAccountData) {
+    id
+    name
+  }
+}`;
 
-export const WhatsappInstantsSave = gql`
-mutation WaAccountSave($whatsappInstantsData: WaAccountDto!, $instanceId: String) {
-  WaAccountSave(whatsappInstantsData: $whatsappInstantsData, instanceId: $instanceId) {
+export const WhatsAppAccountSave = gql`
+mutation WaAccountSave($whatsAppAccountData: WaAccountDto!) {
+  WaAccountSave(whatsAppAccountData: $whatsAppAccountData) {
+    id
+    name
+  }
+}`;
+
+export const WhatsAppAccountSync = gql`
+mutation WaAccountSync($whatsAppAccountData: WaAccountDto!) {
+  WaAccountSync(whatsAppAccountData: $whatsAppAccountData) {
     id
     name
   }
 }
 `;
 
-export const WhatsappInstantsSyncAndSave = gql`
-mutation SyncAndSaveInstants($whatsappInstantsData: WaAccountDto!) {
-  SyncAndSaveInstants(whatsappInstantsData: $whatsappInstantsData) {
-    id
-    name
-  }
-}
-`;
-
-export const WhatsappInstantsTestAndSave = gql(`
-mutation TestAndSaveInstants($whatsappInstantsData: WaAccountDto!) {
-  TestAndSaveInstants(whatsappInstantsData: $whatsappInstantsData) {
+export const WhatsAppAccountTestConnection = gql(`
+mutation WaAccountTestConnection($whatsAppAccountData: WaAccountDto!) {
+  WaAccountTestConnection(whatsAppAccountData: $whatsAppAccountData) {
     id
     name
   }

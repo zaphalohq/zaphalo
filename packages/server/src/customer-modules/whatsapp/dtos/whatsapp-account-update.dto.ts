@@ -23,4 +23,7 @@ export class WaAccountDto {
 
   @Field()
   appSecret: string;
+
+  @Field({nullable: true})
+  waWebhookToken: string;
 }
