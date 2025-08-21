@@ -389,8 +389,9 @@ mutation WaAccountSync($whatsAppAccountData: WaAccountDto!) {
 export const WhatsAppAccountTestConnection = gql(`
 mutation WaAccountTestConnection($whatsAppAccountData: WaAccountDto!) {
   WaAccountTestConnection(whatsAppAccountData: $whatsAppAccountData) {
-    id
-    name
+    message
+    success
+    error
   }
 }`
 )

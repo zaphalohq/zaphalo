@@ -8,6 +8,7 @@ import { TemplateService } from 'src/customer-modules/whatsapp/services/whatsapp
 import { WhatsAppSDKService } from 'src/customer-modules/whatsapp/services/whatsapp-api.service'
 import { Workspace } from "src/modules/workspace/workspace.entity";
 import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
+import { SuccessResponse } from "../dtos/success.dto";
 
 
 @Resolver(() => WhatsAppAccount)
@@ -87,12 +88,12 @@ export class WaAccountResolver {
   }
 
   @UseGuards(GqlAuthGuard)
-  @Mutation(() => WhatsAppAccount)
+  @Mutation(() => SuccessResponse)
   async WaAccountTestConnection(
     @AuthWorkspace() workspace: Workspace,
     @Context('req') req,
     @Args('whatsAppAccountData') waAccount: WaAccountDto,
-  ): Promise<void | string | null> {
+  ): Promise<SuccessResponse | undefined> {
       if (!waAccount.accountId){
         throw Error("WhatsApp account id not provided")
       }
@@ -103,7 +104,11 @@ export class WaAccountResolver {
       }
 
       const wa_api = await this.waAccountService.getWhatsAppApi(waAccount.accountId)
-      return wa_api._test_connection()
+      const res = await wa_api._test_connection()
+      return {
+        success: true,
+        message: res,
+      }
   }
 
 }
