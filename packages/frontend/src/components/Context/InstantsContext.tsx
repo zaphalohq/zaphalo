@@ -147,11 +147,11 @@ export const InstantsProvider = ({ children }: { children: ReactNode }) => {
           whatsAppAccountData: { accountId : id, ...restFormData },
         }
       })
-
       if (response.data) {
         HandaleFeatchData()
         HandleFormVisibility()
         setIsNewInstants(false)
+        toast.success(`${response.data.WaAccountTestConnection.message}`);
       }
     } catch (err) {
       toast.error(`${err}`);

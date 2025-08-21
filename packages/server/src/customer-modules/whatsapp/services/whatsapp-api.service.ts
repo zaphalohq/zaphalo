@@ -471,7 +471,7 @@ export class WhatsAppApiService {
       'url': `/${this.wa_account_id.businessAccountId}/phone_numbers`,
       'auth_type': 'bearer',
     })
-    if(response.status == 401){
+    if(response.status == 403){
       throw Error(this.prepare_error_response(response));
     }
     const data = response.data.data
@@ -492,6 +492,6 @@ export class WhatsAppApiService {
     const upload_session_id = uploads_session_response.data.id
     if (!upload_session_id)
       throw new Error(this.prepare_error_response(uploads_session_response))
-    return
+    return `Test connection: success for account ${this.wa_account_id.name}`;
   }
 }
