@@ -72,7 +72,7 @@ export const InstantsProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await whatsAppAccountCreate({
         variables: {
-          whatsAppAccountData: { ...restFormData },
+          whatsAppAccountData: { accountId: id, ...restFormData },
         }
       })
 
@@ -82,7 +82,7 @@ export const InstantsProvider = ({ children }: { children: ReactNode }) => {
         setIsNewInstants(false)
       }
     } catch (err) {
-      console.error('Error submitting form', err);
+      toast.error(`${err}`);
     }
   }
 
@@ -102,7 +102,7 @@ export const InstantsProvider = ({ children }: { children: ReactNode }) => {
         setIsNewInstants(false)
       }
     } catch (err) {
-      console.error('Error submitting form', err);
+      toast.error(`${err}`);
     }
   }
 

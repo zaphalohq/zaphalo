@@ -362,8 +362,8 @@ mutation DeleteContact(
 // WhatsApp Account
 
 export const WhatsAppAccountCreate = gql`
-mutation WaAccountSave($whatsAppAccountData: WaAccountDto!) {
-  WaAccountSave(whatsAppAccountData: $whatsAppAccountData) {
+mutation WaAccountCreate($whatsAppAccountData: WaAccountDto!) {
+  WaAccountCreate(whatsAppAccountData: $whatsAppAccountData) {
     id
     name
   }

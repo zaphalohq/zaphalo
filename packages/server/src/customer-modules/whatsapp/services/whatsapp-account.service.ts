@@ -39,7 +39,6 @@ export class WaAccountService {
       accessToken: waAccount.accessToken,
       appSecret: waAccount.appSecret,
       defaultSelected: defaultWaAccount,
-      waWebhookToken: 'd'
     })
     await this.contactsService.createContacts({
       contactName: waAccount.name,
