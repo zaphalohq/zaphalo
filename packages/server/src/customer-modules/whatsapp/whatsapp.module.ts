@@ -25,6 +25,7 @@ import { JwtModule } from 'src/modules/jwt/jwt.module';
 import { Workspace } from 'src/modules/workspace/workspace.entity';
 import { MessageQueueModule } from 'src/modules/message-queue/message-queue.module';
 import { SendWhatsAppMessageJob } from './jobs/whatsapp-message.job';
+import { UpdateTemplateJob } from 'src/customer-modules/whatsapp/crons/jobs/whatsapp-template-sync.job';
 
 @Module({
   imports: [
@@ -53,7 +54,8 @@ import { SendWhatsAppMessageJob } from './jobs/whatsapp-message.job';
     WhatsAppResolver,
     WaAccountResolver,
     WhatsAppTemplateResolver,
-    SendWhatsAppMessageJob
+    SendWhatsAppMessageJob,
+    UpdateTemplateJob
   ],
   exports: [WaAccountService, WhatsAppSDKService, TemplateService, MessageService],
 })
