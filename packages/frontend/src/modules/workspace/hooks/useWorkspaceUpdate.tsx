@@ -10,8 +10,6 @@ export const useWorkspaceUpdate = () => {
 
   const handleCreateOneAttachment = useCallback(
     (name: string | null) => {
-      console.log("................name.........", name);
-      
       return async () => {
         const { data } = await createOneAttachmentMutation({
           variables: { name },

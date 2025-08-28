@@ -9,6 +9,7 @@ import { join } from 'path';
 import { GraphQLConfigModule } from './modules/api/graphql-config/graphql-config.module';
 import { GraphQLConfigService } from './modules/api/graphql-config/graphql-config.service';
 import { CustomerModule } from 'src/customer-modules/customer.module';
+import { CoreModule } from 'src/modules/core.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { CustomerModule } from 'src/customer-modules/customer.module';
       imports: [GraphQLConfigModule],
       useClass: GraphQLConfigService, 
     }),
+    CoreModule,
     CustomerModule,
     ...AppModule.getConditionalModules(),
 ],

@@ -118,8 +118,9 @@ export const UserQueryFragmentFragmentDoc = gql`
       name
       isWorkspaceSetup,
       profileImg,
+      inviteToken,
     }
-    workspaces {
+    workspaceMembers {
       id
       role
       workspace {
