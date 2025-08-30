@@ -9,7 +9,7 @@ import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symb
 import { WhatsAppSDKService } from './whatsapp-api.service'
 import { AttachmentService } from "src/customer-modules/attachment/attachment.service";
 import { WaAccountService } from "./whatsapp-account.service";
-import { MessageService } from "./whatsapp-message.service";
+import { WaMessageService } from "./whatsapp-message.service";
 import { Attachment } from "src/customer-modules/attachment/attachment.entity";
 import { Account } from "aws-sdk";
 import { WhatsAppAccount } from "../entities/whatsapp-account.entity";
@@ -24,7 +24,7 @@ export class TemplateService {
     @Inject(CONNECTION) connection: Connection,
     private readonly waAccountService: WaAccountService,
     private readonly attachmentService: AttachmentService,
-    private readonly messageService: MessageService,
+    private readonly messageService: WaMessageService,
 
   ) {
     this.templateRepository = connection.getRepository(WhatsAppTemplate);

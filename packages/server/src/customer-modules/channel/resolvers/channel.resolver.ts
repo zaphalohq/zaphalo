@@ -7,6 +7,8 @@ import { FileService } from "src/modules/file-storage/services/file.service";
 import { Channel } from "../channel.entity";
 import { ChannelService } from "../channel.service";
 import { WebSocketService } from '../chat-socket';
+import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
+import { Workspace } from "src/modules/workspace/workspace.entity";
 
 @Resolver(() => Channel)
 export class ChannelResolver {
@@ -25,14 +27,16 @@ export class ChannelResolver {
     return await this.channelService.findAllChannel();
   }
   @Mutation(() => String)
-  async waWebsocket(@Args('channelId') channelId: string,
+  async waWebsocket(
+    @AuthWorkspace() workspace: Workspace,
+    @Args('channelId') channelId: string,
     @Args('mobileNumber') mobileNumber: number,
     @Args('msg') msg: string
   ) {
       const message = await this.channelService.createMessage(
+        workspace.id,
         msg,
         channelId,
-        mobileNumber,
         "text",
         // waMessageIds
       );

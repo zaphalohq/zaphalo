@@ -65,8 +65,6 @@ export class WorkspaceInvitationService {
             workspace,
           );
 
-          console.log("..............................", appToken)
-
           if (!appToken.context?.email) {
             throw new Error(
               'Invalid email',

@@ -65,9 +65,9 @@ export class channelController {
     if (messageType === 'text') {
       const textMessage = messageData.text.body;
       const message = await this.channelService.createMessage(
+        workspaceId,
         textMessage,
         channel.id,
-        Number(userPhoneNo),
         messageType,
         // waMessageIds
       );
@@ -98,9 +98,9 @@ export class channelController {
       })
       const textMessage = ''
       const message = await this.channelService.createMessage(
+        workspaceId,
         textMessage,
         channel.id,
-        Number(userPhoneNo),
         messageType,
         true,
         attachement.id,

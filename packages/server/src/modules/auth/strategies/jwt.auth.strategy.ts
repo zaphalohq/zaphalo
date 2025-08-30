@@ -23,7 +23,6 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
   async validate(payload: any) {
-    console.log(".............................")
     let user: User | null = null;
     const workspace = await this.workspaceRepository.findOneBy({
       id: payload['workspaceId'],
