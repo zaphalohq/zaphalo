@@ -4,6 +4,7 @@ import { Workspace } from 'src/modules/workspace/workspace.entity';
 import { WorkspaceMember } from 'src/modules/workspace/workspaceMember.entity';
 import { DataSource, getConnectionManager, DataSourceOptions } from 'typeorm';
 import { typeORMWorkspaceModuleOptions } from 'src/database/typeorm/workspace/workspace.datasource';
+import { AppToken } from 'src/modules/app-token/app-token.entity';
 
 @Injectable()
 export class TypeORMService implements OnModuleInit, OnModuleDestroy {
@@ -21,6 +22,7 @@ export class TypeORMService implements OnModuleInit, OnModuleDestroy {
         User,
         Workspace,
         WorkspaceMember,
+        AppToken
       ],
       ssl: undefined,
     });

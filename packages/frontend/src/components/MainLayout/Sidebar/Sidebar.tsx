@@ -27,9 +27,9 @@ export default function Sidebar({ activeTab, setActiveTab }) {
     { name: 'Chats', icon: <MessageCircle size={20} />, key: 'chats' },
     { name: 'Contacts', icon: <Users size={20} />, key: 'contacts' },
     { name: 'Broadcasts', icon: <Megaphone size={20} />, key: 'Broadcast' },
+    { name: 'Contact Lists', icon: <Megaphone size={20} />, key: 'mailinglist' },
     { name: 'Settings', icon: <Settings size={20} />, key: 'settings', subItems: [
       { title: "General", to: `/w/${workspaceId}/settings`, Icon: <Wrench size={16}/> },
-      { title: "Workspace", to: `/w/${workspaceId}/workspace`, Icon: <BriefcaseBusiness size={16}/> },
       { title: "WhatsApp Accounts", to: `/w/${workspaceId}/whatsapp-account`, Icon: <UserRoundPen size={16}/> },
       { title: "Templates", to: `/w/${workspaceId}/template`, Icon: <LayoutPanelTop size={16}/> }
     ]}

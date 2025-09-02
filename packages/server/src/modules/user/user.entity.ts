@@ -12,6 +12,8 @@ import { IsOptional, IsString } from 'class-validator';
 import { Role } from 'src/enums/role.enum';
 import { WorkspaceMember } from 'src/modules/workspace/workspaceMember.entity';
 import { Workspace } from 'src/modules/workspace/workspace.entity';
+import { AppToken } from 'src/modules/app-token/app-token.entity';
+
 
 @Entity({ name: 'user', schema: 'core' })
 @ObjectType('user')
@@ -41,16 +43,22 @@ export class User {
   @IsOptional()
   inviteToken?: string;
 
+  @OneToMany(() => AppToken, (appToken) => appToken.user, {
+    cascade: true
+  })
+  appTokens: Relation<AppToken[]>;
+
   @Column({ type: 'enum', enum: Role, default: Role.USER })
   role: Role;
 
-  @Field(() => [WorkspaceMember])
-  @OneToMany(() => WorkspaceMember, (userWorkspace) => userWorkspace.user)
-  workspaces: Relation<WorkspaceMember[]>;
+  @Field(() => [WorkspaceMember], { nullable: true })
+  @OneToMany(() => WorkspaceMember, (userWorkspace) => userWorkspace.user, { nullable: true })
+  workspaceMembers: Relation<WorkspaceMember[]>;
 
   @Field(() => Workspace, { nullable: true })
   currentWorkspace: Relation<Workspace>;
 
   @Field(() => WorkspaceMember, { nullable: true })
   currentUserWorkspace?: Relation<WorkspaceMember>;
+
 }

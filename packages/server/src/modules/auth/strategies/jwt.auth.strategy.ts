@@ -9,11 +9,12 @@ import { Workspace } from 'src/modules/workspace/workspace.entity';
 
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtAuthStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
-    private readonly usersService: UserService,
       @InjectRepository(Workspace, 'core')
       private readonly workspaceRepository: Repository<Workspace>,
+      @InjectRepository(User, 'core')
+      private readonly userRepository: Repository<User>,
     ){
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -30,11 +31,22 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new Error('Workspace not found');
     }
 
+    const userId = payload.sub ?? payload.userId;
 
-    user = await this.usersService.findByUserId(payload.sub);
+    if (!userId) {
+      throw new Error(
+        'User not found',
+      );
+    }
+
+    user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['workspaceMembers', 'workspaceMembers.workspace'],
+    });
+
     if (!user) {
       throw new Error('User not found');
     }
-    return { user, workspace, userId: payload.sub, role: payload.role, workspaceIds: payload.workspaceIds};
+    return { user, workspace, userId: payload.sub, userWorkspaceId: workspace.id, role: payload.role, workspaceIds: payload.workspaceIds};
   }
 }

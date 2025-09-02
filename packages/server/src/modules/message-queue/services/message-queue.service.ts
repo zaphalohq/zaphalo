@@ -34,9 +34,7 @@ export class MessageQueueService {
     options?: QueueJobOptions,
   ): Promise<void> {
         console.log('✅ Job queued');
-    console.log("...............................", jobName, data);
     return this.driver.add(this.queueName, jobName, data, options);
-    
   }
 
   addCron<T extends MessageQueueJobData | undefined>({

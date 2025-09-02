@@ -8,7 +8,7 @@ function getInitials(name = "") {
 }
 
 
-const CurrentChannel = ({ channelName, channelId, memberIds, unseen, setIsChannelExist }: any) => {
+const CurrentChannel = ({ channelName, channelId, chennelMembers, unseen, setIsChannelExist }: any) => {
   const { chatsDetails, setChatsDetails, newMessage, setNewMessage, isNewChannelCreated }: any = useContext(ChatsContext)
   const [unseenMessageCount, setUnseenMessageCount] = useState(0);
   const [isUnseen, setIsUnseen] = useState(true);
@@ -33,13 +33,13 @@ const CurrentChannel = ({ channelName, channelId, memberIds, unseen, setIsChanne
   }, [channelId])
 
   const HandleCurrentChannel = async () => {
-    const allMemberNumbers = memberIds.map((member: any) => member.phoneNo)
+    const allMemberNumbers = chennelMembers.map((member: any) => member.phoneNo)
     
     // const receiverNumbers = allMemberNumbers.filter((number: any) => number != import.meta.env.VITE_SENDER_PHONENO)
     const currentChannel = {
       channelName,
       channelId,
-      memberIds: allMemberNumbers,
+      chennelMembers: allMemberNumbers,
       receiverId: allMemberNumbers,
       // phoneNo: receiverNumbers
     }

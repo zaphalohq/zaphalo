@@ -10,6 +10,9 @@ import { SuccessResponse } from "src/customer-modules/whatsapp/dtos/success.dto"
 import { SendMessageInput } from "../dto/SendMessageInputDto";
 import { AttachmentService } from "src/customer-modules/attachment/attachment.service";
 import { message } from "aws-sdk/clients/sns";
+import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
+import { Workspace } from "src/modules/workspace/workspace.entity";
+
 
 @Resolver(() => Message)
 export class MessageResolver {
@@ -50,7 +53,11 @@ export class MessageResolver {
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => [Message])
-  async sendMessage(@Args('sendMessageInput') sendMessageInput: SendMessageInput): Promise<Message[] | []> {
+  async sendMessage(
+    @AuthWorkspace() workspace: Workspace,
+    @Args('sendMessageInput') sendMessageInput: SendMessageInput,
+  ): Promise<Message[] | []> {
+
     const { textMessage, channelName, channelId, attachments } = sendMessageInput;
     const findTrueInstants = await this.waAccountService.FindSelectedInstants()
     if (!findTrueInstants) throw new Error('findTrueInstants not found');
@@ -69,18 +76,19 @@ export class MessageResolver {
         );
         if (!channel.channel.id) throw new Error('Channel not found');
          const message : Message[] = await this.channelService.createMessage(
+          workspace.id,
           textMessage,
           channel.channel.id,
-          senderId, messageType,
+          messageType,
           // waMessageIds,
           true
         );
         returnMessage.push(message[0])
       } else {
         const message = await this.channelService.createMessage(
+          workspace.id,
           textMessage,
           channelId,
-          senderId,
           messageType,
           // waMessageIds,
           true
@@ -90,9 +98,9 @@ export class MessageResolver {
     }
     if (attachments && attachments.length > 0) {
       for (const attachment of attachments) {
-        const wa_api = await this.waAccountService.getWhatsAppApi();
-        const dbAttachment = await this.attachmentService.findOneAttachmentById(attachment.attachmentId);
-        const attachmentUploadtoWaApiId = await wa_api._upload_whatsapp_document(dbAttachment);
+        // const wa_api = await this.waAccountService.getWhatsAppApi();
+        // const dbAttachment = await this.attachmentService.findOneAttachmentById(attachment.attachmentId);
+        // const attachmentUploadtoWaApiId = await wa_api._upload_whatsapp_document(dbAttachment);
         // if (!waMessageIds) throw Error('message not send to whatsapp')
         if (!channelId || channelId === '') {
           const memberIds = [...receiverId, senderId];
@@ -103,9 +111,9 @@ export class MessageResolver {
           );
           if (!channel.channel.id) throw new Error('Channel not found');
           const message =  await this.channelService.createMessage(
+            workspace.id,
             textMessage,
             channel.channel.id,
-            senderId,
             attachment.messageType,
             // waMessageIds,
             true,
@@ -114,9 +122,9 @@ export class MessageResolver {
           returnMessage.push(message[0])
         } else {
           const message = await this.channelService.createMessage(
+            workspace.id,
             textMessage,
             channelId,
-            senderId,
             attachment.messageType,
             // waMessageIds,
             true,
@@ -126,17 +134,16 @@ export class MessageResolver {
         }
       }
     }
-    console.log("....................returnMessage.....................", returnMessage);
 
-    for (const channelMessage of returnMessage) {
-      const waMessageIds = await this.channelService.sendWhatsappMessage({
-        channelMessage,
-        receiverId,
-        messageType: channelMessage.messageType,
-        textMessage: channelMessage.textMessage,
-        attachmentUploadtoWaApiId: null,
-      });
-    }
+    // for (const channelMessage of returnMessage) {
+    //   const waMessageIds = await this.channelService.sendWhatsappMessage({
+    //     channelMessage,
+    //     receiverId,
+    //     messageType: channelMessage.messageType,
+    //     textMessage: channelMessage.textMessage,
+    //     attachmentUploadtoWaApiId: null,
+    //   });
+    // }
     return returnMessage
   }
 
