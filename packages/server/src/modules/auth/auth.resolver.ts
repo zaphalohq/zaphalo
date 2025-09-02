@@ -23,7 +23,7 @@ export class AuthResolver {
     if (!user) {
       throw new Error('Invalid credentials');
     }
-    const workspace = user.workspaces ? user.workspaces[0].workspace : null
+    const workspace = user.workspaceMembers ? user.workspaceMembers[0].workspace : null
     if (!workspace){
       throw new Error("User workspace does not setup.");
     }
