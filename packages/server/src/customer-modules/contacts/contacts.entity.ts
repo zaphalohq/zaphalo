@@ -36,7 +36,7 @@ export class Contacts {
   messages: Relation<Message[]>;
 
   @Field(() => [Channel])
-  @ManyToMany(() => Channel, channel => channel.channelMembers)
+  @ManyToMany(() => Channel, channel => channel.contacts)
   @JoinColumn({ name: 'channel' })
   channel: Relation<Channel[]>
 

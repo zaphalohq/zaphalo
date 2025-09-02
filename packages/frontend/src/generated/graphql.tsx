@@ -118,9 +118,8 @@ export const UserQueryFragmentFragmentDoc = gql`
       name
       isWorkspaceSetup,
       profileImg,
-      inviteToken,
     }
-    workspaceMembers {
+    workspaces {
       id
       role
       workspace {
@@ -242,7 +241,7 @@ query findAllChannel {
   findAllChannel {
     channelName
     id
-    channelMembers {
+    contacts {
       id
       phoneNo
     }
@@ -292,6 +291,10 @@ mutation makeUnseenMsgSeenByMsgId($messageId : String!){
 export const findMsgByChannelId = gql`query GetMessagesByChannel($channelId: String!) {
   findMsgByChannelId(channelId: $channelId) {
     textMessage
+    sender {
+      id
+      phoneNo
+    }
     createdAt
     attachmentUrl
     messageType
@@ -305,6 +308,10 @@ export const SEND_MESSAGE = gql`
   mutation SendMessage($sendMessageInput: SendMessageInput!) {
   sendMessage(sendMessageInput: $sendMessageInput) {
     textMessage
+    sender {
+      id
+      phoneNo
+    }
     createdAt
     attachmentUrl
     messageType

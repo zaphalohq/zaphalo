@@ -18,6 +18,8 @@ export class WaAccountService {
     private readonly contactsService: ContactsService,
     private readonly jwtWrapperService: JwtWrapperService,
     private readonly whatsAppApiService: WhatsAppSDKService,
+
+
   ) {
     this.waAccountRepository = connection.getRepository(WhatsAppAccount);
     this.waTemplateRepository = connection.getRepository(WhatsAppTemplate);
@@ -53,15 +55,22 @@ export class WaAccountService {
   }
 
   async WaAccountSave(updatedInstants: WaAccountDto): Promise<WhatsAppAccount | null> {
-    const id = updatedInstants.accountId;
-    const waAccount = await this.waAccountRepository.findOne({ where: { id } });
-    if (!waAccount) {
-      throw new NotFoundException(`Instant with ID ${id} not found`);
+      const id = updatedInstants.accountId;
+      const existingInstants = await this.waAccountRepository.findOne({ where: { id } });
+      if (!existingInstants) {
+        throw new NotFoundException(`Instant with ID ${id} not found`);
+      }
+      Object.assign(existingInstants, updatedInstants);
+      await this.waAccountRepository.save(existingInstants);
+      const existingContact = await this.contactsService.findOneContact(Number(existingInstants.phoneNumberId))
+      if (!existingContact) throw Error("contact not found")
+      await this.contactsService.UpdateContact({
+        id: existingContact?.id,
+        contactName: existingContact?.contactName,
+        phoneNo: Number(updatedInstants?.phoneNumberId)
+      })
+      return existingInstants
     }
-    Object.assign(waAccount, updatedInstants);
-    await this.waAccountRepository.save(waAccount);
-    return waAccount
-  }
 
 
 

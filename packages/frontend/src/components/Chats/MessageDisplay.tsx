@@ -9,11 +9,13 @@ import { FiDownload } from "react-icons/fi";
 const MessageDisplay = () => {
   const [selectedPhoneNo, setSelectedPhoneNo] = useState<number | null>(null);
   const { myCurrentMessage }: any = useContext(ChatsContext)
-  const { currentChennel, setChatsDetails}: any = useContext(ChatsContext)
-
   const { chatsDetails }: any = useContext(ChatsContext)
   const [allMessages, setAllMessages] = useState([{
     textMessage: '',
+    sender: {
+      id: '',
+      phoneNo: ''
+    },
     createdAt: '',
     attachmentUrl: '',
     messageType: '',
@@ -72,6 +74,10 @@ const MessageDisplay = () => {
     if (chatsDetails.channelId == '')
       setAllMessages([{
         textMessage: '',
+        sender: {
+          id: '',
+          phoneNo: ''
+        },
         createdAt: '',
         attachmentUrl: '',
         messageType: '',
@@ -99,10 +105,10 @@ const MessageDisplay = () => {
 
   useEffect(() => {
     if (!newMessage) return
+    console.log(newMessage,'.....................newMessage');
     
     if (newMessage != undefined) {
       const currentChannel = newMessage.find((message: any) => message.channelId === chatsDetails.channelId) || null;
-
       const currentChannelIndex = newMessage.findIndex((message: any) => message.channelId === chatsDetails.channelId);
       if (currentChannel && JSON.parse(JSON.stringify(currentChannel)).channelId != "") {
         const newMessages = currentChannel.messageData.map((message: any) => ({
@@ -112,10 +118,10 @@ const MessageDisplay = () => {
           attachment: {
             originalname: message.originalname
           },
-          // sender: {
-          //   id: "",
-          //   phoneNo: currentChannel.phoneNo,
-          // },
+          sender: {
+            id: "",
+            phoneNo: currentChannel.phoneNo,
+          },
         }));
         setAllMessages((prev) => [...prev, ...newMessages]);
         newMessage.splice(currentChannelIndex, 1);
@@ -152,7 +158,7 @@ const MessageDisplay = () => {
       <div ref={messagesContainerRef} className="max-w-7xl mx-auto">
         {allMessages.map((message, index) =>
           <div key={index} className="relative z-10 p-4">
-            {chatsDetails?.chennelMembers?.includes(selectedPhoneNo) ? (
+            {Number(message.sender.phoneNo) != selectedPhoneNo ? (
               <div className="flex justify-start mb-4">
                 {message.messageType === 'text' && <div className="bg-white border rounded-br-2xl rounded-tl-xl rounded-tr-2xl p-3 max-w-md shadow-sm">
                   <div className="whitespace-pre-wrap">{message.textMessage}</div>

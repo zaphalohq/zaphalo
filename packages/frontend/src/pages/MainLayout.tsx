@@ -23,7 +23,7 @@ const MainLayout = () => {
 
   return (
     <div className="grid md:grid-cols-[260px_1fr] min-h-screen w-full bg-blacky-900 overflow-hidden ">
-      <Sidebar activeTab="1" HandleToggleButton={HandleToggleButton} isToggleActivated={isToggleActivated} />
+      <Sidebar HandleToggleButton={HandleToggleButton} isToggleActivated={isToggleActivated} />
       {currentUserWorkspace && !currentUserWorkspace?.isWorkspaceSetup && <WorkspaceSetup />}
       <div className="w-full overflow-hidden">
         <div className={`${isToggleActivated ? 'hidden md:block' : 'md:block'} md:block w-full h-full`}>

@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { JwtModule as NestJwtModule } from '@nestjs/jwt';
+import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { NestjsQueryGraphQLModule } from '@ptc-org/nestjs-query-graphql';
 import { NestjsQueryTypeOrmModule } from '@ptc-org/nestjs-query-typeorm';
 import { AuthService } from './services/auth.service';
 import { AuthResolver } from './auth.resolver';
-import { JwtAuthStrategy } from './strategies/jwt.auth.strategy';
+import { JwtStrategy } from './strategies/jwt.strategy';
 import { User } from 'src/modules/user/user.entity';
 import { UserModule } from 'src/modules/user/user.module';
 import { UserService } from 'src/modules/user/user.service';
@@ -21,14 +21,10 @@ import { DomainManagerModule } from 'src/modules/domain-manager/domain-manager.m
 import { WorkspaceMemberService } from "src/modules/workspace/workspaceMember.service";
 import { WorkspaceInvitation } from "src/modules/workspace/workspaceInvitation.entity";
 import { GoogleAuthController } from 'src/modules/auth/controllers/google.auth.controller';
-import { TokenModule } from 'src/modules/auth/token/token.module';
-import { JwtModule } from 'src/modules/jwt/jwt.module';
 
 @Module({
   imports: [
-    JwtModule,
     DomainManagerModule,
-    TokenModule,
     NestjsQueryGraphQLModule.forFeature({
       imports: [
         NestjsQueryTypeOrmModule.forFeature([
@@ -42,7 +38,7 @@ import { JwtModule } from 'src/modules/jwt/jwt.module';
         WorkspaceModule,
         PassportModule,
         EmailModule,
-        NestJwtModule.register({
+        JwtModule.register({
           secret: 'secretKey',
           signOptions: { expiresIn: '7d' },
         }),
@@ -56,9 +52,8 @@ import { JwtModule } from 'src/modules/jwt/jwt.module';
   ],
   providers: [
     AuthService,
-    UserService,
     AuthResolver,
-    JwtAuthStrategy,
+    JwtStrategy,
     AuthSsoService,
     SignInUpService,
     WorkspaceMemberService,

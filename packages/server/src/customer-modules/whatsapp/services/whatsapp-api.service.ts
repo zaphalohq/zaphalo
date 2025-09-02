@@ -7,7 +7,6 @@ import FormData from 'form-data';
 import { createReadStream } from "fs";
 const DEFAULT_ENDPOINT = "https://graph.facebook.com/v23.0"
 
-
 @Injectable()
 export class WhatsAppSDKService {
   getWhatsApp(whatsAppAccount: WhatsAppAccount) {
@@ -313,12 +312,14 @@ export class WhatsAppApiService {
     return response.data.data
   }
 
+
+
   async sendWhatsApp(
-    // json_data
-    number,
-    message_type,
-    send_vals,
-    parent_message_id = false
+    json_data
+    // number, 
+    // message_type, 
+    // send_vals,
+    // parent_message_id = false
   ) {
     // """ Send WA messages for all message type using WhatsApp Business Account
 
@@ -327,21 +328,23 @@ export class WhatsAppApiService {
     //     Template send - https://developers.facebook.com/docs/whatsapp/cloud-api/guides/send-message-templates
     // """
 
-    let data = {
-      'messaging_product': 'whatsapp',
-      'recipient_type': 'individual',
-      'to': number
-    };
+
+
+    // let data = [{
+    //   'messaging_product': 'whatsapp',
+    //   'recipient_type': 'individual',
+    //   'to': number
+    // }];
     // // if there is parent_message_id then we send message as reply
-    if (parent_message_id) {
-      data['context'] = { 'message_id': parent_message_id };
-    }
-    if (['template', 'text', 'document', 'image', 'audio', 'video'].includes(message_type)) {
-      data['type'] = message_type;
-      data['text'] = send_vals;
-    }
-    const json_data = JSON.stringify(data)
-    console.info("Send %s message from account %s [%s]", message_type, this.wa_account_id.name, this.wa_account_id.id)
+    // if (parent_message_id) {
+    //   data['context'] = { 'message_id': parent_message_id };
+    // }
+    // if (message_type in ['template', 'text', 'document', 'image', 'audio', 'video']) {
+    //   data['type'] = message_type;
+    //   data['message_type'] = send_vals;
+    // }
+    // const json_data = JSON.stringify(data)
+    // console.info("Send %s message from account %s [%s]", message_type, this.wa_account_id.name, this.wa_account_id.id)
     const response = await this.apiRequests({
       "request_type": "POST",
       "url": `/${this.phone_uid}/messages`,

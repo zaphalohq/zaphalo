@@ -14,12 +14,13 @@ const ChannelLists = ({ searchChannel }: any) => {
   const [allChannel, setAllChannel] = useState([{
     channelName: '',
     id: '',
-    chennelMembers: [{
+    contacts: [{
       phoneNo: null,
       id: ''
     }],
     messages: []
   }])
+
 
 
   const FetchAllChannel = async () => {
@@ -70,7 +71,7 @@ const ChannelLists = ({ searchChannel }: any) => {
         setAllChannel((prevChannel) => [{
           channelName: chatsDetails.channelName,
           id: chatsDetails.channelId,
-          chennelMembers: [{
+          contacts: [{
             phoneNo: null,
             id: ''
           }],
@@ -96,7 +97,6 @@ const ChannelLists = ({ searchChannel }: any) => {
     setFilteredChannels(searchedChannels);
   }, [searchChannel, allChannel])
 
-
   return (
     <div>
       {filteredChannels
@@ -106,7 +106,7 @@ const ChannelLists = ({ searchChannel }: any) => {
             channelId={channel.id}
             channelName={channel.channelName}
             // isActive={channel.id === selectedContactId}
-            chennelMembers={channel.channelMembers}
+            memberIds={channel.contacts}
             unseen={channel.messages.length}
           />)}
     </div>

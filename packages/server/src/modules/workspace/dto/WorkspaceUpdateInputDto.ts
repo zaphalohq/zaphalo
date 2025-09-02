@@ -2,8 +2,8 @@ import { Field, InputType } from "@nestjs/graphql";
 
 @InputType()
 export class WorkspaceUpdateInputDto {
-  @Field({ nullable : true })
-  workspaceId?: string;
+  @Field()
+  workspaceId: string;
 
   @Field()
   workspaceName: string;

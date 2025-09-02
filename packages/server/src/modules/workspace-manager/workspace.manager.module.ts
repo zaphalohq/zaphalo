@@ -11,16 +11,13 @@ const connectionFactory = {
     let { workspaceId } = request;
     const isGraphQL = request?.hasOwnProperty('req') && request?.req?.body?.hasOwnProperty('operationName');
 
-
     if (isGraphQL) {
-
-      workspaceId = request?.req?.headers['x-workspace-id'] || request?.req?.workspaceId;
+      workspaceId = request?.req?.headers['x-workspace-id'];
     } else {
-
-      if (request?.headers && request?.headers['x-workspace-id']) {
+      if (request.headers['x-workspace-id']) {
         workspaceId = request.headers['x-workspace-id'];
       } else {
-        workspaceId = request?.params?.workspace || request?.req?.workspaceId;
+        workspaceId = request.params.workspace;
       }
     }
 

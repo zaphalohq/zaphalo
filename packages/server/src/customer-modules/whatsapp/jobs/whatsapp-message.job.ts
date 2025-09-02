@@ -7,16 +7,8 @@ import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symb
 import { Connection, Repository } from 'typeorm';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { getWorkspaceConnection } from 'src/modules/workspace-manager/workspace.manager.utils';
-import { WhatsAppSDKService } from 'src/customer-modules/whatsapp/services/whatsapp-api.service';
-import { WaMessageService } from 'src/customer-modules/whatsapp/services/whatsapp-message.service';
-
-import { WhatsAppMessage } from '../entities/whatsapp-message.entity';
 import { WhatsAppAccount } from '../entities/whatsapp-account.entity';
-
-
-export type WhatsAppMessageJobData = { workspaceId: string, messageId: string};
-
-
+import { WhatsAppSDKService } from 'src/customer-modules/whatsapp/services/whatsapp-api.service';
 
 async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -29,19 +21,21 @@ async function sleep(ms: number): Promise<void> {
 export class SendWhatsAppMessageJob {
   constructor(
     private readonly whatsAppApiService: WhatsAppSDKService,
-    private readonly whatsAppSDKService: WhatsAppSDKService,
-    private readonly waMessageService: WaMessageService,
   ) {}
 
   @Process(SendWhatsAppMessageJob.name)
   async handleJob(data: any) {
 
-    const workspaceCon = await getWorkspaceConnection(data.workspaceId);
-    const waMessageRepo = workspaceCon.getRepository(WhatsAppMessage);
-    const waMessage = await waMessageRepo.findOne({
-      where: {id: data.messageId},
+    const workspaceId = '2d72db64-01fc-4e64-b1ed-df79355857f9'
+    const workspaceCon = await getWorkspaceConnection(workspaceId);
+    const whatsAppTemplateRepo = workspaceCon.getRepository(WhatsAppAccount);
+    console.log('........................workspaceCon..............', whatsAppTemplateRepo);
+    const allTmpl = await whatsAppTemplateRepo.find({
+      order: { createdAt: 'ASC' }
     });
-    // this.waMessageService.sendWhatsappMessage(data)
+    const waApi = this.whatsAppApiService.getWhatsApp(allTmpl[0])
+    console.log("................allTmpl..............", allTmpl, waApi);
+    waApi._test_connection();
 
     console.log('📩 Processing WhatsApp job:', data);
     console.log("Starting...");

@@ -11,7 +11,7 @@ import { WhatsAppTemplate } from './entities/whatsapp-template.entity';
 import { WhatsAppResolver } from './whatsapp.resolver';
 import { WaAccountService } from './services/whatsapp-account.service';
 import { WhatsAppSDKService } from './services/whatsapp-api.service';
-import { WaMessageService } from './services/whatsapp-message.service';
+import { MessageService } from './services/whatsapp-message.service';
 
 import { TemplateService } from './services/whatsapp-template.service';
 import { TypeORMModule } from 'src/database/typeorm/typeorm.module';
@@ -26,7 +26,6 @@ import { Workspace } from 'src/modules/workspace/workspace.entity';
 import { MessageQueueModule } from 'src/modules/message-queue/message-queue.module';
 import { SendWhatsAppMessageJob } from './jobs/whatsapp-message.job';
 import { UpdateTemplateJob } from 'src/customer-modules/whatsapp/crons/jobs/whatsapp-template-sync.job';
-import { WhatsAppMessageCreatedListener } from './listeners/whatsapp-message-created.listener';
 
 @Module({
   imports: [
@@ -42,7 +41,7 @@ import { WhatsAppMessageCreatedListener } from './listeners/whatsapp-message-cre
         FileStorageModule,
         JwtModule,
       ],
-      services: [WaAccountService, WhatsAppSDKService, TemplateService, WaMessageService],
+      services: [WaAccountService, WhatsAppSDKService, TemplateService, MessageService],
     }),
     HttpModule,
     MessageQueueModule,
@@ -50,15 +49,14 @@ import { WhatsAppMessageCreatedListener } from './listeners/whatsapp-message-cre
   providers: [
     WaAccountService,
     WhatsAppSDKService,
-    WaMessageService,
     TemplateService,
+    MessageService,
     WhatsAppResolver,
     WaAccountResolver,
     WhatsAppTemplateResolver,
     SendWhatsAppMessageJob,
-    UpdateTemplateJob,
-    WhatsAppMessageCreatedListener
+    UpdateTemplateJob
   ],
-  exports: [WaAccountService, WhatsAppSDKService, TemplateService, WaMessageService, WhatsAppMessageCreatedListener],
+  exports: [WaAccountService, WhatsAppSDKService, TemplateService, MessageService],
 })
 export class WhatsAppModule {}

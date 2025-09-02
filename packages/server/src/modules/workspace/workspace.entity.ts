@@ -13,8 +13,6 @@ import {
 import { UUIDScalarType } from '../api/scalars/uuid.scalar';
 import { User } from '../user/user.entity';
 import { WorkspaceMember } from './workspaceMember.entity';
-import { AppToken } from 'src/modules/app-token/app-token.entity';
-
 
 @Entity({ name: 'workspace', schema: 'core' })
 @ObjectType('Workspace')
@@ -30,13 +28,6 @@ export class Workspace {
   @Field({ nullable: true })
   @Column({ nullable: true })
   inviteToken?: string;
-
-  // Relations
-  @Field(() => [AppToken], { nullable: true })
-  @OneToMany(() => AppToken, (appToken) => appToken.workspace, {
-    cascade: true, nullable: true
-  })
-  appTokens: Relation<AppToken[]>;
 
   @Field(() => User)
   @ManyToOne(() => User, { nullable: true })
@@ -58,7 +49,7 @@ export class Workspace {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Field(() => [WorkspaceMember], { nullable: true })
+  @Field(() => [WorkspaceMember],{ nullable: true })
   @OneToMany(() => WorkspaceMember, (member) => member.workspace, { nullable: true })
   members: Relation<WorkspaceMember[]>;
 }

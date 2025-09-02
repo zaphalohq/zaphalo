@@ -26,6 +26,15 @@ export class Channel {
   @Column({ type: 'varchar', length: 255, nullable: true })
   channelName: string;
 
+  @Field(() => [Contacts])
+  @ManyToMany(() => Contacts, contacts => contacts.channel)
+  @JoinTable({
+    name: 'channel_contacts',
+    joinColumn: { name: 'channelId', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'contactId', referencedColumnName: 'id' },
+  })
+  contacts: Relation<Contacts[]>;
+
   @Field(() => String)
   @CreateDateColumn()
   createdAt: Date;
@@ -38,13 +47,7 @@ export class Channel {
   @OneToMany(() => Message, message => message.channel)
   messages: Relation<Message[]>
 
-  @Field(() => [Contacts])
-  @ManyToMany(() => Contacts, contacts => contacts.channel)
-  @JoinTable({
-    name: 'channel_contacts',
-    joinColumn: { name: 'channelId', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'contactId', referencedColumnName: 'id' },
-  })
-  channelMembers: Relation<Contacts[]>;
-
+  @Field(() => String)
+  @Column({ nullable: true })
+  membersidsss: string
 }

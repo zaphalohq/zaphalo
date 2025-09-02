@@ -5,25 +5,21 @@ import { YogaDriver, YogaDriverConfig } from '@graphql-yoga/nestjs';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { existsSync } from 'fs';
 import { join } from 'path';
-import { EventEmitterModule } from '@nestjs/event-emitter';
 
 import { GraphQLConfigModule } from './modules/api/graphql-config/graphql-config.module';
 import { GraphQLConfigService } from './modules/api/graphql-config/graphql-config.service';
 import { CustomerModule } from 'src/customer-modules/customer.module';
-import { CoreModule } from 'src/modules/core.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    EventEmitterModule.forRoot(),
     GraphQLModule.forRootAsync<YogaDriverConfig>({
       driver: YogaDriver,
       imports: [GraphQLConfigModule],
       useClass: GraphQLConfigService, 
     }),
-    CoreModule,
     CustomerModule,
     ...AppModule.getConditionalModules(),
 ],
