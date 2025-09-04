@@ -10,8 +10,9 @@ import {
   PrimaryGeneratedColumn,
   Relation
 } from "typeorm";
-import { Message } from "src/customer-modules/channel/message.entity";
-import { Channel } from "src/customer-modules/channel/channel.entity";
+
+import { Message } from "src/customer-modules/channel/entities/message.entity";
+import { Channel } from "src/customer-modules/channel/entities/channel.entity";
 import { UUIDScalarType } from "src/modules/api/scalars/uuid.scalar";
 
 

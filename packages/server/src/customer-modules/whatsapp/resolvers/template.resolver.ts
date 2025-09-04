@@ -2,7 +2,7 @@ import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } f
 import { UseGuards } from "@nestjs/common";
 import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
 import { WhatsAppTemplate } from "../entities/whatsapp-template.entity";
-import { TemplateService } from "../services/whatsapp-template.service";
+import { WaTemplateService } from "../services/whatsapp-template.service";
 import { WaTemplateRequestInput } from "../dtos/whatsapp.template.dto";
 import { WaTemplateResponseDto } from "../dtos/whatsapp.response.dto";
 import { FileService } from "src/modules/file-storage/services/file.service";
@@ -13,7 +13,7 @@ import { SuccessResponse } from "../dtos/success.dto";
 @Resolver(() => WhatsAppTemplate)
 export class WhatsAppTemplateResolver {
   constructor(
-    private readonly templateService: TemplateService,
+    private readonly templateService: WaTemplateService,
     private fileService: FileService
   ) { }
 
@@ -48,12 +48,12 @@ export class WhatsAppTemplateResolver {
 
     try {
       if (dbTemplateId) {
-        const template = await this.templateService.updateTemplate(templateData, dbTemplateId, templateData.accountId);
-        if (template)
-          return {
-            success: true,
-            message: 'template saved successfully!'
-          }
+        // const template = await this.templateService.updateTemplate(templateData, dbTemplateId, templateData.accountId);
+        // if (template)
+        //   return {
+        //     success: true,
+        //     message: 'template saved successfully!'
+        //   }
       } else {
         const template = await this.templateService.saveTemplate(templateData, templateData.accountId);
         if (template)
@@ -80,11 +80,9 @@ export class WhatsAppTemplateResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => WaTemplateResponseDto)
   async getTemplateStatus(@Args('templateId') templateId: string): Promise<WaTemplateResponseDto> {
-    const result = await this.templateService.getTemplateStatusByCron(templateId);
-    if (!result) throw new Error("result doesnt found in resolver templateResolver")
 
     return {
-      success: result.success,
+      success: false,
       // data: result.data ? JSON.stringify(result.data) : undefined,
       // error: result.error ? JSON.stringify(result.error) : ,
     };
@@ -94,7 +92,6 @@ export class WhatsAppTemplateResolver {
   @ResolveField(() => String)
   async templateImg(@Parent() template: WhatsAppTemplate, @Context() context): Promise<string> {
     const workspaceId = context.req.headers['x-workspace-id']
-      console.log('..templateImage.............................');
 
     if (template.templateImg) {
       try {

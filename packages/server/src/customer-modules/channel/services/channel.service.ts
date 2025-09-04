@@ -1,24 +1,23 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { Channel } from "./channel.entity";
-import { Message } from "./message.entity";
-import { ContactsService } from "../contacts/contacts.service";
-import { unlinkSync } from "fs";
 import { Connection, Repository, In } from 'typeorm';
-import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
-import { WaAccountService } from "../whatsapp/services/whatsapp-account.service";
-import { AttachmentService } from "../attachment/attachment.service";
-import { WhatsAppMessage, messageTypes } from "src/customer-modules/whatsapp/entities/whatsapp-message.entity";
-import { WaMessageService } from "src/customer-modules/whatsapp/services/whatsapp-message.service";
-
-
+import { unlinkSync } from "fs";
 import fs from 'fs';
 import axios from "axios";
+
+import { Channel } from "src/customer-modules/channel/entities/channel.entity";
+import { Message } from "src/customer-modules/channel/entities/message.entity";
+import { ContactsService } from "src/customer-modules/contacts/contacts.service";
+import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
+import { WaAccountService } from "src/customer-modules/whatsapp/services/whatsapp-account.service";
+import { AttachmentService } from "src/customer-modules/attachment/attachment.service";
+import { messageTypes } from "src/customer-modules/whatsapp/entities/whatsapp-message.entity";
+import { WaMessageService } from "src/customer-modules/whatsapp/services/whatsapp-message.service";
+
 
 @Injectable()
 export class ChannelService {
   private channelRepository: Repository<Channel>
   private messageRepository: Repository<Message>
-  private waMessageRepository: Repository<WhatsAppMessage>
 
   constructor(
     @Inject(CONNECTION) connection: Connection,
@@ -30,7 +29,6 @@ export class ChannelService {
     ) {
     this.channelRepository = connection.getRepository(Channel);
     this.messageRepository = connection.getRepository(Message);
-    this.waMessageRepository = connection.getRepository(WhatsAppMessage);
   }
 
 
@@ -77,7 +75,7 @@ export class ChannelService {
     messageType: string,
     unseen?: boolean,
     attachemntId?: string,
-    waMessageIds?: string[]): Promise<Message[]> {
+    waMessageId?: string): Promise<Message[]> {
     let attachment;
     if (attachemntId) {
       attachment = await this.attachmentService.findOneAttachmentById(attachemntId);
@@ -92,7 +90,7 @@ export class ChannelService {
 
     const messagesRepo: Message[] = []
         // for (const waMessageId of waMessageIds) {
-    const message_rec = this.messageRepository.create({
+    const chennelMessage = await this.messageRepository.create({
       textMessage,
       // sender: sender,
       channel: channel,
@@ -101,8 +99,8 @@ export class ChannelService {
       attachmentUrl: attachment ? attachment.name : null,
       attachment: attachment ? attachment : null
     })
-    const message = await this.messageRepository.save(message_rec)
-    messagesRepo.push(message_rec)
+    const message = await this.messageRepository.save(chennelMessage)
+    messagesRepo.push(chennelMessage)
 
     const findTrueInstants = await this.waAccountService.FindSelectedInstants()
     if (!findTrueInstants)
@@ -110,15 +108,15 @@ export class ChannelService {
 
     const receivers = channel?.channelMembers
 
-
     for (const receiver of receivers) {
       const whatsappMessageVal = {
           body: textMessage,
-          channelMessageId: message,
+          channelMessageId: chennelMessage,
           messageType: messageTypes.OUTBOUND,
           mobileNumber: receiver.phoneNo.toString(),
           waAccountId: findTrueInstants,
-          freeTextJson: JSON.stringify("{}")
+          freeTextJson: JSON.stringify("{}"),
+          msgUid: waMessageId,
       }
       const waMessage = await this.waMessageService.createWaMessage(workspaceId, whatsappMessageVal)
 
@@ -255,6 +253,14 @@ export class ChannelService {
     });
     await fs.writeFileSync(writePath, response.data);
     return mediaData
+  }
+
+  async findActiveChannel(senderMobile, senderName, createIfNotFound){
+    const channelExist = await this.channelRepository.find({
+      where: { channelMembers: { phoneNo: senderMobile} },
+      relations: ['channelMembers']
+    })
+    return channelExist
   }
 
 

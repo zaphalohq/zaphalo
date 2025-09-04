@@ -13,7 +13,6 @@ import {
 import { UUIDScalarType } from "src/modules/api/scalars/uuid.scalar";
 import { Attachment } from "src/customer-modules/attachment/attachment.entity";
 import { WhatsAppAccount } from "./whatsapp-account.entity";
-import { Broadcast } from "src/customer-modules/broadcast/broadcast.entity";
 
 export enum HeaderType {
   NONE = 'NONE',
@@ -138,6 +137,14 @@ export class WhatsAppTemplate {
   @Column()
   @Field()
   status: string;
+
+  @Column({default: 'none'})
+  @Field()
+  quality: string;
+
+  @Column({ nullable: true })
+  @Field()
+  failureReason: string;
 
   @Column({ nullable: true })
   @Field({ nullable: true })

@@ -1,6 +1,6 @@
 import { Field, ObjectType } from "@nestjs/graphql";
 import { IDField } from "@ptc-org/nestjs-query-graphql";
-import { UUIDScalarType } from "src/modules/api/scalars/uuid.scalar";
+import { registerEnumType } from '@nestjs/graphql';
 import {
   Column,
   Entity,
@@ -9,10 +9,11 @@ import {
   ManyToOne,
   Relation,
 } from "typeorm";
-import { registerEnumType } from '@nestjs/graphql';
-import { WhatsAppTemplate } from './whatsapp-template.entity';
-import { WhatsAppAccount } from './whatsapp-account.entity';
-import { Message } from 'src/customer-modules/channel/message.entity';
+
+import { WhatsAppTemplate } from 'src/customer-modules/whatsapp/entities/whatsapp-template.entity';
+import { WhatsAppAccount } from 'src/customer-modules/whatsapp/entities/whatsapp-account.entity';
+import { Message } from 'src/customer-modules/channel/entities/message.entity';
+import { UUIDScalarType } from "src/modules/api/scalars/uuid.scalar";
 
 
 export enum messageTypes {

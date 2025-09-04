@@ -19,15 +19,11 @@ export class WhatsAppMessageCreatedListener {
   ) {}
 
   @OnEvent('whatsapp.message.created')
-  async handleOrderCreatedEvent(event: WhatsAppMessageCreatedEvent) {
-    // handle and process "OrderCreatedEvent" event
-
-    console.log(".....................SendWhatsAppMessageJob.name............", SendWhatsAppMessageJob.name);
-
+  async handleMessageCreatedEvent(event: WhatsAppMessageCreatedEvent) {
+    // handle and process "handleMessageCreatedEvent" event
     await this.messageQueueService.add<WhatsAppMessageJobData>(
       SendWhatsAppMessageJob.name,
       { workspaceId: event.workspaceId, messageId: event.messageId},
     );
-    console.log("..................event......", event);
   }
 }

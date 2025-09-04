@@ -5,7 +5,7 @@ import { Connection, Repository, In, ILike } from 'typeorm';
 import { Broadcast } from "./broadcast.entity";
 import { BroadcastContacts } from "./broadcastContacts.entity";
 import { MailingListService } from "src/customer-modules/mailingList/mailingList.service";
-import { TemplateService } from "src/customer-modules/whatsapp/services/whatsapp-template.service";
+import { WaTemplateService } from "src/customer-modules/whatsapp/services/whatsapp-template.service";
 import { WaAccountService } from "src/customer-modules/whatsapp/services/whatsapp-account.service";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 import { WhatsAppSDKService } from '../whatsapp/services/whatsapp-api.service';
@@ -22,7 +22,7 @@ export class BroadcastService implements OnModuleInit {
   constructor(
     @Inject(CONNECTION) connection: Connection,
     private readonly mailingListService: MailingListService,
-    private readonly waTemplateService: TemplateService,
+    private readonly waTemplateService: WaTemplateService,
     private readonly waAccountService: WaAccountService,
     private readonly whatsAppApiService: WhatsAppSDKService,
 

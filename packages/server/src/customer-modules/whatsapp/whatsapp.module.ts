@@ -2,8 +2,6 @@ import { Module } from '@nestjs/common';
 import { NestjsQueryTypeOrmModule } from '@ptc-org/nestjs-query-typeorm';
 import { NestjsQueryGraphQLModule } from '@ptc-org/nestjs-query-graphql';
 import { HttpModule } from '@nestjs/axios';
-import { ScheduleModule } from '@nestjs/schedule';
-
 
 import { WhatsAppAccount } from './entities/whatsapp-account.entity';
 import { WhatsAppMessage } from './entities/whatsapp-message.entity';
@@ -13,7 +11,7 @@ import { WaAccountService } from './services/whatsapp-account.service';
 import { WhatsAppSDKService } from './services/whatsapp-api.service';
 import { WaMessageService } from './services/whatsapp-message.service';
 
-import { TemplateService } from './services/whatsapp-template.service';
+import { WaTemplateService } from './services/whatsapp-template.service';
 import { TypeORMModule } from 'src/database/typeorm/typeorm.module';
 import { ContactsModule } from 'src/customer-modules/contacts/contacts.module';
 import { WorkspaceModule } from 'src/modules/workspace/workspace.module';
@@ -32,9 +30,7 @@ import { WhatsAppMessageCreatedListener } from './listeners/whatsapp-message-cre
   imports: [
     NestjsQueryGraphQLModule.forFeature({
       imports: [
-        // ScheduleModule.forRoot(),
-        NestjsQueryTypeOrmModule.forFeature([WhatsAppAccount, WhatsAppMessage, WhatsAppTemplate]),
-        // NestjsQueryTypeOrmModule.forFeature([Workspace], 'core'),
+        NestjsQueryTypeOrmModule.forFeature([WhatsAppAccount, WhatsAppTemplate, WhatsAppMessage]),
         TypeORMModule,
         ContactsModule,
         WorkspaceModule,
@@ -42,16 +38,16 @@ import { WhatsAppMessageCreatedListener } from './listeners/whatsapp-message-cre
         FileStorageModule,
         JwtModule,
       ],
-      services: [WaAccountService, WhatsAppSDKService, TemplateService, WaMessageService],
     }),
     HttpModule,
     MessageQueueModule,
+    FileStorageModule,
   ],
   providers: [
-    WaAccountService,
     WhatsAppSDKService,
+    WaAccountService,
+    WaTemplateService,
     WaMessageService,
-    TemplateService,
     WhatsAppResolver,
     WaAccountResolver,
     WhatsAppTemplateResolver,
@@ -59,6 +55,12 @@ import { WhatsAppMessageCreatedListener } from './listeners/whatsapp-message-cre
     UpdateTemplateJob,
     WhatsAppMessageCreatedListener
   ],
-  exports: [WaAccountService, WhatsAppSDKService, TemplateService, WaMessageService, WhatsAppMessageCreatedListener],
+  exports: [
+    WhatsAppSDKService,
+    WaAccountService,
+    WaTemplateService,
+    WaMessageService,
+    WhatsAppMessageCreatedListener
+  ],
 })
 export class WhatsAppModule {}
