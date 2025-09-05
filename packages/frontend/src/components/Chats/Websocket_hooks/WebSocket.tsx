@@ -4,6 +4,7 @@ import { ChatsContext } from "@components/Context/ChatsContext";
 import { VITE_WEBSOCKET_URL } from '@src/config';
 
 interface Message {
+  sender: string,
   channelId: string;
   phoneNo: string;
   messagesId: string;
@@ -51,8 +52,8 @@ export async function useWebSocket() {
             sender: newMsg.sender,
             textMessage: newMsg.messages.textMessage,
             messageType: newMsg.messages.messageType,
-            originalname: newMsg.messages.attachment?.originalname || "",
-            attachmentUrl: newMessage.messages?.attachmentUrl || ""
+            originalname: newMsg.messages.attachmentName || "",
+            attachmentUrl: newMsg.messages?.attachmentUrl || ""
           };
 
           if (channelIndex !== -1) {
@@ -71,6 +72,7 @@ export async function useWebSocket() {
             return [
               ...prevMessages,
               {
+                sender: newMsg.sender,
                 channelId: newMsg.channelId || "",
                 phoneNo: newMsg.phoneNo || "",
                 messagesId: newMsg.messages.id,

@@ -27,7 +27,7 @@ async function sleep(ms: number): Promise<void> {
 })
 export class SendWhatsAppMessageJob {
   constructor(
-    // private readonly waMessageService: WaMessageService,
+    private readonly waMessageService: WaMessageService,
   ) {}
 
   @Process(SendWhatsAppMessageJob.name)
@@ -38,14 +38,12 @@ export class SendWhatsAppMessageJob {
     const waMessage = await waMessageRepo.findOne({
       where: {id: data.messageId},
     });
-    // this.waMessageService.sendWhatsappMessage(data)
+    this.waMessageService.sendWhatsappMessage(data)
 
     console.log('📩 Processing WhatsApp job:', data);
     console.log("Starting...");
     await sleep(3000); // Pause execution for 3 seconds
     console.log("...Continuing after delay.");
-    
-    // send WhatsApp logic
   }
 }
 

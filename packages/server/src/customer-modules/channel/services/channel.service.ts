@@ -14,6 +14,7 @@ import { AttachmentService } from "src/customer-modules/attachment/attachment.se
 import { messageTypes } from "src/customer-modules/whatsapp/entities/whatsapp-message.entity";
 import { WaMessageService } from "src/customer-modules/whatsapp/services/whatsapp-message.service";
 import { WebSocketService } from 'src/customer-modules/channel/chat-socket';
+import { FileService } from "src/modules/file-storage/services/file.service";
 
 
 @Injectable()
@@ -28,6 +29,7 @@ export class ChannelService {
     private readonly waMessageService: WaMessageService,
     private readonly attachmentService: AttachmentService,
     private readonly webSocketService: WebSocketService,
+    private fileService: FileService
   ) {
     this.channelRepository = connection.getRepository(Channel);
     this.messageRepository = connection.getRepository(Message);
@@ -111,7 +113,29 @@ export class ChannelService {
 
     const receivers = channel?.channelMembers
 
-    this.webSocketService.sendMessageToChannel(channel, sender?.phoneNo, {"name": textMessage}, false);
+    let attachmentUrl;
+    if (message.attachmentUrl) {
+      try {
+        const workspaceLogoToken = this.fileService.encodeFileToken({
+          workspaceId: workspaceId,
+        });
+
+        attachmentUrl = `${message.attachmentUrl}?token=${workspaceLogoToken}`;
+
+      } catch (e) {
+        attachmentUrl = message.attachmentUrl;
+      }
+    }
+
+    const messageBody = {
+      textMessage,
+      messageType,
+      attachmentUrl: attachmentUrl,
+      attachmentName: attachment ? attachment.originalname : null,
+    }
+    if (sender){
+      this.webSocketService.sendMessageToChannel(channel, sender?.phoneNo, messageBody, false);
+    }
 
     for (const receiver of receivers) {
       const whatsappMessageVal = {
@@ -124,7 +148,6 @@ export class ChannelService {
           msgUid: waMessageId,
       }
       const waMessage = await this.waMessageService.createWaMessage(workspaceId, whatsappMessageVal)
-
     }
 
     return messagesRepo

@@ -77,7 +77,10 @@ export class WhatsAppWebhookService {
     }
     const workspaceId = req.params.workspace;
     const waApi = await this.waAccountService.getWhatsAppApi(waAccount.id)
-    for(const messages of value['messages']) {
+    if (!value?.messages){
+      return
+    }
+    for(const messages of value?.messages) {
       let parentMsgId;
       let parentId;
       let channel;

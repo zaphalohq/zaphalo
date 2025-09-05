@@ -33,21 +33,6 @@ export class ChannelResolver {
     @Context('req') req): Promise<Channel[]> {
     return await this.channelService.findAllChannel();
   }
-  @Mutation(() => String)
-  async waWebsocket(
-    @AuthWorkspace() workspace: Workspace,
-    @Args('channelId') channelId: string,
-    @Args('mobileNumber') mobileNumber: number,
-    @Args('msg') msg: string
-  ) {
-      const message = await this.channelService.createMessage(
-        workspace.id,
-        msg,
-        channelId,
-        "text",
-      );
-    return "done"
-  }
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Channel)

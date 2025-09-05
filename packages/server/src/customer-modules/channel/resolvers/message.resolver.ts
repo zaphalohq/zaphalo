@@ -141,16 +141,6 @@ export class MessageResolver {
         }
       }
     }
-
-    // for (const channelMessage of returnMessage) {
-    //   const waMessageIds = await this.channelService.sendWhatsappMessage({
-    //     channelMessage,
-    //     receiverId,
-    //     messageType: channelMessage.messageType,
-    //     textMessage: channelMessage.textMessage,
-    //     attachmentUploadtoWaApiId: null,
-    //   });
-    // }
     return returnMessage
   }
 

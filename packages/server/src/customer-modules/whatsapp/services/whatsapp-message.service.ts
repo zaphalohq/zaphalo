@@ -51,34 +51,31 @@ export class WaMessageService {
 
     whatsAppMessageCreatedEvent.workspaceId = workspaceId
     whatsAppMessageCreatedEvent.messageId = newWaMessage.id
-    // if (!whatsappMessageVal.msgUid){
-    //   this.eventEmitter.emit('whatsapp.message.created', whatsAppMessageCreatedEvent)
-    // }
+    if (!whatsappMessageVal.msgUid){
+      this.eventEmitter.emit('whatsapp.message.created', whatsAppMessageCreatedEvent)
+    }
     return waMessage
   }
 
-  async sendWhatsappMessage(data: any): Promise<string | undefined> {
+  async sendWhatsappMessage(data: any): Promise<WhatsAppMessage | null> {
     const waMessage = await this.waMessageRepository.findOne({
       where: {id: data.messageId},
       relations: ['waAccountId', 'channelMessageId', 'channelMessageId.attachment',  'waTemplateId']
     })
     if (!waMessage)
-      return "a"
+      return null
 
     const waApi = await this.waAccountService.getWhatsAppApi(waMessage.waAccountId.id)
 
     let parentMessageId = false
-    // body = html2plaintext(whatsapp_message.body)
     let body = waMessage.body
 
-    // number = whatsapp_message.mobile_number_formatted
     const number = waMessage.mobileNumber
     let messageType
     let sendVals
     if (!number)
       throw Error("Invalid number")
 
-    // const messagePayload = await this.generateMessagePayload(waMessage);
 
     // based on template
     if (waMessage.waTemplateId){
@@ -87,35 +84,13 @@ export class WaMessageService {
         // || waMessage.waTemplateId.quality == 'red'):
           throw new Error("Template is not approved")
       }
-      // waMessage.messageType = 'outbound'
-
       // # generate sending values, components and attachments
       const values = this.waTemplateService.getSendTemplateVals(
           waMessage?.waTemplateId,
           waMessage,
       )
       sendVals = values[0]
-      console.log("...........values.......sendVals............", values);
-      // let send_vals = values[0]
       let attachment = values[1]
-      // # reports are considered always unique
-      // if (not template.report_id){
-      //     send_vals_without_attachments = dict(send_vals)
-      //     // # the same attachment re-uploaded will have a different identifier
-      //     // # TODO MASTER avoid having to upload as part of the "get template values" flow
-      //     if template.header_type in ('image', 'video', 'document'):
-      //         components = [component_vals for component_vals in send_vals['components'] if component_vals['type'] != 'header']
-      //         send_vals_without_attachments['components'] = components
-      //     unique_message_vals = (number, frozendict(send_vals_without_attachments))
-      //     if unique_message_vals not in sent_message_vals:
-      //         sent_message_vals.add(unique_message_vals)
-      //     else:
-      //         is_duplicate = True
-      // }
-      // if (attachment && attachment not in waMessage.mail_message_id.attachment_ids)
-      //     // # Clone the attachment to ensure the template's attachment is not affected by message changes
-      //     cloned_attachment = attachment.copy({'res_model': whatsapp_message.mail_message_id.model, 'res_id': whatsapp_message.mail_message_id.res_id})
-      //     whatsapp_message.mail_message_id.attachment_ids = [(4, cloned_attachment.id)]
     }
     else if (waMessage.channelMessageId.attachment){
       let attachmentVals = await this.prepareAttachmentVals(waMessage.channelMessageId.attachment, waMessage.waAccountId)
@@ -130,100 +105,12 @@ export class WaMessageService {
         "body": body,
       }
     }
-    console.log("........................sendVals.............", sendVals)
-    // const msg_uid = waApi.sendWhatsApp(number, messageType, sendVals, parentMessageId)
+    const msgUid = waApi.sendWhatsApp(number, messageType, sendVals, parentMessageId)
 
-
-    // console.log("..................messagePayload............", messagePayload);
-
-    // const findTrueInstants = await this.waAccountService.FindSelectedInstants()
-    // if (!findTrueInstants)
-    //   throw new Error("Not found whatsappaccount")
-
-
-    // const waMessageIds: string[] = [];
-
-    // for (const receiver of receiverId) {
-
-    //   const finalPayload = {
-    //     messaging_product: 'whatsapp',
-    //     to: receiver,
-    //     ...messagePayload,
-    //   };
-
-
-
-    //   const wa_api = await this.waAccountService.getWhatsAppApi();
-    //   const message_id = await wa_api.sendWhatsApp(JSON.stringify(finalPayload));
-    //   if (!message_id) throw new Error('Message not sent to WhatsApp');
-
-    //   waMessageIds.push(message_id);
-    // }
-
-    // return waMessageIds;
-    return "a"
+    Object.assign(waMessage, {msgUid: msgUid})
+    await this.waMessageRepository.save(waMessage)
+    return waMessage
   }
-
-  // async generateMessagePayload(messageType, textMessage, attachmentUploadtoWaApiId?) {
-  //   let messagePayload = {};
-
-  //   if (messageType === 'text' && textMessage) {
-  //     messagePayload = {
-  //       type: 'text',
-  //       text: {
-  //         body: textMessage,
-  //       },
-  //     };
-  //   } else if (messageType === 'image') {
-  //     messagePayload = {
-  //       type: 'image',
-  //       image: {
-  //         id: attachmentUploadtoWaApiId,
-  //         caption: textMessage || '',
-  //       },
-  //     };
-  //   } else if (messageType === 'document') {
-
-  //     messagePayload = {
-  //       type: 'document',
-  //       document: {
-  //         id: attachmentUploadtoWaApiId,
-  //         filename: textMessage || 'file.pdf',
-  //       },
-  //     };
-  //   } else if (messageType === 'video') {
-  //     messagePayload = {
-  //       type: 'video',
-  //       video: {
-  //         id: attachmentUploadtoWaApiId,
-  //         caption: textMessage || '',
-  //       },
-  //     };
-  //   } else if (messageType === 'audio') {
-  //     messagePayload = {
-  //       type: 'audio',
-  //       audio: {
-  //         id: attachmentUploadtoWaApiId,
-  //       },
-  //     };
-  //   } else {
-  //     throw new Error(`Unsupported message type: ${messageType}`);
-  //   }
-
-  //   return messagePayload;
-  // }
-
-
-  // async generateMessagePayload(waMessage) {
-  //   let messagePayload = {};
-
-  //   message_type = 'text'
-  //   send_vals = {
-  //       'preview_url': True,
-  //       'body': body,
-  //   }
-  // }
-
 
   async prepareAttachmentVals(attachment, waAccount){
     // """ Upload the attachment to WhatsApp and return prepared values to attach to the message. """

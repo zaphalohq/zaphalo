@@ -17,9 +17,7 @@ const MessageDisplay = () => {
     createdAt: '',
     attachmentUrl: '',
     messageType: '',
-    sender: {
-      phoneNo: '',
-    },
+    sender: '',
     attachment: {
       originalname: ''
     }
@@ -63,9 +61,7 @@ const MessageDisplay = () => {
         createdAt: '',
         attachmentUrl: '',
         messageType: '',
-        sender: {
-          phoneNo: '',
-        },
+        sender: '',
         attachment: {
           originalname: ''
         }
@@ -100,6 +96,7 @@ const MessageDisplay = () => {
           textMessage: message.textMessage,
           messageType: message.messageType,
           attachmentUrl: message.attachmentUrl,
+          sender: message.sender,
           attachment: {
             originalname: message.originalname
           },
