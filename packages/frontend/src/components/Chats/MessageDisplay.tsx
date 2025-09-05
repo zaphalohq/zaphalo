@@ -17,6 +17,9 @@ const MessageDisplay = () => {
     createdAt: '',
     attachmentUrl: '',
     messageType: '',
+    sender: {
+      phoneNo: '',
+    },
     attachment: {
       originalname: ''
     }
@@ -45,21 +48,6 @@ const MessageDisplay = () => {
       if (messagesContainerRef.current) {
         messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
       }
-    // } else {
-    //   setAllMessages([{
-    //     textMessage: '',
-    //     sender: {
-    //       id: '',
-    //       phoneNo: ''
-    //     },
-    //     createdAt: '',
-    //     attachmentUrl: '',
-    //     messageType: '',
-    //     attachment: {
-    //       originalname: ''
-    //     }
-    //   }])
-    // }
   };
 
   useEffect(() => {
@@ -75,6 +63,9 @@ const MessageDisplay = () => {
         createdAt: '',
         attachmentUrl: '',
         messageType: '',
+        sender: {
+          phoneNo: '',
+        },
         attachment: {
           originalname: ''
         }
@@ -112,10 +103,6 @@ const MessageDisplay = () => {
           attachment: {
             originalname: message.originalname
           },
-          // sender: {
-          //   id: "",
-          //   phoneNo: currentChannel.phoneNo,
-          // },
         }));
         setAllMessages((prev) => [...prev, ...newMessages]);
         newMessage.splice(currentChannelIndex, 1);
@@ -152,7 +139,7 @@ const MessageDisplay = () => {
       <div ref={messagesContainerRef} className="max-w-7xl mx-auto">
         {allMessages.map((message, index) =>
           <div key={index} className="relative z-10 p-4">
-            {chatsDetails?.chennelMembers?.includes(selectedPhoneNo) ? (
+            {message.sender ? (
               <div className="flex justify-start mb-4">
                 {message.messageType === 'text' && <div className="bg-white border rounded-br-2xl rounded-tl-xl rounded-tr-2xl p-3 max-w-md shadow-sm">
                   <div className="whitespace-pre-wrap">{message.textMessage}</div>

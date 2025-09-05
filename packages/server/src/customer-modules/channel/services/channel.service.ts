@@ -6,12 +6,14 @@ import axios from "axios";
 
 import { Channel } from "src/customer-modules/channel/entities/channel.entity";
 import { Message } from "src/customer-modules/channel/entities/message.entity";
+import { Contacts } from "src/customer-modules/contacts/contacts.entity";
 import { ContactsService } from "src/customer-modules/contacts/contacts.service";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 import { WaAccountService } from "src/customer-modules/whatsapp/services/whatsapp-account.service";
 import { AttachmentService } from "src/customer-modules/attachment/attachment.service";
 import { messageTypes } from "src/customer-modules/whatsapp/entities/whatsapp-message.entity";
 import { WaMessageService } from "src/customer-modules/whatsapp/services/whatsapp-message.service";
+import { WebSocketService } from 'src/customer-modules/channel/chat-socket';
 
 
 @Injectable()
@@ -25,8 +27,8 @@ export class ChannelService {
     private readonly waAccountService: WaAccountService,
     private readonly waMessageService: WaMessageService,
     private readonly attachmentService: AttachmentService,
-
-    ) {
+    private readonly webSocketService: WebSocketService,
+  ) {
     this.channelRepository = connection.getRepository(Channel);
     this.messageRepository = connection.getRepository(Message);
   }
@@ -75,7 +77,8 @@ export class ChannelService {
     messageType: string,
     unseen?: boolean,
     attachemntId?: string,
-    waMessageId?: string): Promise<Message[]> {
+    waMessageId?: string,
+    sender?: Contacts): Promise<Message[]> {
     let attachment;
     if (attachemntId) {
       attachment = await this.attachmentService.findOneAttachmentById(attachemntId);
@@ -92,7 +95,7 @@ export class ChannelService {
         // for (const waMessageId of waMessageIds) {
     const chennelMessage = await this.messageRepository.create({
       textMessage,
-      // sender: sender,
+      sender: sender,
       channel: channel,
       unseen: unseen,
       messageType,
@@ -107,6 +110,8 @@ export class ChannelService {
       throw new Error("Not found whatsappaccount")
 
     const receivers = channel?.channelMembers
+
+    this.webSocketService.sendMessageToChannel(channel, sender?.phoneNo, {"name": textMessage}, false);
 
     for (const receiver of receivers) {
       const whatsappMessageVal = {
@@ -256,7 +261,7 @@ export class ChannelService {
   }
 
   async findActiveChannel(senderMobile, senderName, createIfNotFound){
-    const channelExist = await this.channelRepository.find({
+    const channelExist = await this.channelRepository.findOne({
       where: { channelMembers: { phoneNo: senderMobile} },
       relations: ['channelMembers']
     })

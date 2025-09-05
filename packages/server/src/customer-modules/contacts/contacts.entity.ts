@@ -32,10 +32,6 @@ export class Contacts {
   @Field(() => Float)
   phoneNo: number;
 
-  @Field(() => [Message])
-  @OneToMany(() => Message, (message) => message.sender)
-  messages: Relation<Message[]>;
-
   @Field(() => [Channel])
   @ManyToMany(() => Channel, channel => channel.channelMembers)
   @JoinColumn({ name: 'channel' })

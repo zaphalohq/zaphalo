@@ -177,6 +177,8 @@ export class WhatsAppWebhookService {
         console.log("Unsupported whatsapp message type: %s", messages)
         continue
       }
+
+      const sender = channel.channelMembers?.filter((conatct) => conatct.phoneNo == sender_mobile)
       const message = await this.channelService.createMessage(
         workspaceId,
         kwargs.body,
@@ -185,6 +187,7 @@ export class WhatsAppWebhookService {
         true,
         kwargs['attachment'],
         messages['id'],
+        sender ? sender[0] : undefined,
       );
     }
 

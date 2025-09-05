@@ -24,6 +24,7 @@ export const ChatsProvider = ({ children }: any) => {
             receiverId: [],
             profileImg: '',
             channelName: '',
+            sender: '',
             memberIds: '',
             channelId: '',
             phoneNo: '',

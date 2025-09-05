@@ -40,8 +40,8 @@ export class Message {
   @JoinColumn({ name: 'channelId' })
   channel: Relation<Channel>;
 
-  @Field(() => Contacts)
-  @ManyToOne(() => Contacts, (contact) => contact.messages, { onDelete: 'SET NULL' })
+  @Field(() => Contacts, { nullable: true })
+  @ManyToOne(() => Contacts, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'senderId' })
   sender: Relation<Contacts>;
 

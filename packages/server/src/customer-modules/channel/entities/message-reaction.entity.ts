@@ -26,7 +26,7 @@ export class MessageReaction {
   id: string;
 
   @Field(() => Contacts)
-  @ManyToOne(() => Contacts, (contact) => contact.messages, { onDelete: 'SET NULL' })
+  @ManyToOne(() => Contacts, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'senderId' })
   contact: Relation<Contacts>;
 

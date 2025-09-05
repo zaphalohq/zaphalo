@@ -15,7 +15,6 @@ import { ContactsService } from "src/customer-modules/contacts/contacts.service"
 import { FileService } from "src/modules/file-storage/services/file.service";
 import { Channel } from "src/customer-modules/channel/entities/channel.entity";
 import { ChannelService } from "src/customer-modules/channel/services/channel.service";
-import { WebSocketService } from 'src/customer-modules/channel/chat-socket';
 import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
 import { Workspace } from "src/modules/workspace/workspace.entity";
 
@@ -25,7 +24,6 @@ export class ChannelResolver {
     private readonly channelService: ChannelService,
     private readonly contactService: ContactsService,
     private readonly waAccountService: WaAccountService,
-    private readonly webSocketService: WebSocketService,
     private fileService: FileService
   ) { }
 
@@ -47,9 +45,7 @@ export class ChannelResolver {
         msg,
         channelId,
         "text",
-        // waMessageIds
       );
-    this.webSocketService.sendMessageToChannel(channelId, {"name": msg}, mobileNumber, false);
     return "done"
   }
 
