@@ -295,6 +295,9 @@ export const findMsgByChannelId = gql`query GetMessagesByChannel($channelId: Str
     createdAt
     attachmentUrl
     messageType
+    sender {
+      phoneNo
+    }
     attachment {
       originalname
     }

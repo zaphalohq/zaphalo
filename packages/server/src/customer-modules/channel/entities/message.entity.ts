@@ -12,9 +12,9 @@ import {
 import { Channel } from './channel.entity';
 import { IDField } from '@ptc-org/nestjs-query-graphql';
 import { ObjectType } from '@nestjs/graphql';
-import { Contacts } from '../contacts/contacts.entity';
+import { Contacts } from 'src/customer-modules/contacts/contacts.entity';
 import { UUIDScalarType } from 'src/modules/api/scalars/uuid.scalar';
-import { Attachment } from '../attachment/attachment.entity';
+import { Attachment } from 'src/customer-modules/attachment/attachment.entity';
 
 @Entity({ name: 'messages' })
 @ObjectType()
@@ -40,8 +40,8 @@ export class Message {
   @JoinColumn({ name: 'channelId' })
   channel: Relation<Channel>;
 
-  @Field(() => Contacts)
-  @ManyToOne(() => Contacts, (contact) => contact.messages, { onDelete: 'SET NULL' })
+  @Field(() => Contacts, { nullable: true })
+  @ManyToOne(() => Contacts, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'senderId' })
   sender: Relation<Contacts>;
 

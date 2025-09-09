@@ -24,6 +24,7 @@ export const ChatsProvider = ({ children }: any) => {
             receiverId: [],
             profileImg: '',
             channelName: '',
+            sender: '',
             memberIds: '',
             channelId: '',
             phoneNo: '',
@@ -34,9 +35,9 @@ export const ChatsProvider = ({ children }: any) => {
     })
 
     const [newMessage, setNewMessage] = useState([{
+            sender: '',
             channelId: '',
             phoneNo: '',
-            // messageIds: [],
             messageId: '',
             textMessage: [],
             unseen: 0,

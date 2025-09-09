@@ -1,12 +1,20 @@
-import { Args, Context, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import {
+  Args,
+  Context,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver
+} from "@nestjs/graphql";
 import { UseGuards } from "@nestjs/common";
+
 import { WaAccountService } from "src/customer-modules/whatsapp/services/whatsapp-account.service";
 import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
 import { ContactsService } from "src/customer-modules/contacts/contacts.service";
 import { FileService } from "src/modules/file-storage/services/file.service";
-import { Channel } from "../channel.entity";
-import { ChannelService } from "../channel.service";
-import { WebSocketService } from '../chat-socket';
+import { Channel } from "src/customer-modules/channel/entities/channel.entity";
+import { ChannelService } from "src/customer-modules/channel/services/channel.service";
 import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
 import { Workspace } from "src/modules/workspace/workspace.entity";
 
@@ -16,7 +24,6 @@ export class ChannelResolver {
     private readonly channelService: ChannelService,
     private readonly contactService: ContactsService,
     private readonly waAccountService: WaAccountService,
-    private readonly webSocketService: WebSocketService,
     private fileService: FileService
   ) { }
 
@@ -25,23 +32,6 @@ export class ChannelResolver {
   async findAllChannel(
     @Context('req') req): Promise<Channel[]> {
     return await this.channelService.findAllChannel();
-  }
-  @Mutation(() => String)
-  async waWebsocket(
-    @AuthWorkspace() workspace: Workspace,
-    @Args('channelId') channelId: string,
-    @Args('mobileNumber') mobileNumber: number,
-    @Args('msg') msg: string
-  ) {
-      const message = await this.channelService.createMessage(
-        workspace.id,
-        msg,
-        channelId,
-        "text",
-        // waMessageIds
-      );
-    this.webSocketService.sendMessageToChannel(channelId, {"name": msg}, mobileNumber, false);
-    return "done"
   }
 
   @UseGuards(GqlAuthGuard)

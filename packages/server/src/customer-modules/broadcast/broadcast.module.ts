@@ -9,16 +9,17 @@ import { WhatsAppModule } from "src/customer-modules/whatsapp/whatsapp.module";
 import { MailingListModule } from "src/customer-modules/mailingList/mailingList.module";
 
 @Module({
-    imports : [ 
-      NestjsQueryGraphQLModule.forFeature({
-          imports: [
-            NestjsQueryTypeOrmModule.forFeature([Broadcast, BroadcastContacts]),
-            MailingListModule,
-            WhatsAppModule,
-          ],
-        }),],
-    providers : [BroadcastService, BroadcastResolver],
-    exports: [BroadcastService],
+  imports : [
+    NestjsQueryGraphQLModule.forFeature({
+      imports: [
+        NestjsQueryTypeOrmModule.forFeature([Broadcast, BroadcastContacts]),
+        MailingListModule,
+      ],
+    }),
+    WhatsAppModule,
+  ],
+  providers : [BroadcastService, BroadcastResolver],
+  exports: [BroadcastService],
 })
 
 export class BroadcastModule {}

@@ -7,7 +7,6 @@ import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symb
 import { Connection, Repository } from 'typeorm';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { getWorkspaceConnection } from 'src/modules/workspace-manager/workspace.manager.utils';
-import { WhatsAppSDKService } from 'src/customer-modules/whatsapp/services/whatsapp-api.service';
 import { WaMessageService } from 'src/customer-modules/whatsapp/services/whatsapp-message.service';
 
 import { WhatsAppMessage } from '../entities/whatsapp-message.entity';
@@ -28,8 +27,6 @@ async function sleep(ms: number): Promise<void> {
 })
 export class SendWhatsAppMessageJob {
   constructor(
-    private readonly whatsAppApiService: WhatsAppSDKService,
-    private readonly whatsAppSDKService: WhatsAppSDKService,
     private readonly waMessageService: WaMessageService,
   ) {}
 
@@ -41,14 +38,12 @@ export class SendWhatsAppMessageJob {
     const waMessage = await waMessageRepo.findOne({
       where: {id: data.messageId},
     });
-    // this.waMessageService.sendWhatsappMessage(data)
+    this.waMessageService.sendWhatsappMessage(data)
 
     console.log('📩 Processing WhatsApp job:', data);
     console.log("Starting...");
     await sleep(3000); // Pause execution for 3 seconds
     console.log("...Continuing after delay.");
-    
-    // send WhatsApp logic
   }
 }
 

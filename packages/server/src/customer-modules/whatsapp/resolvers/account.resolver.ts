@@ -4,7 +4,7 @@ import { WhatsAppAccount } from '../entities/whatsapp-account.entity';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from 'src/modules/auth/guards/gql-auth.guard';
 import { WaAccountDto } from '../dtos/whatsapp-account-update.dto';
-import { TemplateService } from 'src/customer-modules/whatsapp/services/whatsapp-template.service';
+import { WaTemplateService } from 'src/customer-modules/whatsapp/services/whatsapp-template.service';
 import { WhatsAppSDKService } from 'src/customer-modules/whatsapp/services/whatsapp-api.service'
 import { Workspace } from "src/modules/workspace/workspace.entity";
 import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
@@ -15,7 +15,6 @@ import { SuccessResponse } from "../dtos/success.dto";
 export class WaAccountResolver {
   constructor(
     private readonly waAccountService: WaAccountService,
-    private readonly waTemplateService: TemplateService,
     private readonly whatsAppApiService: WhatsAppSDKService,
   ) { }
 
@@ -82,7 +81,7 @@ export class WaAccountResolver {
     const wa_api = await this.waAccountService.getWhatsAppApi(waAccount.accountId)
     if (WaAccounts) {
       const syncTemplate = await wa_api.syncTemplate();
-      await this.waTemplateService.saveSyncTemplates(syncTemplate, WaAccounts)
+      await this.waAccountService.saveSyncTemplates(syncTemplate, WaAccounts)
     }
     return WaAccounts;
   }

@@ -2,6 +2,7 @@ import { Processor } from 'src/modules/message-queue/decorators/processor.decora
 import { Process } from 'src/modules/message-queue/decorators/process.decorator';
 import { Logger, Scope } from '@nestjs/common';
 import { MessageQueue } from 'src/modules/message-queue/message-queue.constants';
+import { WaTemplateService } from 'src/customer-modules/whatsapp/services/whatsapp-template.service';
 
 export const WHATSAPP_TMPL_SYNC_CRON_PATTERN = '*/1 * * * *';
 
@@ -11,11 +12,18 @@ export const WHATSAPP_TMPL_SYNC_CRON_PATTERN = '*/1 * * * *';
   scope: Scope.REQUEST,
 })
 export class UpdateTemplateJob {
+  constructor(
+    // private readonly waTemplateService: WaTemplateService,
+  ) {}
+
+
   @Process(UpdateTemplateJob.name)
   async handleJob(data: any) {
     console.log('📩 Processing WhatsApp Template Sync job:', data);
     console.log("Starting...");
     console.log("...Continuing after delay.");
+
+    // this.waTemplateService()
     
     // send WhatsApp logic
   }

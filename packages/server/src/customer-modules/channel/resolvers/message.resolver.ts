@@ -1,15 +1,24 @@
-import { Args, Context, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import {
+  Args,
+  Context,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver
+} from "@nestjs/graphql";
 import { UseGuards } from "@nestjs/common";
+import { message } from "aws-sdk/clients/sns";
+
 import { WaAccountService } from "src/customer-modules/whatsapp/services/whatsapp-account.service";
 import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
 import { ContactsService } from "src/customer-modules/contacts/contacts.service";
 import { FileService } from "src/modules/file-storage/services/file.service";
-import { ChannelService } from "../channel.service";
-import { Message } from "../message.entity";
+import { ChannelService } from "src/customer-modules/channel/services/channel.service";
+import { Message } from "src/customer-modules/channel/entities/message.entity";
 import { SuccessResponse } from "src/customer-modules/whatsapp/dtos/success.dto";
-import { SendMessageInput } from "../dto/SendMessageInputDto";
+import { SendMessageInput } from "src/customer-modules/channel/dto/SendMessageInputDto";
 import { AttachmentService } from "src/customer-modules/attachment/attachment.service";
-import { message } from "aws-sdk/clients/sns";
 import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
 import { Workspace } from "src/modules/workspace/workspace.entity";
 
@@ -22,8 +31,6 @@ export class MessageResolver {
     private readonly waAccountService: WaAccountService,
     private fileService: FileService
   ) { }
-
-
 
   @UseGuards(GqlAuthGuard)
   @Query(() => [Message])
@@ -134,16 +141,6 @@ export class MessageResolver {
         }
       }
     }
-
-    // for (const channelMessage of returnMessage) {
-    //   const waMessageIds = await this.channelService.sendWhatsappMessage({
-    //     channelMessage,
-    //     receiverId,
-    //     messageType: channelMessage.messageType,
-    //     textMessage: channelMessage.textMessage,
-    //     attachmentUploadtoWaApiId: null,
-    //   });
-    // }
     return returnMessage
   }
 

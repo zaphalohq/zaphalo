@@ -75,7 +75,6 @@ const MessageArea = () => {
               updatedAt: "",
             }
           })
-          console.log(attachment?.data?.CreateOneAttachment, '.attachment............');
 
           setAttachments((prev) => [
             ...(prev ?? []),
@@ -115,22 +114,12 @@ const MessageArea = () => {
   const SubmitMsg = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-
-    // uploadedFiles.forEach(async (uploadedFile) => {
-    //   await setMyCurrentMessage((prev: any) => ({
-    //     message: currentMsg,
-    //     count: prev.count + 1,
-    //     attachmentUrl: uploadedFile.fileUrl,
-    //   }));
-    // })
-
     const variablesAttachments = attachments.map((attachment) => {
       return {
         attachmentId: attachment.attachmentId,
         messageType: attachment.messageType
       }
     })
-    console.log(variablesAttachments, 'attachmentId.............................');
 
     const variables = {
       sendMessageInput: {
@@ -142,14 +131,6 @@ const MessageArea = () => {
       },
     };
 
-
-    // if (currentMsg && currentMsg !== '' && attachments.length === 0) {
-    //   setMyCurrentMessage((prev: any) => ({
-    //     message: currentMsg,
-    //     count: prev.count + 1,
-    //     attachmentUrl: '',
-    //   }))
-    // }
     setCurrentMsg('');
     setAttachments([]);
     setIsFileUploaded(false);
@@ -157,8 +138,6 @@ const MessageArea = () => {
     try {
       const response = await sendMessage({ variables });
       setMyCurrentMessage(response.data.sendMessage)
-      console.log(response.data.sendMessage, '..........................response');
-
     } catch (err) {
       console.error('Error sending message:', err);
     }

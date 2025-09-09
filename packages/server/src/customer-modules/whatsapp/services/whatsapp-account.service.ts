@@ -1,26 +1,50 @@
-import axios from 'axios';
+import { Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/common';
 import { Connection, Repository } from 'typeorm';
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { WhatsAppAccount } from '../entities/whatsapp-account.entity';
+import axios from 'axios';
+import crypto from "crypto";
+import * as mime from 'mime-types';
+import { v4 as uuidv4 } from 'uuid';
+import { dirname, join } from 'path';
+
+import { WhatsAppAccount } from 'src/customer-modules/whatsapp/entities/whatsapp-account.entity';
 import { WhatsAppTemplate } from 'src/customer-modules/whatsapp/entities/whatsapp-template.entity';
+import { WhatsAppMessage } from 'src/customer-modules/whatsapp/entities/whatsapp-message.entity';
+import { AttachmentService } from 'src/customer-modules/attachment/attachment.service';
 import { ContactsService } from 'src/customer-modules/contacts/contacts.service';
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 import { WaAccountDto } from '../dtos/whatsapp-account-update.dto';
 import { JwtWrapperService } from 'src/modules/jwt/jwt-wrapper.service';
-import { WhatsAppSDKService } from './whatsapp-api.service';
+import { FileService } from 'src/modules/file-storage/services/file.service';
+import { WhatsAppSDKService } from 'src/customer-modules/whatsapp/services/whatsapp-api.service';
+
+
+export const SUPPORTED_ATTACHMENT_TYPE = {
+    "audio": ["audio/aac", "audio/mp4", "audio/mpeg", "audio/amr", "audio/ogg"],
+    "document": [
+        'text/plain', 'application/pdf', 'application/vnd.ms-powerpoint', 'application/msword',
+        'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    ],
+    'image': ['image/jpeg', 'image/png'],
+    'video': ['video/mp4',],
+}
 
 @Injectable()
 export class WaAccountService {
   private waAccountRepository: Repository<WhatsAppAccount>
-  private waTemplateRepository: Repository<WhatsAppTemplate>
+  private templateRepository: Repository<WhatsAppTemplate>
+
   constructor(
     @Inject(CONNECTION) connection: Connection,
     private readonly contactsService: ContactsService,
     private readonly jwtWrapperService: JwtWrapperService,
     private readonly whatsAppApiService: WhatsAppSDKService,
+    private readonly fileService: FileService,
+    private readonly attachmentService: AttachmentService,
   ) {
     this.waAccountRepository = connection.getRepository(WhatsAppAccount);
-    this.waTemplateRepository = connection.getRepository(WhatsAppTemplate);
+    this.templateRepository = connection.getRepository(WhatsAppTemplate);
   }
 
   async WaAccountCreate(req, waAccount: WaAccountDto): Promise<WhatsAppAccount> {
@@ -114,6 +138,17 @@ export class WaAccountService {
       where: { id: instantsId },
     });
   }
+  async getWaAccountPhoneAndAccountId(phoneNumberId: string, businessAccountId: string): Promise<WhatsAppAccount | null> {
+    return await this.waAccountRepository.findOne({
+      where: { phoneNumberId: phoneNumberId, businessAccountId: businessAccountId },
+    });
+  }
+
+  async findInstantsByAccounID(businessAccountId: string): Promise<WhatsAppAccount | null> {
+    return await this.waAccountRepository.findOne({
+      where: { businessAccountId: businessAccountId },
+    });
+  }
 
   encodeWaWebhookToken(payloadToEncode: Record<string, any>) {
     const secret = this.jwtWrapperService.generateAppSecret(
@@ -150,5 +185,101 @@ export class WaAccountService {
     }
   }
 
+  convertTemplatePayloadToDbData(components: any[]) {
+    const dbComponent = {
+      headerType: 'NONE',
+      bodyText: '',
+      footerText: '',
+      button: [],
+      headerText: '',
+      templateImg: '',
+      variables: []
+    };
 
+    for (const component of components) {
+      switch (component.type) {
+        case 'HEADER':
+          dbComponent.headerType = component.format;
+          if (component.format === 'TEXT') {
+            dbComponent.headerText = component.text;
+          } else if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(component.format)) {
+            dbComponent.templateImg = component.example?.header_handle?.[0] || '';
+          }
+          break;
+        case 'BODY':
+          dbComponent.bodyText = component.text;
+          const variableValues = component.example?.body_text?.[0] || [];
+          dbComponent.variables = variableValues.map((val: string, idx: number) => ({
+            name: `{{${idx + 1}}}`,
+            value: val
+          }));
+          break;
+        case 'FOOTER':
+          dbComponent.footerText = component.text;
+          break;
+        case 'BUTTONS':
+          dbComponent.button = component.buttons;
+          break;
+      }
+    }
+
+    return dbComponent;
+  }
+
+  async saveSyncTemplates(templates, instants) {
+    const dbTemplates = await this.templateRepository.find();
+    const arrWaTempalteIds = dbTemplates.map((template) => template.waTemplateId)
+    for (const template of templates) {
+      if (!arrWaTempalteIds.includes(template.id)) {
+        const components = template.components || [];
+        const componentData: any = this.convertTemplatePayloadToDbData(components)
+        const dbTemplate = this.templateRepository.create({
+          account: instants,
+          templateName: template.name,
+          status: template.status,
+          waTemplateId: template.id,
+          language: template.language,
+          category: template.category,
+          headerType: componentData.headerType,
+          headerText: componentData.headerText,
+          bodyText: componentData.bodyText,
+          footerText: componentData.footerText,
+          button: componentData.button,
+          variables: componentData.variables,
+          templateImg: componentData.templateImg
+        })
+        await this.templateRepository.save(dbTemplate);
+      }
+    }
+
+    return { success: 'template are synced' }
+  }
+
+  async prepareAttachmentVals(attachment, waAccount){
+    // """ Upload the attachment to WhatsApp and return prepared values to attach to the message. """
+    let whatsappMediaType = ''
+
+    for (const [key, value] of Object.entries(SUPPORTED_ATTACHMENT_TYPE)) {
+      console.log(`Key: ${key}, Value: ${value}`);
+      if (value.includes(attachment.mimetype)){
+        whatsappMediaType = key
+        break
+      }
+    }
+
+    if (!whatsappMediaType)
+        throw new Error(`Attachment mimetype is not supported by WhatsApp: ${attachment.mimetype}.`)
+    const waApi = await this.getWhatsAppApi(waAccount.id)
+    let whatsappMediaUid = await waApi.uploadWhatsappDocument(attachment)
+
+    let vals = {
+        'type': whatsappMediaType,
+        [whatsappMediaType]: {'id': whatsappMediaUid}
+    }
+
+    if (whatsappMediaType == 'document')
+      vals[whatsappMediaType]['filename'] = attachment.name
+
+    return vals
+  }
 }
