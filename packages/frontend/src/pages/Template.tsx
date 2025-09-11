@@ -75,7 +75,7 @@ Thank you.`,
                     status: ''
                   })
                   setIsTemplatePreviewVis(false)
-                }} className='ml-6 flex items-center justify-center h-10 w-10 rounded-full bg-violet-400 hover:bg-violet-500 cursor-pointer text-white text-lg font-bold'><FiArrowLeft />
+                }} className='ml-6 flex items-center justify-center h-10 w-10 rounded-full bg-green-500 hover:bg-green-600 cursor-pointer text-white text-lg font-bold'><FiArrowLeft />
                 </div>
                 <TemplatePreview templatePreviewData={templateFormData} selectedTemplateInfo={selectedTemplateInfo} />
               </div>)

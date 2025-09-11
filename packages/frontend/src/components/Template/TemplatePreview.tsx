@@ -41,7 +41,7 @@ const TemplatePreview = ({ templatePreviewData, selectedTemplateInfo }: Template
           </div>
           {/* {templatePreviewData?.button?.length !== 0 && */}
           {templatePreviewData?.button &&
-            templatePreviewData?.button?.map((button: any, index: number) => <div key={index} className="flex gap-2 items-center justify-center p-2 text-blue-600 ">
+            templatePreviewData?.button?.map((button: any, index: number) => <div key={index} className="flex gap-2 items-center justify-center p-2 text-green-500 ">
               <FiExternalLink />
               <button className="text-sm font-semibold text-left">
                 {button.text}

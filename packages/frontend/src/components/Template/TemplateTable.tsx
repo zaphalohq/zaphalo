@@ -309,7 +309,7 @@ const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) =
                             </button>
                             <button
                                 onClick={() => handleSendTemplateToPhone()}
-                                className="bg-indigo-600 cursor-pointer text-white px-4 py-1 rounded hover:bg-indigo-700"
+                                className="bg-green-500 cursor-pointer text-white px-4 py-1 rounded hover:bg-green-600"
                             >
                                 Send
                             </button>

@@ -132,17 +132,17 @@ const TableListView = () => {
             <p className="text-sm text-gray-600 mb-2">Webhook: <strong>Url</strong></p>
             <div className='w-full flex rounded-2xl mb-2'>
               <input className='p-4 border-none focus:outline-none focus:ring-0 focus:border-none w-full bg-gray-200 text-blue-700' type="text" name="" id="" defaultValue={webhook.webhookUrl} />
-              <button onClick={() => HandleCopy(webhook.webhookUrl)} className='p-4 bg-gray-300 hover:bg-gray-400 cursor-pointer text-stone-900 font-medium'>{copied ? 'Copied!' : 'Copy'}</button>
+              <button onClick={() => HandleCopy(webhook.webhookUrl)} className='p-4 bg-green-500 hover:bg-green-600 cursor-pointer text-white font-medium'>{copied ? 'Copied!' : 'Copy'}</button>
             </div>
             <p className="text-sm text-gray-600 mb-2">Webhook: <strong>Token</strong></p>
             <div className='w-full flex rounded-2xl mb-2'>
               <input className='p-4 border-none focus:outline-none focus:ring-0 focus:border-none w-full bg-gray-200 text-blue-700' type="text" name="" id="" defaultValue={webhook.webhookToken} />
-              <button onClick={() => HandleCopy(webhook.webhookToken)} className='p-4 bg-gray-300 hover:bg-gray-400 cursor-pointer text-stone-900 font-medium'>{copied ? 'Copied!' : 'Copy'}</button>
+              <button onClick={() => HandleCopy(webhook.webhookToken)} className='p-4 bg-green-500 hover:bg-green-600 cursor-pointer text-white font-medium'>{copied ? 'Copied!' : 'Copy'}</button>
             </div>
             <div className="flex justify-between">
               <button
                 onClick={() => setShowSendPopup(false)}
-                className="bg-gray-300 cursor-pointer text-gray-700 px-4 py-1 rounded hover:bg-gray-400"
+                className="bg-rose-500 cursor-pointer text-white px-4 py-1 rounded hover:bg-rose-600"
               >
                 Cancel
               </button>

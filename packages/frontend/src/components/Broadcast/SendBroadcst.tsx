@@ -214,7 +214,7 @@ const SendBroadcast = ({ setIsSendBroadcastVis } : any) => {
                             value={broadcastData.broadcastName}
                             onChange={(e) => setBroadcastData({ ...broadcastData, broadcastName: e.target.value })}
                             placeholder="Enter broadcast name"
-                            className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                            className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                         />
                     </div>
                 </div>
