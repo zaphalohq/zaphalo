@@ -15,7 +15,7 @@ const UserBottomToggle = () => {
     <div className="mt-2 ml-1 border-gray-700 relative border-t pt-2">
       <div className="flex p-0.5 w-full items-start gap-2 transition-colors relative hover:bg-gray-800/50 rounded-xl">
         <div className="relative">
-          <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center shadow-lg">
+          <div className="w-10 h-10 bg-gradient-to-r from-green-400 via-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg">
             <span className="text-white font-bold text-sm">
               {currentUser?.firstName && currentUser?.lastName
                 ? getInitials(currentUser.firstName, currentUser.lastName)

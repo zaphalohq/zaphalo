@@ -274,7 +274,7 @@ const TemplateForm = ({setIsTemplateFormVis}: any) => {
                   type="button"
                   onClick={handleSaveTemplate}
                   disabled={isSubmitting}
-                  className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-400 p-2"
+                  className="w-full bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 disabled:bg-green-300 p-2"
                 >
                   {isSubmitting ? 'Saving...' : 'Save Template'}
                 </button>
@@ -283,7 +283,7 @@ const TemplateForm = ({setIsTemplateFormVis}: any) => {
                   disabled={
                     isSubmitting ||
                     !isValidated }
-                  className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-400 p-2"
+                  className="w-full bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 disabled:bg-green-300 p-2"
                 >
                   {isSubmitting ? 'Submitting...' : 'Submit Template'}
                 </button>

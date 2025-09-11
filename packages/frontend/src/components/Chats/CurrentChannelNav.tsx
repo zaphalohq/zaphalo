@@ -60,11 +60,12 @@ const CurrentChannelNav = () => {
       </div> : <></>}
       <div className="flex gap-4 text-[1.3rem] ">
         <button onClick={() => setIsUpdateChannelName(true)}
-          className="p-2 cursor-pointer rounded hover:bg-gray-300 text-base font-normal text-violet-600">
+          className="p-2 cursor-pointer rounded hover:bg-gray-300 text-base font-normal text-green-500 hover:text-green-600
+ transition-colors duration-200">
           <FiEdit2 />
         </button>
       </div>
-    </div>
+    </div>  
     )
 }
 

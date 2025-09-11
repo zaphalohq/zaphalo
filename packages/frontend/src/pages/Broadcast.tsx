@@ -23,7 +23,7 @@ const Broadcast = () => {
                     if(isTemplateVis) setIsTemplateVis(false)
                     if(isMailingListVis) setIsMailingListVis(false)
                     }}
-                    className='m-6 flex items-center justify-center h-10 w-10 rounded-full bg-violet-400 hover:bg-violet-500 cursor-pointer text-white text-lg font-bold'>
+                    className='m-6 flex items-center justify-center h-10 w-10 rounded-full bg-green-500 hover:bg-green-600 cursor-pointer text-white text-lg font-bold'>
                     <FiArrowLeft />
                 </div>
             }

@@ -206,7 +206,7 @@ const SendBroadcast = ({ setIsSendBroadcastVis } : any) => {
                         )}
                     </div>
                     <button onClick={HandleSendTempate}
-                        className="bg-violet-600/80 hover:bg-violet-700 text-white rounded font-semibold text-lg cursor-pointer">Broadcast</button>
+                        className="bg-green-500 hover:bg-green-600 text-white rounded font-semibold text-lg cursor-pointer">Broadcast</button>
                     <div className="col-span-1 md:col-span-2 lg:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-1">Broadcast Name</label>
                         <input

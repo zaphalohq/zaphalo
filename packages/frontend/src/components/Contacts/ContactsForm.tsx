@@ -60,7 +60,7 @@ const ContactsForm = () => {
 							<InputLabel type="number" value={contactFormData.phoneNo} HandleInputChange={HandleInputChange} name="phoneNo" title="Phone number" placeholder="Enter phone number" />
 							<div
 								className='bg-stone-200 flex gap-2 mt-4 rounded-2xl'>
-								<label className="cursor-pointer bg-violet-500 hover:bg-violet-600 p-2  rounded-l-2xl text-stone-50" htmlFor="file_input">Upload Image</label>
+								<label className="cursor-pointer bg-green-500 hover:bg-green-600 p-2  rounded-l-2xl text-stone-50" htmlFor="file_input">Upload Image</label>
 								<input accept="image/*" onChange={HandleUploadImg} className="cursor-pointer p-2 text-stone-950 " type="file" name="file_input" id="file_input" />
 							</div>
 							{fileError && <p className="text-red-500">{fileError}</p>}

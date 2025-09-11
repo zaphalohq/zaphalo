@@ -211,7 +211,7 @@ const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) =
                                             })
                                             setIsTemplateFormVis(true)
                                         }}
-                                        className={`text-lg text-center text-violet-500 cursor-pointer hover:bg-violet-200 p-2 rounded disabled:bg-violet-200 disabled:cursor-default`}
+                                        className={`text-lg text-center text-green-500 cursor-pointer hover:bg-gray-200 p-2 rounded disabled:bg-violet-200 disabled:cursor-default`}
                                     >
                                         <GrDocumentUpdate />
                                     </button>
