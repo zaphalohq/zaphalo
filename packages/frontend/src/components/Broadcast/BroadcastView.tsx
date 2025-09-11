@@ -69,13 +69,13 @@ function BroadcastView({isTemplateVis,
   return (
     <div>
       {!isTemplateVis && !isMailingListVis && 
-      <div>
+      <div className='md:px-4'>
       <div className="grid grid-cols-4 my-4">
         <div className='col-start-4'>
           <SearchWhite HandleSearch={(e: any) => setSearchTerm(e.target.value)} />
         </div>
       </div>
-      <div className="relative h-[65vh] overflow-y-scroll  md:px-4 rounded-lg">
+      <div className="relative h-[65vh] overflow-y-scroll rounded-lg">
         <table className="w-full text-sm text-left rtl:text-right text-stone-500 rounded-2xl">
           <thead className="sticky top-0 text-xs text-stone-700 uppercase bg-stone-200 truncate">
             <tr>

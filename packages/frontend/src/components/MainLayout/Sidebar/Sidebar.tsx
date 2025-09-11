@@ -36,7 +36,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
   ];
 
   return (
-    <div className="flex flex-col bg-gray-900 text-white w-64 min-h-screen p-4">
+    <div className="flex flex-col bg-gray-900 text-white w-64  min-h-screen p-4">
       <AccountToggle />
       <div className={`${activeTab ? '' : 'hidden md:block'} overflow-y-scroll custom-scrollbox custom-scroll sticky top-4 h-[calc(100vh-300px)]`}>
         <nav className="flex flex-col gap-2">

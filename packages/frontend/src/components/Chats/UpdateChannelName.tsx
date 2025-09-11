@@ -35,7 +35,7 @@ const UpdateChannelName = () => {
     <>
       { isUpdateChannelName ? <div className="absolute z-11 inset-0  md:h-100% bg-stone-900/30 " >
         <CloseButton onClick={() => setIsUpdateChannelName(false) } 
-                    right="md:right-120 right-4" top="top-60" />
+                    right="md:right-120" top="top-55" />
         <form onSubmit={HandleUpdateChannelName} className="absolute top-[35%]  md:right-[35%] md:w-[30rem] bg-stone-100 p-10 rounded flex flex-col gap-4">
           <h2 className="text-lg font-semibold text-center">Update Channel Name</h2>
           <div className='text-lg'>Current Channel Name : <span className='text-green-600'>{chatsDetails.channelName}</span></div>
