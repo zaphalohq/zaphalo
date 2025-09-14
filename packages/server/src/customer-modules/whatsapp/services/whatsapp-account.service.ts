@@ -1,5 +1,5 @@
 import { Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/common';
-import { Connection, Repository } from 'typeorm';
+import { Connection, Repository, ILike } from 'typeorm';
 import axios from 'axios';
 import crypto from "crypto";
 import * as mime from 'mime-types';
@@ -281,5 +281,17 @@ export class WaAccountService {
       vals[whatsappMediaType]['filename'] = attachment.name
 
     return vals
+  }
+
+  async readWaAccount(
+    search?: string,
+    limit?: number,
+  ) {
+    const waAccounts = await this.waAccountRepository.find({
+      where: { name: ILike(`%${search}%`) },
+      order: { createdAt: 'ASC' },
+      take: limit,
+    });
+    return waAccounts;
   }
 }

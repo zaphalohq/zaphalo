@@ -217,4 +217,16 @@ export class BroadcastService implements OnModuleInit {
     return { searchedData: broadcasts, totalCount };
   }
 
+  async readBroadcast(
+    search?: string,
+    limit?: number,
+  ) {
+    const broadcasts = await this.broadcastRepository.find({
+      where: { broadcastName: ILike(`%${search}%`) },
+      order: { createdAt: 'ASC' },
+      take: limit,
+    });
+    return broadcasts;
+  }
+
 }

@@ -4,10 +4,11 @@ export const PageHeader = ({
   onClosePage,
   Icon,
   children,
+  actions,
   className,
 }: PageHeaderProps) => {
   return (
-    <div class={"font-bold text-lg border-gray-300 p-4 border-b "+className}>
+    <div class={"flex items-center justify-between font-bold text-lg border-gray-300 p-4 border-b "+className}>
         {title && (
           <div class="flex items-center">
             {Icon && (
@@ -23,6 +24,7 @@ export const PageHeader = ({
       <div className="page-action-container">
         {children}
       </div>
+      <div className="flex space-x-2">{actions}</div>
     </div>
   );
 };

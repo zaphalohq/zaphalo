@@ -167,40 +167,4 @@ function BroadcastView({isTemplateVis,
     </div>
   );
 }
-
 export default BroadcastView;
-
-//                 {viewType === 'mailingList' && (
-//                     <>
-//                         <div className='border-b pb-4 border-gray-300'>
-//                             Mailing List Name :
-//                             <span className='font-semibold'>
-//                                 {" " + selectedBroadcast.mailingList?.mailingListName}
-//                             </span>
-//                         </div>
-//                         <div className="mt-4 rounded-lg border h-[55vh] border-stone-200 overflow-y-auto">
-//                             <table className="w-full text-sm text-left text-stone-600">
-//                                 <thead className="text-xs text-stone-700 uppercase bg-stone-200">
-//                                     <tr>
-//                                         <th className="px-6 py-4">Contact Name</th>
-//                                         <th className="px-6 py-4">Contact Number</th>
-//                                     </tr>
-//                                 </thead>
-//                                 <tbody>
-//                                     {selectedBroadcast.mailingList?.mailingContacts?.map((contact: any, index: number) => (
-//                                         <tr key={index} className="bg-white border-b border-stone-100">
-//                                             <td className="px-6 py-4">{contact.contactName}</td>
-//                                             <td className="px-6 py-4">{contact.contactNo}</td>
-//                                         </tr>
-//                                     ))}
-//                                 </tbody>
-//                             </table>
-//                         </div>
-//                     </>
-//                 )}
-//             </div>
-//         ) : (
-//             <p className="text-stone-600">Select a broadcast to view details.</p>
-//         )}
-//     </div>
-// </div>

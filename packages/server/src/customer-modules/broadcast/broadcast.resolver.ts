@@ -11,37 +11,45 @@ import { FindAllBrodcastRes } from "./dto/FindAllBrodcastRes";
 
 @Resolver(() => Broadcast)
 export class BroadcastResolver {
-    constructor(
-        private readonly broadcastService: BroadcastService,
+  constructor(
+    private readonly broadcastService: BroadcastService,
     ) {
-    }
+  }
 
-    @UseGuards(GqlAuthGuard)
-    @Query(() => FindAllBrodcastRes)
-    async findAllBroadcast(
-        @Args('currentPage', { type: () => Int }) currentPage: number,
-        @Args('itemsPerPage', { type: () => Int }) itemsPerPage: number) {
-        return await this.broadcastService.findAllBroadcast(currentPage, itemsPerPage)
-    }
+  @UseGuards(GqlAuthGuard)
+  @Query(() => FindAllBrodcastRes)
+  async findAllBroadcast(
+    @Args('currentPage', { type: () => Int }) currentPage: number,
+    @Args('itemsPerPage', { type: () => Int }) itemsPerPage: number) {
+    return await this.broadcastService.findAllBroadcast(currentPage, itemsPerPage)
+  }
 
-    @UseGuards(GqlAuthGuard)
-    @Mutation(() => SuccessResponse)
-    async BroadcastTemplate(@Args('broadcastData') broadcastData: BroadcastReqDto): Promise<SuccessResponse> {
-        const saveTemplates = await this.broadcastService.saveBroadcast(broadcastData);
-        if (saveTemplates) {
-            this.broadcastService.sendMessagesInBackground();
-        }
-        return {
-            success: true,
-            message: 'Broadcast save successfully and broadcast sending started.'
-        }
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => SuccessResponse)
+  async BroadcastTemplate(@Args('broadcastData') broadcastData: BroadcastReqDto): Promise<SuccessResponse> {
+    const saveTemplates = await this.broadcastService.saveBroadcast(broadcastData);
+    if (saveTemplates) {
+      this.broadcastService.sendMessagesInBackground();
     }
+    return {
+      success: true,
+      message: 'Broadcast save successfully and broadcast sending started.'
+    }
+  }
 
-    @Query(() => SearchedRes)
-    async searchBroadcast(
-        @Args('searchTerm', { type: () => String, nullable: true }) searchTerm?: string,
+  @Query(() => SearchedRes)
+  async searchBroadcast(
+    @Args('searchTerm', { type: () => String, nullable: true }) searchTerm?: string,
     ): Promise<SearchedRes | null> {
-        return this.broadcastService.searchBroadcast(searchTerm);
-    }
+    return this.broadcastService.searchBroadcast(searchTerm);
+  }
+
+  @Query(() => Broadcast)
+  async readBroadcast(
+    @Args('search', { type: () => String, nullable: true }) search?: string,
+    @Args('limit', { type: () => Int, nullable: true }) limit?: number,
+    ): Promise<Broadcast[] | null> {
+    return this.broadcastService.readBroadcast(search, limit);
+  }
 
 }
