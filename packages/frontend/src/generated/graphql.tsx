@@ -799,15 +799,6 @@ query searchBroadcast($searchTerm: String){
 }
 `
 
-export const ReadBroadcast = gql`
-query readBroadcast($search: String, $limit: number){
-  readBroadcast(searchTerm: $searchTerm, limit: $limit){
-    searchedData
-    totalCount
-  }
-}
-`
-
 export const SearchedTemplate = gql`
 query searchedTemplate($searchTerm: String){
   searchedTemplate(searchTerm: $searchTerm){
@@ -914,7 +905,40 @@ query GetMailingContacts($mailingListId: String!,
 }`
 
 
-// Find Broadcast
+// Broadcast
+
+export const ReadBroadcast = gql`
+query readBroadcast($search: String, $limit: Int){
+  readBroadcast(search: $search, limit: $limit){
+    id
+    broadcastName
+  }
+}`
+
+export const SearchReadBroadcast = gql`
+query searchReadBroadcast($page : Int!, $pageSize : Int!, $search: String, $filter: String) {
+  searchReadBroadcast(page: $page, pageSize: $pageSize, search: $search, filter: $filter) {
+    total
+    totalPages
+    currentPage
+    broadcasts {
+      id
+      broadcastName
+      totalBroadcast
+      totalBroadcastSend
+      isBroadcastDone
+      account {
+        id
+      }
+      template {
+        id
+      }
+      mailingList {
+        id
+      }
+    }
+  }
+}`
 
 export const findAllBroadcasts = gql`
 query findAllBroadcast($currentPage : Int!, $itemsPerPage : Int!) {

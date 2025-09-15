@@ -4,9 +4,14 @@ import { Broadcast } from "../broadcast.entity";
 @ObjectType()
 export class FindAllBrodcastRes {
   @Field(() => [Broadcast])
-  allBroadcast: Broadcast[];
+  broadcasts: Broadcast[];
+
+  @Field()
+  total: number;
 
   @Field()
   totalPages: number;
 
+  @Field()
+  currentPage: number;
 }

@@ -185,26 +185,6 @@ export class BroadcastService implements OnModuleInit {
     }
   }
 
-  async findAllBroadcast(currentPage, itemsPerPage): Promise<FindAllBrodcastRes> {
-    const totalItems = await this.broadcastRepository.count();
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage
-    const allBroadcast =  await this.broadcastRepository.find({
-      relations: {
-        template: {
-          attachment: true
-        },
-        mailingList: {
-          mailingContacts: true
-        },
-        account: true
-      },
-      skip: startIndex,
-      take: itemsPerPage,
-      order: { createdAt: 'DESC' }
-    });
-    return { allBroadcast, totalPages}
-  }
 
   async searchBroadcast(
     searchTerm?: string,
@@ -228,5 +208,49 @@ export class BroadcastService implements OnModuleInit {
     });
     return broadcasts;
   }
+
+  async searchReadBroadcast(
+    page: number = 1,
+    pageSize: number = 10,
+    search: string = '',
+    filter: string = '',
+  ) {
+    const skip = (page - 1) * pageSize;
+
+    const where: any = {};
+
+    // Search (by name)
+    if (search) {
+      where.broadcastName = ILike(`%${search}%`);
+    }
+
+    // Filter (by status)
+    if (filter) {
+      where.broadcastName = filter;
+    }
+
+    const [broadcasts, total] = await this.broadcastRepository.findAndCount({
+      where,
+      skip,
+      take: pageSize,
+      order: { id: 'ASC' },
+      relations: {
+        template: {
+          attachment: true
+        },
+        mailingList: {
+          mailingContacts: true
+        },
+        account: true
+      },
+    });
+    return {
+      broadcasts,
+      total,
+      totalPages: Math.ceil(total / pageSize),
+      currentPage: page,
+    };
+  }
+
 
 }

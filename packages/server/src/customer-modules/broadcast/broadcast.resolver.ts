@@ -17,14 +17,6 @@ export class BroadcastResolver {
   }
 
   @UseGuards(GqlAuthGuard)
-  @Query(() => FindAllBrodcastRes)
-  async findAllBroadcast(
-    @Args('currentPage', { type: () => Int }) currentPage: number,
-    @Args('itemsPerPage', { type: () => Int }) itemsPerPage: number) {
-    return await this.broadcastService.findAllBroadcast(currentPage, itemsPerPage)
-  }
-
-  @UseGuards(GqlAuthGuard)
   @Mutation(() => SuccessResponse)
   async BroadcastTemplate(@Args('broadcastData') broadcastData: BroadcastReqDto): Promise<SuccessResponse> {
     const saveTemplates = await this.broadcastService.saveBroadcast(broadcastData);
@@ -50,6 +42,22 @@ export class BroadcastResolver {
     @Args('limit', { type: () => Int, nullable: true }) limit?: number,
     ): Promise<Broadcast[] | null> {
     return this.broadcastService.readBroadcast(search, limit);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => FindAllBrodcastRes)
+  async searchReadBroadcast(
+    @Args('page', { type: () => Int, defaultValue: 1 }) page: number,
+    @Args('pageSize', { type: () => Int, defaultValue: 10 }) pageSize: number,
+    @Args('search', { type: () => String, nullable: true }) search?: string,
+    @Args('filter', { type: () => String, nullable: true }) filter?: string,
+  ) {
+    if(!search)
+      search = ''
+    if(!filter)
+      filter = ''
+    const response = await this.broadcastService.searchReadBroadcast(page, pageSize, search, filter)
+    return response
   }
 
 }

@@ -7,15 +7,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@src/components/UI/select";
 import usePagination from '@src/utils/usePagination';
 import BroadcastTemplatePreview from '@src/components/Broadcast/BroadcastTemplatePreview';
-
-const sampleData = [
-  { id: 1, name: "Campaign A", status: "New", template: "Template 1" },
-  { id: 2, name: "Campaign B", status: "Inprogress", template: "Template 2" },
-  { id: 3, name: "Campaign C", status: "Completed", template: "Template 3" },
-  { id: 4, name: "Campaign D", status: "Cancelled", template: "Template 4" },
-];
-
-import { findAllBroadcasts, SearchedBroadcast } from '@src/generated/graphql';
+import { Trash2 } from "lucide-react";
+import { findAllBroadcasts, SearchedBroadcast, SearchReadBroadcast } from '@src/generated/graphql';
 import { PageHeader } from '@src/modules/ui/layout/page/components/PageHeader';
 import { Plus } from "lucide-react";
 
@@ -25,70 +18,42 @@ export default function BroadcastList({
   showForm,
   setReadOnly,
 }) {
-  const [records] = useState(sampleData);
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(20);
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("All");
+  const [filter, setFilter] = useState("");
+  const [selected, setSelected] = useState<number[]>([]);
 
-  const filteredRecords = records.filter((rec) => {
-    const matchSearch = rec.name.toLowerCase().includes(search.toLowerCase());
-    const matchFilter = filter === "All" || rec.status === filter;
-    return matchSearch && matchFilter;
+
+  const { data, loading, refetch } = useQuery(SearchReadBroadcast, {
+    variables: { page, pageSize, search, filter },
+    fetchPolicy: "cache-and-network",
   });
 
-  const {
-    currentPage,
-    setCurrentPage,
-    itemsPerPage,
-    totalPages,
-    setTotalPages
-  } = usePagination()
+  const toggleSelect = (id: number) => {
+    setSelected((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+    );
+  };
 
+  const deleteSelected = () => {
+    setItems((prev) => prev.filter((item) => !selected.includes(item.id)));
+    setSelected([]);
+  };
 
-  const { data, refetch, loading } = useQuery(findAllBroadcasts, {
-    variables: {
-      currentPage,
-      itemsPerPage
-    }
-  });
-
-  const [allbroadcasts, setAllBroadcasts] = useState<any[]>([]);
-  const [dbTemplateId, setDbTemplateId] = useState('');
-  const [mailingListId, setMailingListId] = useState('');
-
-    useEffect(() => {
-    const fetchAndSetBroadcasts = async () => {
-      if (!loading && data) {
-        const { data: newData } = await refetch();
-        if (newData?.findAllBroadcast?.allBroadcast.length > 0) {
-          setAllBroadcasts(newData.findAllBroadcast?.allBroadcast);
-          setTotalPages(newData.findAllBroadcast.totalPages)
-
-        }
-      }
-    };
-
-    fetchAndSetBroadcasts();
-  }, [loading, data]);
-
-  const [searchTerm, setSearchTerm] = useState('')
-  const {
-    data: searchedBroadcastData,
-    loading: searchedBroadcastLoading,
-    refetch: searchedBroadcastRefetch } = useQuery(SearchedBroadcast, {
-      variables: {
-        searchTerm
-      },
-      skip: !searchTerm
-    });
 
   useEffect(() => {
-    if (searchTerm) {
-      searchedBroadcastRefetch().then(({ data }) => {
-        setAllBroadcasts(data.searchBroadcast?.searchedData)
-        setTotalPages(0)
-      });
-    }
-  }, [searchTerm])
+    refetch();
+  }, [page, search, filter]);
+
+  console.log("...............loading..............", loading);
+  if (loading) return <div className="p-4">Loading...</div>;
+
+  const broadcasts = data?.searchReadBroadcast.broadcasts || [];
+  console.log("..................data...................", broadcasts);
+
+  const totalPages = data?.searchReadBroadcast.totalPages || 1;
+
 
 
   return (
@@ -103,12 +68,19 @@ export default function BroadcastList({
               <Plus className="w-4 h-4 mr-2" />
               Add Broadcast
             </Button>
+             {selected.length > 0 && (
+                <button
+                  onClick={deleteSelected}
+                  className="flex items-center gap-1 px-3 py-1 rounded bg-red-500 text-white hover:bg-red-600"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete ({selected.length})
+                </button>
+              )}
           </>
         }/>
-
       </div>
 
-      {/* Search + Filters */}
       <div className="flex gap-4 items-center">
         <Input
           placeholder="Search by name..."
@@ -134,6 +106,7 @@ export default function BroadcastList({
       <Table className="w-full text-sm text-left rtl:text-right text-stone-500 rounded-2xl">
         <TableHeader className="text-black">
           <TableRow className="bg-gray-100 uppercase text-sm font-semibold">
+            <TableHead className="px-4 py-2"></TableHead>
             <TableHead className="px-4 py-3">Name</TableHead>
             <TableHead className="px-4 py-3">Template</TableHead>
             <TableHead className="px-4 py-3">Status</TableHead>
@@ -143,9 +116,16 @@ export default function BroadcastList({
           </TableRow>
         </TableHeader>
         <TableBody className="text-black">
-          {allbroadcasts.length > 0 ? (
-            allbroadcasts.map((broadcast) => (
+          {broadcasts.length > 0 ? (
+            broadcasts.map((broadcast) => (
               <TableRow key={broadcast.id} className="bg-white border-b border-stone-200">
+                <TableCell className="px-4 py-5">
+                  <input
+                    type="checkbox"
+                    checked={selected.includes(broadcast.id)}
+                    onChange={() => toggleSelect(broadcast.id)}
+                  />
+                </TableCell>
                 <TableCell className="px-4 py-5">{broadcast.broadcastName}</TableCell>
                 <TableCell className="px-4 py-5">{broadcast.totalBroadcast}</TableCell>
                 <TableCell className="px-4 py-5">{broadcast.totalBroadcastSend}</TableCell>
@@ -181,6 +161,28 @@ export default function BroadcastList({
           )}
         </TableBody>
       </Table>
+       {/* Pagination */}
+      <div className="flex justify-between items-center p-3 border-t bg-gray-50">
+        <button
+          disabled={page === 1}
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          className="px-3 py-1 rounded border disabled:opacity-50"
+        >
+          Prev
+        </button>
+
+        <span>
+          Page {page} of {totalPages}
+        </span>
+
+        <button
+          disabled={page === totalPages}
+          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          className="px-3 py-1 rounded border disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 }
