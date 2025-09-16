@@ -2,7 +2,7 @@ import { Field, ObjectType } from "@nestjs/graphql";
 import { Broadcast } from "../broadcast.entity";
 
 @ObjectType()
-export class FindAllBrodcastRes {
+export class ManyBrodcastsResponse {
   @Field(() => [Broadcast])
   broadcasts: Broadcast[];
 

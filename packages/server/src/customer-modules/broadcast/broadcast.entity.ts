@@ -12,6 +12,7 @@ import { UUIDScalarType } from "src/modules/api/scalars/uuid.scalar";
 import { WhatsAppTemplate } from "src/customer-modules/whatsapp/entities/whatsapp-template.entity";
 import { MailingList } from "src/customer-modules/mailingList/mailingList.entity";
 import { WhatsAppAccount } from "../whatsapp/entities/whatsapp-account.entity";
+import { broadcastStates } from "src/customer-modules/broadcast/enums/broadcast.state.enum"
 
 @Entity({ name: 'broadcast' })
 @ObjectType('broadcast')
@@ -51,5 +52,9 @@ export class Broadcast {
   @CreateDateColumn()
   @Field()
   createdAt: Date;
+
+  @Column({ type: 'enum', enum: broadcastStates, default: broadcastStates.draft})
+  @Field()
+  state: broadcastStates;
 
 }

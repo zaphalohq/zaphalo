@@ -10,46 +10,106 @@ import {
   ReadWaAccount,
   ReadWaTemplate,
   ReadMailingList,
-  SEND_TEMPLATE_TO_WHATSAPP } from "@src/generated/graphql";
+  GetBroadcast,
+  SaveBroadcast,
+  SendBroadcast } from "@src/generated/graphql";
 import { toast } from 'react-toastify';
+import { isDefined } from '@src/utils/validation/isDefined';
 
-export default function BroadcastForm({ onBack, readOnly=false }) {
+export default function BroadcastForm({ onBack, broadcastId, readOnly=false }) {
     const [broadcastData, setBroadcastData] = useState({
-        broadcastName: '',
-        accountId: '',
-        templateId: '',
-        mailingListId: '',
+      broadcastId: '',
+      broadcastName: '',
+      accountId: '',
+      templateId: '',
+      mailingListId: '',
+      state: '',
     })
-    const [sendTemplateToWhatssapp, { data, loading, error }] = useMutation(SEND_TEMPLATE_TO_WHATSAPP);
 
-    const handleSave = async () => {
-      if (
-          !broadcastData.accountId ||
-          !broadcastData.templateId ||
-          !broadcastData.mailingListId ||
-          !broadcastData.broadcastName
-      ) {
-          toast.error('Please fill all required fields before broadcasting.');
-          return;
+    if (isDefined(broadcastId)){
+      const { data : broadcastViewData, loading: viewLoading, error: viewError } = useQuery(GetBroadcast, {
+        variables: {
+            broadcastId
+        },
+        fetchPolicy: "cache-and-network",
+      })
+      const broadcastView = broadcastViewData?.getBroadcast?.broadcast;
+
+      if (broadcastView && !broadcastData.broadcastId){
+        setBroadcastData({
+          broadcastId: broadcastView.id,
+          broadcastName: broadcastView.broadcastName,
+          accountId: broadcastView.account.id,
+          templateId: broadcastView.template.id,
+          mailingListId: broadcastView.mailingList.id,
+          state: broadcastView.state,
+        })
+        if (broadcastView.state != 'New'){
+          readOnly = false
+        }
       }
-
-      try {
-          const response = await sendTemplateToWhatssapp({
-              variables: {
-                  broadcastData
-              },
-          });
-
-
-          if (response.data?.BroadcastTemplate?.success) {
-              toast.success(`${response.data?.BroadcastTemplate?.message}`);
-              setIsSendBroadcastVis(false)
-          }
-      } catch (err) {
-          console.error("Mutation error:", err);
-      }
-      onBack();
     }
+
+
+    const [saveBroadcast, { data, loading, error }] = useMutation(SaveBroadcast);
+
+    const handleSave = async (status: string) => {
+      if (
+        !broadcastData.accountId ||
+        !broadcastData.templateId ||
+        !broadcastData.mailingListId ||
+        !broadcastData.broadcastName
+        ) {
+        toast.error('Please fill all required fields before broadcasting.');
+      return;
+    }
+    try {
+      type toSubmiteData = {
+        [key: string]: any;
+      };
+      const toSubmiteData: toSubmiteData = {};
+      toSubmiteData.broadcastName = broadcastData.broadcastName
+      toSubmiteData.accountId = broadcastData.accountId
+      toSubmiteData.templateId = broadcastData.templateId
+      toSubmiteData.mailingListId = broadcastData.mailingListId
+      toSubmiteData.state = "new"
+
+      if (broadcastData.broadcastId){
+        toSubmiteData.broadcastId = broadcastData.broadcastId
+      }
+      console.log("..................status...........", status);
+      if (status){
+        toSubmiteData.state = status
+      }
+
+      const response = await saveBroadcast({
+        variables: {
+          broadcastData: toSubmiteData
+        }
+      });
+      const broadcast = response.data?.saveBroadcast?.broadcast;
+      if (response.data?.saveBroadcast?.status) {
+        setBroadcastData({
+          broadcastId: broadcast.id,
+          broadcastName: broadcast.broadcastName,
+          accountId: broadcast.account.id,
+          templateId: broadcast.template.id,
+          mailingListId: broadcast.mailingList.id,
+          mailingListId: broadcast.state,
+        })
+        toast.success(`${response.data?.saveBroadcast?.message}`);
+      }
+
+    } catch (err) {
+      console.error("Mutation error:", err);
+    }
+    onBack();
+  }
+
+  const handleSaveAndSend = async () => {
+    handleSave("outgoing")
+    onBack();
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
@@ -59,6 +119,20 @@ export default function BroadcastForm({ onBack, readOnly=false }) {
 
           <div className="space-y-4">
             <Input
+              placeholder="Broadcast ID"
+              value={broadcastData.broadcastId}
+              readOnly
+              disabled
+              hidden
+            />
+            <Input
+              placeholder="Status"
+              value={broadcastData.state}
+              readOnly
+              disabled
+              hidden
+            />
+            <Input
               placeholder="Broadcast Name"
               value={broadcastData.broadcastName}
               onChange={(e) => setBroadcastData({ ...broadcastData, broadcastName: e.target.value })}
@@ -67,6 +141,7 @@ export default function BroadcastForm({ onBack, readOnly=false }) {
             />
 
             <SelectField
+              selectedVal={broadcastData.accountId}
               query={ReadWaAccount}
               queryValueName="readWaAccount"
               dispalyName="name"
@@ -76,6 +151,7 @@ export default function BroadcastForm({ onBack, readOnly=false }) {
             />
 
             <SelectField
+              selectedVal={broadcastData.templateId}
               query={ReadWaTemplate}
               queryValueName="readWaTemplate"
               dispalyName="templateName"
@@ -85,6 +161,7 @@ export default function BroadcastForm({ onBack, readOnly=false }) {
             />
 
             <SelectField
+              selectedVal={broadcastData.mailingListId}
               query={ReadMailingList}
               queryValueName="readMailingList"
               dispalyName="mailingListName"
@@ -98,10 +175,11 @@ export default function BroadcastForm({ onBack, readOnly=false }) {
             <Button variant="outline" onClick={onBack}>
               Cancel
             </Button>
-            <Button onClick={handleSave}>Save Broadcast</Button>
+            <Button onClick={() => handleSave()}>Save Broadcast</Button>
+            <Button onClick={() => handleSaveAndSend()}>Send Broadcast</Button>
           </div>
         </CardContent>
       </Card>
     </div>
-  );
+    );
 }

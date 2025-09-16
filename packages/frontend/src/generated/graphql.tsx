@@ -654,17 +654,6 @@ export const Send_Template_Message = gql`
 }
 `;
 
-export const SEND_TEMPLATE_TO_WHATSAPP = gql`
-  mutation BroadcastTemplate($broadcastData: BroadcastReqDto!) {
-    BroadcastTemplate(broadcastData: $broadcastData){
-    success
-    message
-    error
-  }
-  }
-`;
-
-
 export const UpdateWorkspaceDetails = gql`
 mutation UpdateWorkspaceDetails(
   $workspaceId: String!,
@@ -924,6 +913,8 @@ query searchReadBroadcast($page : Int!, $pageSize : Int!, $search: String, $filt
     broadcasts {
       id
       broadcastName
+      createdAt
+      state
       totalBroadcast
       totalBroadcastSend
       isBroadcastDone
@@ -932,6 +923,7 @@ query searchReadBroadcast($page : Int!, $pageSize : Int!, $search: String, $filt
       }
       template {
         id
+        templateName
       }
       mailingList {
         id
@@ -940,25 +932,56 @@ query searchReadBroadcast($page : Int!, $pageSize : Int!, $search: String, $filt
   }
 }`
 
-export const findAllBroadcasts = gql`
-query findAllBroadcast($currentPage : Int!, $itemsPerPage : Int!) {
-  findAllBroadcast(currentPage: $currentPage, itemsPerPage: $itemsPerPage) {
-  allBroadcast {
-      id
-    broadcastName
-    totalBroadcast
-    totalBroadcastSend
-    isBroadcastDone
-    account {
-      id
+
+export const SaveBroadcast = gql`
+  mutation saveBroadcast($broadcastData: BroadcastRequest!) {
+    saveBroadcast(broadcastData: $broadcastData){
+      broadcast {
+        id
+        broadcastName
+        state
+        totalBroadcast
+        totalBroadcastSend
+        isBroadcastDone
+        account {
+          id
+        }
+        template {
+          id
+          templateName
+        }
+        mailingList {
+          id
+        }
     }
-    template {
-      id
+      message
+      status
     }
-    mailingList {
-      id
-      }
   }
-  totalPages
+`;
+
+export const GetBroadcast = gql`
+query getBroadcast($broadcastId: String!) {
+  getBroadcast(broadcastId: $broadcastId) {
+    broadcast {
+      id
+      broadcastName
+      state
+      totalBroadcast
+      totalBroadcastSend
+      isBroadcastDone
+      account {
+        id
+      }
+      template {
+        id
+        templateName
+      }
+      mailingList {
+        id
+      }
     }
+    message
+    status
+  }
 }`

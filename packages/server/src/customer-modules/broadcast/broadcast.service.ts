@@ -1,7 +1,6 @@
-import axios, { all } from 'axios';
-import * as cron from 'node-cron';
 import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
 import { Connection, Repository, In, ILike } from 'typeorm';
+import axios, { all } from 'axios';
 import { Broadcast } from "./broadcast.entity";
 import { BroadcastContacts } from "./broadcastContacts.entity";
 import { MailingListService } from "src/customer-modules/mailingList/mailingList.service";
@@ -9,16 +8,13 @@ import { WaTemplateService } from "src/customer-modules/whatsapp/services/whatsa
 import { WaAccountService } from "src/customer-modules/whatsapp/services/whatsapp-account.service";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 import { WhatsAppSDKService } from '../whatsapp/services/whatsapp-api.service';
-import { FindAllBrodcastRes } from './dto/FindAllBrodcastRes';
+import { broadcastStates } from "src/customer-modules/broadcast/enums/broadcast.state.enum"
 
 @Injectable()
-export class BroadcastService implements OnModuleInit {
+export class BroadcastService {
   private broadcastRepository: Repository<Broadcast>
   private broadcastContactsRepository: Repository<BroadcastContacts>
-  onModuleInit() {
 
-    // this.sendMessagesInBackground();
-  }
   constructor(
     @Inject(CONNECTION) connection: Connection,
     private readonly mailingListService: MailingListService,
@@ -29,25 +25,13 @@ export class BroadcastService implements OnModuleInit {
   ) {
     this.broadcastRepository = connection.getRepository(Broadcast);
     this.broadcastContactsRepository = connection.getRepository(BroadcastContacts);
-
-    this.onModuleInit()
   }
 
-  private job: cron.ScheduledTask | null = null;
-
-  // onModuleInit() {
-  //   console.log("...................started.........................");
-
-  //   this.cronForPendingBroadcasts();
-
-  // }
-
-
-  async saveBroadcast(broadcastData): Promise<Broadcast> {
+  async createBroadcast(broadcastData) {
+    if (broadcastData.broadcastId) throw new Error('Broadcast already created');
     const mailingList = await this.mailingListService.findMailingListById(broadcastData.mailingListId)
     if (!mailingList) throw new Error('mailingList not found');
     const template = await this.waTemplateService.findtemplateByDbId(broadcastData.templateId)
-    console.log(broadcastData.templateId, ".......................broadcastData.templateId");
 
     if (!template) throw new Error('template not found');
 
@@ -59,132 +43,45 @@ export class BroadcastService implements OnModuleInit {
       broadcastName: broadcastData.broadcastName,
       template: template,
       mailingList: mailingList,
+      state: broadcastData.state
     })
     await this.broadcastRepository.save(broadcast)
+    const broadcastFind = await this.getBroadcast(broadcast.id)
 
-    const allContacts = await this.mailingListService.findAllContactsOfMailingList(broadcastData.mailingListId)
-
-    allContacts.forEach(async (contact) => {
-      const broadcastContacts = this.broadcastContactsRepository.create({
-        contactNo: contact.contactNo,
-        broadcast,
-      })
-      broadcast.totalBroadcast = String(allContacts.length)
-      console.log(broadcast, '..broadcast');
-      await this.broadcastRepository.save(broadcast)
-
-      await this.broadcastContactsRepository.save(broadcastContacts)
-    });
-
-    return broadcast
+    if (!broadcastFind.broadcast) throw new Error('Broadcast not found');
+    return {'broadcast': broadcastFind.broadcast, 'message': 'Broadcast created', 'status': true}
   }
 
-  // async getWhatsAppApi(instantsId?: string) {
-  //   if (instantsId) {
-  //     const instants = await this.waAccountService.findInstantsByInstantsId(instantsId)
-  //     if (!instants)
-  //       throw new Error("Not found whatsappaccount")
-  //     return this.whatsAppApiService.getWhatsApp(instants)
-  //   } else {
-  //     const findTrueInstants = await this.waAccountService.FindSelectedInstants()
-  //     if (!findTrueInstants)
-  //       throw new Error("Not found whatsappaccount")
-
-  //     return this.whatsAppApiService.getWhatsApp(findTrueInstants)
-  //   }
-  // }
+  async saveBroadcast(broadcastData) {
+    if (!broadcastData.broadcastId) throw new Error('Broadcast ID invalid!');
 
 
-  cronForPendingBroadcasts() {
-    if (this.job) return;
+    const mailingList = await this.mailingListService.findMailingListById(broadcastData.mailingListId)
+    if (!mailingList) throw new Error('mailingList not found');
+    const template = await this.waTemplateService.findtemplateByDbId(broadcastData.templateId)
 
-    this.job = cron.schedule('*/30 * * * *', async () => {
-      await this.sendMessagesInBackground();
-    });
+    if (!template) throw new Error('template not found');
+
+    const account = await this.waAccountService.findInstantsByInstantsId(broadcastData.accountId);
+    if (!account) throw new Error('account not found');
+
+    const broadcastFind = await this.getBroadcast(broadcastData.broadcastId)
+
+    if (!broadcastFind.broadcast) throw new Error('Broadcast ID invalid!');
+
+    Object.assign(broadcastFind.broadcast, {
+      account: account,
+      broadcastName: broadcastData.broadcastName,
+      template: template,
+      mailingList: mailingList,
+      state: broadcastData.state
+    })
+
+    await this.broadcastRepository.save(broadcastFind.broadcast)
+    if (!broadcastFind) throw new Error('Broadcast ID invalid!');
+    
+    return {'broadcast': broadcastFind.broadcast, 'message': 'Broadcast saved', 'status': true}
   }
-
-  async sendMessagesInBackground() {
-    const broadcasts = await this.broadcastRepository.find({
-      where: { isBroadcastDone: false },
-      relations: ['template', 'account'],
-    });
-
-
-    if (broadcasts.length === 0) {
-
-      console.log('All broadcasts completed. Stopping cron.');
-      if (this.job) {
-        this.job.stop();
-        this.job = null;
-      }
-      return;
-    }
-
-    for (const broadcast of broadcasts) {
-      const { template, account } = broadcast;
-      const wa_api = await this.waAccountService.getWhatsAppApi(account?.id);
-
-      const allBroadcastContacts = await this.broadcastContactsRepository.find({
-        where: {
-          broadcast: { id: broadcast.id },
-          status: In(['PENDING', 'FAILED']),
-        },
-      });
-
-      for (const broadcastContact of allBroadcastContacts) {
-        let generateTemplatePayload;
-
-        if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(template.headerType)) {
-          const mediaLink = 'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png';
-          generateTemplatePayload = await this.waTemplateService.generateSendMessagePayload(template, broadcastContact.contactNo, mediaLink);
-        } else {
-          generateTemplatePayload = await this.waTemplateService.generateSendMessagePayload(template, broadcastContact.contactNo);
-        }
-
-        try {
-          const sendTemplate = await wa_api.sendTemplateMsg(JSON.stringify(generateTemplatePayload));
-          console.log(sendTemplate, 'resposer from api');
-
-          if (sendTemplate?.messaging_product) {
-            const currentBroadcastContact = await this.broadcastContactsRepository.findOne({ where: { id: broadcastContact.id } });
-            if (currentBroadcastContact) {
-              currentBroadcastContact.status = 'SENT';
-              await this.broadcastContactsRepository.save(currentBroadcastContact);
-            }
-            await this.broadcastRepository.update(broadcast.id, {
-              totalBroadcastSend: String(Number(broadcast.totalBroadcastSend ?? 1) + 1),
-            });
-          }
-
-
-        } catch (error) {
-          const currentBroadcastContact = await this.broadcastContactsRepository.findOne({ where: { id: broadcastContact.id } });
-          if (currentBroadcastContact) {
-            currentBroadcastContact.status = 'FAILED';
-            await this.broadcastContactsRepository.save(currentBroadcastContact);
-          }
-
-          console.error(`Failed to send to ${broadcastContact.contactNo}`, error.response?.data || error.message);
-        }
-
-        await new Promise((resolve) => setTimeout(resolve, 6000));
-      }
-
-      const hasPendingOrFailed = await this.broadcastContactsRepository.findOne({
-        where: {
-          broadcast: { id: broadcast.id },
-          status: In(['PENDING', 'FAILED']),
-        },
-      });
-
-      if (!hasPendingOrFailed) {
-        await this.broadcastRepository.update(broadcast.id, {
-          isBroadcastDone: true,
-        });
-      }
-    }
-  }
-
 
   async searchBroadcast(
     searchTerm?: string,
@@ -209,6 +106,27 @@ export class BroadcastService implements OnModuleInit {
     return broadcasts;
   }
 
+  async getBroadcast(
+    broadcastId: string,
+  ) {
+    const broadcastFind = await this.broadcastRepository.findOne({
+      where: { id: broadcastId },
+      relations: {
+        template: {
+          attachment: true
+        },
+        mailingList: {
+          mailingContacts: true
+        },
+        account: true
+      }
+    });
+    if (!broadcastFind){
+      throw new Error('Broadcast not found');
+    }
+    return {'broadcast': broadcastFind, 'message': 'Broadcast found', 'status': true}
+  }
+
   async searchReadBroadcast(
     page: number = 1,
     pageSize: number = 10,
@@ -225,15 +143,16 @@ export class BroadcastService implements OnModuleInit {
     }
 
     // Filter (by status)
+    console.log("...............filter.............", filter)
     if (filter) {
-      where.broadcastName = filter;
+      where.state = filter;
     }
 
     const [broadcasts, total] = await this.broadcastRepository.findAndCount({
       where,
       skip,
       take: pageSize,
-      order: { id: 'ASC' },
+      order: { createdAt: 'DESC' },
       relations: {
         template: {
           attachment: true
@@ -244,6 +163,7 @@ export class BroadcastService implements OnModuleInit {
         account: true
       },
     });
+
     return {
       broadcasts,
       total,
@@ -251,6 +171,4 @@ export class BroadcastService implements OnModuleInit {
       currentPage: page,
     };
   }
-
-
 }

@@ -12,9 +12,13 @@ import {
 import { Input } from "@src/components/UI/input";
 
 
-export default function SelectField({ query, queryValueName, dispalyName, placeholder, onSelect, disabled=false }) {
+export default function SelectField({ query, queryValueName, dispalyName, selectedVal="", placeholder, onSelect, disabled=false }) {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState("");
+
+  if (selectedVal !== selected){
+    setSelected(selectedVal);
+  }
 
   // Apollo query
   const { data, loading } = useQuery(query, {
