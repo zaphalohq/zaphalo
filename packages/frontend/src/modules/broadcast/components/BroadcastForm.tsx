@@ -109,7 +109,7 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly=false }) {
   }
 
   const handleSaveAndSend = async () => {
-    handleSave("scheduled")
+    handleSave("in_progress")
     onBack();
   }
 

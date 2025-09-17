@@ -92,11 +92,10 @@ export default function BroadcastList({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="All">All</SelectItem>
-            <SelectItem value="Draft">Draft</SelectItem>
+            <SelectItem value="New">New</SelectItem>
             <SelectItem value="Scheduled">Scheduled</SelectItem>
-            <SelectItem value="Queued">Queued</SelectItem>
-            <SelectItem value="Sending">Sending</SelectItem>
-            <SelectItem value="Sent">Sent</SelectItem>
+            <SelectItem value="In Progress">In Progress</SelectItem>
+            <SelectItem value="Completed">Completed</SelectItem>
             <SelectItem value="Failed">Failed</SelectItem>
             <SelectItem value="Cancelled">Cancelled</SelectItem>
           </SelectContent>

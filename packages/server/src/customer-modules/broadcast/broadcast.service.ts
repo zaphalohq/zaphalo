@@ -9,6 +9,8 @@ import { WaAccountService } from "src/customer-modules/whatsapp/services/whatsap
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 import { WhatsAppSDKService } from '../whatsapp/services/whatsapp-api.service';
 import { broadcastStates } from "src/customer-modules/broadcast/enums/broadcast.state.enum"
+import { BroadcastCreatedEvent } from 'src/customer-modules/broadcast/events/broadcast-created.event';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class BroadcastService {
@@ -21,13 +23,13 @@ export class BroadcastService {
     private readonly waTemplateService: WaTemplateService,
     private readonly waAccountService: WaAccountService,
     private readonly whatsAppApiService: WhatsAppSDKService,
-
+    private eventEmitter: EventEmitter2
   ) {
     this.broadcastRepository = connection.getRepository(Broadcast);
     this.broadcastContactsRepository = connection.getRepository(BroadcastContacts);
   }
 
-  async createBroadcast(broadcastData) {
+  async createBroadcast(workspaceId, broadcastData) {
     if (broadcastData.broadcastId) throw new Error('Broadcast already created');
     const mailingList = await this.mailingListService.findMailingListById(broadcastData.mailingListId)
     if (!mailingList) throw new Error('mailingList not found');
@@ -46,13 +48,21 @@ export class BroadcastService {
       status: broadcastData.status
     })
     await this.broadcastRepository.save(broadcast)
+
+    const broadcastCreatedEvent = new BroadcastCreatedEvent();
+
+    broadcastCreatedEvent.workspaceId = workspaceId
+    broadcastCreatedEvent.broadcastId = broadcast.id
+
+    this.eventEmitter.emit('broadcast.message.created', broadcastCreatedEvent)
+
     const broadcastFind = await this.getBroadcast(broadcast.id)
 
     if (!broadcastFind.broadcast) throw new Error('Broadcast not found');
     return {'broadcast': broadcastFind.broadcast, 'message': 'Broadcast created', 'status': true}
   }
 
-  async saveBroadcast(broadcastData) {
+  async saveBroadcast(workspaceId, broadcastData) {
     if (!broadcastData.broadcastId) throw new Error('Broadcast ID invalid!');
 
 

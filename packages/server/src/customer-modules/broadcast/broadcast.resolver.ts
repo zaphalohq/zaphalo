@@ -8,6 +8,8 @@ import { SearchedRes } from "../whatsapp/dtos/searched.dto";
 import { BroadcastResponse } from "src/customer-modules/broadcast/dto/broadcast-response.dto";
 import { BroadcastRequest } from "src/customer-modules/broadcast/dto/brodcast-request-dto";
 import { ManyBrodcastsResponse } from "src/customer-modules/broadcast/dto/many-brodcast-response.dto";
+import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
+import { Workspace } from "src/modules/workspace/workspace.entity";
 
 
 @Resolver(() => Broadcast)
@@ -43,12 +45,13 @@ export class BroadcastResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => BroadcastResponse)
   async saveBroadcast(
+    @AuthWorkspace() workspace: Workspace,
     @Args('broadcastData') broadcastData: BroadcastRequest
   ): Promise<BroadcastResponse> {
     if (broadcastData.broadcastId){
-      return await this.broadcastService.saveBroadcast(broadcastData);
+      return await this.broadcastService.saveBroadcast(workspace.id, broadcastData);
     }else{
-      return await this.broadcastService.createBroadcast(broadcastData);
+      return await this.broadcastService.createBroadcast(workspace.id, broadcastData);
     }
   }
 
