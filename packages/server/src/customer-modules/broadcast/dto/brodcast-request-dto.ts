@@ -7,7 +7,7 @@ export class BroadcastRequest {
   broadcastId: string;
 
   @Field()
-  accountId: string;
+  whatsappAccountId: string;
 
   @Field()
   broadcastName: string;
@@ -16,9 +16,8 @@ export class BroadcastRequest {
   templateId: string;
 
   @Field()
-  mailingListId: string;
+  contactListId: string;
 
   @Field(() => broadcastStates, { nullable: true })
-  state?: broadcastStates;
-
+  status?: broadcastStates;
 }

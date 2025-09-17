@@ -20,10 +20,10 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly=false }) {
     const [broadcastData, setBroadcastData] = useState({
       broadcastId: '',
       broadcastName: '',
-      accountId: '',
+      whatsappAccountId: '',
       templateId: '',
-      mailingListId: '',
-      state: '',
+      contactListId: '',
+      status: '',
     })
 
     if (isDefined(broadcastId)){
@@ -38,11 +38,11 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly=false }) {
       if (broadcastView && !broadcastData.broadcastId){
         setBroadcastData({
           broadcastId: broadcastView.id,
-          broadcastName: broadcastView.broadcastName,
-          accountId: broadcastView.account.id,
+          broadcastName: broadcastView.name,
+          whatsappAccountId: broadcastView.whatsappAccount.id,
           templateId: broadcastView.template.id,
-          mailingListId: broadcastView.mailingList.id,
-          state: broadcastView.state,
+          contactListId: broadcastView.contactList.id,
+          state: broadcastView.status,
         })
         if (broadcastView.state != 'New'){
           readOnly = false
@@ -55,9 +55,9 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly=false }) {
 
     const handleSave = async (status: string) => {
       if (
-        !broadcastData.accountId ||
+        !broadcastData.whatsappAccountId ||
         !broadcastData.templateId ||
-        !broadcastData.mailingListId ||
+        !broadcastData.contactListId ||
         !broadcastData.broadcastName
         ) {
         toast.error('Please fill all required fields before broadcasting.');
@@ -69,17 +69,18 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly=false }) {
       };
       const toSubmiteData: toSubmiteData = {};
       toSubmiteData.broadcastName = broadcastData.broadcastName
-      toSubmiteData.accountId = broadcastData.accountId
+      toSubmiteData.whatsappAccountId = broadcastData.whatsappAccountId
       toSubmiteData.templateId = broadcastData.templateId
-      toSubmiteData.mailingListId = broadcastData.mailingListId
-      toSubmiteData.state = "new"
+      toSubmiteData.contactListId = broadcastData.contactListId
+      toSubmiteData.status = "new"
+
+
 
       if (broadcastData.broadcastId){
         toSubmiteData.broadcastId = broadcastData.broadcastId
       }
-      console.log("..................status...........", status);
       if (status){
-        toSubmiteData.state = status
+        toSubmiteData.status = status
       }
 
       const response = await saveBroadcast({
@@ -87,15 +88,16 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly=false }) {
           broadcastData: toSubmiteData
         }
       });
+
       const broadcast = response.data?.saveBroadcast?.broadcast;
       if (response.data?.saveBroadcast?.status) {
         setBroadcastData({
           broadcastId: broadcast.id,
           broadcastName: broadcast.broadcastName,
-          accountId: broadcast.account.id,
+          accountId: broadcast.whatsappAccount.id,
           templateId: broadcast.template.id,
-          mailingListId: broadcast.mailingList.id,
-          mailingListId: broadcast.state,
+          contactListId: broadcast.contactList.id,
+          status: broadcast.status,
         })
         toast.success(`${response.data?.saveBroadcast?.message}`);
       }
@@ -107,7 +109,7 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly=false }) {
   }
 
   const handleSaveAndSend = async () => {
-    handleSave("outgoing")
+    handleSave("scheduled")
     onBack();
   }
 
@@ -141,12 +143,12 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly=false }) {
             />
 
             <SelectField
-              selectedVal={broadcastData.accountId}
+              selectedVal={broadcastData.whatsappAccountId}
               query={ReadWaAccount}
               queryValueName="readWaAccount"
               dispalyName="name"
               placeholder="Select Account"
-              onSelect={(val) => setBroadcastData({ ...broadcastData, accountId: val })}
+              onSelect={(val) => setBroadcastData({ ...broadcastData, whatsappAccountId: val })}
               disabled={readOnly}
             />
 
@@ -161,12 +163,12 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly=false }) {
             />
 
             <SelectField
-              selectedVal={broadcastData.mailingListId}
+              selectedVal={broadcastData.contactListId}
               query={ReadMailingList}
               queryValueName="readMailingList"
               dispalyName="mailingListName"
               placeholder="Select Contact List"
-              onSelect={(val) => setBroadcastData({ ...broadcastData, mailingListId: val })}
+              onSelect={(val) => setBroadcastData({ ...broadcastData, contactListId: val })}
               disabled={readOnly}
             />
           </div>

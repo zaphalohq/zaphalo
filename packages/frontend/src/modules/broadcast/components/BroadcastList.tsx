@@ -21,7 +21,7 @@ export default function BroadcastList({
   setBroadcast,
 }) {
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(20);
+  const [pageSize] = useState(10);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("");
   const [selected, setSelected] = useState<number[]>([]);
@@ -92,13 +92,13 @@ export default function BroadcastList({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="All">All</SelectItem>
-            <SelectItem value="draft">Draft</SelectItem>
-            <SelectItem value="scheduled">Scheduled</SelectItem>
-            <SelectItem value="queued">Queued</SelectItem>
-            <SelectItem value="sending">Sending</SelectItem>
-            <SelectItem value="sent">Sent</SelectItem>
-            <SelectItem value="error">Failed</SelectItem>
-            <SelectItem value="cancel">Cancelled</SelectItem>
+            <SelectItem value="Draft">Draft</SelectItem>
+            <SelectItem value="Scheduled">Scheduled</SelectItem>
+            <SelectItem value="Queued">Queued</SelectItem>
+            <SelectItem value="Sending">Sending</SelectItem>
+            <SelectItem value="Sent">Sent</SelectItem>
+            <SelectItem value="Failed">Failed</SelectItem>
+            <SelectItem value="Cancelled">Cancelled</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -128,16 +128,16 @@ export default function BroadcastList({
                     onChange={() => toggleSelect(broadcast.id)}
                   />
                 </TableCell>
-                <TableCell className="px-4 py-5">{broadcast.broadcastName}</TableCell>
+                <TableCell className="px-4 py-5">{broadcast.name}</TableCell>
                 <TableCell className="px-4 py-5">{broadcast.template.templateName}</TableCell>
                 <TableCell className="px-4 py-5">{
                   formatLocalDate(broadcast.createdAt)
                 }</TableCell>
-                <TableCell className="px-4 py-5">{broadcast.state}</TableCell>
+                <TableCell className="px-4 py-5">{broadcast.status}</TableCell>
                 {/*<TableCell className="px-4 py-5">{broadcast.totalBroadcast}</TableCell>*/}
                 {/*<TableCell className="px-4 py-5">{broadcast.totalBroadcastSend}</TableCell>*/}
                 <TableCell onClick={() => {
-                  broadcast.state != 'New' ? setReadOnly(true) : setReadOnly(false)
+                  broadcast.status != 'New' ? setReadOnly(true) : setReadOnly(false)
                   setBroadcast(broadcast.id)
                   showForm(true)
                 }}

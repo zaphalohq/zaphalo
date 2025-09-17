@@ -39,11 +39,11 @@ export class BroadcastService {
     if (!account) throw new Error('account not found');
 
     const broadcast = this.broadcastRepository.create({
-      account: account,
-      broadcastName: broadcastData.broadcastName,
+      whatsappAccount: account,
+      name: broadcastData.broadcastName,
       template: template,
-      mailingList: mailingList,
-      state: broadcastData.state
+      contactList: mailingList,
+      status: broadcastData.status
     })
     await this.broadcastRepository.save(broadcast)
     const broadcastFind = await this.getBroadcast(broadcast.id)
@@ -70,11 +70,11 @@ export class BroadcastService {
     if (!broadcastFind.broadcast) throw new Error('Broadcast ID invalid!');
 
     Object.assign(broadcastFind.broadcast, {
-      account: account,
-      broadcastName: broadcastData.broadcastName,
+      whatsappAccount: account,
+      name: broadcastData.broadcastName,
       template: template,
-      mailingList: mailingList,
-      state: broadcastData.state
+      contactList: mailingList,
+      status: broadcastData.status
     })
 
     await this.broadcastRepository.save(broadcastFind.broadcast)
@@ -87,7 +87,7 @@ export class BroadcastService {
     searchTerm?: string,
   ) {
     const [broadcasts, totalCount] = await this.broadcastRepository.findAndCount({
-      where: { broadcastName: ILike(`%${searchTerm}%`) },
+      where: { name: ILike(`%${searchTerm}%`) },
       order: { createdAt: 'ASC' },
     });
 
@@ -99,7 +99,7 @@ export class BroadcastService {
     limit?: number,
   ) {
     const broadcasts = await this.broadcastRepository.find({
-      where: { broadcastName: ILike(`%${search}%`) },
+      where: { name: ILike(`%${search}%`) },
       order: { createdAt: 'ASC' },
       take: limit,
     });
@@ -115,10 +115,10 @@ export class BroadcastService {
         template: {
           attachment: true
         },
-        mailingList: {
+        contactList: {
           mailingContacts: true
         },
-        account: true
+        whatsappAccount: true
       }
     });
     if (!broadcastFind){
@@ -139,13 +139,12 @@ export class BroadcastService {
 
     // Search (by name)
     if (search) {
-      where.broadcastName = ILike(`%${search}%`);
+      where.name = ILike(`%${search}%`);
     }
 
     // Filter (by status)
-    console.log("...............filter.............", filter)
-    if (filter) {
-      where.state = filter;
+    if (filter && filter !== 'All') {
+      where.status = filter;
     }
 
     const [broadcasts, total] = await this.broadcastRepository.findAndCount({
@@ -157,10 +156,10 @@ export class BroadcastService {
         template: {
           attachment: true
         },
-        mailingList: {
+        contactList: {
           mailingContacts: true
         },
-        account: true
+        whatsappAccount: true
       },
     });
 

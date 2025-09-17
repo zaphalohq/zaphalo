@@ -900,7 +900,7 @@ export const ReadBroadcast = gql`
 query readBroadcast($search: String, $limit: Int){
   readBroadcast(search: $search, limit: $limit){
     id
-    broadcastName
+    name
   }
 }`
 
@@ -912,20 +912,17 @@ query searchReadBroadcast($page : Int!, $pageSize : Int!, $search: String, $filt
     currentPage
     broadcasts {
       id
-      broadcastName
+      name
       createdAt
-      state
-      totalBroadcast
-      totalBroadcastSend
-      isBroadcastDone
-      account {
+      status
+      whatsappAccount {
         id
       }
       template {
         id
         templateName
       }
-      mailingList {
+      contactList {
         id
       }
     }
@@ -938,22 +935,20 @@ export const SaveBroadcast = gql`
     saveBroadcast(broadcastData: $broadcastData){
       broadcast {
         id
-        broadcastName
-        state
-        totalBroadcast
-        totalBroadcastSend
-        isBroadcastDone
-        account {
+        name
+        createdAt
+        status
+        whatsappAccount {
           id
         }
         template {
           id
           templateName
         }
-        mailingList {
+        contactList {
           id
         }
-    }
+      }
       message
       status
     }
@@ -965,19 +960,17 @@ query getBroadcast($broadcastId: String!) {
   getBroadcast(broadcastId: $broadcastId) {
     broadcast {
       id
-      broadcastName
-      state
-      totalBroadcast
-      totalBroadcastSend
-      isBroadcastDone
-      account {
+      name
+      createdAt
+      status
+      whatsappAccount {
         id
       }
       template {
         id
         templateName
       }
-      mailingList {
+      contactList {
         id
       }
     }
