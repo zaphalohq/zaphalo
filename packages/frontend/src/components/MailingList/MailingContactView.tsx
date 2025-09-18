@@ -130,7 +130,7 @@ const MailingContactView = ({ selectedListId }: any) => {
                                             setContactData({ ...contact, mailingListId: selectedListId })
                                             HandleSaveContactVis()
                                         }}
-                                        className="text-lg text-violet-500 hover:bg-stone-200 p-2 rounded cursor-pointer"
+                                        className="text-lg text-green-500 hover:text-green-600 hover:bg-stone-200 p-2 rounded cursor-pointer"
                                     >
                                         <FiEdit2 />
                                     </button>

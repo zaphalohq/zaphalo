@@ -85,14 +85,14 @@ export default function MailingListView({ isMailingContactVis, setIsMailingConta
   return (
     <div className='flex flex-col items-center'>
       {!isMailingContactVis ?
-          <div>
+          <div className="md:px-4 w-full">
             <div className="grid grid-cols-4 my-4">
               <div className='col-start-4'>
                 <SearchWhite HandleSearch={(e: any) => setSearchTerm(e.target.value)} />
               </div>
             </div>
             <div className="relative h-[65vh] overflow-y-auto overflow-x-auto">
-              <table className="w-6xl text-sm text-left text-stone-500">
+              <table className="w-full text-sm text-left text-stone-500">
                 <thead className="text-xs sticky top-0 text-stone-700 uppercase bg-stone-200 truncate">
                   <tr>
                     <th scope="col" className="px-6 py-4 w-64 text-left truncate">Contact List Name</th>

@@ -116,13 +116,13 @@ const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) =
     }, [searchTerm])
 
     return (
-        <div>
+        <div className="md:px-4">
             <div className="grid grid-cols-4 my-4">
                 <div className='col-start-4'>
                     <SearchWhite HandleSearch={(e: any) => setSearchTerm(e.target.value)} />
                 </div>
             </div>
-            <div className="relative w-full h-[65vh] overflow-y-scroll mt-4 md:px-4">
+            <div className="relative w-full h-[65vh] overflow-y-scroll mt-4">
                 <table className="w-full text-sm text-left rtl:text-right text-stone-500 rounded-2xl">
                     <thead className="sticky top-0 text-xs text-stone-700 uppercase bg-stone-200 truncate">
                         <tr>
@@ -211,7 +211,7 @@ const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) =
                                             })
                                             setIsTemplateFormVis(true)
                                         }}
-                                        className={`text-lg text-center text-violet-500 cursor-pointer hover:bg-violet-200 p-2 rounded disabled:bg-violet-200 disabled:cursor-default`}
+                                        className={`text-lg text-center text-green-500 cursor-pointer hover:bg-gray-200 p-2 rounded disabled:bg-violet-200 disabled:cursor-default`}
                                     >
                                         <GrDocumentUpdate />
                                     </button>
@@ -309,7 +309,7 @@ const TemplateTable = ({ setIsTemplateFormVis, setIsTemplatePreviewVis }: any) =
                             </button>
                             <button
                                 onClick={() => handleSendTemplateToPhone()}
-                                className="bg-indigo-600 cursor-pointer text-white px-4 py-1 rounded hover:bg-indigo-700"
+                                className="bg-green-500 cursor-pointer text-white px-4 py-1 rounded hover:bg-green-600"
                             >
                                 Send
                             </button>

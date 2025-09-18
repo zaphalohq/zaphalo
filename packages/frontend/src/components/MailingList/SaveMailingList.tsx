@@ -74,15 +74,15 @@ const SaveMailingList = ({setIsSaveMailingListVis}: any) => {
         <input onChange={(e) => setMailingListName(e.target.value)} className='border-none outline-none bg-blue-50 w-full p-2 rounded' placeholder="Enter Contact List Name" type="text" name="mailingListName" />
         <h2 className="text-lg font-semibold text-gray-800 my-2">Upload Contact List</h2>
 
-        <label className="flex mt-4 py-8 bg-chat flex-col mb-4 items-center justify-center border-2 border-dashed border-violet-300 rounded-lg cursor-pointer hover:border-violet-500 transition-colors">
+        <label className="flex mt-4 py-8 bg-chat flex-col mb-4 items-center justify-center border-2 border-dashed border-green-300 rounded-lg cursor-pointer hover:border-green-500 transition-colors">
           <input
             type="file"
             onChange={handleFileChange}
             className="hidden"
             accept=".xlsx, .xls"
           />
-          <div className="text-5xl font-extrabold text-violet-500"><FiUpload /></div>
-          <div className="bg-violet-500 p-2 px-6 mt-4 rounded-full text-white font-semibold">Upload</div>
+          <div className="text-5xl font-extrabold text-green-500"><FiUpload /></div>
+          <div className="bg-green-500 p-2 px-6 mt-4 rounded-full text-white font-semibold">Upload</div>
           <span className="text-gray-600 pt-4">{fileName || "Suppoted files: .xlsx, .xls"}</span>
         </label>
 

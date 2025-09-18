@@ -25,7 +25,7 @@ const InstantsForm = () => {
 			<CloseButton onClick={() => {
 				setIsNewInstants(false)
 				HandleFormVisibility()
-			}} right="right-70" top="top-35" />
+			}} right="right-92" top="top-26" />
 			<form className="grid grid-cols-2 place-content-center px-8 gap-4 p-8 bg-stone-50 rounded-lg ">
 				<div className="col-span-2">
 					<InputLabel required={true} type="text" name='name' value={formData.name} HandleInputChange={HandleInputChange} title="Name" placeholder="eg: ConstroERP" />

@@ -59,7 +59,7 @@ const TemplateButton = ({ setTemplateData }: any) => {
   return (
     <div>
       <div onClick={HandelAddButton} className="flex text-lg font-semibold  items-center justify-end" >
-        <div className="p-2 px-4 rounded hover:bg-violet-600 cursor-pointer bg-violet-500 text-white flex items-center justify-center gap-2">
+        <div className="p-2 px-4 rounded hover:bg-green-600 cursor-pointer bg-green-500 text-white flex items-center justify-center gap-2">
           <span className="font-bold"><FiPlus /></span>
           <span>Add Button</span>
         </div>
@@ -74,7 +74,7 @@ const TemplateButton = ({ setTemplateData }: any) => {
                 name="type"
                 value={currentButton.type}
                 onChange={(e: any) => HandleButtonChange(index, e)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 p-2"
               >
                 <option value="QUICK_REPLY">QUICK_REPLY</option>
                 <option value="URL">URL</option>

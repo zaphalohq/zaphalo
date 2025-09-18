@@ -31,7 +31,7 @@ const MailingList = () => {
             setIsMailingContactVis(false)
           }
         }}
-          className='mx-6 mt-4 flex items-center justify-center h-10 w-10 rounded-full bg-violet-400 hover:bg-violet-500 cursor-pointer text-white text-lg font-bold'>
+          className='mx-6 mt-4 flex items-center justify-center h-10 w-10 rounded-full bg-green-500 hover:bg-green-600 cursor-pointer text-white text-lg font-bold'>
           <FiArrowLeft />
         </div>
       }

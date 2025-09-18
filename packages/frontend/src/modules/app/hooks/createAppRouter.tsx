@@ -56,7 +56,7 @@ const routes = createRoutesFromElements(
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="chats" element={<Chats />} />
         <Route path="whatsapp-account" element={<WhatsAppAccount />} />
-        <Route path="contacts" element={<Contacts />} />
+        <Route path="contacts" element={<Contacts />} />    
         <Route path="template" element={<Template />} />
         <Route path="mailinglist" element={<MailingList />} />
         <Route path="broadcast" element={<Broadcast />} />
