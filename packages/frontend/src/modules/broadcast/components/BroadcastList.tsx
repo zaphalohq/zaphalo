@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@apollo/client';
 
 import { Input } from "@src/components/UI/input";
@@ -23,11 +23,13 @@ export default function BroadcastList({
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [filter, setFilter] = useState("");
   const [selected, setSelected] = useState<number[]>([]);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const [loading, setLoading] = useState(false);
 
-
-  const { data, loading, refetch } = useQuery(SearchReadBroadcast, {
+  const { data, loading: loadingData, refetch } = useQuery(SearchReadBroadcast, {
     variables: { page, pageSize, search, filter },
     fetchPolicy: "cache-and-network",
   });
@@ -43,12 +45,19 @@ export default function BroadcastList({
     setSelected([]);
   };
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [search]);
 
   useEffect(() => {
+    setLoading(true);
     refetch();
-  }, [page, search, filter]);
+    setLoading(false);
+  }, [debouncedSearch, filter, page]);
 
-  if (loading) return <div className="p-4">Loading...</div>;
 
   const broadcasts = data?.searchReadBroadcast.broadcasts || [];
 
@@ -81,9 +90,13 @@ export default function BroadcastList({
 
       <div className="flex gap-4 items-center">
         <Input
+          ref={searchRef}
           placeholder="Search by name..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setPage(1);
+            setSearch(e.target.value)
+          }}
           className="max-w-sm"
         />
         <Select value={filter} onValueChange={(val) => setFilter(val)}>
@@ -103,80 +116,81 @@ export default function BroadcastList({
       </div>
 
       {/* Table List View */}
-      <Table className="w-full text-sm text-left rtl:text-right text-stone-500 rounded-2xl">
-        <TableHeader className="text-black">
-          <TableRow className="bg-gray-100 uppercase text-sm font-semibold">
-            <TableHead className="px-4 py-2"></TableHead>
-            <TableHead className="px-4 py-3">Name</TableHead>
-            <TableHead className="px-4 py-3">Template</TableHead>
-            <TableHead className="px-4 py-3">Create on</TableHead>
-            <TableHead className="px-4 py-3">Status</TableHead>
-            <TableHead className="px-4 py-3"></TableHead>
-            <TableHead className="px-4 py-3">Template</TableHead>
-            <TableHead className="px-4 py-3">Contact List</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody className="text-black">
-          {broadcasts.length > 0 ? (
-            broadcasts.map((broadcast) => (
-              <TableRow key={broadcast.id} className="bg-white border-b border-stone-200">
-                <TableCell className="px-4 py-5">
-                  <input
-                    type="checkbox"
-                    checked={selected.includes(broadcast.id)}
-                    onChange={() => toggleSelect(broadcast.id)}
-                  />
-                </TableCell>
-                <TableCell className="px-4 py-5">{broadcast.name}</TableCell>
-                <TableCell className="px-4 py-5">{broadcast.template.templateName}</TableCell>
-                <TableCell className="px-4 py-5">{
-                  formatLocalDate(broadcast.createdAt)
-                }</TableCell>
-                <TableCell className="px-4 py-5">{broadcast.status}</TableCell>
-                {/*<TableCell className="px-4 py-5">{broadcast.totalBroadcast}</TableCell>*/}
-                {/*<TableCell className="px-4 py-5">{broadcast.totalBroadcastSend}</TableCell>*/}
-                <TableCell onClick={() => {
-                  broadcast.status != 'New' ? setReadOnly(true) : setReadOnly(false)
-                  setBroadcast(broadcast.id)
-                  showForm(true)
-                }}
-                  className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
-                  title="preview"
-                >
-                    Edit
-                  {/*<BroadcastTemplatePreview dbTemplateId={broadcast.template.id}/>*/}
-                </TableCell>
-                <TableCell onClick={() => {
-                  setDbTemplateId(broadcast.template.id)
-                  setShowTemplate(true)
-                  setReadOnly(true)
-                }}
-                  className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
-                  title="preview"
-                >
-                  <BroadcastTemplatePreview dbTemplateId={broadcast.template.id}/>
-                </TableCell>
-                <TableCell className="px-4 py-5" onClick={() => {
-                  setMailingListId(broadcast.mailingList.id)
-                  setIsMailingListVis(true)
-                }
-                }
-                  className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
-                  title="preview"
-                >
-                  View
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <Table className="w-full text-sm text-left rtl:text-right text-stone-500 rounded-2xl">
+          <TableHeader className="text-black">
+            <TableRow className="bg-gray-100 uppercase text-sm font-semibold">
+              <TableHead className="px-4 py-2"></TableHead>
+              <TableHead className="px-4 py-3">Name</TableHead>
+              <TableHead className="px-4 py-3">Template</TableHead>
+              <TableHead className="px-4 py-3">Create on</TableHead>
+              <TableHead className="px-4 py-3">Status</TableHead>
+              <TableHead className="px-4 py-3"></TableHead>
+              <TableHead className="px-4 py-3">Template</TableHead>
+              <TableHead className="px-4 py-3">Contact List</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className="text-black">
+            {broadcasts.length > 0 ? (
+              broadcasts.map((broadcast) => (
+                <TableRow key={broadcast.id} className="bg-white border-b border-stone-200">
+                  <TableCell className="px-4 py-5">
+                    <input
+                      type="checkbox"
+                      checked={selected.includes(broadcast.id)}
+                      onChange={() => toggleSelect(broadcast.id)}
+                    />
+                  </TableCell>
+                  <TableCell className="px-4 py-5">{broadcast.name}</TableCell>
+                  <TableCell className="px-4 py-5">{broadcast.template.templateName}</TableCell>
+                  <TableCell className="px-4 py-5">{
+                    formatLocalDate(broadcast.createdAt)
+                  }</TableCell>
+                  <TableCell className="px-4 py-5">{broadcast.status}</TableCell>
+                  <TableCell onClick={() => {
+                    broadcast.status != 'New' ? setReadOnly(true) : setReadOnly(false)
+                    setBroadcast(broadcast.id)
+                    showForm(true)
+                  }}
+                    className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
+                    title="preview"
+                  >
+                      Edit
+                    {/*<BroadcastTemplatePreview dbTemplateId={broadcast.template.id}/>*/}
+                  </TableCell>
+                  <TableCell onClick={() => {
+                    setDbTemplateId(broadcast.template.id)
+                    setShowTemplate(true)
+                    setReadOnly(true)
+                  }}
+                    className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
+                    title="preview"
+                  >
+                    <BroadcastTemplatePreview dbTemplateId={broadcast.template.id}/>
+                  </TableCell>
+                  <TableCell onClick={() => {
+                    setMailingListId(broadcast.mailingList.id)
+                    setIsMailingListVis(true)
+                  }}
+                    className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
+                    title="preview"
+                  >
+                    View
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center text-gray-500">
+                  No records found
                 </TableCell>
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={4} className="text-center text-gray-500">
-                No records found
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+            )}
+          </TableBody>
+        </Table>
+      )}
        {/* Pagination */}
       <div className="flex justify-between items-center p-3 border-t bg-gray-50">
         <button
