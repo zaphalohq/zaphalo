@@ -104,7 +104,7 @@ export class WhatsAppWebhookController {
                     this.waTemplateService.updateTemplate({'category': value['new_category'], 'noUpdateToWhatsapp': true}, value['message_template_id'])
                     continue
                 }
-                console.log(`Unknown Template webhook : ${value}`)
+                // console.log(`Unknown Template webhook : ${value}`)
             }
             else{
               console.log(`No Template found for this webhook : `, )

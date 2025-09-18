@@ -1,4 +1,4 @@
-import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { WaAccountService } from '../services/whatsapp-account.service';
 import { WhatsAppAccount } from '../entities/whatsapp-account.entity';
 import { UseGuards } from '@nestjs/common';
@@ -109,5 +109,15 @@ export class WaAccountResolver {
         message: res,
       }
   }
+
+  @Query(() => [WhatsAppAccount])
+  async readWaAccount(
+      @Args('search', { type: () => String, nullable: true }) search?: string,
+      @Args('limit', { type: () => Int, nullable: true }) limit?: number,
+  ): Promise<WhatsAppAccount[] | undefined> {
+    const waAccounts = await this.waAccountService.readWaAccount(search, limit);
+    return waAccounts
+  }
+
 
 }

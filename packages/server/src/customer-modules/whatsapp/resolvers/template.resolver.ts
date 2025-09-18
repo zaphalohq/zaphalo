@@ -108,5 +108,14 @@ export class WhatsAppTemplateResolver {
     return template.templateImg ?? '';
   }
 
+  @Query(() => [WhatsAppTemplate])
+  async readWaTemplate(
+      @Args('search', { type: () => String, nullable: true }) search?: string,
+      @Args('limit', { type: () => Int, nullable: true }) limit?: number,
+  ): Promise<WhatsAppTemplate[] | undefined> {
+      const waTemplates = await this.templateService.readWaTemplate(search, limit);
+      return waTemplates
+  }
+
 }
 

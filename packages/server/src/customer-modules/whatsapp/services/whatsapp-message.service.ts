@@ -42,6 +42,7 @@ export class WaMessageService {
       messageType: whatsappMessageVal.messageType,
       waAccountId: whatsappMessageVal.waAccountId,
       channelMessageId: whatsappMessageVal.channelMessageId,
+      waTemplateId: whatsappMessageVal.waTemplateId,
       body: whatsappMessageVal.body,
       msgUid: whatsappMessageVal.msgUid,
     })
