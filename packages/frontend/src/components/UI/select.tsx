@@ -40,7 +40,7 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        "relative z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in-80",
+        "relative z-50 min-w-[8rem] w-full overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in-80",
         position === "popper" &&
           "translate-y-1 animate-in slide-in-from-top-1",
         className
@@ -106,6 +106,35 @@ const SelectSeparator = React.forwardRef<
 ))
 SelectSeparator.displayName = SelectPrimitive.Separator.displayName
 
+/* ----- Scroll Buttons ----- */
+const SelectScrollUpButton = React.forwardRef(({ className, children = "▲", ...props }, ref) => (
+  <SelectPrimitive.ScrollUpButton
+    ref={ref}
+    className={cn(
+      "text-center bg-gray-100 hover:bg-gray-200 text-gray-700 py-1 cursor-pointer sticky top-0 z-10",
+      className
+    )}
+    {...props}
+  >
+    {children}
+  </SelectPrimitive.ScrollUpButton>
+));
+SelectScrollUpButton.displayName = "SelectScrollUpButton";
+
+const SelectScrollDownButton = React.forwardRef(({ className, children = "▼", ...props }, ref) => (
+  <SelectPrimitive.ScrollDownButton
+    ref={ref}
+    className={cn(
+      "text-center bg-gray-100 hover:bg-gray-200 text-gray-700 py-1 cursor-pointer sticky bottom-0 z-10",
+      className
+    )}
+    {...props}
+  >
+    {children}
+  </SelectPrimitive.ScrollDownButton>
+));
+SelectScrollDownButton.displayName = "SelectScrollDownButton";
+
 export {
   Select,
   SelectGroup,
@@ -115,4 +144,6 @@ export {
   SelectLabel,
   SelectItem,
   SelectSeparator,
+  SelectScrollUpButton,
+  SelectScrollDownButton,
 }

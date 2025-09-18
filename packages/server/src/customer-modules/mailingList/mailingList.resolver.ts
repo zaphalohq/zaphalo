@@ -76,5 +76,15 @@ export class MailingListResolver {
     return this.mailingListService.searchMailingList(searchTerm);
   }
 
+  @Query(() => [MailingList])
+  async readMailingList(
+      @Args('search', { type: () => String, nullable: true }) search?: string,
+      @Args('limit', { type: () => Int, nullable: true }) limit?: number,
+  ): Promise<MailingList[] | undefined> {
+      const mailigList = await this.mailingListService.readMailingList(search, limit);
+      return mailigList
+  }
+
+
 }
 

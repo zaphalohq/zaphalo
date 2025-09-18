@@ -15,12 +15,6 @@ import { WhatsAppAccount } from '../entities/whatsapp-account.entity';
 
 export type WhatsAppMessageJobData = { workspaceId: string, messageId: string};
 
-
-
-async function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 @Processor({
   queueName: MessageQueue.sendWaQueue,
   scope: Scope.REQUEST,
@@ -39,11 +33,6 @@ export class SendWhatsAppMessageJob {
       where: {id: data.messageId},
     });
     this.waMessageService.sendWhatsappMessage(data)
-
-    console.log('📩 Processing WhatsApp job:', data);
-    console.log("Starting...");
-    await sleep(3000); // Pause execution for 3 seconds
-    console.log("...Continuing after delay.");
   }
 }
 

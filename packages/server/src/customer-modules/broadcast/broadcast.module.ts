@@ -7,6 +7,8 @@ import { Broadcast } from "./broadcast.entity";
 import { BroadcastContacts } from "./broadcastContacts.entity";
 import { WhatsAppModule } from "src/customer-modules/whatsapp/whatsapp.module";
 import { MailingListModule } from "src/customer-modules/mailingList/mailingList.module";
+import { BroadcastMessageJob } from "src/customer-modules/broadcast/jobs/broadcast-message.job";
+import { BroadcastCreatedListener } from 'src/customer-modules/broadcast/listeners/broadcast-created.listener';
 
 @Module({
   imports : [
@@ -18,8 +20,16 @@ import { MailingListModule } from "src/customer-modules/mailingList/mailingList.
     }),
     WhatsAppModule,
   ],
-  providers : [BroadcastService, BroadcastResolver],
-  exports: [BroadcastService],
+  providers : [
+    BroadcastService,
+    BroadcastResolver,
+    BroadcastMessageJob,
+    BroadcastCreatedListener
+  ],
+  exports: [
+    BroadcastService,
+    BroadcastCreatedListener
+  ],
 })
 
 export class BroadcastModule {}

@@ -2,11 +2,16 @@ import { Field, ObjectType } from "@nestjs/graphql";
 import { Broadcast } from "../broadcast.entity";
 
 @ObjectType()
-export class FindAllBrodcastRes {
+export class ManyBrodcastsResponse {
   @Field(() => [Broadcast])
-  allBroadcast: Broadcast[];
+  broadcasts: Broadcast[];
+
+  @Field()
+  total: number;
 
   @Field()
   totalPages: number;
 
+  @Field()
+  currentPage: number;
 }

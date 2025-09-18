@@ -251,11 +251,12 @@ export class WaTemplateService {
   }
 
   async findAllApprovedTemplate(): Promise<WhatsAppTemplate[]> {
-    return await this.templateRepository.find({
+    const waTemplates = await this.templateRepository.find({
       where: { status: In(['APPROVED', 'approved']) },
       order: { createdAt: 'DESC' },
       relations: ["account", "attachment"]
     })
+    return waTemplates
   }
 
   async findtemplateByDbId(dbTemplateId: string): Promise<WhatsAppTemplate | null> {
@@ -582,6 +583,18 @@ export class WaTemplateService {
   //     return {"success": false, "error": error}
   //   }
   // }
+
+    async readWaTemplate(
+      search?: string,
+      limit?: number,
+    ) {
+      const waTemplates = await this.templateRepository.find({
+        where: { templateName: ILike(`%${search}%`) },
+        order: { createdAt: 'ASC' },
+        take: limit,
+      });
+      return waTemplates;
+    }
 
 }
 
