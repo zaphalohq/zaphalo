@@ -45,15 +45,14 @@ export class WhatsAppTemplateResolver {
   @Mutation(() => SuccessResponse)
   async saveTemplate(@Args('templateData') templateData: WaTemplateRequestInput,
     @Args('dbTemplateId', { nullable: true }) dbTemplateId?: string): Promise<SuccessResponse | undefined> {
-
     try {
       if (dbTemplateId) {
-        // const template = await this.templateService.updateTemplate(templateData, dbTemplateId, templateData.accountId);
-        // if (template)
-        //   return {
-        //     success: true,
-        //     message: 'template saved successfully!'
-        //   }
+        const template = await this.templateService.updateTemplate(templateData, dbTemplateId, templateData.accountId);
+        if (template)
+          return {
+            success: true,
+            message: 'template saved successfully!'
+          }
       } else {
         const template = await this.templateService.saveTemplate(templateData, templateData.accountId);
         if (template)

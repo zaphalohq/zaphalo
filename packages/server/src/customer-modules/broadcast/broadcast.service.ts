@@ -12,6 +12,12 @@ import { broadcastStates } from "src/customer-modules/broadcast/enums/broadcast.
 import { BroadcastCreatedEvent } from 'src/customer-modules/broadcast/events/broadcast-created.event';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
+import {
+  BroadcastException,
+  BroadcastExceptionCode,
+} from 'src/customer-modules/broadcast/broadcast.exception';
+
+
 @Injectable()
 export class BroadcastService {
   private broadcastRepository: Repository<Broadcast>
@@ -37,8 +43,13 @@ export class BroadcastService {
 
     if (!template) throw new Error('template not found');
 
-    const account = await this.waAccountService.findInstantsByInstantsId(broadcastData.accountId);
-    if (!account) throw new Error('account not found');
+    const account = await this.waAccountService.findInstantsByInstantsId(broadcastData.whatsappAccountId);
+    if (!account){
+      throw new BroadcastException(
+        'Whatsapp account not found',
+        BroadcastExceptionCode.INVALID_WHATSAPP_ACCOUNT,
+      );
+    }
 
     const broadcast = this.broadcastRepository.create({
       whatsappAccount: account,

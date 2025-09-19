@@ -917,6 +917,7 @@ query searchReadBroadcast($page : Int!, $pageSize : Int!, $search: String, $filt
       status
       whatsappAccount {
         id
+        name
       }
       template {
         id

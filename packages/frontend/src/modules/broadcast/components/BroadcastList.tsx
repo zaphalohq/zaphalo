@@ -124,6 +124,7 @@ export default function BroadcastList({
             <TableRow className="bg-gray-100 uppercase text-sm font-semibold">
               <TableHead className="px-4 py-2"></TableHead>
               <TableHead className="px-4 py-3">Name</TableHead>
+              <TableHead className="px-4 py-3">Account</TableHead>
               <TableHead className="px-4 py-3">Template</TableHead>
               <TableHead className="px-4 py-3">Create on</TableHead>
               <TableHead className="px-4 py-3">Status</TableHead>
@@ -144,6 +145,7 @@ export default function BroadcastList({
                     />
                   </TableCell>
                   <TableCell className="px-4 py-5">{broadcast.name}</TableCell>
+                  <TableCell className="px-4 py-5">{broadcast.whatsappAccount.name}</TableCell>
                   <TableCell className="px-4 py-5">{broadcast.template.templateName}</TableCell>
                   <TableCell className="px-4 py-5">{
                     formatLocalDate(broadcast.createdAt)

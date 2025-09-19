@@ -46,7 +46,6 @@ export class ChannelService {
     const newChannel = this.channelRepository.create({
       channelName: channelName || phoneNo,
       channelMembers: contacts,
-      // membersidsss: JSON.stringify(memberIds),
     })
     await this.channelRepository.save(newChannel)
 
@@ -283,11 +282,21 @@ export class ChannelService {
     return mediaData
   }
 
-  async findActiveChannel(senderMobile, senderName, createIfNotFound){
+  async findActiveChannelOrCreate(senderMobile, senderName, createIfNotFound){
+    const contact = await this.contactsservice.findActiveContactOrCreate(senderMobile, senderName)
+
     const channelExist = await this.channelRepository.findOne({
       where: { channelMembers: { phoneNo: senderMobile} },
       relations: ['channelMembers']
     })
+    if (!channelExist){
+      const newChannel = this.channelRepository.create({
+        channelName: senderName || senderMobile,
+        channelMembers: [contact],
+      })
+      await this.channelRepository.save(newChannel)
+      return newChannel
+    }
     return channelExist
   }
 

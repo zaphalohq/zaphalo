@@ -102,10 +102,10 @@ export class WhatsAppWebhookService {
           })
         }
       }
-
       if (!channel){
-        channel = await this.channelService.findActiveChannel(sender_mobile, sender_name, true)
+        channel = await this.channelService.findActiveChannelOrCreate(sender_mobile, sender_name, true)
       }
+
       let kwargs = {
           'message_type': 'whatsapp_message',
           'parent_msg_id': parentMsgId,
