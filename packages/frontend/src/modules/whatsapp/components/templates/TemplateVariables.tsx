@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react"
 import { TemplateContext } from "@src/modules/whatsapp/Context/TemplateContext";
 
-const TemplateVariables = ({ setTemplateData2 }: any) => {
+const TemplateVariables = () => {
   const { templateData, setTemplateData }: any = useContext(TemplateContext)
   const [variables, setVariables] = useState(() => {
     if (templateData.variables?.length > 0) {
@@ -37,8 +37,8 @@ const TemplateVariables = ({ setTemplateData2 }: any) => {
   }
 
   useEffect(() => {
-    setTemplateData2((prev: any) => ({ ...prev, variables: variables }))
     setTemplateData((prev: any) => ({ ...prev, variables: variables }))
+    // setTemplateData((prev: any) => ({ ...prev, variables: variables }))
   }, [variables])
 
   return (

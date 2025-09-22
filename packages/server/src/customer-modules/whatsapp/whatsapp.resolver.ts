@@ -63,7 +63,7 @@ export class WhatsAppResolver {
     @Args('waTemplateId', { nullable: true }) waTemplateId?: string,
     @Args('dbTemplateId', { nullable: true }) dbTemplateId?: string
   ): Promise<SuccessResponse> {
-    const wa_api = await this.waAccountService.getWhatsAppApi(templateData.accountId)
+    const wa_api = await this.waAccountService.getWhatsAppApi(templateData.whatsappAccountId)
 
     let response;
     if (waTemplateId) {
@@ -98,7 +98,7 @@ export class WhatsAppResolver {
         const updatedTemplate = await this.waTemplateService.updateTemplate(JSON.parse(response.data), template.id);
 
       } else {
-        const template: any = await this.waTemplateService.saveTemplate(templateData, templateData.accountId)
+        const template: any = await this.waTemplateService.saveTemplate(templateData, templateData.whatsappAccountId)
         let payload
 
         if (template.attachment) {
@@ -131,26 +131,4 @@ export class WhatsAppResolver {
     const wa_api = await this.waAccountService.getWhatsAppApi()
 
   }
-
-
-  @Mutation(() => TestTemplateOutput)
-  async testTemplate(@Args('testTemplateData') testTemplateData: WaTestTemplateInput) {
-    const template: any = await this.waTemplateService.findtemplateByDbId(testTemplateData.dbTemplateId)
-
-    const wa_api = await this.waAccountService.getWhatsAppApi(template.account.id)
-
-    if (!template) throw Error('template doesnt exist')
-
-    let generateTemplatePayload
-    if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(template.headerType)) {
-      const mediaLink = 'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png'
-      generateTemplatePayload = await this.waTemplateService.generateSendMessagePayload(template, testTemplateData.testPhoneNo, mediaLink);
-    } else {
-      generateTemplatePayload = await this.waTemplateService.generateSendMessagePayload(template, testTemplateData.testPhoneNo);
-    }
-    const testTemplate = await wa_api.sendTemplateMsg(JSON.stringify(generateTemplatePayload))
-    return { success: 'test template send successfully' }
-  }
-
-
 }

@@ -203,8 +203,8 @@ export default function TemplateList({
                       Edit
                   </TableCell>
                   <TableCell onClick={() => {
-                    setDbTemplateId(template.id)
-                    setShowTemplate(true)
+                    setRecord(template.id)
+                    // setShowTemplate(true)
                     setReadOnly(true)
                   }}
                     className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"

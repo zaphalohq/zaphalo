@@ -57,7 +57,7 @@ export class WaTemplateService {
 
     const template = this.templateRepository.create({
       templateName: templateData.templateName,
-      status: 'saved',
+      status: 'New',
       category: templateData.category,
       language: templateData.language,
       headerType: templateData.headerType,
@@ -78,9 +78,9 @@ export class WaTemplateService {
 
 
     await this.templateRepository.save(template);
-    if (!templateData.noUpdateToWhatsapp){
-      this.submitTemplate(template);
-    }
+    // if (!templateData.noUpdateToWhatsapp){
+    //   this.submitTemplate(template);
+    // }
     return template;
   }
 
@@ -115,9 +115,9 @@ export class WaTemplateService {
       template.templateImg = attachment.name;
     }
     await this.templateRepository.save(template);
-    if (!updatetemplateData.noUpdateToWhatsapp){
-      this.submitTemplate(template);
-    }
+    // if (!updatetemplateData.noUpdateToWhatsapp){
+    //   this.submitTemplate(template);
+    // }
     return template;
   }
 
@@ -515,6 +515,19 @@ export class WaTemplateService {
     catch (error){
       return {"success": false, "error": error}
     }
+  }
+
+  async getTemplate(
+    templateId: string,
+  ) {
+    const templateFind = await this.templateRepository.findOne({
+      where: { id: templateId },
+      relations: ["account", "attachment"],
+    });
+    if (!templateFind){
+      throw new Error('Template not found');
+    }
+    return {'template': templateFind, 'message': 'Template found', 'status': true}
   }
 
   async readWaTemplate(

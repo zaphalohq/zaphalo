@@ -8,46 +8,34 @@ import { WaTemplateResponseDto } from "../dtos/whatsapp.response.dto";
 import { FileService } from "src/modules/file-storage/services/file.service";
 import { SearchedRes } from "../dtos/searched.dto";
 import { SuccessResponse } from "../dtos/success.dto";
+import { WaAccountService } from '../services/whatsapp-account.service';
 
 import { ManyTemplatesResponse } from "src/customer-modules/whatsapp/dtos/templates/many-templates-response.dto";
+import { TemplateResponse } from "src/customer-modules/whatsapp/dtos/templates/template-response.dto";
+import { TestTemplateOutput, WaTestTemplateInput } from "src/customer-modules/whatsapp/dtos/test-input.template.dto";
 
 
 @Resolver(() => WhatsAppTemplate)
 export class WhatsAppTemplateResolver {
   constructor(
     private readonly templateService: WaTemplateService,
+    private readonly waAccountService: WaAccountService,
     private fileService: FileService
   ) { }
 
-  @Query(() => SearchedRes)
-  async searchedTemplate(
-    @Args('searchTerm', { type: () => String, nullable: true }) searchTerm?: string,
-  ): Promise<SearchedRes | null> {
-    return this.templateService.searchedTemplate(searchTerm);
-  }
-
-  @UseGuards(GqlAuthGuard)
-  @Query(() => [WhatsAppTemplate])
-  async findAllApprovedTemplate(@Context('req') req): Promise<WhatsAppTemplate[]> {
-    const data = await this.templateService.findAllApprovedTemplate();
-    return data
-  }
-
-
   @UseGuards(GqlAuthGuard)
   @Mutation(() => SuccessResponse)
-  async saveTemplate(@Args('templateData') templateData: WaTemplateRequestInput,
-    @Args('dbTemplateId', { nullable: true }) dbTemplateId?: string): Promise<SuccessResponse | undefined> {
+  async saveTemplate(@Args('templateData') templateData: WaTemplateRequestInput): Promise<SuccessResponse | undefined> {
     try {
-      if (dbTemplateId) {
-        const template = await this.templateService.updateTemplate(templateData, dbTemplateId, templateData.accountId);
+      if (templateData.templateId) {
+        const template = await this.templateService.updateTemplate(templateData, templateData.templateId, templateData.whatsappAccountId);
         if (template)
           return {
             success: true,
             message: 'template saved successfully!'
           }
       } else {
-        const template = await this.templateService.saveTemplate(templateData, templateData.accountId);
+        const template = await this.templateService.saveTemplate(templateData, templateData.whatsappAccountId);
         if (template)
           return {
             success: true,
@@ -61,23 +49,6 @@ export class WhatsAppTemplateResolver {
       }
     }
 
-  }
-
-  @UseGuards(GqlAuthGuard)
-  @Query(() => WhatsAppTemplate)
-  async findtemplateByDbId(@Args('dbTemplateId') dbTemplateId: string): Promise<WhatsAppTemplate | null> {
-    return await this.templateService.findtemplateByDbId(dbTemplateId)
-  }
-
-  @UseGuards(GqlAuthGuard)
-  @Mutation(() => WaTemplateResponseDto)
-  async getTemplateStatus(@Args('templateId') templateId: string): Promise<WaTemplateResponseDto> {
-
-    return {
-      success: false,
-      // data: result.data ? JSON.stringify(result.data) : undefined,
-      // error: result.error ? JSON.stringify(result.error) : ,
-    };
   }
 
   @UseGuards(GqlAuthGuard)
@@ -98,6 +69,15 @@ export class WhatsAppTemplateResolver {
       }
     }
     return template.templateImg ?? '';
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => TemplateResponse)
+  async getTemplate(
+    @Args('templateId') templateId: string
+  ): Promise<TemplateResponse> {
+    const response = await this.templateService.getTemplate(templateId);
+    return response
   }
 
   @UseGuards(GqlAuthGuard)
@@ -125,6 +105,25 @@ export class WhatsAppTemplateResolver {
 
     const response = await this.templateService.searchReadTemplate(page, pageSize, search, filter)
     return response
+  }
+
+  @Mutation(() => TestTemplateOutput)
+  async testTemplate(@Args('testTemplateData') testTemplateData: WaTestTemplateInput) {
+    const template: any = await this.templateService.getTemplate(testTemplateData.dbTemplateId)
+
+    const wa_api = await this.waAccountService.getWhatsAppApi(template.account.id)
+
+    if (!template) throw Error('template doesnt exist')
+
+    let generateTemplatePayload
+    if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(template.headerType)) {
+      const mediaLink = 'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png'
+      generateTemplatePayload = await this.templateService.generateSendMessagePayload(template, testTemplateData.testPhoneNo, mediaLink);
+    } else {
+      generateTemplatePayload = await this.templateService.generateSendMessagePayload(template, testTemplateData.testPhoneNo);
+    }
+    const testTemplate = await wa_api.sendTemplateMsg(JSON.stringify(generateTemplatePayload))
+    return { success: 'test template send successfully' }
   }
 
 }

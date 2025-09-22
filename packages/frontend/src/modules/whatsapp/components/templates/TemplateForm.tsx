@@ -22,6 +22,7 @@ import { Languages } from "@src/modules/whatsapp/language-code";
 import TemplateButton from "@src/modules/whatsapp/components/templates/TemplateButton";
 import TemplateVariables from "@src/modules/whatsapp/components/templates/TemplateVariables";
 import { TemplateContext } from '@src/modules/whatsapp/Context/TemplateContext';
+import { CreateOneAttachmentDoc, SUBMIT_TEMPLATE, SaveWhatsappTemplate, GetTemplate } from "@src/generated/graphql";
 
 // import { TemplateProvider } from '@components/Context/TemplateContext';
 
@@ -49,96 +50,131 @@ import {
 export default function TemplateForm({ onBack, recordId, readOnly=false }) {
   const [active, setActive] = useState("overview");
   const { templateData, setTemplateData }: any = useContext(TemplateContext)
+  const [file, setFile] = useState<File | null>(null);
+  if (isDefined(recordId)){
+    const { data : templateViewData, loading: viewLoading, error: viewError } = useQuery(GetTemplate, {
+      variables: {
+          templateId: recordId
+      },
+      fetchPolicy: "cache-and-network",
+    })
+    const templateView = templateViewData?.getTemplate?.template;
+
+    if (templateView && !templateData.templateId){
+      setTemplateData({
+        templateId: templateView.id,
+        templateName: templateView.templateName,
+        whatsappAccountId: templateView.account.id,
+        category: templateView.category,
+        headerType: templateView.headerType,
+        headerText: templateView.headerText,
+        language: templateView.language,
+        bodyText: templateView.bodyText,
+        footerText: templateView.footerText,
+        button: templateView.button,
+        variables: templateView.variables,
+        attachmentId: templateView.attachment,
+      })
+      if (broadcastView.state != 'New'){
+        readOnly = false
+      }
+    }
+  }
 
 
-  // if (isDefined(recordId)){
-  //   const { data : broadcastViewData, loading: viewLoading, error: viewError } = useQuery(GetBroadcast, {
-  //     variables: {
-  //         recordId
-  //     },
-  //     fetchPolicy: "cache-and-network",
-  //   })
-  //   const broadcastView = broadcastViewData?.getBroadcast?.broadcast;
+  const [saveTemplate, { data, loading, error }] = useMutation(SaveWhatsappTemplate, {
+    onCompleted: (data) => {
+    },
+    onError: (err) => {
+      toast.error(`${err}`);
+    },
+  });
 
-  //   if (broadcastView && !templateData.broadcastId){
-  //     setBroadcastData({
-  //       broadcastId: broadcastView.id,
-  //       broadcastName: broadcastView.name,
-  //       whatsappAccountId: broadcastView.whatsappAccount.id,
-  //       templateId: broadcastView.template.id,
-  //       contactListId: broadcastView.contactList.id,
-  //       state: broadcastView.status,
-  //     })
-  //     if (broadcastView.state != 'New'){
-  //       readOnly = false
-  //     }
-  //   }
-  // }
+  const handleFileUpload = async () => {
+    let updatedTemplateData = { ...templateData };
+    if (file !== null) {
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await Post(
+          `/upload`,
+          formData,
+          { headers: { 'Content-Type': 'multipart/form-data' } }
+        );
 
+        if (response.data) {
+          const attachment: any = await createOneAttachment({
+            variables: {
+              name: response.data.file.filename,
+              originalname: response.data.file.originalname,
+              mimetype: response.data.file.mimetype,
+              size: response.data.file.size,
+              path: response.data.file.path,
+              createdAt: "",
+              updatedAt: "",
+            }
+          })
+          updatedTemplateData['attachmentId'] = attachment.data.CreateOneAttachment.id;
+        }
+        setTemplateData(updatedTemplateData);
+        return updatedTemplateData
+      } catch (error) {
+        console.error('Error uploading file:', error);
+      }
+    }
+    return updatedTemplateData
 
-  // const [saveBroadcast, { data, loading, error }] = useMutation(SaveBroadcast, {
-  //   onCompleted: (data) => {
-  //   },
-  //   onError: (err) => {
-  //     toast.error(`${err}`);
-  //   },
-  // });
+  }
 
+  const checkValidation = (templateData: any) => {
+    console.log(".............templateData.category............", templateData.category);
+    let formValid;
+    formValid = true;
+    if (!templateData.category) {
+      toast.error('Please select Whatsapp Template category.');
+      formValid = false;
+    }
+    if (!templateData.headerType) {
+      toast.error('Please select Whatsapp Template header type.');
+      formValid = false;
+    }
+    return formValid;
+  }
 
-  // const handleSave = async (status: string) => {
-  //   if (
-  //     !broadcastData.whatsappAccountId ||
-  //     !broadcastData.templateId ||
-  //     !broadcastData.contactListId ||
-  //     !broadcastData.broadcastName
-  //     ) {
-  //     toast.error('Please fill all required fields before broadcasting.');
-  //   return;
-  //   }
+  const handleSave = async (status: string) => {
+    const updatedTemplateData = await handleFileUpload()
+    const formValid = checkValidation(templateData);
+    if (!formValid){
+      return
+    }
+    // if (status){
+    //   updatedTemplateData.status = status
+    // }
 
-  //   type toSubmiteData = {
-  //     [key: string]: any;
-  //   };
-  //   const toSubmiteData: toSubmiteData = {};
-  //   toSubmiteData.broadcastName = broadcastData.broadcastName
-  //   toSubmiteData.whatsappAccountId = broadcastData.whatsappAccountId
-  //   toSubmiteData.templateId = broadcastData.templateId
-  //   toSubmiteData.contactListId = broadcastData.contactListId
-  //   toSubmiteData.status = "new"
+    console.log(".................updatedTemplateData................", updatedTemplateData);
 
+    const response = await saveTemplate({ 
+      variables: { 
+        templateData: updatedTemplateData,
+      }
+    });
 
+    if (response.data?.saveTemplate?.success) {
+      toast.success(`${response.data?.saveTemplate?.message}`);
+      onBack();
+    }
+  }
 
-  //   if (broadcastData.broadcastId){
-  //     toSubmiteData.broadcastId = broadcastData.broadcastId
-  //   }
-  //   if (status){
-  //     toSubmiteData.status = status
-  //   }
-
-  //   const response = await saveBroadcast({
-  //     variables: {
-  //       broadcastData: toSubmiteData
-  //     }
-  //   });
-
-  //   const broadcast = response.data?.saveBroadcast?.broadcast;
-  //   if (response.data?.saveBroadcast?.status) {
-  //     setBroadcastData({
-  //       broadcastId: broadcast.id,
-  //       broadcastName: broadcast.broadcastName,
-  //       accountId: broadcast.whatsappAccount.id,
-  //       templateId: broadcast.template.id,
-  //       contactListId: broadcast.contactList.id,
-  //       status: broadcast.status,
-  //     })
-  //     toast.success(`${response.data?.saveBroadcast?.message}`);
-  //     onBack();
-  //   }
-  // }
-
-  const handleSaveAndSend = async () => {
-    handleSave("in_progress")
+  const handleSaveAndSubmit = async () => {
+    handleSave()
     onBack();
+  }
+
+  const handleFileChange = (e: any) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFile(file)
+    }
   }
 
   return (
@@ -148,7 +184,7 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
         <PageHeader title="Create WhatsApp Template" className="w-full"
           actions={
           <>
-            <Button>
+            <Button onClick={handleSave}>
               Save
             </Button>
           </>
@@ -160,14 +196,14 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
           <div className="space-y-4">
             <Input
               placeholder="Broadcast ID"
-              value={templateData.broadcastId}
+              value={templateData.recordId}
               readOnly
               disabled
               hidden
             />
             <Input
               placeholder="Status"
-              value={templateData.state}
+              value={templateData.status}
               readOnly
               disabled
               hidden
@@ -194,7 +230,7 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
             <div className="flex gap-4">
               <div className="flex-1">
                 <Label>Category</Label>
-                <Select value={templateData.category} onValueChange={(val) => setTemplateData({ ...templateData, category: val })}>
+                <Select value={templateData.category} onValueChange={(val) => setTemplateData({ ...templateData, category: val })} disabled={readOnly}>
                   <SelectTrigger><SelectValue placeholder="Select category"/></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="UTILITY">Utility</SelectItem>
@@ -205,7 +241,7 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
               </div>
               <div className="flex-1">
                 <Label>Language</Label>
-                <Select value={templateData.category} onValueChange={(val) => setTemplateData({ ...templateData, category: val })}>
+                <Select value={templateData.language} onValueChange={(val) => setTemplateData({ ...templateData, language: val })} disabled={readOnly}>
                   <SelectTrigger><SelectValue placeholder="Select category"/></SelectTrigger>
                   <SelectContent>
                     {Languages.map((language) =>
@@ -216,7 +252,7 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
               </div>
             </div>
             <Label>Header Type</Label>
-            <Select value={templateData.category} onValueChange={(val) => setTemplateData({ ...templateData, headerType: val })}>
+            <Select value={templateData.headerType} onValueChange={(val) => setTemplateData({ ...templateData, headerType: val })} disabled={readOnly}>
               <SelectTrigger><SelectValue placeholder="Select Header Type"/></SelectTrigger>
               <SelectContent>
                 <SelectItem value="NONE">None</SelectItem>
@@ -253,7 +289,8 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
                   type="file"
                   accept="image/png,image/jpeg,image/jpg"
                   placeholder="Header Text"
-                  value={templateData.headerText}
+                  onChange={handleFileChange}
+                  // value={templateData.headerText}
                   // onChange={(e) => setTemplateData({ ...templateData, headerText: e.target.value })}
                   readOnly={readOnly}
                   disabled={readOnly}
@@ -272,7 +309,7 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
                   type="file"
                   accept=".mp4,.3gp"
                   placeholder="Header Text"
-                  value={templateData.headerText}
+                  onChange={handleFileChange}
                   // onChange={(e) => setTemplateData({ ...templateData, headerText: e.target.value })}
                   readOnly={readOnly}
                   disabled={readOnly}
@@ -327,16 +364,18 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
                 <Textarea
                   placeholder="Hello {{1}}, thank you for joining!"
                   value={templateData.bodyText}
-                  onChange={(e) => setTemplateData({ ...templateData, templateName: e.target.value })}
+                  onChange={(e) => setTemplateData({ ...templateData, bodyText: e.target.value })}
                   className="mt-1 block w-full h-[25vh] rounded-md border-gray-300 shadow-sm outline-none p-2"
                   required
+                  readOnly={readOnly}
+                  disabled={readOnly}
                 />
               </TabsContent>
               <TabsContent value="buttons" className="space-y-4">
-                <TemplateButton setTemplateData2={templateData}/>
+                <TemplateButton/>
               </TabsContent>
               <TabsContent value="variables" className="space-y-4">
-                <TemplateVariables setTemplateData2={setTemplateData}/>
+                <TemplateVariables/>
               </TabsContent>
             </Tabs>
           <div className="flex justify-between">

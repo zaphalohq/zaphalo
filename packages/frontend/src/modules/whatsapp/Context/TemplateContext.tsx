@@ -9,15 +9,12 @@ export const TemplateContext = createContext<TemplateContextProps | undefined>(n
 
 export function TemplateProvider({ children }: { children: ReactNode }) {
   const [templateData, setTemplateData] = useState({
-    recordId: '',
+    templateId: '',
     templateName: '',
     whatsappAccountId: '',
-    templateId: '',
-    contactListId: '',
-    status: '',
+    category: "",
     headerType: "",
     headerText: "",
-    category: 'UTILITY',
     language: 'en_US',
     bodyText: `Hi {{1}},
 Your order *{{2}}* from *{{3}}* has been shipped.

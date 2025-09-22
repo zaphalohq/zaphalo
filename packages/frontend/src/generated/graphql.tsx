@@ -560,13 +560,7 @@ query findAllApprovedTemplate {
 }`
 
 
-export const ReadWaTemplate = gql`
-query readWaTemplate($search: String, $limit: Int){
-  readWaTemplate(search: $search, limit: $limit){
-    id
-    templateName
-  }
-}`
+
 
 export const SUBMIT_TEMPLATE = gql`
 mutation SubmitTemplate($templateData: WaTemplateRequestInput!, $waTemplateId: String, $dbTemplateId: String) {
@@ -578,14 +572,7 @@ mutation SubmitTemplate($templateData: WaTemplateRequestInput!, $waTemplateId: S
 }`;
 
 
-export const SAVE_TEMPLATE = gql`
-mutation saveTemplate($templateData: WaTemplateRequestInput!, $dbTemplateId: String) {
-  saveTemplate(templateData: $templateData, dbTemplateId: $dbTemplateId) {
-    success
-    message
-    error
-  }
-}`;
+
 
 export const WaTestTemplate = gql`
 mutation testTemplate($testTemplateData: WaTestTemplateInput!){
@@ -930,6 +917,55 @@ query getBroadcast($broadcastId: String!) {
 
 // Whatsapp Template
 
+export const GetTemplate = gql`
+query getTemplate($templateId: String!) {
+  getTemplate(templateId: $templateId) {
+    template {
+      id
+      templateName
+      category
+      language
+      waTemplateId
+      templateImg
+      createdAt
+      status
+      footerText
+      headerText
+      headerType
+      bodyText
+      account {
+        id
+        name
+      }
+      attachment {
+        id
+        originalname
+        name
+      }
+      button {
+        phone_number
+        text
+        type
+        url
+      }
+      variables {
+        name
+        value
+      }
+    }
+    message
+    status
+  }
+}`
+
+export const ReadWaTemplate = gql`
+query readWaTemplate($search: String, $limit: Int){
+  readWaTemplate(search: $search, limit: $limit){
+    id
+    templateName
+  }
+}`
+
 export const SearchReadWhatsappTemplate = gql`
 query searchReadTemplate($page : Int!, $pageSize : Int!, $search: String, $filter: String) {
   searchReadTemplate(page: $page, pageSize: $pageSize, search: $search, filter: $filter) {
@@ -971,6 +1007,15 @@ query searchReadTemplate($page : Int!, $pageSize : Int!, $search: String, $filte
     }
   }
 }`
+
+export const SaveWhatsappTemplate = gql`
+mutation saveTemplate($templateData: WaTemplateRequestInput!) {
+  saveTemplate(templateData: $templateData) {
+    success
+    message
+    error
+  }
+}`;
 
 
 // Messages

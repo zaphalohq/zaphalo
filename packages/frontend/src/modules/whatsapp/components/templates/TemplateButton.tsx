@@ -10,7 +10,7 @@ type ButtonData = {
 };
 type ButtonType = 'URL' | 'QUICK_REPLY' | 'PHONE_NUMBER';
 
-const TemplateButton = ({ setTemplateData2 }: any) => {
+const TemplateButton = () => {
   const { templateData, setTemplateData }: any = useContext(TemplateContext)
   const [addButtonData, setAddButtonData] = useState<ButtonData[]>(() => {
     if(templateData.button?.length > 0){
@@ -19,6 +19,8 @@ const TemplateButton = ({ setTemplateData2 }: any) => {
       return []
     }
   });
+
+  console.log("...................templateData...............", templateData);
 
   const HandelAddButton = () => {
     setAddButtonData([...addButtonData, { text: "", type: "QUICK_REPLY" }])
@@ -127,8 +129,6 @@ const TemplateButton = ({ setTemplateData2 }: any) => {
       </div>
     </div>
   )
-
-
 }
 
 export default TemplateButton
