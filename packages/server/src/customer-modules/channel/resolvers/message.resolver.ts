@@ -5,7 +5,8 @@ import {
   Parent,
   Query,
   ResolveField,
-  Resolver
+  Resolver,
+  Int,
 } from "@nestjs/graphql";
 import { UseGuards } from "@nestjs/common";
 import { message } from "aws-sdk/clients/sns";
@@ -17,7 +18,9 @@ import { FileService } from "src/modules/file-storage/services/file.service";
 import { ChannelService } from "src/customer-modules/channel/services/channel.service";
 import { Message } from "src/customer-modules/channel/entities/message.entity";
 import { SuccessResponse } from "src/customer-modules/whatsapp/dtos/success.dto";
-import { SendMessageInput } from "src/customer-modules/channel/dto/SendMessageInputDto";
+import { SendMessageInput } from "src/customer-modules/channel/dtos/SendMessageInputDto";
+import { ManyChannelMessageResponse } from "src/customer-modules/channel/dtos/many-channel-message-response.dto";
+import { MessageEdge } from "src/customer-modules/channel/dtos/message-response.dto";
 import { AttachmentService } from "src/customer-modules/attachment/attachment.service";
 import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
 import { Workspace } from "src/modules/workspace/workspace.entity";
@@ -162,6 +165,33 @@ export class MessageResolver {
       }
     }
     return message.attachmentUrl ?? '';
+  }
+
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => ManyChannelMessageResponse)
+  async searchReadChannelMessage(
+    @Args('channelId', { type: () => String }) channelId: string,
+    @Args('page', { type: () => Int, defaultValue: 1 }) page: number,
+    @Args('pageSize', { type: () => Int, defaultValue: 10 }) pageSize: number,
+    @Args('search', { type: () => String, nullable: true }) search?: string,
+    @Args('filter', { type: () => String, nullable: true }) filter?: string,
+  ) {
+    if(!search)
+      search = ''
+    if(!filter)
+      filter = ''
+    const response = await this.channelService.searchReadChannelMessage(channelId, page, pageSize, search, filter)
+    return response
+  }
+
+  @Query(() => MessageEdge)
+  async messages(
+    @Args('channelId', { type: () => String }) channelId: string,
+    @Args('cursor', { type: () => String, nullable: true }) cursor: string,
+    @Args('limit', { type: () => Int}) limit: number,
+  ): Promise<MessageEdge> {
+    return this.channelService.getMessages(channelId, cursor, limit);
   }
 
 }

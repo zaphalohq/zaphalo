@@ -289,20 +289,6 @@ mutation makeUnseenMsgSeenByMsgId($messageId : String!){
   }
 }`
 
-export const findMsgByChannelId = gql`query GetMessagesByChannel($channelId: String!) {
-  findMsgByChannelId(channelId: $channelId) {
-    textMessage
-    createdAt
-    attachmentUrl
-    messageType
-    sender {
-      phoneNo
-    }
-    attachment {
-      originalname
-    }
-  }
-}`
 
 export const SEND_MESSAGE = gql`
   mutation SendMessage($sendMessageInput: SendMessageInput!) {
@@ -536,45 +522,6 @@ mutation getTemplateStatus($templateId: String!) {
   }
 }
 `;
-
-
-export const findWaAllTemplate = gql`
-query findAllTemplate($currentPage : Int!, $itemsPerPage : Int!){
-    findAllTemplate(currentPage: $currentPage, itemsPerPage: $itemsPerPage){
-    totalPages
-    allTemplates{
-      account {
-        id
-      }
-      attachment {
-        id
-        originalname
-        name
-      }
-      bodyText
-      category
-      button {
-        phone_number
-        text
-        type
-        url
-      }
-      footerText
-      headerText
-      headerType
-      id
-      language
-      status
-      templateName
-      waTemplateId
-      templateImg
-      variables {
-        name
-        value
-      }
-    }
-  }
-}`
 
 
 export const findAllApprovedTemplate = gql`
@@ -977,5 +924,97 @@ query getBroadcast($broadcastId: String!) {
     }
     message
     status
+  }
+}`
+
+
+// Whatsapp Template
+
+export const SearchReadWhatsappTemplate = gql`
+query searchReadTemplate($page : Int!, $pageSize : Int!, $search: String, $filter: String) {
+  searchReadTemplate(page: $page, pageSize: $pageSize, search: $search, filter: $filter) {
+    total
+    totalPages
+    currentPage
+    templates{
+      id
+      templateName
+      category
+      language
+      waTemplateId
+      templateImg
+      createdAt
+      status
+      footerText
+      headerText
+      headerType
+      bodyText
+      account {
+        id
+        name
+      }
+      attachment {
+        id
+        originalname
+        name
+      }
+      button {
+        phone_number
+        text
+        type
+        url
+      }
+      variables {
+        name
+        value
+      }
+    }
+  }
+}`
+
+
+// Messages
+
+export const SearchReadChannelMessage = gql`
+query channelMessage($channelId: String!, $page : Int!, $pageSize : Int!, $search: String, $filter: String) {
+  searchReadChannelMessage(channelId: $channelId, page: $page, pageSize: $pageSize, search: $search, filter: $filter) {
+    channel {
+      id
+      channelName
+    }
+    messages{
+      textMessage
+      createdAt
+      attachmentUrl
+      messageType
+      sender {
+        phoneNo
+      }
+      attachment {
+        originalname
+      }
+    }
+  }
+}`
+
+
+export const ChannelMessage = gql`
+query messages($channelId: String!, $cursor: String, $limit : Int!){
+  messages(channelId: $channelId, cursor: $cursor, limit: $limit, ) {
+    cursor
+    edges {
+      id
+      textMessage
+      createdAt
+      attachmentUrl
+      messageType
+      sender {
+        phoneNo
+      }
+      attachment {
+        originalname
+      }
+    }
+    hasMore
   }
 }`

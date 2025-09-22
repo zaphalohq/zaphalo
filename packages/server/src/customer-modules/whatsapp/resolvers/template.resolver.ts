@@ -6,9 +6,11 @@ import { WaTemplateService } from "../services/whatsapp-template.service";
 import { WaTemplateRequestInput } from "../dtos/whatsapp.template.dto";
 import { WaTemplateResponseDto } from "../dtos/whatsapp.response.dto";
 import { FileService } from "src/modules/file-storage/services/file.service";
-import { FindAllTemplate } from "../dtos/findAllTemplate.dto";
 import { SearchedRes } from "../dtos/searched.dto";
 import { SuccessResponse } from "../dtos/success.dto";
+
+import { ManyTemplatesResponse } from "src/customer-modules/whatsapp/dtos/templates/many-templates-response.dto";
+
 
 @Resolver(() => WhatsAppTemplate)
 export class WhatsAppTemplateResolver {
@@ -16,15 +18,6 @@ export class WhatsAppTemplateResolver {
     private readonly templateService: WaTemplateService,
     private fileService: FileService
   ) { }
-
-  @UseGuards(GqlAuthGuard)
-  @Query(() => FindAllTemplate)
-  async findAllTemplate(
-    @Args('currentPage', { type: () => Int }) currentPage: number,
-    @Args('itemsPerPage', { type: () => Int }) itemsPerPage: number
-  ): Promise<FindAllTemplate> {
-    return await this.templateService.findAllTemplate(currentPage, itemsPerPage);
-  }
 
   @Query(() => SearchedRes)
   async searchedTemplate(
@@ -107,6 +100,7 @@ export class WhatsAppTemplateResolver {
     return template.templateImg ?? '';
   }
 
+  @UseGuards(GqlAuthGuard)
   @Query(() => [WhatsAppTemplate])
   async readWaTemplate(
       @Args('search', { type: () => String, nullable: true }) search?: string,
@@ -114,6 +108,23 @@ export class WhatsAppTemplateResolver {
   ): Promise<WhatsAppTemplate[] | undefined> {
       const waTemplates = await this.templateService.readWaTemplate(search, limit);
       return waTemplates
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => ManyTemplatesResponse)
+  async searchReadTemplate(
+    @Args('page', { type: () => Int, defaultValue: 1 }) page: number,
+    @Args('pageSize', { type: () => Int, defaultValue: 10 }) pageSize: number,
+    @Args('search', { type: () => String, nullable: true }) search?: string,
+    @Args('filter', { type: () => String, nullable: true }) filter?: string,
+  ) {
+    if(!search)
+      search = ''
+    if(!filter)
+      filter = ''
+
+    const response = await this.templateService.searchReadTemplate(page, pageSize, search, filter)
+    return response
   }
 
 }

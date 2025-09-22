@@ -5,25 +5,28 @@ import { useState } from 'react'
 import { FaPlus } from 'react-icons/fa'
 import { FiArrowLeft } from 'react-icons/fi'
 
-import BroadcastList from "@src/modules/broadcast/components/BroadcastList";
-import BroadcastForm from "@src/modules/broadcast/components/BroadcastForm";
+import TemplateList from "@src/modules/whatsapp/components/templates/TemplateList";
+import TemplateForm from "@src/modules/whatsapp/components/templates/TemplateForm";
+import { TemplateProvider } from '@src/modules/whatsapp/Context/TemplateContext';
 
-const Broadcast = () => {
+const WhatsappTemplate = () => {
   const [showForm, setShowForm] = useState(false);
-  const [broadcast, setBroadcast] = useState(false);
+  const [record, setRecord] = useState(false);
   const [readOnly, setReadOnly] = useState(false);
 
   return (
     <div className="min-h-screen bg-gray-50">
       {showForm ? (
-        <BroadcastForm broadcastId={broadcast} readOnly={readOnly} onBack={() => setShowForm(false)} />
+        <TemplateProvider>
+          <TemplateForm recordId={record} readOnly={readOnly} onBack={() => setShowForm(false)} />
+        </TemplateProvider>
       ) : (
-        <BroadcastList
+        <TemplateList
           showForm={setShowForm}
           setReadOnly={setReadOnly}
-          setBroadcast={setBroadcast}
+          setRecord={setRecord}
           onCreate={() => {
-            setBroadcast(false)
+            setRecord(false)
             setReadOnly(false)
             setShowForm(true)
           }} />
@@ -32,4 +35,4 @@ const Broadcast = () => {
   );
 }
 
-export default Broadcast
+export default WhatsappTemplate

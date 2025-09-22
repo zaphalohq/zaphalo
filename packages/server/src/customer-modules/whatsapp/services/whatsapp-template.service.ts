@@ -12,7 +12,6 @@ import { WaAccountService, SUPPORTED_ATTACHMENT_TYPE } from "./whatsapp-account.
 import { Attachment } from "src/customer-modules/attachment/attachment.entity";
 import { Account } from "aws-sdk";
 import { WhatsAppAccount } from "../entities/whatsapp-account.entity";
-import { FindAllTemplate } from "../dtos/findAllTemplate.dto";
 
 const LATITUDE_LONGITUDE_REGEX = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/;
 
@@ -176,19 +175,6 @@ export class WaTemplateService {
     };
 
     return payload;
-  }
-
-  async findAllTemplate(currentPage, itemsPerPage): Promise<FindAllTemplate> {
-    const totalItems = await this.templateRepository.count();
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage
-    const allTemplates =  await this.templateRepository.find({
-      order: { createdAt: 'DESC' },
-      relations: ["account", "attachment"],
-      skip: startIndex,
-      take: itemsPerPage,
-    })
-    return { allTemplates, totalPages}
   }
 
   async findAllApprovedTemplate(): Promise<WhatsAppTemplate[]> {
@@ -531,17 +517,53 @@ export class WaTemplateService {
     }
   }
 
-    async readWaTemplate(
-      search?: string,
-      limit?: number,
-    ) {
-      const waTemplates = await this.templateRepository.find({
-        where: { templateName: ILike(`%${search}%`) },
-        order: { createdAt: 'ASC' },
-        take: limit,
-      });
-      return waTemplates;
+  async readWaTemplate(
+    search?: string,
+    limit?: number,
+  ) {
+    const waTemplates = await this.templateRepository.find({
+      where: { templateName: ILike(`%${search}%`) },
+      order: { createdAt: 'ASC' },
+      take: limit,
+    });
+    return waTemplates;
+  }
+
+  async searchReadTemplate(
+    page: number = 1,
+    pageSize: number = 10,
+    search: string = '',
+    filter: string = '',
+  ) {
+    const skip = (page - 1) * pageSize;
+
+    const where: any = {};
+
+    // Search (by name)
+    if (search) {
+      where.templateName = ILike(`%${search}%`);
     }
+
+    // Filter (by status)
+    if (filter && filter !== 'All') {
+      where.status = filter;
+    }
+
+    const [templates, total] = await this.templateRepository.findAndCount({
+      where,
+      skip,
+      take: pageSize,
+      order: { createdAt: 'DESC' },
+      relations: ["account", "attachment"],
+    });
+
+    return {
+      templates,
+      total,
+      totalPages: Math.ceil(total / pageSize),
+      currentPage: page,
+    };
+  }
 
 }
 

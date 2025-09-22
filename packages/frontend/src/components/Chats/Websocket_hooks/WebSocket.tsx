@@ -49,6 +49,7 @@ export async function useWebSocket() {
             );
 
           const newMessageData = {
+            id: newMsg.messages.id,
             sender: newMsg.sender,
             textMessage: newMsg.messages.textMessage,
             messageType: newMsg.messages.messageType,
@@ -72,6 +73,7 @@ export async function useWebSocket() {
             return [
               ...prevMessages,
               {
+                id: newMsg.messages.id,
                 sender: newMsg.sender,
                 channelId: newMsg.channelId || "",
                 phoneNo: newMsg.phoneNo || "",

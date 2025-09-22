@@ -3,6 +3,7 @@ import { Field, ObjectType, registerEnumType } from "@nestjs/graphql";
 import { IDField } from "@ptc-org/nestjs-query-graphql";
 import {
   Column,
+  UpdateDateColumn,
   CreateDateColumn,
   Entity,
   JoinColumn,
@@ -201,8 +202,19 @@ export class WhatsAppTemplate {
   @JoinColumn({ name: 'attachmentId' })
   attachment: Relation<Attachment>;
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    type: 'timestamp without time zone',
+    name: 'created_at',
+  })
+  @Field()
   createdAt: Date;
+
+  @UpdateDateColumn({
+    type: 'timestamp without time zone',
+    name: 'updated_at',
+  })
+  @Field()
+  updatedAt: Date;
 }
 
 

@@ -1,5 +1,5 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { Connection, Repository, In } from 'typeorm';
+import { Connection, Repository, In, ILike } from 'typeorm';
 import { unlinkSync } from "fs";
 import fs from 'fs';
 import axios from "axios";
@@ -15,6 +15,7 @@ import { messageTypes } from "src/customer-modules/whatsapp/entities/whatsapp-me
 import { WaMessageService } from "src/customer-modules/whatsapp/services/whatsapp-message.service";
 import { WebSocketService } from 'src/customer-modules/channel/chat-socket';
 import { FileService } from "src/modules/file-storage/services/file.service";
+import { MessageEdge } from "src/customer-modules/channel/dtos/message-response.dto";
 
 
 @Injectable()
@@ -125,8 +126,8 @@ export class ChannelService {
         attachmentUrl = message.attachmentUrl;
       }
     }
-
     const messageBody = {
+      id: message.id,
       textMessage,
       messageType,
       attachmentUrl: attachmentUrl,
@@ -300,6 +301,90 @@ export class ChannelService {
     return channelExist
   }
 
+  async getChannel(
+    channelId: string,
+  ) {
+    const channel = await this.channelRepository.findOne({
+      where: { id: channelId },
+    });
+    if (!channel){
+      throw new Error('Channel not found');
+    }
+    return {'channel': channel, 'message': 'Channel found', 'status': true}
+  }
+
+  async searchReadChannelMessage(
+    channelId: string,
+    page: number = 1,
+    pageSize: number = 10,
+    search: string = '',
+    filter: string = '',
+  ) {
+    const channelRes = await this.getChannel(channelId)
+    console.log("")
+    if (!channelRes.status){
+      return channelRes
+    }
+
+    const skip = (page - 1) * pageSize;
+
+    const where: any = {
+      channel: { id: channelId }
+    };
+
+    // Search (by name)
+    if (search) {
+      where.textMessage = ILike(`%${search}%`);
+    }
+
+    // Filter (by status)
+    if (filter && filter !== 'All') {
+      where.messageType = filter;
+    }
+
+    const [messages, total] = await this.messageRepository.findAndCount({
+      where,
+      skip,
+      take: pageSize,
+      order: { createdAt: 'ASC' },
+      relations: ['channel', 'sender', 'attachment'],
+    });
+
+    return {
+      channel: channelRes?.channel,
+      messages,
+      total,
+      totalPages: Math.ceil(total / pageSize),
+      currentPage: page,
+    };
+  }
+
+  async getMessages(channelId: string, cursor: string | undefined, limit: number): Promise<MessageEdge> {
+    let query = this.messageRepository
+      .createQueryBuilder('m')
+      .where("channel.id = :id", { id: channelId })
+      .leftJoinAndSelect('m.channel', 'channel')
+      .leftJoinAndSelect('m.sender', 'sender')
+      .leftJoinAndSelect('m.attachment', 'attachment')
+      .orderBy('m.createdAt', 'DESC')
+      .take(limit);
+
+    if (cursor) {
+      const cursorMsg = await this.messageRepository.findOne({ where: { id: cursor } });
+      if (cursorMsg) {
+        query = query.andWhere('m.createdAt < :date', { date: cursorMsg.createdAt });
+      }
+    }
+
+    const slice = await query.getMany();
+    const newCursor = slice.length > 0 ? slice[slice.length - 1].id : undefined;
+
+    return {
+      edges: slice,
+      hasMore: slice.length === limit,
+      cursor: newCursor,
+    };
+  }
 
 
 }
