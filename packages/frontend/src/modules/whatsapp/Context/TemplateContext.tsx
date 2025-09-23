@@ -4,6 +4,8 @@ import { createRoot } from 'react-dom/client';
 interface TemplateContextProps {
   templateData: any,
   setTemplateData: Function,
+  attachment: any,
+  setAttachment: Function
 }
 export const TemplateContext = createContext<TemplateContextProps | undefined>(null)
 
@@ -23,11 +25,18 @@ Thank you.`,
     footerText: '',
     button: [],
     variables: [],
-    attachmentId: null
+    attachmentId: null,
+    templateImg: "",
+  });
+
+  const [attachment, setAttachment] = useState({
+    attachmentId: '',
+    originalname: '',
+    name: '',
   });
 
   return (
-    <TemplateContext.Provider value={{templateData, setTemplateData}}>
+    <TemplateContext.Provider value={{templateData, setTemplateData, attachment, setAttachment}}>
       {children}
     </TemplateContext.Provider>
   );

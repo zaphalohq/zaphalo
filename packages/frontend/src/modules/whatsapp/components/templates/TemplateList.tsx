@@ -6,13 +6,11 @@ import { Button } from "@src/components/UI/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@src/components/UI/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@src/components/UI/select";
 import usePagination from '@src/utils/usePagination';
-import BroadcastTemplatePreview from '@src/components/Broadcast/BroadcastTemplatePreview';
 import { Trash2 } from "lucide-react";
 import { SearchedBroadcast, SearchReadWhatsappTemplate, WaTestTemplate } from '@src/generated/graphql';
 import { PageHeader } from '@src/modules/ui/layout/page/components/PageHeader';
 import { Plus } from "lucide-react";
 import { formatLocalDate } from '@src/utils/formatLocalDate';
-
 
 const statusColors: Record<string, string> = {
   Scheduled: "bg-blue-100 text-blue-800",
@@ -26,6 +24,7 @@ export default function TemplateList({
   showForm,
   setReadOnly,
   setRecord,
+  setPreview,
 }) {
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
@@ -161,7 +160,7 @@ export default function TemplateList({
               <TableHead className="px-4 py-3">Create on</TableHead>
               <TableHead className="px-4 py-3">Status</TableHead>
               <TableHead className="px-4 py-3"></TableHead>
-              <TableHead className="px-4 py-3">Template</TableHead>
+              <TableHead className="px-4 py-3">Preview</TableHead>
               <TableHead className="px-4 py-3">Contact List</TableHead>
               <TableHead className="px-4 py-3">Test</TableHead>
             </TableRow>
@@ -202,15 +201,13 @@ export default function TemplateList({
                   >
                       Edit
                   </TableCell>
-                  <TableCell onClick={() => {
-                    setRecord(template.id)
-                    // setShowTemplate(true)
-                    setReadOnly(true)
-                  }}
+                  <TableCell
                     className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
                     title="preview"
                   >
-                    <BroadcastTemplatePreview dbTemplateId={template.id}/>
+                    <span onClick={() => {
+                      setPreview(template.id)
+                    }}>Preview</span>
                   </TableCell>
                   <TableCell onClick={() => {
                     setMailingListId(template.id)

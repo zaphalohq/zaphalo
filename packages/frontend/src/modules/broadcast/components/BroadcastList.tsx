@@ -6,12 +6,12 @@ import { Button } from "@src/components/UI/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@src/components/UI/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@src/components/UI/select";
 import usePagination from '@src/utils/usePagination';
-import BroadcastTemplatePreview from '@src/components/Broadcast/BroadcastTemplatePreview';
 import { Trash2 } from "lucide-react";
 import { SearchedBroadcast, SearchReadBroadcast } from '@src/generated/graphql';
 import { PageHeader } from '@src/modules/ui/layout/page/components/PageHeader';
 import { Plus } from "lucide-react";
 import { formatLocalDate } from '@src/utils/formatLocalDate';
+import TemplatePreviewDialog from '@src/modules/whatsapp/components/templates/TemplatePreview';
 
 
 export default function BroadcastList({
@@ -160,7 +160,6 @@ export default function BroadcastList({
                     title="preview"
                   >
                       Edit
-                    {/*<BroadcastTemplatePreview dbTemplateId={broadcast.template.id}/>*/}
                   </TableCell>
                   <TableCell onClick={() => {
                     setDbTemplateId(broadcast.template.id)
@@ -170,7 +169,7 @@ export default function BroadcastList({
                     className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
                     title="preview"
                   >
-                    <BroadcastTemplatePreview dbTemplateId={broadcast.template.id}/>
+                    <TemplatePreviewDialog templateId={broadcast.template.id}/>
                   </TableCell>
                   <TableCell onClick={() => {
                     setMailingListId(broadcast.mailingList.id)

@@ -23,8 +23,8 @@ import TemplateButton from "@src/modules/whatsapp/components/templates/TemplateB
 import TemplateVariables from "@src/modules/whatsapp/components/templates/TemplateVariables";
 import { TemplateContext } from '@src/modules/whatsapp/Context/TemplateContext';
 import { CreateOneAttachmentDoc, SUBMIT_TEMPLATE, SaveWhatsappTemplate, GetTemplate } from "@src/generated/graphql";
-
-// import { TemplateProvider } from '@components/Context/TemplateContext';
+import { Post } from "@src/modules/domain-manager/hooks/axios";
+import TemplatePreviewDialog from '@src/modules/whatsapp/components/templates/TemplatePreview';
 
 import {
   Tabs,
@@ -49,7 +49,8 @@ import {
 
 export default function TemplateForm({ onBack, recordId, readOnly=false }) {
   const [active, setActive] = useState("overview");
-  const { templateData, setTemplateData }: any = useContext(TemplateContext)
+  const [preview, setPreview] = useState(false);
+  const { templateData, setTemplateData, attachment, setAttachment }: any = useContext(TemplateContext)
   const [file, setFile] = useState<File | null>(null);
   if (isDefined(recordId)){
     const { data : templateViewData, loading: viewLoading, error: viewError } = useQuery(GetTemplate, {
@@ -73,9 +74,17 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
         footerText: templateView.footerText,
         button: templateView.button,
         variables: templateView.variables,
-        attachmentId: templateView.attachment,
+        attachmentId: templateView?.attachment?.id || null,
+        templateImg: templateView.templateImg,
       })
-      if (broadcastView.state != 'New'){
+      if(templateView?.attachment){
+        setAttachment({
+          attachmentId: templateView.attachment.id,
+          originalname: templateView.attachment.originalname,
+          name: templateView.attachment.name,
+        })
+      }
+      if (templateData.state != 'New'){
         readOnly = false
       }
     }
@@ -90,8 +99,41 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
     },
   });
 
+  const [createOneAttachment] = useMutation(CreateOneAttachmentDoc);
+
+  useEffect(() => {
+    const validateTemplate = () => {
+      const { headerType, headerText, variables } = templateData;
+      const variableMatches = templateData.bodyText.match(/{{\d+}}/g) || [];
+
+      if (headerType === "TEXT" && !headerText?.trim()) {
+        return false;
+      }
+
+      if (
+        ["IMAGE", "VIDEO", "DOCUMENT"].includes(headerType) &&
+        (!file && !attachment.originalname?.trim())
+      ) {        
+        return false;
+      }
+      if (variableMatches.length !== variables.length) {
+        return false;
+      }
+
+      for (let i = 0; i < variables.length; i++) {
+        if (!variables[i].value || variables[i].value.trim() === "") {
+          return false;
+        }
+      }
+      return true;
+    }
+    if (validateTemplate()) {
+      setIsValidated(true)
+    }
+
+  }, [templateData])
+
   const handleFileUpload = async () => {
-    let updatedTemplateData = { ...templateData };
     if (file !== null) {
       try {
         const formData = new FormData();
@@ -101,9 +143,8 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
           formData,
           { headers: { 'Content-Type': 'multipart/form-data' } }
         );
-
         if (response.data) {
-          const attachment: any = await createOneAttachment({
+          const attachment = await createOneAttachment({
             variables: {
               name: response.data.file.filename,
               originalname: response.data.file.originalname,
@@ -114,20 +155,18 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
               updatedAt: "",
             }
           })
-          updatedTemplateData['attachmentId'] = attachment.data.CreateOneAttachment.id;
+
+          const attachmentRec = attachment.data.CreateOneAttachment;
+          return attachmentRec
         }
-        setTemplateData(updatedTemplateData);
-        return updatedTemplateData
       } catch (error) {
         console.error('Error uploading file:', error);
+        return false
       }
     }
-    return updatedTemplateData
-
   }
 
   const checkValidation = (templateData: any) => {
-    console.log(".............templateData.category............", templateData.category);
     let formValid;
     formValid = true;
     if (!templateData.category) {
@@ -141,8 +180,7 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
     return formValid;
   }
 
-  const handleSave = async (status: string) => {
-    const updatedTemplateData = await handleFileUpload()
+  const handleSave = async (e, status: string) => {
     const formValid = checkValidation(templateData);
     if (!formValid){
       return
@@ -150,12 +188,17 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
     // if (status){
     //   updatedTemplateData.status = status
     // }
+    const attachmentRec = await handleFileUpload()
+    const templateDataToSubmit = { ...templateData };
+    if (attachmentRec){
+      templateDataToSubmit['attachmentId'] = attachmentRec.id
+    }
 
-    console.log(".................updatedTemplateData................", updatedTemplateData);
+    delete templateDataToSubmit.templateImg;
 
     const response = await saveTemplate({ 
       variables: { 
-        templateData: updatedTemplateData,
+        templateData: templateDataToSubmit,
       }
     });
 
@@ -177,26 +220,44 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
     }
   }
 
+  const insertVariable = (variable) => {
+    const textarea = document.getElementById("bodyText");
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = templateData.bodyText
+    const newText =
+      text.substring(0, start) + variable + text.substring(end);
+
+    setTemplateData({...templateData, bodyText: newText})
+  };
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-start items-start">
         <PageHeader title="Create WhatsApp Template" className="w-full"
           actions={
           <>
+            {preview ? (
+            <TemplatePreviewDialog open={preview} setOpen={setPreview}/> ) : (<></>)}
+            <Button onClick={() => setPreview(true)}>Preview</Button>
+              
             <Button onClick={handleSave}>
               Save
             </Button>
+            <Button onClick={() => handleSaveAndSend()}>Submit</Button>
+
+            <Button variant="outline" onClick={onBack}>Cancel</Button>
           </>
         }/>
       </div>
-      <div className="flex items-start justify-start bg-gray-50 px-4">
+      <div className="flex items-center justify-center bg-gray-50 px-4">
       <Card className="w-full max-w-5xl shadow-lg">
         <CardContent className="p-8 space-y-6">
           <div className="space-y-4">
             <Input
-              placeholder="Broadcast ID"
-              value={templateData.recordId}
+              placeholder="Template ID"
+              value={templateData.templateId}
               readOnly
               disabled
               hidden
@@ -280,18 +341,16 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
             {templateData.headerType === 'IMAGE' ?
               <>
                 <Label>Upload image</Label>
-                {/*{selectedTemplateInfo.templateOriginaName ?
+                {attachment.originalname ?
                   <p className='p-2 mb-2 text-blue-700 rounded bg-blue-500/10 font-semibold'>
                     <span className='text-gray-600 font-normal'>Current Uploaded Image : </span>
-                    {selectedTemplateInfo.templateOriginaName}
-                  </p> : <></>}*/}
+                    {attachment.originalname}
+                  </p> : <></>}
                 <Input
                   type="file"
                   accept="image/png,image/jpeg,image/jpg"
                   placeholder="Header Text"
                   onChange={handleFileChange}
-                  // value={templateData.headerText}
-                  // onChange={(e) => setTemplateData({ ...templateData, headerText: e.target.value })}
                   readOnly={readOnly}
                   disabled={readOnly}
                 />
@@ -300,17 +359,16 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
             {templateData.headerType === 'VIDEO' ?
               <>
               <Label>Upload Video</Label>
-                {/*{selectedTemplateInfo.templateOriginaName ?
+                {attachment.templateOriginaName ?
                   <p className='p-2 mb-2 text-blue-700 rounded bg-blue-500/10 font-semibold'>
                     <span className='text-gray-600 font-normal'>Current Uploaded Image : </span>
-                    {selectedTemplateInfo.templateOriginaName}
-                  </p> : <></>}*/}
+                    {attachment.templateOriginaName}
+                  </p> : <></>}
                 <Input
                   type="file"
                   accept=".mp4,.3gp"
                   placeholder="Header Text"
                   onChange={handleFileChange}
-                  // onChange={(e) => setTemplateData({ ...templateData, headerText: e.target.value })}
                   readOnly={readOnly}
                   disabled={readOnly}
                 />
@@ -361,7 +419,11 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
 
               {/* Users */}
               <TabsContent value="users" className="space-y-4">
+                <Button className="" onClick={() => insertVariable("{{1}}")}>
+                  Insert {`{{1}}`}
+                </Button>
                 <Textarea
+                  id="bodyText"
                   placeholder="Hello {{1}}, thank you for joining!"
                   value={templateData.bodyText}
                   onChange={(e) => setTemplateData({ ...templateData, bodyText: e.target.value })}
@@ -379,11 +441,7 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
               </TabsContent>
             </Tabs>
           <div className="flex justify-between">
-            <Button variant="outline" onClick={onBack}>
-              Cancel
-            </Button>
-            <Button onClick={() => handleSave()}>Save Broadcast</Button>
-            <Button onClick={() => handleSaveAndSend()}>Send Broadcast</Button>
+            
           </div>
         </CardContent>
       </Card>
