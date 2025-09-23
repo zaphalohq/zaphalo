@@ -70,5 +70,21 @@ export class ContactsService {
 
     }
 
+    async findActiveContactOrCreate(senderMobile, senderName) {
+        const existingContact = await this.contactsRepository.findOne({
+            where: {phoneNo: senderMobile}
+        })
+
+        if (!existingContact){
+            const createdContacts = this.contactsRepository.create({
+                contactName : senderName,
+                phoneNo : senderMobile,
+            })
+            await this.contactsRepository.save(createdContacts);
+            return createdContacts
+        }
+        return existingContact
+    }
+
 
 }

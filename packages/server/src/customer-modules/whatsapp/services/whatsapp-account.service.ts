@@ -134,6 +134,9 @@ export class WaAccountService {
   }
 
   async findInstantsByInstantsId(instantsId: string): Promise<WhatsAppAccount | null> {
+    if (!instantsId){
+      return null
+    }
     return await this.waAccountRepository.findOne({
       where: { id: instantsId },
     });
@@ -260,7 +263,6 @@ export class WaAccountService {
     let whatsappMediaType = ''
 
     for (const [key, value] of Object.entries(SUPPORTED_ATTACHMENT_TYPE)) {
-      console.log(`Key: ${key}, Value: ${value}`);
       if (value.includes(attachment.mimetype)){
         whatsappMediaType = key
         break
@@ -276,7 +278,6 @@ export class WaAccountService {
         'type': whatsappMediaType,
         [whatsappMediaType]: {'id': whatsappMediaUid}
     }
-
     if (whatsappMediaType == 'document')
       vals[whatsappMediaType]['filename'] = attachment.name
 

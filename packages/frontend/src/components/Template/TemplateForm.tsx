@@ -70,7 +70,6 @@ const TemplateForm = ({setIsTemplateFormVis}: any) => {
       ) {        
         return false;
       }
-
       if (variableMatches.length !== variables.length) {
         return false;
       }
@@ -82,7 +81,6 @@ const TemplateForm = ({setIsTemplateFormVis}: any) => {
       }
       return true;
     }
-
     if (validateTemplate()) {
       setIsValidated(true)
     }

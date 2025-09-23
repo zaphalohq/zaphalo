@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 
 import { Input } from "@src/components/UI/input";
 import { Button } from "@src/components/UI/button";
@@ -7,18 +7,24 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@src/components/UI/select";
 import usePagination from '@src/utils/usePagination';
 import { Trash2 } from "lucide-react";
-import { SearchedBroadcast, SearchReadBroadcast } from '@src/generated/graphql';
+import { SearchedBroadcast, SearchReadWhatsappTemplate, WaTestTemplate } from '@src/generated/graphql';
 import { PageHeader } from '@src/modules/ui/layout/page/components/PageHeader';
 import { Plus } from "lucide-react";
 import { formatLocalDate } from '@src/utils/formatLocalDate';
-import TemplatePreviewDialog from '@src/modules/whatsapp/components/templates/TemplatePreview';
 
+const statusColors: Record<string, string> = {
+  Scheduled: "bg-blue-100 text-blue-800",
+  APPROVED: "bg-green-100 text-green-800",
+  PENDING: "bg-yellow-100 text-yellow-800",
+  REJECTED: "bg-red-100 text-red-800",
+};
 
-export default function BroadcastList({
+export default function TemplateList({
   onCreate,
   showForm,
   setReadOnly,
-  setBroadcast,
+  setRecord,
+  setPreview,
 }) {
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
@@ -28,11 +34,19 @@ export default function BroadcastList({
   const [selected, setSelected] = useState<number[]>([]);
   const searchRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
+  const [testTemplateData, setTestTemplateData] = useState({
+    dbTemplateId: '',
+    testPhoneNo: '',
+    templateName: ''
+  });
+  const [showSendPopup, setShowSendPopup] = useState(false);
 
-  const { data, loading: loadingData, refetch } = useQuery(SearchReadBroadcast, {
+  const { data, loading: loadingData, refetch } = useQuery(SearchReadWhatsappTemplate, {
     variables: { page, pageSize, search, filter },
     fetchPolicy: "cache-and-network",
   });
+
+  const [testTemplate] = useMutation(WaTestTemplate);
 
   const toggleSelect = (id: number) => {
     setSelected((prev) =>
@@ -59,21 +73,40 @@ export default function BroadcastList({
   }, [debouncedSearch, filter, page]);
 
 
-  const broadcasts = data?.searchReadBroadcast.broadcasts || [];
+  const templates = data?.searchReadTemplate.templates || [];
 
-  const totalPages = data?.searchReadBroadcast.totalPages || 1;
+  const totalPages = data?.searchReadTemplate.totalPages || 1;
+
+
+  const handleSendTemplateToPhone = async (templateId: string) => {
+      if (!testTemplateData.testPhoneNo.trim()) {
+          alert("Please enter a phone number.");
+          return;
+      }
+      const response = await testTemplate({
+          variables: {
+              testTemplateData
+          }
+      })
+      setShowSendPopup(false);
+      setTestTemplateData({
+          dbTemplateId: '',
+          testPhoneNo: '',
+          templateName: ''
+      });
+  };
 
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         {/*<h1 className="text-2xl font-bold"></h1>*/}
-        <PageHeader title="WhatsApp Broadcasts" className="w-full"
+        <PageHeader title="WhatsApp Templates" className="w-full"
         actions={
           <>
             <Button onClick={onCreate}>
               <Plus className="w-4 h-4 mr-2" />
-              Add Broadcast
+              Add Template
             </Button>
              {selected.length > 0 && (
                 <button
@@ -106,11 +139,9 @@ export default function BroadcastList({
           <SelectContent>
             <SelectItem value="All">All</SelectItem>
             <SelectItem value="New">New</SelectItem>
-            <SelectItem value="Scheduled">Scheduled</SelectItem>
-            <SelectItem value="In Progress">In Progress</SelectItem>
-            <SelectItem value="Completed">Completed</SelectItem>
-            <SelectItem value="Failed">Failed</SelectItem>
-            <SelectItem value="Cancelled">Cancelled</SelectItem>
+            <SelectItem value="PENDING">Pending</SelectItem>
+            <SelectItem value="REJECTED">Rejected</SelectItem>
+            <SelectItem value="APPROVED">Approved</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -124,36 +155,45 @@ export default function BroadcastList({
             <TableRow className="bg-gray-100 uppercase text-sm font-semibold">
               <TableHead className="px-4 py-2"></TableHead>
               <TableHead className="px-4 py-3">Name</TableHead>
+              <TableHead className="px-4 py-3">Category</TableHead>
               <TableHead className="px-4 py-3">Account</TableHead>
-              <TableHead className="px-4 py-3">Template</TableHead>
               <TableHead className="px-4 py-3">Create on</TableHead>
               <TableHead className="px-4 py-3">Status</TableHead>
               <TableHead className="px-4 py-3"></TableHead>
-              <TableHead className="px-4 py-3">Template</TableHead>
+              <TableHead className="px-4 py-3">Preview</TableHead>
               <TableHead className="px-4 py-3">Contact List</TableHead>
+              <TableHead className="px-4 py-3">Test</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="text-black">
-            {broadcasts.length > 0 ? (
-              broadcasts.map((broadcast) => (
-                <TableRow key={broadcast.id} className="bg-white border-b border-stone-200">
+            {templates.length > 0 ? (
+              templates.map((template) => (
+                <TableRow key={template.id} className="bg-white border-b border-stone-200">
                   <TableCell className="px-4 py-5">
                     <input
                       type="checkbox"
-                      checked={selected.includes(broadcast.id)}
-                      onChange={() => toggleSelect(broadcast.id)}
+                      checked={selected.includes(template.id)}
+                      onChange={() => toggleSelect(template.id)}
                     />
                   </TableCell>
-                  <TableCell className="px-4 py-5">{broadcast.name}</TableCell>
-                  <TableCell className="px-4 py-5">{broadcast.whatsappAccount.name}</TableCell>
-                  <TableCell className="px-4 py-5">{broadcast.template.templateName}</TableCell>
+                  <TableCell className="px-4 py-5">{template.templateName}</TableCell>
+                  <TableCell className="px-4 py-5">{template.category}</TableCell>
+                  <TableCell className="px-4 py-5">{template?.account?.name}</TableCell>
                   <TableCell className="px-4 py-5">{
-                    formatLocalDate(broadcast.createdAt)
+                    formatLocalDate(template.createdAt)
                   }</TableCell>
-                  <TableCell className="px-4 py-5">{broadcast.status}</TableCell>
+                  <TableCell className="px-4 py-5">
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        statusColors[template.status] || "bg-gray-100 text-gray-800"
+                      }`}
+                    >
+                      {template.status}
+                    </span>
+                  </TableCell>
                   <TableCell onClick={() => {
-                    broadcast.status != 'New' ? setReadOnly(true) : setReadOnly(false)
-                    setBroadcast(broadcast.id)
+                    template.status != 'New' ? setReadOnly(true) : setReadOnly(false)
+                    setRecord(template.id)
                     showForm(true)
                   }}
                     className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
@@ -161,24 +201,35 @@ export default function BroadcastList({
                   >
                       Edit
                   </TableCell>
-                  <TableCell onClick={() => {
-                    setDbTemplateId(broadcast.template.id)
-                    setShowTemplate(true)
-                    setReadOnly(true)
-                  }}
+                  <TableCell
                     className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
                     title="preview"
                   >
-                    <TemplatePreviewDialog templateId={broadcast.template.id}/>
+                    <span onClick={() => {
+                      setPreview(template.id)
+                    }}>Preview</span>
                   </TableCell>
                   <TableCell onClick={() => {
-                    setMailingListId(broadcast.mailingList.id)
+                    setMailingListId(template.id)
                     setIsMailingListVis(true)
                   }}
                     className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
                     title="preview"
                   >
                     View
+                  </TableCell>
+                  <TableCell onClick={() => {
+                    setShowSendPopup(true);
+                    setTestTemplateData((prev) => ({
+                      ...prev,
+                      dbTemplateId: template.id,
+                      templateName: template.templateName
+                    }))
+                  }}
+                    className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
+                    title="Test Template"
+                  >
+                    Test
                   </TableCell>
                 </TableRow>
               ))
@@ -192,6 +243,43 @@ export default function BroadcastList({
           </TableBody>
         </Table>
       )}
+
+{showSendPopup && (
+                <div className="fixed inset-0 bg-gray-800/30 bg-opacity-40 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-xl w-80">
+                        <h2 className="text-lg text-gray-800 font-semibold mb-2">Test Template</h2>
+                        <p className="text-sm text-gray-600 mb-4">Template: <strong>{testTemplateData.templateName}</strong></p>
+
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Test Phone No</label>
+                        <input
+                            name='testPhoneNo'
+                            type="text"
+                            value={testTemplateData.testPhoneNo}
+                            onChange={(e) => setTestTemplateData((prev) => ({
+                                ...prev,
+                                [e.target.name]: e.target.value
+                            }))}
+                            placeholder="Enter phone number"
+                            className="w-full p-2 border rounded-md mb-4 text-sm"
+                        />
+
+                        <div className="flex justify-between">
+                            <button
+                                onClick={() => setShowSendPopup(false)}
+                                className="bg-gray-300 text-gray-700 px-4 py-1 rounded hover:bg-gray-400"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => handleSendTemplateToPhone("showSendPopup.id")}
+                                className="bg-indigo-600 text-white px-4 py-1 rounded hover:bg-indigo-700"
+                            >
+                                Send
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
        {/* Pagination */}
       <div className="flex justify-between items-center p-3 border-t bg-gray-50">
         <button

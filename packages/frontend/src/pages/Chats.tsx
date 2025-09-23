@@ -16,7 +16,7 @@ const Chats = () => {
   }, [])
   return (
 
-     <div className="h-screen flex bg-gray-100">
+     <div className="flex h-screen bg-gray-100">
         <ChatsSide />
         <ChatsMain />
         <UpdateChannelName />

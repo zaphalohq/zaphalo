@@ -9,11 +9,10 @@ import BroadcastList from "@src/modules/broadcast/components/BroadcastList";
 import BroadcastForm from "@src/modules/broadcast/components/BroadcastForm";
 
 const Broadcast = () => {
-  const [isSendBroadcastVis, setIsSendBroadcastVis] = useState(false);
-  const [isMailingListVis, setIsMailingListVis] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [broadcast, setBroadcast] = useState(false);
   const [readOnly, setReadOnly] = useState(false);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {showForm ? (

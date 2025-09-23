@@ -6,7 +6,10 @@ import { WhatsAppAccount } from "src/customer-modules/whatsapp/entities/whatsapp
 import FormData from 'form-data';
 import { createReadStream } from "fs";
 const DEFAULT_ENDPOINT = "https://graph.facebook.com/v23.0"
-
+import {
+  WhatsAppException,
+  WhatsAppExceptionCode,
+} from 'src/customer-modules/whatsapp/whatsapp.exception';
 
 @Injectable()
 export class WhatsAppSDKService {
@@ -362,7 +365,10 @@ export class WhatsAppApiService {
       let msg_uid = response_data.messages[0].id;
       return msg_uid
     }
-    throw new Error(this.prepare_error_response(response))
+    throw new WhatsAppException(
+      this.prepare_error_response(response),
+      WhatsAppExceptionCode.MOBILE_NUMBER_NOT_VALID,
+    );
   }
 
   async getMediaUrl(mediaId: string) {

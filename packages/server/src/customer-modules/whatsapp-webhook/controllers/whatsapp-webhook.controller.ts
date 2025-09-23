@@ -76,7 +76,6 @@ export class WhatsAppWebhookController {
             console.log(`There is no phone configured for this whatsapp webhook : ${data} `)
           }
         }
-
         // # Process Template webhooks
         if (value['message_template_id']){
             // # There is no user in webhook, so we need to SUPERUSER_ID to write on template object
@@ -90,18 +89,18 @@ export class WhatsAppWebhookController {
                     if (description){
                       body += `Reason : ${description}`
                     }
-                    this.waTemplateService.updateTemplate({'failureReason': body, 'noUpdateToWhatsapp': true}, value['message_template_id'])
+                    this.waTemplateService.updateTemplate({'failureReason': body, 'noUpdateToWhatsapp': true}, template.id)
                   }
                   continue
                 }
                 if (changes['field'] == 'message_template_quality_update'){
                   let new_quality_score = value['new_quality_score']
                   new_quality_score = {'unknown': 'none'}[new_quality_score] || new_quality_score
-                  this.waTemplateService.updateTemplate({'quality': new_quality_score, 'noUpdateToWhatsapp': true}, value['message_template_id'])
+                  this.waTemplateService.updateTemplate({'quality': new_quality_score, 'noUpdateToWhatsapp': true}, template.id)
                   continue
                 }
                 if (changes['field'] == 'template_category_update'){
-                    this.waTemplateService.updateTemplate({'category': value['new_category'], 'noUpdateToWhatsapp': true}, value['message_template_id'])
+                    this.waTemplateService.updateTemplate({'category': value['new_category'], 'noUpdateToWhatsapp': true}, template.id)
                     continue
                 }
                 // console.log(`Unknown Template webhook : ${value}`)
