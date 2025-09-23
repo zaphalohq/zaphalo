@@ -13,12 +13,12 @@ import { Plus } from "lucide-react";
 import { formatLocalDate } from '@src/utils/formatLocalDate';
 import TemplatePreviewDialog from '@src/modules/whatsapp/components/templates/TemplatePreview';
 
-
 export default function BroadcastList({
   onCreate,
   showForm,
   setReadOnly,
   setBroadcast,
+  setPreview,
 }) {
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
@@ -169,7 +169,9 @@ export default function BroadcastList({
                     className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
                     title="preview"
                   >
-                    <TemplatePreviewDialog templateId={broadcast.template.id}/>
+                    <span onClick={() => {
+                      setPreview(broadcast.template.id)
+                    }}>Preview</span>
                   </TableCell>
                   <TableCell onClick={() => {
                     setMailingListId(broadcast.mailingList.id)
