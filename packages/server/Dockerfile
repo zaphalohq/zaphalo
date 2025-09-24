@@ -22,9 +22,9 @@ FROM common-deps as server-build
 # Copy sourcecode after installing dependences to accelerate subsequents builds
 COPY ./packages/server /app/packages/server
 
-RUN npx nx run server:build
+RUN NX_DAEMON=false npx nx run server:build
 RUN mv /app/packages/server/dist /app/packages/server/build
-RUN npx nx run server:build:packageJson
+RUN NX_DAEMON=false npx nx run server:build:packageJson
 RUN mv /app/packages/server/package.json /app/packages/server/package.json
 RUN rm -rf /app/packages/server/dist
 RUN mv /app/packages/server/build /app/packages/server/dist
