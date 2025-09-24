@@ -4,6 +4,7 @@ import { findDefaultSelectedInstants, ChannelMessage, MakeUnseenMsgSeen } from "
 import { ChatsContext } from "@components/Context/ChatsContext"
 import { VITE_BACKEND_URL } from '@src/config';
 import { useWebSocket } from "./Websocket_hooks/WebSocket";
+import { FiDownload } from 'react-icons/fi';
 
 interface Message {
   id: string;
