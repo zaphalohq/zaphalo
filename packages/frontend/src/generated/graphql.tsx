@@ -959,8 +959,8 @@ query getTemplate($templateId: String!) {
 }`
 
 export const ReadWaTemplate = gql`
-query readWaTemplate($search: String, $limit: Int){
-  readWaTemplate(search: $search, limit: $limit){
+query readWaTemplate($search: String, $limit: Int, $filter: JSONObject){
+  readWaTemplate(search: $search, limit: $limit, filter: $filter){
     id
     templateName
   }
