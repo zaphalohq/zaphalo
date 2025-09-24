@@ -1,5 +1,6 @@
 import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import { UseGuards } from "@nestjs/common";
+import { GraphQLJSONObject } from 'graphql-type-json';
 import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
 import { WhatsAppTemplate } from "../entities/whatsapp-template.entity";
 import { WaTemplateService } from "../services/whatsapp-template.service";
@@ -85,8 +86,9 @@ export class WhatsAppTemplateResolver {
   async readWaTemplate(
       @Args('search', { type: () => String, nullable: true }) search?: string,
       @Args('limit', { type: () => Int, nullable: true }) limit?: number,
+      @Args('filter', { type: () => GraphQLJSONObject, nullable: true }) filter?: Record<string, any>,
   ): Promise<WhatsAppTemplate[] | undefined> {
-      const waTemplates = await this.templateService.readWaTemplate(search, limit);
+      const waTemplates = await this.templateService.readWaTemplate(search, filter, limit);
       return waTemplates
   }
 

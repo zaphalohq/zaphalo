@@ -532,10 +532,18 @@ export class WaTemplateService {
 
   async readWaTemplate(
     search?: string,
+    filter?: Record<string, any>,
     limit?: number,
   ) {
+    let where = {}
+    if (search){
+     where = {templateName: ILike(`%${search}%`)};
+    }
+    if(filter){
+      Object.assign(where, filter)
+    }
     const waTemplates = await this.templateRepository.find({
-      where: { templateName: ILike(`%${search}%`) },
+      where: where,
       order: { createdAt: 'ASC' },
       take: limit,
     });

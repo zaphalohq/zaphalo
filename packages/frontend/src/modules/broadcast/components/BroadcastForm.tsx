@@ -5,7 +5,13 @@ import { Input } from "@src/components/UI/input";
 import { Button } from "@src/components/UI/button";
 import { Card, CardContent } from "@src/components/UI/card";
 import SelectField from "@src/components/UI/ApiDropdown";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@src/components/UI/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@src/components/UI/select";
 import { 
   ReadWaAccount,
   ReadWaTemplate,
@@ -159,6 +165,7 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly=false }) {
               selectedVal={broadcastData.templateId}
               query={ReadWaTemplate}
               queryValueName="readWaTemplate"
+              filter={{account: {id: broadcastData.whatsappAccountId || null}}}
               dispalyName="templateName"
               placeholder="Select Template"
               onSelect={(val) => setBroadcastData({ ...broadcastData, templateId: val })}

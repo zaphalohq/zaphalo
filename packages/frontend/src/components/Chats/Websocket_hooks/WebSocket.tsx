@@ -3,6 +3,7 @@ import { io, Socket } from "socket.io-client";
 import { ChatsContext } from "@components/Context/ChatsContext";
 import { VITE_WEBSOCKET_URL } from '@src/config';
 
+
 interface Message {
   sender: string,
   channelId: string;

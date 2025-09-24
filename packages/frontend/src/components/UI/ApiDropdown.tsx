@@ -11,18 +11,28 @@ import {
 } from "@src/components/UI/select";
 import { Input } from "@src/components/UI/input";
 
+function cleanFilter(filter: Record<string, any>) {
+  return Object.fromEntries(
+    Object.entries(filter).filter(([_, value]) => value !== undefined && value !== null && value !== "")
+  );
+}
 
-export default function SelectField({ query, queryValueName, dispalyName, selectedVal="", placeholder, onSelect, disabled=false }) {
+export default function SelectField({ query, filter={}, queryValueName, dispalyName, selectedVal="", placeholder, onSelect, disabled=false }) {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState("");
 
   if (selectedVal !== selected){
     setSelected(selectedVal);
   }
+  let variables;
+  variables = { search, limit: 10 }
 
+  if (filter){
+    Object.assign(variables, {filter: cleanFilter(filter)});
+  }
   // Apollo query
-  const { data, loading } = useQuery(query, {
-    variables: { search, limit: 10 },
+  const { data, loading, refetch } = useQuery(query, {
+    variables: variables,
     fetchPolicy: "cache-and-network",
   });
 
