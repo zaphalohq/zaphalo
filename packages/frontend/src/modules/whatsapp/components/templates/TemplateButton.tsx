@@ -1,6 +1,6 @@
-import { useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react";
 import { FiPlus, FiTrash2 } from "react-icons/fi";
-import { TemplateContext } from "../Context/TemplateContext";
+import { TemplateContext } from "@src/modules/whatsapp/Context/TemplateContext";
 
 type ButtonData = {
   type: string;
@@ -10,15 +10,17 @@ type ButtonData = {
 };
 type ButtonType = 'URL' | 'QUICK_REPLY' | 'PHONE_NUMBER';
 
-const TemplateButton = ({ setTemplateData }: any) => {
-  const { templateFormData,setTemplateFormData }: any = useContext(TemplateContext)
+const TemplateButton = () => {
+  const { templateData, setTemplateData }: any = useContext(TemplateContext)
   const [addButtonData, setAddButtonData] = useState<ButtonData[]>(() => {
-    if(templateFormData.button?.length > 0){
-      return [...templateFormData.button]
+    if(templateData.button?.length > 0){
+      return [...templateData.button]
     }else{
       return []
     }
   });
+
+  console.log("...................templateData...............", templateData);
 
   const HandelAddButton = () => {
     setAddButtonData([...addButtonData, { text: "", type: "QUICK_REPLY" }])
@@ -31,8 +33,9 @@ const TemplateButton = ({ setTemplateData }: any) => {
 
   useEffect(() => {
     setTemplateData((prev: any) => ({ ...prev, button: addButtonData }))
-    setTemplateFormData((prev: any) => ({ ...prev, button: addButtonData }))
+    setTemplateData((prev: any) => ({ ...prev, button: addButtonData }))
   }, [addButtonData])
+
 
   const HandleButtonChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const updatedButtons = [...addButtonData];
@@ -56,7 +59,7 @@ const TemplateButton = ({ setTemplateData }: any) => {
     setAddButtonData(updatedButtons);
   };
 
-  return (
+    return (
     <div>
       <div onClick={HandelAddButton} className="flex text-lg font-semibold  items-center justify-end" >
         <div className="p-2 px-4 rounded hover:bg-green-600 cursor-pointer bg-green-500 text-white flex items-center justify-center gap-2">

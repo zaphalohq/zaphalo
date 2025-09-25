@@ -1,21 +1,21 @@
 import { useContext, useEffect, useState } from "react"
-import { TemplateContext } from "@components/Context/TemplateContext"
+import { TemplateContext } from "@src/modules/whatsapp/Context/TemplateContext";
 
-const TemplateVariables = ({ setTemplateData }: any) => {
-  const { templateFormData, setTemplateFormData }: any = useContext(TemplateContext)
+const TemplateVariables = () => {
+  const { templateData, setTemplateData }: any = useContext(TemplateContext)
   const [variables, setVariables] = useState(() => {
-    if (templateFormData.variables?.length > 0) {
-      return [...templateFormData.variables];
+    if (templateData.variables?.length > 0) {
+      return [...templateData.variables];
     } else {
       return [{ name: '', value: '' }];
     }
   })
 
   useEffect(() => {
-    const variableMatches = templateFormData.bodyText.match(/{{\d+}}/g) || [];
+    const variableMatches = templateData.bodyText.match(/{{\d+}}/g) || [];
 
     const newVariables = variableMatches.map((variableName: string) => {
-      const matchedVariable = templateFormData.variables?.find(
+      const matchedVariable = templateData.variables?.find(
         (v: any) => v.name === variableName
       );
 
@@ -26,7 +26,7 @@ const TemplateVariables = ({ setTemplateData }: any) => {
     });
 
     setVariables(newVariables);
-  }, [templateFormData.bodyText]);
+  }, [templateData.bodyText]);
 
   const HandleVariableChange = (event: any, index: number) => {
     const variablesCopy = [...variables]
@@ -38,7 +38,7 @@ const TemplateVariables = ({ setTemplateData }: any) => {
 
   useEffect(() => {
     setTemplateData((prev: any) => ({ ...prev, variables: variables }))
-    setTemplateFormData((prev: any) => ({ ...prev, variables: variables }))
+    // setTemplateData((prev: any) => ({ ...prev, variables: variables }))
   }, [variables])
 
   return (

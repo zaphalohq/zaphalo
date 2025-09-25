@@ -56,74 +56,70 @@ export class WhatsAppResolver {
     return data;
   }
 
-  // @UseGuards(GqlAuthGuard)
-  // @Mutation(() => SuccessResponse)
-  // async submitWaTemplate(
-  //   @Context('req') req, @Args('templateData') templateData: WaTemplateRequestInput,
-  //   @Args('waTemplateId', { nullable: true }) waTemplateId?: string,
-  //   @Args('dbTemplateId', { nullable: true }) dbTemplateId?: string
-  // ): Promise<SuccessResponse> {
-  //   console.log("...............templateData.............", templateData)
-  //   const wa_api = await this.waAccountService.getWhatsAppApi(templateData.accountId)
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => SuccessResponse)
+  async submitWaTemplate(
+    @Context('req') req, @Args('templateData') templateData: WaTemplateRequestInput,
+    @Args('waTemplateId', { nullable: true }) waTemplateId?: string,
+    @Args('dbTemplateId', { nullable: true }) dbTemplateId?: string
+  ): Promise<SuccessResponse> {
+    const wa_api = await this.waAccountService.getWhatsAppApi(templateData.whatsappAccountId)
 
-  //   let response;
-  //   if (waTemplateId) {
+    let response;
+    if (waTemplateId) {
 
-  //     const template: any = await this.waTemplateService.updateTemplate(templateData, dbTemplateId)
-  //     let payload
-  //     if (template.attachment) {
-  //       const header_handle = await wa_api.uploadDemoDocument(template.attachment);
-  //       payload = await this.waTemplateService.generatePayload(templateData, header_handle);
-  //     } else {
-  //       payload = await this.waTemplateService.generatePayload(templateData);
-  //     }
-  //     const payload_json = JSON.stringify({ ...payload });
-  //     response = await wa_api.submitTemplateUpdate(payload_json, template.waTemplateId);
-  //     const updatedTemplate = await this.waTemplateService.updateTemplate(JSON.parse(response.data), template.id);
-  //     this.waTemplateService.getTemplateStatusByCron(updatedTemplate.waTemplateId)
+      const template: any = await this.waTemplateService.updateTemplate(templateData, dbTemplateId)
+      let payload
+      if (template.attachment) {
+        const header_handle = await wa_api.uploadDemoDocument(template.attachment);
+        payload = await this.waTemplateService.generatePayload(templateData, header_handle);
+      } else {
+        payload = await this.waTemplateService.generatePayload(templateData);
+      }
+      const payload_json = JSON.stringify({ ...payload });
+      response = await wa_api.submitTemplateUpdate(payload_json, template.waTemplateId);
+      const updatedTemplate = await this.waTemplateService.updateTemplate(JSON.parse(response.data), template.id);
 
-  //   } else {
+    } else {
 
-  //     if (dbTemplateId) {
-  //       const template: any = await this.waTemplateService.updateTemplate(templateData, dbTemplateId)
-  //       let payload
+      if (dbTemplateId) {
+        const template: any = await this.waTemplateService.updateTemplate(templateData, dbTemplateId)
+        let payload
 
-  //       if (template.attachment) {
-  //         const header_handle = await wa_api.uploadDemoDocument(template.attachment);
-  //         payload = await this.waTemplateService.generatePayload(templateData, header_handle);
-  //       } else {
-  //         payload = await this.waTemplateService.generatePayload(templateData);
-  //       }
+        if (template.attachment) {
+          const header_handle = await wa_api.uploadDemoDocument(template.attachment);
+          payload = await this.waTemplateService.generatePayload(templateData, header_handle);
+        } else {
+          payload = await this.waTemplateService.generatePayload(templateData);
+        }
 
-  //       const payload_json = JSON.stringify({ ...payload });
-  //       response = await wa_api.submitTemplateNew(payload_json);
-  //       const updatedTemplate = await this.waTemplateService.updateTemplate(JSON.parse(response.data), template.id);
-  //       this.waTemplateService.getTemplateStatusByCron(updatedTemplate.waTemplateId)
+        const payload_json = JSON.stringify({ ...payload });
+        response = await wa_api.submitTemplateNew(payload_json);
+        const updatedTemplate = await this.waTemplateService.updateTemplate(JSON.parse(response.data), template.id);
 
-  //     } else {
-  //       const template: any = await this.waTemplateService.saveTemplate(templateData, templateData.accountId)
-  //       let payload
+      } else {
+        const template: any = await this.waTemplateService.saveTemplate(templateData, templateData.whatsappAccountId)
+        let payload
 
-  //       if (template.attachment) {
-  //         const header_handle = await wa_api.uploadDemoDocument(template.attachment);
-  //         payload = await this.waTemplateService.generatePayload(templateData, header_handle);
-  //       }
+        if (template.attachment) {
+          const header_handle = await wa_api.uploadDemoDocument(template.attachment);
+          payload = await this.waTemplateService.generatePayload(templateData, header_handle);
+        }
 
-  //       const payload_json = JSON.stringify({ ...payload });
+        const payload_json = JSON.stringify({ ...payload });
 
-  //       response = await wa_api.submitTemplateNew(payload_json);
-  //       const updatedTemplate = await this.waTemplateService.updateTemplate(JSON.parse(response.data), template.id)
-  //       this.waTemplateService.getTemplateStatusByCron(updatedTemplate.waTemplateId)
+        response = await wa_api.submitTemplateNew(payload_json);
+        const updatedTemplate = await this.waTemplateService.updateTemplate(JSON.parse(response.data), template.id)
 
-  //     }
+      }
 
-  //   }
-  //   return {
-  //     success : response.success,
-  //     message : JSON.stringify(response.data),
-  //     error : response.error
-  //   }
-  // }
+    }
+    return {
+      success : response.success,
+      message : JSON.stringify(response.data),
+      error : response.error
+    }
+  }
 
 
   @UseGuards(GqlAuthGuard)
@@ -135,26 +131,4 @@ export class WhatsAppResolver {
     const wa_api = await this.waAccountService.getWhatsAppApi()
 
   }
-
-
-  @Mutation(() => TestTemplateOutput)
-  async testTemplate(@Args('testTemplateData') testTemplateData: WaTestTemplateInput) {
-    const wa_api = await this.waAccountService.getWhatsAppApi()
-
-    const template: any = await this.waTemplateService.findtemplateByDbId(testTemplateData.dbTemplateId)
-
-    if (!template) throw Error('template doesnt exist')
-
-    let generateTemplatePayload
-    if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(template.headerType)) {
-      const mediaLink = 'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png'
-      generateTemplatePayload = await this.waTemplateService.generateSendMessagePayload(template, testTemplateData.testPhoneNo, mediaLink);
-    } else {
-      generateTemplatePayload = await this.waTemplateService.generateSendMessagePayload(template, testTemplateData.testPhoneNo);
-    }
-    const testTemplate = await wa_api.sendTemplateMsg(JSON.stringify(generateTemplatePayload))
-    return { success: 'test template send successfully' }
-  }
-
-
 }

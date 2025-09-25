@@ -28,7 +28,10 @@ export class WaButtonInput {
 @InputType()
 export class WaTemplateRequestInput {
   @Field({ nullable: true})
-  accountId?: string;
+  templateId?: string;
+
+  @Field({ nullable: true})
+  whatsappAccountId?: string;
 
   @Field()
   templateName: string;

@@ -8,7 +8,6 @@ import {
 import { ApolloProvider } from '@apollo/client';
 import Chats from '@src/pages/Chats';
 import Contacts from '@src/pages/Contacts';
-import Template from '@src/pages/Template';
 import Login from '@src/components/Auth/Login';
 import Dashboard from '@src/pages/Dashboard';
 import MainLayout from '@src/pages/MainLayout';
@@ -26,6 +25,10 @@ import GetCurrentUserWrapper from '@src/modules/customWrapper/GetCurrentUserWrap
 import WorkspaceAdmin from '@src/pages/settings/SettingsWorkspace';
 import { SystemConfigProviderEffect } from '@src/modules/system-config/components/SystemConfigProviderEffect';
 import { SystemConfigProvider } from '@src/modules/system-config/components/SystemConfigProvider';
+
+// Whatsapp
+import WhatsappTemplate from '@src/pages/whatsapp/Template';
+
 
 export const AppRouterProviders = () => {
   const pageTitle = "YaariAPI";
@@ -57,7 +60,7 @@ const routes = createRoutesFromElements(
         <Route path="chats" element={<Chats />} />
         <Route path="whatsapp-account" element={<WhatsAppAccount />} />
         <Route path="contacts" element={<Contacts />} />    
-        <Route path="template" element={<Template />} />
+        <Route path="template" element={<WhatsappTemplate />} />
         <Route path="mailinglist" element={<MailingList />} />
         <Route path="broadcast" element={<Broadcast />} />
         <Route path="loading" element={<LoadingPage />} />

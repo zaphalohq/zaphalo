@@ -16,7 +16,10 @@ import { MessageQueue } from 'src/modules/message-queue/message-queue.constants'
 import { WhatsAppMessage } from "src/customer-modules/whatsapp/entities/whatsapp-message.entity";
 import { WhatsAppTemplate } from "src/customer-modules/whatsapp/entities/whatsapp-template.entity";
 import { WhatsAppMessageCreatedEvent } from 'src/customer-modules/whatsapp/events/whatsapp-message-created.event';
-
+import {
+  WhatsAppException,
+  WhatsAppExceptionCode,
+} from 'src/customer-modules/whatsapp/whatsapp.exception';
 
 @Injectable()
 export class WaMessageService {
@@ -36,7 +39,6 @@ export class WaMessageService {
 
 
   async createWaMessage(workspaceId: string, whatsappMessageVal: any){
-
     const waMessage = this.waMessageRepository.create({
       mobileNumber: whatsappMessageVal.mobileNumber,
       messageType: whatsappMessageVal.messageType,
@@ -58,11 +60,19 @@ export class WaMessageService {
     return waMessage
   }
 
-  async sendWhatsappMessage(data: any): Promise<WhatsAppMessage | null> {
+  async sendWhatsappMessage(data: any): Promise<WhatsAppMessage | null | any> {
     const waMessage = await this.waMessageRepository.findOne({
       where: {id: data.messageId},
-      relations: ['waAccountId', 'channelMessageId', 'channelMessageId.attachment',  'waTemplateId']
+      relations: [
+        'waAccountId',
+        'channelMessageId',
+        'channelMessageId.attachment',
+        'waTemplateId',
+        'waTemplateId.account',
+        'waTemplateId.attachment',
+      ]
     })
+
     if (!waMessage)
       return null
 
@@ -75,22 +85,28 @@ export class WaMessageService {
     let messageType
     let sendVals
     if (!number)
-      throw Error("Invalid number")
-
+      throw new WhatsAppException(
+        'Invalid number',
+        WhatsAppExceptionCode.MOBILE_NUMBER_NOT_VALID,
+      );
 
     // based on template
     if (waMessage.waTemplateId){
       messageType = 'template'
       if (waMessage.waTemplateId.status != 'APPROVED'){
         // || waMessage.waTemplateId.quality == 'red'):
-          throw new Error("Template is not approved")
+          throw new WhatsAppException(
+            'Template is not approved',
+            WhatsAppExceptionCode.TEMPLATE_NOT_APPROVED,
+          );
       }
       // # generate sending values, components and attachments
-      const values = this.waTemplateService.getSendTemplateVals(
+      const values = await this.waTemplateService.getSendTemplateVals(
           waMessage?.waTemplateId,
           waMessage,
       )
       sendVals = values[0]
+      // sendVals = attachmentVals[messageType]
       let attachment = values[1]
     }
     else if (waMessage.channelMessageId.attachment){
@@ -106,7 +122,7 @@ export class WaMessageService {
         "body": body,
       }
     }
-    const msgUid = waApi.sendWhatsApp(number, messageType, sendVals, parentMessageId)
+    const msgUid = await waApi.sendWhatsApp(number, messageType, sendVals, parentMessageId)
 
     Object.assign(waMessage, {msgUid: msgUid})
     await this.waMessageRepository.save(waMessage)

@@ -3,6 +3,7 @@ import { io, Socket } from "socket.io-client";
 import { ChatsContext } from "@components/Context/ChatsContext";
 import { VITE_WEBSOCKET_URL } from '@src/config';
 
+
 interface Message {
   sender: string,
   channelId: string;
@@ -49,6 +50,7 @@ export async function useWebSocket() {
             );
 
           const newMessageData = {
+            id: newMsg.messages.id,
             sender: newMsg.sender,
             textMessage: newMsg.messages.textMessage,
             messageType: newMsg.messages.messageType,
@@ -72,6 +74,7 @@ export async function useWebSocket() {
             return [
               ...prevMessages,
               {
+                id: newMsg.messages.id,
                 sender: newMsg.sender,
                 channelId: newMsg.channelId || "",
                 phoneNo: newMsg.phoneNo || "",

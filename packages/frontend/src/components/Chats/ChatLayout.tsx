@@ -5,7 +5,7 @@ import MessageDisplay from "./MessageDisplay"
 const ChatsMain = () => {
   return (
 
-    <main className="flex-1 flex flex-col">
+    <main className="flex flex-1 flex-col">
       <ChatsNav />
       <MessageDisplay />
       <MessageArea />
