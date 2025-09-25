@@ -1063,3 +1063,32 @@ query messages($channelId: String!, $cursor: String, $limit : Int!){
     hasMore
   }
 }`
+
+
+
+export const SearchReadContacts = gql`
+query searchReadContacts($page: Int!, $pageSize: Int!, $search: String, $filter: String) {
+  searchReadContacts(page: $page, pageSize: $pageSize, search: $search, filter: $filter) {
+    total,
+    totalPages,
+    currentPage,
+    contacts {
+      id
+      contactName
+      phoneNo
+      profileImg
+    }
+  }
+}
+`;
+
+export const GetContactById = gql`
+query getContactById($contactId: String!){
+  getContactById(contactId: $contactId){
+    id
+    contactName
+    phoneNo
+    profileImg
+  }
+}
+`
