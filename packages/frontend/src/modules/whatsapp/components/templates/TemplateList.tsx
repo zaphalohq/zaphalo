@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 
 import { Input } from "@src/components/UI/input";
@@ -11,6 +11,7 @@ import { SearchedBroadcast, SearchReadWhatsappTemplate, WaTestTemplate } from '@
 import { PageHeader } from '@src/modules/ui/layout/page/components/PageHeader';
 import { Plus } from "lucide-react";
 import { formatLocalDate } from '@src/utils/formatLocalDate';
+import { TemplateContext, initTemplateData } from '@src/modules/whatsapp/Context/TemplateContext';
 
 const statusColors: Record<string, string> = {
   Scheduled: "bg-blue-100 text-blue-800",
@@ -34,6 +35,7 @@ export default function TemplateList({
   const [selected, setSelected] = useState<number[]>([]);
   const searchRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
+  const { templateData, setTemplateData, attachment, setAttachment }: any = useContext(TemplateContext)
   const [testTemplateData, setTestTemplateData] = useState({
     dbTemplateId: '',
     testPhoneNo: '',
@@ -77,6 +79,9 @@ export default function TemplateList({
 
   const totalPages = data?.searchReadTemplate.totalPages || 1;
 
+  const resetContext = () => {
+    setTemplateData(initTemplateData)
+  };
 
   const handleSendTemplateToPhone = async (templateId: string) => {
       if (!testTemplateData.testPhoneNo.trim()) {
@@ -104,7 +109,9 @@ export default function TemplateList({
         <PageHeader title="WhatsApp Templates" className="w-full"
         actions={
           <>
-            <Button onClick={onCreate}>
+            <Button onClick={() => {
+                    resetContext();
+                    onCreate(true)}}>
               <Plus className="w-4 h-4 mr-2" />
               Add Template
             </Button>
@@ -192,6 +199,7 @@ export default function TemplateList({
                     </span>
                   </TableCell>
                   <TableCell onClick={() => {
+                    resetContext();
                     template.status != 'New' ? setReadOnly(true) : setReadOnly(false)
                     setRecord(template.id)
                     showForm(true)

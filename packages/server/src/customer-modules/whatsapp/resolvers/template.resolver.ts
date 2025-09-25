@@ -10,7 +10,6 @@ import { FileService } from "src/modules/file-storage/services/file.service";
 import { SearchedRes } from "../dtos/searched.dto";
 import { SuccessResponse } from "../dtos/success.dto";
 import { WaAccountService } from '../services/whatsapp-account.service';
-
 import { ManyTemplatesResponse } from "src/customer-modules/whatsapp/dtos/templates/many-templates-response.dto";
 import { TemplateResponse } from "src/customer-modules/whatsapp/dtos/templates/template-response.dto";
 import { TestTemplateOutput, WaTestTemplateInput } from "src/customer-modules/whatsapp/dtos/test-input.template.dto";
@@ -25,40 +24,21 @@ export class WhatsAppTemplateResolver {
   ) { }
 
   @UseGuards(GqlAuthGuard)
-  @Mutation(() => SuccessResponse)
-  async saveTemplate(@Args('templateData') templateData: WaTemplateRequestInput): Promise<SuccessResponse | undefined> {
-    try {
-      if (templateData.templateId) {
-        const template = await this.templateService.updateTemplate(templateData, templateData.templateId, templateData.whatsappAccountId);
-        if (template)
-          return {
-            success: true,
-            message: 'template saved successfully!'
-          }
-      } else {
-        const template = await this.templateService.saveTemplate(templateData, templateData.whatsappAccountId);
-        if (template)
-          return {
-            success: true,
-            message: 'template saved successfully!'
-          }
-      }
-    } catch (error) {
-      return {
-        success: false,
-        message: String(error)
-      }
+  @Mutation(() => TemplateResponse)
+  async saveTemplate(
+    @Args('templateData') templateData: WaTemplateRequestInput
+  ): Promise<TemplateResponse | undefined> {
+    if (templateData.templateId){
+      return await this.templateService.updateTemplate(templateData);
+    }else{
+      return await this.templateService.createTemplate(templateData);
     }
   }
 
   @UseGuards(GqlAuthGuard)
-  @Mutation(() => SuccessResponse)
-  async submitTemplate(@Args('templateId') templateId: string): Promise<SuccessResponse | undefined> {
-    const template = await this.templateService.submitTemplate(templateId);
-    return {
-      success: true,
-      message: 'template saved successfully!'
-    }
+  @Mutation(() => TemplateResponse)
+  async submitTemplate(@Args('templateId') templateId: string): Promise<TemplateResponse | undefined> {
+    return await this.templateService.submitTemplate(templateId);
   }
 
   @UseGuards(GqlAuthGuard)

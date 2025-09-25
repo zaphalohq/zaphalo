@@ -9,11 +9,10 @@ import SelectField from "@src/components/UI/ApiDropdown";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@src/components/UI/select";
 import { 
   ReadWaAccount,
-  ReadWaTemplate,
-  ReadMailingList,
-  GetBroadcast,
-  SaveBroadcast,
-  SendBroadcast } from "@src/generated/graphql";
+  SaveWhatsappTemplate,
+  GetTemplate,
+  CreateOneAttachmentDoc,
+  SubmitWhatsappTemplate } from "@src/generated/graphql";
 import { toast } from 'react-toastify';
 import { isDefined } from '@src/utils/validation/isDefined';
 import { PageHeader } from '@src/modules/ui/layout/page/components/PageHeader';
@@ -22,7 +21,6 @@ import { Languages } from "@src/modules/whatsapp/language-code";
 import TemplateButton from "@src/modules/whatsapp/components/templates/TemplateButton";
 import TemplateVariables from "@src/modules/whatsapp/components/templates/TemplateVariables";
 import { TemplateContext } from '@src/modules/whatsapp/Context/TemplateContext';
-import { CreateOneAttachmentDoc, SUBMIT_TEMPLATE, SaveWhatsappTemplate, GetTemplate } from "@src/generated/graphql";
 import { Post } from "@src/modules/domain-manager/hooks/axios";
 import TemplatePreviewDialog from '@src/modules/whatsapp/components/templates/TemplatePreview';
 
@@ -52,6 +50,7 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
   const [preview, setPreview] = useState(false);
   const { templateData, setTemplateData, attachment, setAttachment }: any = useContext(TemplateContext)
   const [file, setFile] = useState<File | null>(null);
+
   if (isDefined(recordId)){
     const { data : templateViewData, loading: viewLoading, error: viewError } = useQuery(GetTemplate, {
       variables: {
@@ -61,7 +60,7 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
     })
     const templateView = templateViewData?.getTemplate?.template;
 
-    if (templateView && !templateData.templateId){
+    if (templateView && templateData.templateId !== recordId){
       setTemplateData({
         templateId: templateView.id,
         templateName: templateView.templateName,
@@ -90,8 +89,15 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
     }
   }
 
-
   const [saveTemplate, { data, loading, error }] = useMutation(SaveWhatsappTemplate, {
+    onCompleted: (data) => {
+    },
+    onError: (err) => {
+      toast.error(`${err}`);
+    },
+  });
+
+  const [submitTemplate, { data: submitData, loading: submitLoading, error: submitError }] = useMutation(SubmitWhatsappTemplate, {
     onCompleted: (data) => {
     },
     onError: (err) => {
@@ -180,7 +186,7 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
     return formValid;
   }
 
-  const handleSave = async (e, status: string) => {
+  const handleSave = async (status: string) => {
     const formValid = checkValidation(templateData);
     if (!formValid){
       return
@@ -202,15 +208,25 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
       }
     });
 
-    if (response.data?.saveTemplate?.success) {
+    if (response.data?.saveTemplate?.status) {
+      setTemplateData({...templateData, templateId: response.data?.saveTemplate?.id})
+
       toast.success(`${response.data?.saveTemplate?.message}`);
       onBack();
     }
   }
 
   const handleSaveAndSubmit = async () => {
-    handleSave()
-    onBack();
+    await handleSave()
+    const response = await submitTemplate({
+      variables: {
+        templateId: templateData['templateId'],
+      }
+    });
+    if (response.data?.saveTemplate?.success) {
+      toast.success(`${response.data?.submitTemplate?.message}`);
+      onBack();
+    }
   }
 
   const handleFileChange = (e: any) => {
@@ -245,7 +261,7 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
             <Button onClick={handleSave}>
               Save
             </Button>
-            <Button onClick={() => handleSaveAndSend()}>Submit</Button>
+            <Button onClick={handleSaveAndSubmit}>Submit</Button>
 
             <Button variant="outline" onClick={onBack}>Cancel</Button>
           </>

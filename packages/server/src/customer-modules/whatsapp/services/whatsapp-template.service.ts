@@ -42,18 +42,17 @@ export class WaTemplateService {
     this.templateRepository = connection.getRepository(WhatsAppTemplate);
   }
 
-  async saveTemplate(templateData, instantsId) {
-    let account: WhatsAppAccount | null = null;
-    if (instantsId) {
-      account = await this.waAccountService.findInstantsByInstantsId(instantsId);
-      if (!account) throw Error('template doesnt exist')
-    }
+  async createTemplate(templateData) {
+    if (!templateData.whatsappAccountId) throw new Error('Template Whatsapp Account ID invalid!');
+
+    const account = await this.waAccountService.findInstantsByInstantsId(templateData.whatsappAccountId);
+    if (!account) throw Error("Whatsapp account doesn't found!")
 
     let attachment: Attachment | null = null;
 
     if (templateData.attachmentId) {
       attachment = await this.attachmentService.findOneAttachmentById(templateData.attachmentId);
-      if (!attachment) throw new Error('Attachment does not exist');
+      if (!attachment) throw new Error("Attachment doesn't found!");
     }
 
     const template = this.templateRepository.create({
@@ -66,58 +65,50 @@ export class WaTemplateService {
       footerText: templateData.footerText,
       button: templateData.button,
       variables: templateData.variables,
+      account: account,
     });
-
-    if (account) {
-      template.account = account
-    }
 
     if (attachment) {
       template.templateImg = attachment.name;
       template.attachment = attachment;
     }
 
-
     await this.templateRepository.save(template);
-    // if (!templateData.noUpdateToWhatsapp){
-    //   this.submitTemplate(template);
-    // }
-    return template;
+    return {'template': template, 'message': 'Template saved', 'status': true}
   }
 
-  async updateTemplate(updatetemplateData, dbTemplateId, instantsId?: string) {
-    const template = await this.templateRepository.findOne({
-      where: { id: dbTemplateId },
-      relations: ['account', 'attachment'],
+  async updateTemplate(templateData) {
+    if (!templateData.templateId) throw new Error('Template ID invalid!');
+    if (!templateData.whatsappAccountId) throw new Error('Template Whatsapp Account ID invalid!');
+
+    const templateFind = await this.getTemplate(templateData.templateId)
+    if (!templateFind.template) throw Error("Template doesn't found!")
+    
+    const account = await this.waAccountService.findInstantsByInstantsId(templateData.whatsappAccountId);
+    if (!account) throw Error("Whatsapp account doesn't found!")
+
+    Object.assign(templateFind.template, {
+      templateName: templateData.templateName,
+      account: account,
+      category: templateData.category,
+      language: templateData.language,
+      headerType: templateData.headerType,
+      headerText: templateData.headerText,
+      bodyText: templateData.bodyText,
+      footerText: templateData.footerText,
+      button: templateData.button,
+      variables: templateData.variables,
     })
-    if (!template) throw Error("template doesn't exist")
-    if (instantsId) {
-      const account = await this.waAccountService.findInstantsByInstantsId(instantsId);
-      if (!account) throw Error('template doesnt exist')
-      template.account = account;
-    }
-    if (updatetemplateData.templateName) template.templateName = updatetemplateData.templateName;
-    if (updatetemplateData.status) template.status = updatetemplateData.status;
-    if (updatetemplateData.id) template.waTemplateId = updatetemplateData.id;
-    if (updatetemplateData.category) template.category = updatetemplateData.category;
-    if (updatetemplateData.language) template.language = updatetemplateData.language;
-    if (updatetemplateData.headerType) template.headerType = updatetemplateData.headerType;
-    if (updatetemplateData.headerText) template.headerText = updatetemplateData.headerText;
-    if (updatetemplateData.bodyText) template.bodyText = updatetemplateData.bodyText;
-    if (updatetemplateData.footerText) template.footerText = updatetemplateData.footerText;
-    if (updatetemplateData.button) template.button = updatetemplateData.button;
-    if (updatetemplateData.variables) template.variables = updatetemplateData.variables;
-    if (updatetemplateData.attachmentId) {
-      const attachment = await this.attachmentService.findOneAttachmentById(updatetemplateData.attachmentId)
+
+    if (templateData.attachmentId) {
+      const attachment = await this.attachmentService.findOneAttachmentById(templateData.attachmentId)
       if (!attachment) throw Error('attachment doesnt exist')
-      template.attachment = attachment;
-      template.templateImg = attachment.name;
+      templateFind.template.attachment = attachment;
+      templateFind.template.templateImg = attachment.name;
     }
-    await this.templateRepository.save(template);
-    // if (!updatetemplateData.noUpdateToWhatsapp){
-    //   this.submitTemplate(template);
-    // }
-    return template;
+
+    await this.templateRepository.save(templateFind.template);
+    return {'template': templateFind.template, 'message': 'Broadcast saved', 'status': true}
   }
 
   async getHeaderComponent(waTemplateId, freeTextJson, templateVariablesValue, attachment){
@@ -295,6 +286,9 @@ export class WaTemplateService {
     if (!waTemplate.category){
       throw new Error("Template category is missing")
     }
+
+    console.log("..................waTemplate.account..................", waTemplate.account.name)
+
     const waApi = await this.waAccountService.getWhatsAppApi(waTemplate.account.id)
 
     let attachment;
@@ -332,7 +326,7 @@ export class WaTemplateService {
     }
     
     const jsonData = JSON.stringify({
-        'name': waTemplate.templateName,
+        'name': slugify(waTemplate.templateName),
         'language': waTemplate.language,
         'category': waTemplate.category,
         'components': components,
@@ -351,9 +345,11 @@ export class WaTemplateService {
         });
         await this.templateRepository.save(waTemplate);
       }
+      return {'template': waTemplate, 'message': 'Template submited', 'status': true}
+
     }
     catch (error){
-      return {"success": false, "error": error}
+      return {'template': waTemplate, 'message': 'Template submited failed', 'status': false}
     }
   }
 

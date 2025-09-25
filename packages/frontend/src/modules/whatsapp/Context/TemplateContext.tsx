@@ -7,10 +7,8 @@ interface TemplateContextProps {
   attachment: any,
   setAttachment: Function
 }
-export const TemplateContext = createContext<TemplateContextProps | undefined>(null)
 
-export function TemplateProvider({ children }: { children: ReactNode }) {
-  const [templateData, setTemplateData] = useState({
+export const initTemplateData = {
     templateId: '',
     templateName: '',
     whatsappAccountId: '',
@@ -27,13 +25,21 @@ Thank you.`,
     variables: [],
     attachmentId: null,
     templateImg: "",
-  });
+  }
 
-  const [attachment, setAttachment] = useState({
+export const initAttachment = {
     attachmentId: '',
     originalname: '',
     name: '',
-  });
+  }
+
+export const TemplateContext = createContext<TemplateContextProps | undefined>(null)
+
+export function TemplateProvider({ children }: { children: ReactNode }) {
+
+  const [templateData, setTemplateData] = useState(initTemplateData);
+
+  const [attachment, setAttachment] = useState(initAttachment);
 
   return (
     <TemplateContext.Provider value={{templateData, setTemplateData, attachment, setAttachment}}>
