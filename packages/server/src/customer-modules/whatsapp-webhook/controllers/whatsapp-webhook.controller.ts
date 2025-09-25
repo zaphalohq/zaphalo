@@ -79,7 +79,8 @@ export class WhatsAppWebhookController {
         // # Process Template webhooks
         if (value['message_template_id']){
             // # There is no user in webhook, so we need to SUPERUSER_ID to write on template object
-            const template = await this.waTemplateService.findTemplateByWaTemplateId(value['message_template_id'])
+            const templateRes = await this.waTemplateService.getTemplate(value['message_template_id'])
+            const template = templateRes?.template
             if (template){
                 if (changes['field'] == 'message_template_status_update'){
                   this.waTemplateService.updateTemplate({'status': value['event'], 'noUpdateToWhatsapp': true}, template.id)

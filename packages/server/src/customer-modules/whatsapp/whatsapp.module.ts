@@ -6,7 +6,6 @@ import { HttpModule } from '@nestjs/axios';
 import { WhatsAppAccount } from './entities/whatsapp-account.entity';
 import { WhatsAppMessage } from './entities/whatsapp-message.entity';
 import { WhatsAppTemplate } from './entities/whatsapp-template.entity';
-import { WhatsAppResolver } from './whatsapp.resolver';
 import { WaAccountService } from './services/whatsapp-account.service';
 import { WhatsAppSDKService } from './services/whatsapp-api.service';
 import { WaMessageService } from './services/whatsapp-message.service';
@@ -48,7 +47,6 @@ import { WhatsAppMessageCreatedListener } from './listeners/whatsapp-message-cre
     WaAccountService,
     WaTemplateService,
     WaMessageService,
-    WhatsAppResolver,
     WaAccountResolver,
     WhatsAppTemplateResolver,
     SendWhatsAppMessageJob,

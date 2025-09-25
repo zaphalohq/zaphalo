@@ -39,8 +39,8 @@ export class BroadcastService {
     if (broadcastData.broadcastId) throw new Error('Broadcast already created');
     const mailingList = await this.mailingListService.findMailingListById(broadcastData.mailingListId)
     if (!mailingList) throw new Error('mailingList not found');
-    const template = await this.waTemplateService.findtemplateByDbId(broadcastData.templateId)
-
+    const templateRes = await this.waTemplateService.getTemplate(broadcastData.templateId)
+    const template = templateRes?.template
     if (!template) throw new Error('template not found');
 
     const account = await this.waAccountService.findInstantsByInstantsId(broadcastData.whatsappAccountId);
@@ -79,8 +79,8 @@ export class BroadcastService {
 
     const mailingList = await this.mailingListService.findMailingListById(broadcastData.mailingListId)
     if (!mailingList) throw new Error('mailingList not found');
-    const template = await this.waTemplateService.findtemplateByDbId(broadcastData.templateId)
-
+    const templateRes = await this.waTemplateService.getTemplate(broadcastData.templateId)
+    const template = templateRes?.template
     if (!template) throw new Error('template not found');
 
     const account = await this.waAccountService.findInstantsByInstantsId(broadcastData.accountId);

@@ -49,7 +49,16 @@ export class WhatsAppTemplateResolver {
         message: String(error)
       }
     }
+  }
 
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => SuccessResponse)
+  async submitTemplate(@Args('templateId') templateId: string): Promise<SuccessResponse | undefined> {
+    const template = await this.templateService.submitTemplate(templateId);
+    return {
+      success: true,
+      message: 'template saved successfully!'
+    }
   }
 
   @UseGuards(GqlAuthGuard)
@@ -111,21 +120,7 @@ export class WhatsAppTemplateResolver {
 
   @Mutation(() => TestTemplateOutput)
   async testTemplate(@Args('testTemplateData') testTemplateData: WaTestTemplateInput) {
-    const template: any = await this.templateService.getTemplate(testTemplateData.dbTemplateId)
-    if (!template?.template) throw Error("template doesn't exist")
-
-    const wa_api = await this.waAccountService.getWhatsAppApi(template.template.account.id)
-
-
-    let generateTemplatePayload
-    if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(template.headerType)) {
-      const mediaLink = 'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png'
-      generateTemplatePayload = await this.templateService.generateSendMessagePayload(template.template, testTemplateData.testPhoneNo, mediaLink);
-    } else {
-      generateTemplatePayload = await this.templateService.generateSendMessagePayload(template.template, testTemplateData.testPhoneNo);
-    }
-    const testTemplate = await wa_api.sendTemplateMsg(JSON.stringify(generateTemplatePayload))
-    return { success: 'test template send successfully' }
+    return await this.templateService.testTemplate(testTemplateData)
   }
 
 }

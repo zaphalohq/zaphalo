@@ -101,13 +101,9 @@ export class WaMessageService {
           );
       }
       // # generate sending values, components and attachments
-      const values = await this.waTemplateService.getSendTemplateVals(
+      const sendVals = await this.waTemplateService.getSendTemplateVals(
           waMessage?.waTemplateId,
-          waMessage,
       )
-      sendVals = values[0]
-      // sendVals = attachmentVals[messageType]
-      let attachment = values[1]
     }
     else if (waMessage.channelMessageId.attachment){
       let attachmentVals = await this.prepareAttachmentVals(waMessage.channelMessageId.attachment, waMessage.waAccountId)
