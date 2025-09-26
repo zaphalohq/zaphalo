@@ -119,7 +119,7 @@ const ContactForm = ({contactId,onBack,isNewContacts }) => {
       try {
         await UpdateContact({
           variables: {
-            UpdateContact: contactFormData
+            UpdateContact: {...contactFormData, phoneNo: Number(contactFormData.phoneNo)}
           }
         })
         onBack();
