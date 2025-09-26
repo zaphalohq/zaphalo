@@ -13,7 +13,7 @@ import { CreateContactMute, GetContactById, UpdateContactMute } from '@src/gener
 import { isDefined } from '@src/utils/validation/isDefined';
 import { toast } from 'react-toastify';
 
-const ContactForm = ({ contactId, onBack, isNewContacts }) => {
+const ContactForm = ({contactId,onBack,isNewContacts }) => {
 
   const [contactFormData, setContactFormData] = useState({
     id: '',
