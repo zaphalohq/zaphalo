@@ -78,7 +78,14 @@ const ContactForm = ({contactId,onBack,isNewContacts }) => {
       toast.error(`${err}`);
     },
   });
-  const [UpdateContact] = useMutation(UpdateContactMute);
+  const [UpdateContact] = useMutation(UpdateContactMute,{
+    onCompleted: (data) => {
+      toast.success('Contact updated successfully');
+    },
+    onError: (err) => {
+      toast.error(`${err}`);
+    },
+  });
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
