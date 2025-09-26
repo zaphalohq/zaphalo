@@ -23,6 +23,7 @@ import {
 } from "@src/components/UI/table";
 import { DeleteContact, SearchReadContacts } from '@src/generated/graphql';
 import { useMutation, useQuery } from '@apollo/client';
+import { toast } from 'react-toastify';
 
 const ContactsList = ({
     showForm,
@@ -81,7 +82,8 @@ const ContactsList = ({
     const HandleDeleteContacts = async () => {
         try {
             for (const id of selected) {
-                await deleteContact({ variables: { id } });
+                await deleteContact({ variables: { contactId: id } });
+                toast.success('Contact deleted successfully');
             }
             await refetch();
         } catch (err) {
@@ -157,6 +159,7 @@ const ContactsList = ({
                             <TableHead className="px-4 py-3"></TableHead>
                             <TableHead className="px-4 py-3">Contact Name</TableHead>
                             <TableHead className="px-4 py-3">Contact Number</TableHead>
+                            <TableHead className="px-4 py-3">Address</TableHead>
                             <TableHead className="px-4 py-3">Edit</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -184,6 +187,12 @@ const ContactsList = ({
                                     title={String(contactData.phoneNo)}
                                 >
                                     {contactData.phoneNo}
+                                </TableCell>
+                                <TableCell
+                                    className="px-6 py-4 text-left truncate max-w-[200px]"
+                                    title={contactData?.address || 'N/A'}
+                                >
+                                    {contactData?.address || 'N/A'}
                                 </TableCell>
                                 <TableCell className="px-4 py-2 text-left">
                                     <button

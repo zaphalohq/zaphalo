@@ -11,33 +11,36 @@ import { on } from 'events';
 import { useMutation, useQuery } from '@apollo/client';
 import { CreateContactMute, GetContactById, UpdateContactMute } from '@src/generated/graphql';
 import { isDefined } from '@src/utils/validation/isDefined';
+import { toast } from 'react-toastify';
 
 const ContactForm = ({contactId,onBack,isNewContacts }) => {
 
   const [contactFormData, setContactFormData] = useState({
-    id: '',
+    contactId: '',
     contactName: '',
     phoneNo: '',
     profileImg: '',
+    address: '',
   });
 
-  if(isDefined(contactId)){
-    const { data : contactViewData, loading: viewLoading, error: viewError } = useQuery(GetContactById, {
-      variables: { contactId },
+  if (isDefined(contactId)) {
+    const { data: contactViewData, loading: viewLoading, error: viewError } = useQuery(GetContactById, {
+      variables: { contactId: contactId },
       fetchPolicy: "cache-and-network",
     })
-    const contactView = contactViewData?.getContactById; 
-    if (contactView && !contactFormData.contactName){
+    const contactView = contactViewData?.getContactById;
+    if (contactView && !contactFormData.contactName) {
       setContactFormData({
-        id: contactView.id,
+        contactId: contactView.id,
         contactName: contactView.contactName,
         phoneNo: contactView.phoneNo,
-        profileImg: contactView.profileImg
+        profileImg: contactView.profileImg,
+        address: contactView.address,
       })
     }
   }
 
-  
+
 
   const [fileError, setFileError] = useState('');
 
@@ -67,25 +70,40 @@ const ContactForm = ({contactId,onBack,isNewContacts }) => {
     }
   };
 
-  const [CreateContact] = useMutation(CreateContactMute);
+  const [CreateContact] = useMutation(CreateContactMute,{
+    onCompleted: (data) => {
+      toast.success('Contact created successfully');
+    },
+    onError: (err) => {
+      toast.error(`${err}`);
+    },
+  });
   const [UpdateContact] = useMutation(UpdateContactMute);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     // Handle form submission logic here
-    console.log(contactFormData);
 
+    if (!contactFormData.contactName || !contactFormData.phoneNo) {
+      toast.error('Please fill all required fields before contact creating.');
+      return;
+    }
+    type toSubmitData = {
+      [key: string]: any;
+    };
+    const submitData: toSubmitData = {
+      contactName: contactFormData.contactName,
+      phoneNo: Number(contactFormData.phoneNo), // Convert to number
+      profileImg: contactFormData.profileImg,
+      address: contactFormData.address,
+    };
     if (isNewContacts) {
       try {
         await CreateContact({
-          variables: {
-            contactName: contactFormData.contactName,
-            phoneNo: parseFloat(contactFormData.phoneNo),
-            profileImg: contactFormData.profileImg
-          }
+          variables: { CreateContacts: submitData },
         })
         onBack()
-  
+
       } catch (err) {
         console.error('Error submitting form', err);
       }
@@ -95,10 +113,7 @@ const ContactForm = ({contactId,onBack,isNewContacts }) => {
       try {
         await UpdateContact({
           variables: {
-            id: contactFormData.id,
-            contactName: contactFormData.contactName,
-            phoneNo: parseFloat(contactFormData.phoneNo),
-            profileImg: contactFormData.profileImg
+            UpdateContact: contactFormData
           }
         })
         onBack();
@@ -130,6 +145,14 @@ const ContactForm = ({contactId,onBack,isNewContacts }) => {
               placeholder="Phone Number"
               value={contactFormData.phoneNo}
               onChange={(e) => setContactFormData({ ...contactFormData, phoneNo: e.target.value })}
+            />
+
+            {/* Address */}
+            <Input
+              type="text"
+              placeholder="Address"
+              value={contactFormData.address}
+              onChange={(e) => setContactFormData({ ...contactFormData, address: e.target.value })}
             />
 
             {/* Upload Image */}

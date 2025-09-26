@@ -192,36 +192,26 @@ mutation Register($firstName: String!, $lastName: String!, $email: String!, $pas
 
 
 export const CreateContactMute = gql`
-mutation CreateContacts(
-  $contactName: String!,
-  $phoneNo: Float!,
-  $profileImg: String,
-  $defaultContact: Boolean,
-) {
-  CreateContacts(CreateContacts: {
-  contactName: $contactName, 
-  phoneNo: $phoneNo, 
-  profileImg: $profileImg,
-  defaultContact: $defaultContact
-  }) {
+mutation CreateContacts($CreateContacts: createContactsDto!) {
+  CreateContacts(CreateContacts: $CreateContacts) {
     id
+    contactName
+    phoneNo
+    profileImg
+    defaultContact
+    address
   }
 }`
 
 export const UpdateContactMute = gql`
-mutation UpdateContact(
-  $id: String!,
-  $contactName: String!,
-  $phoneNo: Float!,
-  $profileImg: String,
-) {
-  UpdateContact(UpdateContact: {
-  id: $id, 
-  contactName: $contactName, 
-  phoneNo: $phoneNo, 
-  profileImg: $profileImg,
-  }) {
+mutation UpdateContact($UpdateContact: updateContactsDto!) {
+  UpdateContact(UpdateContact: $UpdateContact) {
     id
+    contactName
+    phoneNo
+    profileImg
+    defaultContact
+    address
   }
 }`
 
@@ -1077,6 +1067,7 @@ query searchReadContacts($page: Int!, $pageSize: Int!, $search: String, $filter:
       contactName
       phoneNo
       profileImg
+      address
     }
   }
 }

@@ -13,4 +13,7 @@ export class createContactsDto {
 
   @Field(() => String, { nullable: true })
   profileImg?: string;
+
+  @Field(() => String, { nullable: true })
+  address?: string;
 }
