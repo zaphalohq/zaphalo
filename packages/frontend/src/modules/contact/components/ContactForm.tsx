@@ -13,25 +13,25 @@ import { CreateContactMute, GetContactById, UpdateContactMute } from '@src/gener
 import { isDefined } from '@src/utils/validation/isDefined';
 import { toast } from 'react-toastify';
 
-const ContactForm = ({contactId,onBack,isNewContacts }) => {
+const ContactForm = ({ contactId, onBack, isNewContacts }) => {
 
   const [contactFormData, setContactFormData] = useState({
-    contactId: '',
+    id: '',
     contactName: '',
     phoneNo: '',
     profileImg: '',
     address: '',
   });
 
-  if (isDefined(contactId)){
-    const { data : contactViewData, loading: viewLoading, error: viewError } = useQuery(GetContactById, {
+  if (isDefined(contactId)) {
+    const { data: contactViewData, loading: viewLoading, error: viewError } = useQuery(GetContactById, {
       variables: { contactId: contactId },
       fetchPolicy: "cache-and-network",
     })
     const contactView = contactViewData?.getContactById;
-    if (contactView && !contactFormData.contactName){
+    if (contactView && !contactFormData.contactName) {
       setContactFormData({
-        contactId: contactView.id,
+        id: contactView.id,
         contactName: contactView.contactName,
         phoneNo: contactView.phoneNo,
         profileImg: contactView.profileImg,
@@ -70,7 +70,7 @@ const ContactForm = ({contactId,onBack,isNewContacts }) => {
     }
   };
 
-  const [CreateContact] = useMutation(CreateContactMute,{
+  const [CreateContact] = useMutation(CreateContactMute, {
     onCompleted: (data) => {
       toast.success('Contact created successfully');
     },

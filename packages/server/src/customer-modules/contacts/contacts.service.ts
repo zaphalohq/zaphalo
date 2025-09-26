@@ -89,6 +89,7 @@ export class ContactsService {
         updateContact.contactName = UpdateContact.contactName;
         updateContact.phoneNo = UpdateContact.phoneNo;
         updateContact.profileImg = UpdateContact.profileImg;
+        updateContact.address = UpdateContact.address;
         return await this.contactsRepository.save(updateContact);
     }
 

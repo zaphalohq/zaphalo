@@ -1080,6 +1080,7 @@ query getContactById($contactId: String!){
     contactName
     phoneNo
     profileImg
+    address
   }
 }
 `
