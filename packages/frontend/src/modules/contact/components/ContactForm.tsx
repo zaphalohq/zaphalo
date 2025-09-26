@@ -23,13 +23,13 @@ const ContactForm = ({contactId,onBack,isNewContacts }) => {
     address: '',
   });
 
-  if (isDefined(contactId)) {
-    const { data: contactViewData, loading: viewLoading, error: viewError } = useQuery(GetContactById, {
+  if (isDefined(contactId)){
+    const { data : contactViewData, loading: viewLoading, error: viewError } = useQuery(GetContactById, {
       variables: { contactId: contactId },
       fetchPolicy: "cache-and-network",
     })
     const contactView = contactViewData?.getContactById;
-    if (contactView && !contactFormData.contactName) {
+    if (contactView && !contactFormData.contactName){
       setContactFormData({
         contactId: contactView.id,
         contactName: contactView.contactName,
@@ -103,7 +103,6 @@ const ContactForm = ({contactId,onBack,isNewContacts }) => {
           variables: { CreateContacts: submitData },
         })
         onBack()
-
       } catch (err) {
         console.error('Error submitting form', err);
       }
