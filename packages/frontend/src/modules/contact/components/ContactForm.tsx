@@ -57,7 +57,7 @@ const ContactForm = ({contactId,onBack,isNewContacts }) => {
       const formData = new FormData();
 
       formData.append('file', file);
-      const response = await Post(`/fileupload`, formData, {
+      const response = await Post(`/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
