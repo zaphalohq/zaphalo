@@ -201,7 +201,7 @@ const ContactsList = ({
                                             showForm(true);
                                             setIsNewContacts(false);
                                         }}
-                                        className="text-lg text-center text-green-500 hover:text-green-600 cursor-pointer hover:bg-stone-200 p-2 rounded"
+                                        className="text-lg text-center text-blue-500 hover:text-blue-700 cursor-pointer hover:bg-stone-200 p-2 rounded"
                                     >
                                         <FiEdit2 />
                                     </button>

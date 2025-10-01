@@ -655,26 +655,6 @@ mutation DeleteOneAttachment($attachmentId: String!){
 }
 `
 
-
-export const findAllMailingList = gql`
-  query FindAllMailingList($currentPage: Int!, $itemsPerPage: Int!) {
-    findAllMailingList(currentPage: $currentPage, itemsPerPage: $itemsPerPage) {
-    mailingList {
-      id
-      mailingListName
-      createdAt
-      totalContacts
-      mailingContacts {
-        contactName
-        contactNo
-        id
-      }
-    }
-    totalPages
-    }
-  }
-`;
-
 export const SaveMailingContact = gql`
 mutation saveMailingContact($saveMailingContact: MailingContact!){
   saveMailingContact(saveMailingContact : $saveMailingContact){
@@ -1084,3 +1064,37 @@ query getContactById($contactId: String!){
   }
 }
 `
+
+export const searchReadMailingList = gql`
+  query searchReadMailingList($page: Int!, $pageSize: Int!, $search: String, $filter: String){
+    searchReadMailingList(page: $page, pageSize: $pageSize, search: $search, filter: $filter){
+      total,
+      totalPages,
+      currentPage,
+      mailingList {
+      id
+      mailingListName
+      createdAt
+      totalContacts
+      mailingContacts {
+        contactName
+        contactNo
+        id
+        }
+      broadcast {
+        name
+        id
+        }
+      }
+    }
+  }
+`
+
+export const deleteMailingListWithAllContacts = gql`
+  mutation DeleteMailingList($mailingId: String!) {
+    deleteMailingListWithAllContacts(mailingId: $mailingId) {
+      success
+      message
+    }
+  }
+`;
