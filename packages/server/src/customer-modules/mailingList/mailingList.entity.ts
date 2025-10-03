@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { MailingContacts } from './mailingContacts.entity';
 import { UUIDScalarType } from 'src/modules/api/scalars/uuid.scalar';
+import { Broadcast } from '../broadcast/broadcast.entity';
 
 @Entity({ name: 'MailingList' })
 @ObjectType()
@@ -28,8 +29,14 @@ export class MailingList {
 
 
   @Field(() => [MailingContacts])
-  @OneToMany(() => MailingContacts, MailingContacts => MailingContacts.mailingList)
+  @OneToMany(() => MailingContacts, MailingContacts => MailingContacts.mailingList,{
+    cascade:true,
+  })
   mailingContacts: Relation<MailingContacts[]>
+
+  @Field(()=>[Broadcast])
+  @OneToMany(()=>Broadcast,broadcast => broadcast.contactList)
+  broadcast: Relation<Broadcast[]>
 
   @Field(() => String)
   @CreateDateColumn()

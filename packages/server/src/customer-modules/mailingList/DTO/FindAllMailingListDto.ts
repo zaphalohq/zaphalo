@@ -7,6 +7,12 @@ export class FindAllMailingListRes {
   mailingList: MailingList[];
 
   @Field()
+  total: number;
+
+  @Field()
   totalPages: number;
+
+  @Field()
+  currentPage: number;
 
 }

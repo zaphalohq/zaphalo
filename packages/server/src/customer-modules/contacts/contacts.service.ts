@@ -2,33 +2,64 @@ import { Inject, Injectable } from "@nestjs/common";
 import { Contacts } from "./contacts.entity";
 import { createContactsDto } from "./dto/createContactsDto";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
-import { Connection, Repository } from 'typeorm';
+import { Connection, Like, Repository } from 'typeorm';
 import { updateContactsDto } from "./dto/updateContactsDto";
 import { throwError } from "rxjs";
 
 @Injectable()
 export class ContactsService {
-        private contactsRepository: Repository<Contacts>
+    private contactsRepository: Repository<Contacts>
     constructor(
-         @Inject(CONNECTION) connection: Connection,
-    ) { 
+        @Inject(CONNECTION) connection: Connection,
+    ) {
         this.contactsRepository = connection.getRepository(Contacts);
     }
 
     async findOneContact(senderId: number) {
-        return await this.contactsRepository.findOne({ where: { phoneNo: senderId }})
+        return await this.contactsRepository.findOne({ where: { phoneNo: senderId } })
+    }
+
+    async searchReadContacts(search: string, filter: string, page: number, pageSize: number) {
+
+        const skip = (page - 1) * pageSize;
+
+        const where: any = {};
+        if (search) {
+            where.contactName = Like(`%${search}%`);
+        }
+        if (filter) {
+            where.contactName = filter;
+        }
+        const [result, total] = await this.contactsRepository.findAndCount({
+            where,
+            order: { createdAt: 'ASC' },
+            take: pageSize,
+            skip,
+        });
+        const totalPages = Math.ceil(total / pageSize);
+        return {
+            contacts: result,
+            total: total,
+            currentPage: page,
+            totalPages: totalPages,
+        };
+    }
+
+    async getContactbyId(contactId: string){
+        return await this.contactsRepository.findOne({ where: { id: contactId } })
     }
 
     async createContacts(CreateContacts: createContactsDto) {
         const existContact = await this.findOneContact(CreateContacts.phoneNo)
-        if (existContact) 
+        if (existContact)
             return existContact
         const createdContacts = this.contactsRepository.create({
-            contactName : CreateContacts.contactName,
-            phoneNo : CreateContacts.phoneNo,
-            profileImg : CreateContacts.profileImg,
-            defaultContact: CreateContacts.defaultContact || false
-        });        
+            contactName: CreateContacts.contactName,
+            phoneNo: CreateContacts.phoneNo,
+            profileImg: CreateContacts.profileImg,
+            defaultContact: CreateContacts.defaultContact || false,
+            address: CreateContacts.address,
+        });
         await this.contactsRepository.save(createdContacts);
         return createdContacts
     }
@@ -37,34 +68,35 @@ export class ContactsService {
     async findAllContacts(): Promise<Contacts[]> {
 
         return await this.contactsRepository.find({
-            where: { defaultContact : false },
+            where: { defaultContact: false },
             order: { createdAt: 'ASC' },
         });
     }
 
     async findContactsByPhoneNoArr(memberIds: any) {
         return await this.contactsRepository.find({
-            where: memberIds.map(phoneNo => ({ 
+            where: memberIds.map(phoneNo => ({
                 phoneNo,
-             })),
+            })),
         },
         )
 
     }
 
-    async UpdateContact(UpdateContact : updateContactsDto){
-        const updateContact = await this.contactsRepository.findOne({ where: { id : UpdateContact.id}})
-        if(!updateContact) throw Error("contact doesn't found." )
+    async UpdateContact(UpdateContact: updateContactsDto) {
+        const updateContact = await this.contactsRepository.findOne({ where: { id: UpdateContact.id } })
+        if (!updateContact) throw Error("contact doesn't found.")
         updateContact.contactName = UpdateContact.contactName;
         updateContact.phoneNo = UpdateContact.phoneNo;
         updateContact.profileImg = UpdateContact.profileImg;
+        updateContact.address = UpdateContact.address;
         return await this.contactsRepository.save(updateContact);
     }
 
-    async DeleteContact(contactId : string){
-        const deleteContact = await this.contactsRepository.findOne({ where : { id : contactId }});
+    async DeleteContact(contactId: string) {
+        const deleteContact = await this.contactsRepository.findOne({ where: { id: contactId } });
         if (deleteContact)
-            return  await this.contactsRepository.remove(deleteContact)
+            return await this.contactsRepository.remove(deleteContact)
         else
             return null
 

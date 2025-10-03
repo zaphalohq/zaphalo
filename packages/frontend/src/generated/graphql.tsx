@@ -192,36 +192,26 @@ mutation Register($firstName: String!, $lastName: String!, $email: String!, $pas
 
 
 export const CreateContactMute = gql`
-mutation CreateContacts(
-  $contactName: String!,
-  $phoneNo: Float!,
-  $profileImg: String,
-  $defaultContact: Boolean,
-) {
-  CreateContacts(CreateContacts: {
-  contactName: $contactName, 
-  phoneNo: $phoneNo, 
-  profileImg: $profileImg,
-  defaultContact: $defaultContact
-  }) {
+mutation CreateContacts($CreateContacts: createContactsDto!) {
+  CreateContacts(CreateContacts: $CreateContacts) {
     id
+    contactName
+    phoneNo
+    profileImg
+    defaultContact
+    address
   }
 }`
 
 export const UpdateContactMute = gql`
-mutation UpdateContact(
-  $id: String!,
-  $contactName: String!,
-  $phoneNo: Float!,
-  $profileImg: String,
-) {
-  UpdateContact(UpdateContact: {
-  id: $id, 
-  contactName: $contactName, 
-  phoneNo: $phoneNo, 
-  profileImg: $profileImg,
-  }) {
+mutation UpdateContact($UpdateContact: updateContactsDto!) {
+  UpdateContact(UpdateContact: $UpdateContact) {
     id
+    contactName
+    phoneNo
+    profileImg
+    defaultContact
+    address
   }
 }`
 
@@ -605,26 +595,6 @@ mutation DeleteOneAttachment($attachmentId: String!){
   }
 }
 `
-
-
-export const findAllMailingList = gql`
-  query FindAllMailingList($currentPage: Int!, $itemsPerPage: Int!) {
-    findAllMailingList(currentPage: $currentPage, itemsPerPage: $itemsPerPage) {
-    mailingList {
-      id
-      mailingListName
-      createdAt
-      totalContacts
-      mailingContacts {
-        contactName
-        contactNo
-        id
-      }
-    }
-    totalPages
-    }
-  }
-`;
 
 export const SaveMailingContact = gql`
 mutation saveMailingContact($saveMailingContact: MailingContact!){
@@ -1124,3 +1094,105 @@ query messages($channelId: String!, $cursor: String, $limit : Int!){
     hasMore
   }
 }`
+
+
+
+export const SearchReadContacts = gql`
+query searchReadContacts($page: Int!, $pageSize: Int!, $search: String, $filter: String) {
+  searchReadContacts(page: $page, pageSize: $pageSize, search: $search, filter: $filter) {
+    total,
+    totalPages,
+    currentPage,
+    contacts {
+      id
+      contactName
+      phoneNo
+      profileImg
+      address
+    }
+  }
+}
+`;
+
+export const GetContactById = gql`
+query getContactById($contactId: String!){
+  getContactById(contactId: $contactId){
+    id
+    contactName
+    phoneNo
+    profileImg
+    address
+  }
+}
+`
+
+export const searchReadMailingList = gql`
+  query searchReadMailingList($page: Int!, $pageSize: Int!, $search: String, $filter: String){
+    searchReadMailingList(page: $page, pageSize: $pageSize, search: $search, filter: $filter){
+      total,
+      totalPages,
+      currentPage,
+      mailingList {
+      id
+      mailingListName
+      createdAt
+      totalContacts
+      mailingContacts {
+        contactName
+        contactNo
+        id
+        }
+      broadcast {
+        name
+        id
+        }
+      }
+    }
+  }
+`
+
+export const deleteMailingListWithAllContacts = gql`
+  mutation DeleteMailingList($mailingId: String!) {
+    deleteMailingListWithAllContacts(mailingId: $mailingId) {
+      success
+      message
+    }
+  }
+`;
+
+export const searchReadAccount = gql`
+ query searchReadAccount($page: Int!, $pageSize: Int!, $search: String){
+    searchReadAccount(page: $page, pageSize: $pageSize, search: $search){
+      total,
+      totalPages,
+      currentPage,
+      accounts{
+        id
+        name
+        appId
+        phoneNumberId
+        businessAccountId
+        accessToken
+        appSecret
+        defaultSelected
+        waWebhookToken
+      }
+    }
+  }
+`
+export const GetWaAccount=gql`
+  query getWaAccount($waAccountId: String!){
+  getWaAccount(waAccountId: $waAccountId){
+    id
+    name
+    appId
+    appSecret
+    phoneNumberId
+    businessAccountId
+    createdAt
+    defaultSelected
+    accessToken
+    waWebhookToken
+  }
+}
+`

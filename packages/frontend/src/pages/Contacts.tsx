@@ -1,48 +1,35 @@
-import { useContext, useEffect } from "react"
+import { useContext, useEffect, useState } from "react"
 import { FaPlus } from "react-icons/fa"
 import SubmitButton from "@components/UI/SubmitButton"
-import ContactsForm from "@components/Contacts/ContactsForm"
-import ContactsTable from "@components/Contacts/ContactsTable"
 import { ContactsContext, ContactsProvider } from "@components/Context/ContactsContext"
+import ContactsList from "@src/modules/contact/components/ContactList"
+import ContactForm from "@src/modules/contact/components/ContactForm"
 
 const ContactsContent = () => {
-	const {
-		setContactFormData,
-		setIsNewContacts,
-		HandleContactsFormVisibility,
-		isContactFormVisible,
-		contactData,
-		HandleFetchData
-	}: any = useContext(ContactsContext)
 
-	useEffect(() => {
-		HandleFetchData()
-	}, [contactData])
+	const [showForm, setShowForm] = useState(false);
+	const [contact, setContact] = useState(false);
+	const [isNewContacts, setIsNewContacts] = useState(true);
+
 
 
 	return (
-		<div>
-			<div className='font-bold text-lg border-gray-300 p-4 border-b'>Contacts Overview</div>
-			<div className="grid grid-cols-5 pt-4 px-4">
-				<div className="md:col-start-5 md:pb-0 col-start-1 col-end-5 pb-4">
-					<SubmitButton onClick={() => {
-						setContactFormData({
-							id: "",
-							contactName: "",
-							phoneNo: "",
-							profileImg: "",
-						})
-						setIsNewContacts(true)
-						HandleContactsFormVisibility()
-					}
-					} title="Create New Contact" Icon={FaPlus} />
-				</div>
-
-			</div>
-			<div>
-				<ContactsTable />
-			</div>
-			{isContactFormVisible ? <ContactsForm /> : null}
+		<div className="min-h-screen bg-gray-50">
+			{showForm ? (<ContactForm isNewContacts={isNewContacts} contactId={contact} onBack={() => setShowForm(false)} />) : (
+				<>
+					<div>
+						<ContactsList
+							showForm={setShowForm}
+							setContact={setContact}
+							setIsNewContacts={setIsNewContacts}
+							onCreate={() => {
+								setContact(false)
+								setIsNewContacts(true)
+								setShowForm(true)
+							}} />
+					</div>
+				</>
+			)}
 		</div>
 	)
 }

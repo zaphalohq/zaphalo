@@ -41,6 +41,10 @@ export class Contacts {
   @Field(() => String, { nullable: true })
   profileImg?: string;
 
+  @Column({ nullable: true })
+  @Field(() => String, { nullable: true })
+  address?: string;
+
   @CreateDateColumn()
   @Field()
   createdAt: Date;
