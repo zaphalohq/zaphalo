@@ -27,7 +27,9 @@ export class MailingContacts {
     contactNo: string;
 
     @Field(() => MailingList)
-    @ManyToOne(() => MailingList, MailingList => MailingList.mailingContacts)
+    @ManyToOne(() => MailingList, MailingList => MailingList.mailingContacts, {
+        onDelete: 'CASCADE'
+    })
     mailingList: Relation<MailingList>
 
     @Field(() => String)

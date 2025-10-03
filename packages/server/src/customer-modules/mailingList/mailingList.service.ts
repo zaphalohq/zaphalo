@@ -13,25 +13,31 @@ export class MailingListService {
   private mailingContactsRepository: Repository<MailingContacts>
   constructor(
     @Inject(CONNECTION) connection: Connection,
-    ) {
+  ) {
     this.mailingListRepository = connection.getRepository(MailingList);
     this.mailingContactsRepository = connection.getRepository(MailingContacts);
-
   }
 
   async CreateMailingList(mailingListName: string, mailingListData: MailingListInputDto) {
-    const totalContacts = mailingListData.mailingContacts.length
-    const mailingList = this.mailingListRepository.create({ mailingListName, totalContacts })
-    await this.mailingListRepository.save(mailingList)
-    mailingListData.mailingContacts.map(async (mailingContact) => {
-      const mailingContacts = this.mailingContactsRepository.create({
+    const totalContacts = mailingListData.mailingContacts.length;
+
+    // 1. Save parent first
+    const mailingList = this.mailingListRepository.create({ mailingListName, totalContacts });
+    await this.mailingListRepository.save(mailingList);
+
+    // 2. Prepare child entities
+    const contacts = mailingListData.mailingContacts.map((mailingContact) =>
+      this.mailingContactsRepository.create({
         contactName: mailingContact.contactName,
         contactNo: mailingContact.contactNo,
-        mailingList
-      })
-      await this.mailingContactsRepository.save(mailingContacts)
-    })
-    return mailingList
+        mailingList, // pass entity reference
+      }),
+    );
+
+    // 3. Save all children & wait for completion
+    await Promise.all(contacts.map((c) => this.mailingContactsRepository.save(c)));
+
+    return mailingList;
   }
 
   async findMailingListById(mailingListId: string): Promise<MailingList | null> {
@@ -41,27 +47,61 @@ export class MailingListService {
     })
   }
 
-  async findAllMailingList(currentPage, itemsPerPage): Promise<FindAllMailingListRes> {
-    const totalItems = await this.mailingListRepository.count();
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const mailingList = await this.mailingListRepository.find({
-      relations: ['mailingContacts'],
+
+  async searchReadMailingList(
+    page: number = 1,
+    pageSize: number = 10,
+    search: string = '',
+    filter: string = '',
+  ) {
+    const skip = (page - 1) * pageSize;
+
+    const where: any = {};
+
+    // Search (by name)
+    if (search) {
+      where.mailingListName = ILike(`%${search}%`);
+    }
+
+    const [mailingList, total] = await this.mailingListRepository.findAndCount({
+      where,
+      skip,
+      take: pageSize,
       order: { createdAt: 'DESC' },
-      skip: startIndex,
-      take: itemsPerPage
+      relations: ['mailingContacts','broadcast']
     })
 
-    return { mailingList, totalPages }
+    return {
+      mailingList,
+      total,
+      totalPages: Math.ceil(total / pageSize),
+      currentPage: page,
+    };
   }
+
+  async deleteMailingWithContacts(mailingListId: string) {
+    const mailingList = await this.mailingListRepository.findOne({ where: { id: mailingListId }, relations: ['mailingContacts'], });
+
+    if (!mailingList) {
+      return { success: false, error: `Mailing list with id ${mailingListId} not found` };
+    }
+
+    try {
+      await this.mailingListRepository.remove(mailingList); // cascade deletes contacts
+      return { success: true, message: `Mailing list ${mailingListId} deleted successfully` };
+    } catch (err) {
+      return { success: false, error: 'Failed to delete mailing list' };
+    }
+  }
+
 
 
   async findAllContactsOfMailingList(mailingListId: string): Promise<MailingContacts[]> {
     const mailinglist = await this.mailingContactsRepository.find(
-    {
-      where: { mailingList: { id: mailingListId } },
-      relations: ['mailingList']
-    }
+      {
+        where: { mailingList: { id: mailingListId } },
+        relations: ['mailingList']
+      }
     )
     return mailinglist
   }
@@ -103,7 +143,7 @@ export class MailingListService {
   async searchAndPaginateContact(
     mailingListId: string,
     searchTerm?: string,
-    ) {
+  ) {
     const [mailingContact, totalCount] = await this.mailingContactsRepository.findAndCount({
       where: searchTerm ? [
         { mailingList: { id: mailingListId }, contactName: ILike(`%${searchTerm}%`) },
@@ -128,12 +168,12 @@ export class MailingListService {
       mailingContact.contactNo = saveMailingContact.contactNo;
       await this.mailingContactsRepository.save(mailingContact);
     } else {
-      const mailingList = await this.mailingListRepository.findOne({ 
-        where : { id: saveMailingContact.mailingListId},
+      const mailingList = await this.mailingListRepository.findOne({
+        where: { id: saveMailingContact.mailingListId },
         relations: ['mailingContacts']
       })
-      if(!mailingList) throw Error('Contact List doesnt exist')
-        mailingList.totalContacts = mailingList?.totalContacts + 1 ;
+      if (!mailingList) throw Error('Contact List doesnt exist')
+      mailingList.totalContacts = mailingList?.totalContacts + 1;
       await this.mailingListRepository.save(mailingList);
       const mailingContact = this.mailingContactsRepository.create({
         contactName: saveMailingContact.contactName,
@@ -151,7 +191,7 @@ export class MailingListService {
 
   async searchMailingList(
     searchTerm?: string,
-    ) {
+  ) {
     const [mailingList, totalCount] = await this.mailingListRepository.findAndCount({
       where: { mailingListName: ILike(`%${searchTerm}%`) },
       order: { createdAt: 'DESC' },
@@ -165,7 +205,7 @@ export class MailingListService {
   async readMailingList(
     searchTerm?: string,
     limit?: number,
-    ) {
+  ) {
     const mailingList = await this.mailingListRepository.find({
       where: { mailingListName: ILike(`%${searchTerm}%`) },
       order: { createdAt: 'DESC' },

@@ -57,7 +57,8 @@ export class ContactsService {
             contactName: CreateContacts.contactName,
             phoneNo: CreateContacts.phoneNo,
             profileImg: CreateContacts.profileImg,
-            defaultContact: CreateContacts.defaultContact || false
+            defaultContact: CreateContacts.defaultContact || false,
+            address: CreateContacts.address,
         });
         await this.contactsRepository.save(createdContacts);
         return createdContacts
@@ -88,6 +89,7 @@ export class ContactsService {
         updateContact.contactName = UpdateContact.contactName;
         updateContact.phoneNo = UpdateContact.phoneNo;
         updateContact.profileImg = UpdateContact.profileImg;
+        updateContact.address = UpdateContact.address;
         return await this.contactsRepository.save(updateContact);
     }
 

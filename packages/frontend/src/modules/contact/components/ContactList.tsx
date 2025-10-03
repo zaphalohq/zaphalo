@@ -23,11 +23,11 @@ import {
 } from "@src/components/UI/table";
 import { DeleteContact, SearchReadContacts } from '@src/generated/graphql';
 import { useMutation, useQuery } from '@apollo/client';
+import { toast } from 'react-toastify';
 
 const ContactsList = ({
     showForm,
     setIsNewContacts,
-    setReadOnly,
     setContact,
     onCreate
 }) => {
@@ -81,7 +81,8 @@ const ContactsList = ({
     const HandleDeleteContacts = async () => {
         try {
             for (const id of selected) {
-                await deleteContact({ variables: { id } });
+                await deleteContact({ variables: { contactId: id } });
+                toast.success('Contact deleted successfully');
             }
             await refetch();
         } catch (err) {
@@ -131,7 +132,7 @@ const ContactsList = ({
                     }}
                     className="max-w-sm"
                 />
-                <Select value={filter} onValueChange={(val) => setFilter(val)}>
+                {/* <Select value={filter} onValueChange={(val) => setFilter(val)}>
                     <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Filter by status" />
                     </SelectTrigger>
@@ -144,7 +145,7 @@ const ContactsList = ({
                         <SelectItem value="Failed">Failed</SelectItem>
                         <SelectItem value="Cancelled">Cancelled</SelectItem>
                     </SelectContent>
-                </Select>
+                </Select> */}
             </div>
 
             {/* Table List View */}
@@ -157,6 +158,7 @@ const ContactsList = ({
                             <TableHead className="px-4 py-3"></TableHead>
                             <TableHead className="px-4 py-3">Contact Name</TableHead>
                             <TableHead className="px-4 py-3">Contact Number</TableHead>
+                            <TableHead className="px-4 py-3">Address</TableHead>
                             <TableHead className="px-4 py-3">Edit</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -185,6 +187,12 @@ const ContactsList = ({
                                 >
                                     {contactData.phoneNo}
                                 </TableCell>
+                                <TableCell
+                                    className="px-6 py-4 text-left truncate max-w-[200px]"
+                                    title={contactData?.address || 'N/A'}
+                                >
+                                    {contactData?.address || 'N/A'}
+                                </TableCell>
                                 <TableCell className="px-4 py-2 text-left">
                                     <button
                                         onClick={() => {
@@ -192,7 +200,7 @@ const ContactsList = ({
                                             showForm(true);
                                             setIsNewContacts(false);
                                         }}
-                                        className="text-lg text-center text-green-500 hover:text-green-600 cursor-pointer hover:bg-stone-200 p-2 rounded"
+                                        className="text-lg text-center text-blue-500 hover:text-blue-700 cursor-pointer hover:bg-stone-200 p-2 rounded"
                                     >
                                         <FiEdit2 />
                                     </button>

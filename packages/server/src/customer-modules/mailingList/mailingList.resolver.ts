@@ -19,18 +19,25 @@ export class MailingListResolver {
 
   @Query(() => FindAllMailingListRes)
   @UseGuards(GqlAuthGuard)
-  async findAllMailingList(
-    @Args('currentPage', { type: () => Int }) currentPage: number,
-    @Args('itemsPerPage', { type: () => Int }) itemsPerPage: number
+  async searchReadMailingList(
+    @Args('page', { type: () => Int, defaultValue: 1 }) page: number,
+    @Args('pageSize', { type: () => Int, defaultValue: 10 }) pageSize: number,
+    @Args('search', { type: () => String, nullable: true }) search?: string,
+    @Args('filter', { type: () => String, nullable: true }) filter?: string,
   ): Promise<FindAllMailingListRes> {
-    return this.mailingListService.findAllMailingList(currentPage, itemsPerPage)
+    if (!search)
+      search = ''
+    if (!filter)
+      filter = ''
+
+    const response = await this.mailingListService.searchReadMailingList(page, pageSize, search, filter)
+    return response
   }
 
   @Query(() => [MailingContacts])
   async findAllMailingContactByMailingListId(@Args('mailingListId') mailingListId: string): Promise<MailingContacts[] | null> {
     return await this.mailingListService.findAllMailingContactByMailingListId(mailingListId);
   }
-
 
   @Mutation(() => SuccessResponse)
   async saveMailingContact(@Args('saveMailingContact') saveMailingContact: MailingContact) {
@@ -39,6 +46,11 @@ export class MailingListResolver {
       success: true,
       message: 'contact saved successfully'
     }
+  }
+
+  @Mutation(()=>SuccessResponse)
+  async deleteMailingListWithAllContacts(@Args('mailingId')mailingListId: string){
+    return this.mailingListService.deleteMailingWithContacts(mailingListId)
   }
 
   @Mutation(() => SuccessResponse)
@@ -78,11 +90,11 @@ export class MailingListResolver {
 
   @Query(() => [MailingList])
   async readMailingList(
-      @Args('search', { type: () => String, nullable: true }) search?: string,
-      @Args('limit', { type: () => Int, nullable: true }) limit?: number,
+    @Args('search', { type: () => String, nullable: true }) search?: string,
+    @Args('limit', { type: () => Int, nullable: true }) limit?: number,
   ): Promise<MailingList[] | undefined> {
-      const mailigList = await this.mailingListService.readMailingList(search, limit);
-      return mailigList
+    const mailigList = await this.mailingListService.readMailingList(search, limit);
+    return mailigList
   }
 
 

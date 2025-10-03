@@ -19,15 +19,15 @@ import { WhatsAppSDKService } from 'src/customer-modules/whatsapp/services/whats
 
 
 export const SUPPORTED_ATTACHMENT_TYPE = {
-    "audio": ["audio/aac", "audio/mp4", "audio/mpeg", "audio/amr", "audio/ogg"],
-    "document": [
-        'text/plain', 'application/pdf', 'application/vnd.ms-powerpoint', 'application/msword',
-        'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    ],
-    'image': ['image/jpeg', 'image/png'],
-    'video': ['video/mp4',],
+  "audio": ["audio/aac", "audio/mp4", "audio/mpeg", "audio/amr", "audio/ogg"],
+  "document": [
+    'text/plain', 'application/pdf', 'application/vnd.ms-powerpoint', 'application/msword',
+    'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  ],
+  'image': ['image/jpeg', 'image/png'],
+  'video': ['video/mp4',],
 }
 
 @Injectable()
@@ -88,14 +88,40 @@ export class WaAccountService {
   }
 
 
-
   async findAllAccounts(): Promise<WhatsAppAccount[]> {
     return await this.waAccountRepository.find({
       order: { createdAt: 'ASC' }
     });
   }
 
+  async searchReadAccounts(
+    page: number = 1,
+    pageSize: number = 10,
+    search: string = '',
+  ) {
+    const skip = (page - 1) * pageSize;
 
+    const where: any = {};
+
+    // Search (by name)
+    if (search) {
+      where.name = ILike(`%${search}%`);
+    }
+
+    const [accounts, total] = await this.waAccountRepository.findAndCount({
+      where,
+      skip,
+      take: pageSize,
+      order: { createdAt: 'DESC' },
+    })
+
+    return {
+      accounts,
+      total,
+      totalPages: Math.ceil(total / pageSize),
+      currentPage: page,
+    }
+  }
 
   async DeleteInstants(id: string): Promise<WhatsAppAccount | null> {
     const deleteInstants = await this.waAccountRepository.findOne({ where: { id } });
@@ -270,13 +296,13 @@ export class WaAccountService {
     }
 
     if (!whatsappMediaType)
-        throw new Error(`Attachment mimetype is not supported by WhatsApp: ${attachment.mimetype}.`)
+      throw new Error(`Attachment mimetype is not supported by WhatsApp: ${attachment.mimetype}.`)
     const waApi = await this.getWhatsAppApi(waAccount.id)
     let whatsappMediaUid = await waApi.uploadWhatsappDocument(attachment)
 
     let vals = {
-        'type': whatsappMediaType,
-        [whatsappMediaType]: {'id': whatsappMediaUid}
+      'type': whatsappMediaType,
+      [whatsappMediaType]: {'id': whatsappMediaUid}
     }
     if (whatsappMediaType == 'document')
       vals[whatsappMediaType]['filename'] = attachment.name
