@@ -79,28 +79,29 @@ export class WhatsAppWebhookController {
         // # Process Template webhooks
         if (value['message_template_id']){
             // # There is no user in webhook, so we need to SUPERUSER_ID to write on template object
-            const template = await this.waTemplateService.findTemplateByWaTemplateId(value['message_template_id'])
+            const templateRes = await this.waTemplateService.getTemplate(value['message_template_id'])
+            const template = templateRes?.template
             if (template){
                 if (changes['field'] == 'message_template_status_update'){
-                  this.waTemplateService.updateTemplate({'status': value['event'], 'noUpdateToWhatsapp': true}, template.id)
+                  this.waTemplateService.updateTemplate({'templateId': template.id, 'status': value['event'], 'noUpdateToWhatsapp': true})
                   if (value['event'] == 'REJECTED'){
                     let body = "Your Template has been rejected."
                     const description = value['other_info']?.description || value['reason']
                     if (description){
                       body += `Reason : ${description}`
                     }
-                    this.waTemplateService.updateTemplate({'failureReason': body, 'noUpdateToWhatsapp': true}, template.id)
+                    this.waTemplateService.updateTemplate({'templateId': template.id, 'failureReason': body, 'noUpdateToWhatsapp': true})
                   }
                   continue
                 }
                 if (changes['field'] == 'message_template_quality_update'){
                   let new_quality_score = value['new_quality_score']
                   new_quality_score = {'unknown': 'none'}[new_quality_score] || new_quality_score
-                  this.waTemplateService.updateTemplate({'quality': new_quality_score, 'noUpdateToWhatsapp': true}, template.id)
+                  this.waTemplateService.updateTemplate({'templateId': template.id, 'quality': new_quality_score, 'noUpdateToWhatsapp': true})
                   continue
                 }
                 if (changes['field'] == 'template_category_update'){
-                    this.waTemplateService.updateTemplate({'category': value['new_category'], 'noUpdateToWhatsapp': true}, template.id)
+                    this.waTemplateService.updateTemplate({'templateId': template.id, 'category': value['new_category'], 'noUpdateToWhatsapp': true})
                     continue
                 }
                 // console.log(`Unknown Template webhook : ${value}`)

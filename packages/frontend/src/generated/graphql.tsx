@@ -503,65 +503,6 @@ export const findCountForDash = gql`query findWorkspaceByIdForDash($workspaceId:
 
 
 
-export const GET_TEMPLATE_STATUS = gql`
-mutation getTemplateStatus($templateId: String!) {
-  getTemplateStatus(templateId: $templateId) {
-    success
-    data
-    error
-  }
-}
-`;
-
-
-export const findAllApprovedTemplate = gql`
-query findAllApprovedTemplate {
-    findAllApprovedTemplate {
-    account {
-      id
-    }
-    attachment {
-      id
-      originalname
-      name
-    }
-    bodyText
-    category
-    button {
-      phone_number
-      text
-      type
-      url
-    }
-    footerText
-    headerText
-    headerType
-    id
-    language
-    status
-    templateName
-    waTemplateId
-    templateImg
-    variables {
-      name
-      value
-    }
-  }
-}`
-
-
-
-
-export const SUBMIT_TEMPLATE = gql`
-mutation SubmitTemplate($templateData: WaTemplateRequestInput!, $waTemplateId: String, $dbTemplateId: String) {
-  submitWaTemplate(templateData: $templateData, waTemplateId: $waTemplateId, dbTemplateId: $dbTemplateId) {
-    success
-    message
-    error
-  }
-}`;
-
-
 
 
 export const WaTestTemplate = gql`
@@ -892,6 +833,7 @@ query getTemplate($templateId: String!) {
   getTemplate(templateId: $templateId) {
     template {
       id
+      name
       templateName
       category
       language
@@ -932,6 +874,7 @@ export const ReadWaTemplate = gql`
 query readWaTemplate($search: String, $limit: Int, $filter: JSONObject){
   readWaTemplate(search: $search, limit: $limit, filter: $filter){
     id
+    name
     templateName
   }
 }`
@@ -944,6 +887,7 @@ query searchReadTemplate($page : Int!, $pageSize : Int!, $search: String, $filte
     currentPage
     templates{
       id
+      name
       templateName
       category
       language
@@ -981,12 +925,130 @@ query searchReadTemplate($page : Int!, $pageSize : Int!, $search: String, $filte
 export const SaveWhatsappTemplate = gql`
 mutation saveTemplate($templateData: WaTemplateRequestInput!) {
   saveTemplate(templateData: $templateData) {
-    success
+    template {
+      id
+      name
+      templateName
+      category
+      language
+      waTemplateId
+      templateImg
+      createdAt
+      status
+      footerText
+      headerText
+      headerType
+      bodyText
+      account {
+        id
+        name
+      }
+      attachment {
+        id
+        originalname
+        name
+      }
+      button {
+        phone_number
+        text
+        type
+        url
+      }
+      variables {
+        name
+        value
+      }
+    }
     message
-    error
+    status
   }
 }`;
 
+
+export const SubmitWhatsappTemplate = gql`
+mutation submitTemplate($templateId: String!) {
+  submitTemplate(templateId: $templateId) {
+    template {
+      id
+      name
+      templateName
+      category
+      language
+      waTemplateId
+      templateImg
+      createdAt
+      status
+      footerText
+      headerText
+      headerType
+      bodyText
+      account {
+        id
+        name
+      }
+      attachment {
+        id
+        originalname
+        name
+      }
+      button {
+        phone_number
+        text
+        type
+        url
+      }
+      variables {
+        name
+        value
+      }
+    }
+    message
+    status
+  }
+}`;
+
+
+export const SyncTemplate = gql`
+mutation syncTemplate($templateId: String!) {
+  syncTemplate(templateId: $templateId) {
+    template {
+      id
+      name
+      templateName
+      category
+      language
+      waTemplateId
+      templateImg
+      createdAt
+      status
+      footerText
+      headerText
+      headerType
+      bodyText
+      account {
+        id
+        name
+      }
+      attachment {
+        id
+        originalname
+        name
+      }
+      button {
+        phone_number
+        text
+        type
+        url
+      }
+      variables {
+        name
+        value
+      }
+    }
+    message
+    status
+  }
+}`
 
 // Messages
 
@@ -1011,7 +1073,6 @@ query channelMessage($channelId: String!, $page : Int!, $pageSize : Int!, $searc
     }
   }
 }`
-
 
 export const ChannelMessage = gql`
 query messages($channelId: String!, $cursor: String, $limit : Int!){

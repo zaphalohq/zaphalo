@@ -14,7 +14,7 @@ import { MessageQueue } from 'src/modules/message-queue/message-queue.constants'
 
 
 import { WhatsAppMessage } from "src/customer-modules/whatsapp/entities/whatsapp-message.entity";
-import { WhatsAppTemplate } from "src/customer-modules/whatsapp/entities/whatsapp-template.entity";
+import { WhatsAppTemplate, TemplateStatus } from "src/customer-modules/whatsapp/entities/whatsapp-template.entity";
 import { WhatsAppMessageCreatedEvent } from 'src/customer-modules/whatsapp/events/whatsapp-message-created.event';
 import {
   WhatsAppException,
@@ -93,7 +93,7 @@ export class WaMessageService {
     // based on template
     if (waMessage.waTemplateId){
       messageType = 'template'
-      if (waMessage.waTemplateId.status != 'APPROVED'){
+      if (waMessage.waTemplateId.status != TemplateStatus.approved){
         // || waMessage.waTemplateId.quality == 'red'):
           throw new WhatsAppException(
             'Template is not approved',
@@ -101,13 +101,9 @@ export class WaMessageService {
           );
       }
       // # generate sending values, components and attachments
-      const values = await this.waTemplateService.getSendTemplateVals(
+      const sendVals = await this.waTemplateService.getSendTemplateVals(
           waMessage?.waTemplateId,
-          waMessage,
       )
-      sendVals = values[0]
-      // sendVals = attachmentVals[messageType]
-      let attachment = values[1]
     }
     else if (waMessage.channelMessageId.attachment){
       let attachmentVals = await this.prepareAttachmentVals(waMessage.channelMessageId.attachment, waMessage.waAccountId)

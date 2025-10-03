@@ -12,7 +12,7 @@ import TemplatePreviewDialog from '@src/modules/whatsapp/components/templates/Te
 
 const WhatsappTemplate = () => {
   const [showForm, setShowForm] = useState(false);
-  const [record, setRecord] = useState(false);
+  const [record, setRecord] = useState(null);
   const [readOnly, setReadOnly] = useState(false);
   const [preview, setPreview] = useState(false);
 
@@ -20,7 +20,10 @@ const WhatsappTemplate = () => {
     <TemplateProvider>
       <div className="min-h-screen bg-gray-50">
         {showForm ? (
-          <TemplateForm recordId={record} readOnly={readOnly} onBack={() => setShowForm(false)} />
+          <TemplateForm recordId={record} readOnly={readOnly} onBack={() => {
+            setRecord(null)
+            setShowForm(false);
+          }} />
         ) : (
           <TemplateList
             showForm={setShowForm}

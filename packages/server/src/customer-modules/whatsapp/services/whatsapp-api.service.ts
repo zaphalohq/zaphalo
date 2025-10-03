@@ -100,12 +100,12 @@ export class WhatsAppApiService {
     return res
   }
 
-  prepare_error_response(response) {
+  prepareErrorResponse(response) {
     //
     //  This method is used to prepare error response
     //  :return tuple[str, int]: (error_message, whatsapp_error_code | -1)
     //
-    if (response.response.data.error) {
+    if (response?.response?.data?.error) {
       const error = response.response.data.error;
       let desc = error.message;
       desc += (' - ' + (error.error_user_title ? error.error_user_title : ''));
@@ -179,6 +179,12 @@ export class WhatsAppApiService {
       "url": `/${waTemplateId}?fields=name,components,language,status,category,id,quality_score`,
       "auth_type": "bearer"
     })
+    if(response.status != 200){
+      throw new WhatsAppException(
+        this.prepareErrorResponse(response),
+        WhatsAppExceptionCode.TEMPLATE_NOT_SUBMITED,
+      );
+    }
     return response.data
   }
 
@@ -245,7 +251,6 @@ export class WhatsAppApiService {
     if (this.is_shared_account) {
       throw new Error("Account not properly configured")
     }
-
     console.info("Submit new template for account %s [%s]", this.wa_account_id.name, this.wa_account_id.id)
     const response = await this.apiRequests({
       "request_type": "POST",
@@ -255,14 +260,19 @@ export class WhatsAppApiService {
       "data": json_data
     })
     const response_data = response.data
-    if (response.data?.id) {
+    if (response_data?.id) {
       return {
         'success': response.status == 200,
         "data": response.data ? JSON.stringify(response.data) : undefined,
         "error": response.error ? JSON.stringify(response.error) : undefined,
       }
     }
-    return this.prepare_error_response(response)
+
+    throw new WhatsAppException(
+      this.prepareErrorResponse(response),
+      WhatsAppExceptionCode.MOBILE_NUMBER_NOT_VALID,
+    );
+    // return this.prepareErrorResponse(response)
   }
 
   async sendTemplateMsg(json_data) {
@@ -297,7 +307,7 @@ export class WhatsAppApiService {
       "data": json_data
     })
     const response_data = response.data
-    if (response_data?.success)
+    if (response_data?.success){
       return {
         'id': response_data.id,
         'status': response.status,
@@ -305,7 +315,8 @@ export class WhatsAppApiService {
         "data": response.data ? JSON.stringify(response.data) : undefined,
         "error": response.error ? JSON.stringify(response.error) : undefined,
       }
-    return this.prepare_error_response(response)
+    }
+    return this.prepareErrorResponse(response)
   }
 
   async syncTemplate() {
@@ -366,7 +377,7 @@ export class WhatsAppApiService {
       return msg_uid
     }
     throw new WhatsAppException(
-      this.prepare_error_response(response),
+      this.prepareErrorResponse(response),
       WhatsAppExceptionCode.MOBILE_NUMBER_NOT_VALID,
     );
   }
@@ -381,7 +392,7 @@ export class WhatsAppApiService {
     if (response_data) {
       return response_data
     }
-    throw new Error(this.prepare_error_response(response))
+    throw new Error(this.prepareErrorResponse(response))
   }
 
   async getHeaderDataFromHandle(url) {
@@ -400,7 +411,8 @@ export class WhatsAppApiService {
     }
     const mimetype = res.headers;
     const data = response.data;
-    return [data, mimetype]
+    return res
+    // return {data, mimetype}
   }
 
   async getWhatsAppDocument(documentId) {
@@ -459,7 +471,7 @@ export class WhatsAppApiService {
     if (response_data?.id) {
       return response_data.id
     }
-    throw new Error(this.prepare_error_response(response));
+    throw new Error(this.prepareErrorResponse(response));
   }
 
 
@@ -483,7 +495,7 @@ export class WhatsAppApiService {
       'auth_type': 'bearer',
     })
     if(response.status == 403){
-      throw Error(this.prepare_error_response(response));
+      throw Error(this.prepareErrorResponse(response));
     }
     const data = response.data.data
     let phone_values: String[] = new Array();
@@ -502,7 +514,7 @@ export class WhatsAppApiService {
     })
     const upload_session_id = uploads_session_response.data.id
     if (!upload_session_id)
-      throw new Error(this.prepare_error_response(uploads_session_response))
+      throw new Error(this.prepareErrorResponse(uploads_session_response))
     return `Test connection: success for account ${this.wa_account_id.name}`;
   }
 }
