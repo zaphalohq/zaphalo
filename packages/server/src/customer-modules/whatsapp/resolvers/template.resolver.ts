@@ -103,5 +103,14 @@ export class WhatsAppTemplateResolver {
     return await this.templateService.testTemplate(testTemplateData)
   }
 
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => TemplateResponse)
+  async syncTemplate(
+    @Args('templateId') templateId: string
+  ): Promise<TemplateResponse> {
+    const response = await this.templateService.syncTemplate(templateId);
+    return response
+  }
+
 }
 

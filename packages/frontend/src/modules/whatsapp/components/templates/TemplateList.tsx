@@ -7,7 +7,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@src/components/UI/select";
 import usePagination from '@src/utils/usePagination';
 import { Trash2 } from "lucide-react";
-import { SearchedBroadcast, SearchReadWhatsappTemplate, WaTestTemplate } from '@src/generated/graphql';
+import {
+  SearchedBroadcast,
+  SearchReadWhatsappTemplate,
+  WaTestTemplate,
+  SyncTemplate,
+} from '@src/generated/graphql';
 import { PageHeader } from '@src/modules/ui/layout/page/components/PageHeader';
 import { Plus } from "lucide-react";
 import { formatLocalDate } from '@src/utils/formatLocalDate';
@@ -15,9 +20,9 @@ import { TemplateContext, initTemplateData } from '@src/modules/whatsapp/Context
 
 const statusColors: Record<string, string> = {
   Scheduled: "bg-blue-100 text-blue-800",
-  APPROVED: "bg-green-100 text-green-800",
-  PENDING: "bg-yellow-100 text-yellow-800",
-  REJECTED: "bg-red-100 text-red-800",
+  approved: "bg-green-100 text-green-800",
+  pending: "bg-yellow-100 text-yellow-800",
+  rejected: "bg-red-100 text-red-800",
 };
 
 export default function TemplateList({
@@ -43,12 +48,20 @@ export default function TemplateList({
   });
   const [showSendPopup, setShowSendPopup] = useState(false);
 
-  const { data, loading: loadingData, refetch } = useQuery(SearchReadWhatsappTemplate, {
+  const { data, loading: loadingData, error,  refetch } = useQuery(SearchReadWhatsappTemplate, {
     variables: { page, pageSize, search, filter },
     fetchPolicy: "cache-and-network",
   });
 
   const [testTemplate] = useMutation(WaTestTemplate);
+
+  const [syncTemplate, { data: syncData, loading: syncLoading, error: syncError }] = useMutation(SyncTemplate, {
+    onCompleted: (data) => {
+    },
+    onError: (err) => {
+      // toast.error(`${err}`);
+    },
+  });
 
   const toggleSelect = (id: number) => {
     setSelected((prev) =>
@@ -101,6 +114,14 @@ export default function TemplateList({
       });
   };
 
+  const handleSync = async (templateId: string) => {
+    const response = await syncTemplate({
+      variables: {
+        templateId: templateId,
+      }
+    });
+  }
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -145,10 +166,10 @@ export default function TemplateList({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="All">All</SelectItem>
-            <SelectItem value="New">New</SelectItem>
-            <SelectItem value="PENDING">Pending</SelectItem>
-            <SelectItem value="REJECTED">Rejected</SelectItem>
-            <SelectItem value="APPROVED">Approved</SelectItem>
+            <SelectItem value="New">new</SelectItem>
+            <SelectItem value="PENDING">pending</SelectItem>
+            <SelectItem value="REJECTED">rejected</SelectItem>
+            <SelectItem value="APPROVED">approved</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -166,6 +187,7 @@ export default function TemplateList({
               <TableHead className="px-4 py-3">Account</TableHead>
               <TableHead className="px-4 py-3">Create on</TableHead>
               <TableHead className="px-4 py-3">Status</TableHead>
+              <TableHead className="px-4 py-3">Sync</TableHead>
               <TableHead className="px-4 py-3"></TableHead>
               <TableHead className="px-4 py-3">Preview</TableHead>
               <TableHead className="px-4 py-3">Contact List</TableHead>
@@ -191,7 +213,7 @@ export default function TemplateList({
                   }</TableCell>
                   <TableCell className="px-4 py-5">
                     <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${
                         statusColors[template.status] || "bg-gray-100 text-gray-800"
                       }`}
                     >
@@ -199,8 +221,20 @@ export default function TemplateList({
                     </span>
                   </TableCell>
                   <TableCell onClick={() => {
+                    handleSync(template.id);
+                    // resetContext();
+                    // template.status != 'new' ? setReadOnly(true) : setReadOnly(false)
+                    // setRecord(template.id)
+                    // showForm(true)
+                  }}
+                    className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
+                    title="preview"
+                  >
+                      Sync
+                  </TableCell>
+                  <TableCell onClick={() => {
                     resetContext();
-                    template.status != 'New' ? setReadOnly(true) : setReadOnly(false)
+                    template.status != 'new' ? setReadOnly(true) : setReadOnly(false)
                     setRecord(template.id)
                     showForm(true)
                   }}

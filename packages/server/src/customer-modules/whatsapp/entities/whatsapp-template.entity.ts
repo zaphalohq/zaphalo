@@ -15,7 +15,7 @@ import { UUIDScalarType } from "src/modules/api/scalars/uuid.scalar";
 import { Attachment } from "src/customer-modules/attachment/attachment.entity";
 import { WhatsAppAccount } from "./whatsapp-account.entity";
 
-export enum HeaderType {
+export enum TemplateHeaderType {
   NONE = 'NONE',
   TEXT = 'TEXT',
   IMAGE = 'IMAGE',
@@ -27,6 +27,26 @@ export enum TemplateCategory {
   MARKETING = 'MARKETING',
   AUTHENTICATION = 'AUTHENTICATION',
   UTILITY = 'UTILITY'
+}
+
+export enum TemplateStatus {
+  new = 'New',
+  pending = 'Pending',
+  inAppeal = 'In Appeal',
+  approved = 'Approved',
+  paused = 'Paused',
+  disabled = 'Disabled',
+  rejected =  'Rejected',
+  pendingDeletion = 'Pending Deletion',
+  deleted = 'Deleted',
+  limitExceeded = 'Limit Exceeded',
+}
+
+export enum TemplateQuality {
+  none = 'None',
+  red = 'Red',
+  yellow = 'Yellow',
+  green = 'Green',
 }
 
 export enum TemplateLanguage {
@@ -114,9 +134,19 @@ registerEnumType(TemplateLanguage, {
   description: 'Supported language codes for WhatsApp templates',
 });
 
-registerEnumType(HeaderType, {
-  name: 'HeaderType',
+registerEnumType(TemplateHeaderType, {
+  name: 'TemplateHeaderType',
   description: 'Type of header used in WhatsApp message templates',
+});
+
+registerEnumType(TemplateStatus, {
+  name: 'TemplateStatus',
+  description: 'The status of the WhatsApp template',
+});
+
+registerEnumType(TemplateQuality, {
+  name: 'TemplateQuality',
+  description: 'The quality of the WhatsApp template',
 });
 
 
@@ -127,21 +157,25 @@ export class WhatsAppTemplate {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Field(() => WhatsAppAccount, { nullable: true })
   @ManyToOne(() => WhatsAppAccount, { nullable: true })
+  @Field(() => WhatsAppAccount, { nullable: true })
   account: Relation<WhatsAppAccount>;
+
+  @Column()
+  @Field()
+  name: string;
 
   @Column()
   @Field()
   templateName: string;
 
-  @Column()
-  @Field()
-  status: string;
+  @Column({ type: 'enum', enum: TemplateQuality, nullable: true, default: TemplateQuality.none })
+  @Field(() => TemplateQuality, { nullable: true })
+  quality: TemplateQuality;
 
-  @Column({default: 'none'})
-  @Field()
-  quality: string;
+  @Column({ type: 'enum', enum: TemplateStatus, nullable: true, default: TemplateStatus.new })
+  @Field(() => TemplateStatus, { nullable: true })
+  status: TemplateStatus;
 
   @Column({ nullable: true })
   @Field()
@@ -161,9 +195,9 @@ export class WhatsAppTemplate {
   category: TemplateCategory;
 
 
-  @Column({ type: 'enum', enum: HeaderType, nullable: true })
-  @Field(() => HeaderType, { nullable: true })
-  headerType: HeaderType;
+  @Column({ type: 'enum', enum: TemplateHeaderType, nullable: true })
+  @Field(() => TemplateHeaderType, { nullable: true })
+  headerType: TemplateHeaderType;
 
   @Column({ nullable: true })
   @Field({ nullable: true })

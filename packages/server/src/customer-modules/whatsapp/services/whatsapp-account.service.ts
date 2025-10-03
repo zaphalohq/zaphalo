@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { dirname, join } from 'path';
 
 import { WhatsAppAccount } from 'src/customer-modules/whatsapp/entities/whatsapp-account.entity';
-import { WhatsAppTemplate } from 'src/customer-modules/whatsapp/entities/whatsapp-template.entity';
+import { WhatsAppTemplate, TemplateStatus } from 'src/customer-modules/whatsapp/entities/whatsapp-template.entity';
 import { WhatsAppMessage } from 'src/customer-modules/whatsapp/entities/whatsapp-message.entity';
 import { AttachmentService } from 'src/customer-modules/attachment/attachment.service';
 import { ContactsService } from 'src/customer-modules/contacts/contacts.service';
@@ -238,8 +238,9 @@ export class WaAccountService {
         const componentData: any = this.convertTemplatePayloadToDbData(components)
         const dbTemplate = this.templateRepository.create({
           account: instants,
+          name: template.name,
           templateName: template.name,
-          status: template.status,
+          status: TemplateStatus[template.status.toLowerCase()],
           waTemplateId: template.id,
           language: template.language,
           category: template.category,

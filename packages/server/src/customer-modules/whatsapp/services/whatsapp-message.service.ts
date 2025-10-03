@@ -14,7 +14,7 @@ import { MessageQueue } from 'src/modules/message-queue/message-queue.constants'
 
 
 import { WhatsAppMessage } from "src/customer-modules/whatsapp/entities/whatsapp-message.entity";
-import { WhatsAppTemplate } from "src/customer-modules/whatsapp/entities/whatsapp-template.entity";
+import { WhatsAppTemplate, TemplateStatus } from "src/customer-modules/whatsapp/entities/whatsapp-template.entity";
 import { WhatsAppMessageCreatedEvent } from 'src/customer-modules/whatsapp/events/whatsapp-message-created.event';
 import {
   WhatsAppException,
@@ -93,7 +93,7 @@ export class WaMessageService {
     // based on template
     if (waMessage.waTemplateId){
       messageType = 'template'
-      if (waMessage.waTemplateId.status != 'APPROVED'){
+      if (waMessage.waTemplateId.status != TemplateStatus.approved){
         // || waMessage.waTemplateId.quality == 'red'):
           throw new WhatsAppException(
             'Template is not approved',

@@ -863,6 +863,7 @@ query getTemplate($templateId: String!) {
   getTemplate(templateId: $templateId) {
     template {
       id
+      name
       templateName
       category
       language
@@ -903,6 +904,7 @@ export const ReadWaTemplate = gql`
 query readWaTemplate($search: String, $limit: Int, $filter: JSONObject){
   readWaTemplate(search: $search, limit: $limit, filter: $filter){
     id
+    name
     templateName
   }
 }`
@@ -915,6 +917,7 @@ query searchReadTemplate($page : Int!, $pageSize : Int!, $search: String, $filte
     currentPage
     templates{
       id
+      name
       templateName
       category
       language
@@ -954,6 +957,7 @@ mutation saveTemplate($templateData: WaTemplateRequestInput!) {
   saveTemplate(templateData: $templateData) {
     template {
       id
+      name
       templateName
       category
       language
@@ -993,13 +997,88 @@ mutation saveTemplate($templateData: WaTemplateRequestInput!) {
 
 export const SubmitWhatsappTemplate = gql`
 mutation submitTemplate($templateId: String!) {
-  submitTemplate(templateId: $templateId,) {
-    status
+  submitTemplate(templateId: $templateId) {
+    template {
+      id
+      name
+      templateName
+      category
+      language
+      waTemplateId
+      templateImg
+      createdAt
+      status
+      footerText
+      headerText
+      headerType
+      bodyText
+      account {
+        id
+        name
+      }
+      attachment {
+        id
+        originalname
+        name
+      }
+      button {
+        phone_number
+        text
+        type
+        url
+      }
+      variables {
+        name
+        value
+      }
+    }
     message
-    error
+    status
   }
 }`;
 
+
+export const SyncTemplate = gql`
+mutation syncTemplate($templateId: String!) {
+  syncTemplate(templateId: $templateId) {
+    template {
+      id
+      name
+      templateName
+      category
+      language
+      waTemplateId
+      templateImg
+      createdAt
+      status
+      footerText
+      headerText
+      headerType
+      bodyText
+      account {
+        id
+        name
+      }
+      attachment {
+        id
+        originalname
+        name
+      }
+      button {
+        phone_number
+        text
+        type
+        url
+      }
+      variables {
+        name
+        value
+      }
+    }
+    message
+    status
+  }
+}`
 
 // Messages
 
@@ -1024,7 +1103,6 @@ query channelMessage($channelId: String!, $page : Int!, $pageSize : Int!, $searc
     }
   }
 }`
-
 
 export const ChannelMessage = gql`
 query messages($channelId: String!, $cursor: String, $limit : Int!){

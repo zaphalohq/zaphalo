@@ -2,9 +2,16 @@ import axios from "axios";
 import cron from 'node-cron';
 import path from 'path';
 import fs from 'fs/promises';
+import * as mime from 'mime-types';
 import { Connection, ILike, In, Repository } from 'typeorm';
 import { Inject, Injectable } from "@nestjs/common";
-import { WhatsAppTemplate } from "../entities/whatsapp-template.entity";
+import {
+  WhatsAppTemplate,
+  TemplateHeaderType,
+  TemplateLanguage,
+  TemplateCategory,
+  TemplateStatus,
+  TemplateQuality } from "../entities/whatsapp-template.entity";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 import { WhatsAppSDKService } from './whatsapp-api.service'
 import { AttachmentService } from "src/customer-modules/attachment/attachment.service";
@@ -56,8 +63,8 @@ export class WaTemplateService {
     }
 
     const template = this.templateRepository.create({
+      name: slugify(templateData.templateName),
       templateName: templateData.templateName,
-      status: 'New',
       category: templateData.category,
       language: templateData.language,
       headerType: templateData.headerType,
@@ -88,6 +95,7 @@ export class WaTemplateService {
     if (!account) throw Error("Whatsapp account doesn't found!")
 
     Object.assign(templateFind.template, {
+      name: slugify(templateData.templateName),
       templateName: templateData.templateName,
       account: account,
       category: templateData.category,
@@ -287,8 +295,6 @@ export class WaTemplateService {
       throw new Error("Template category is missing")
     }
 
-    console.log("..................waTemplate.account..................", waTemplate.account.name)
-
     const waApi = await this.waAccountService.getWhatsAppApi(waTemplate.account.id)
 
     let attachment;
@@ -334,14 +340,14 @@ export class WaTemplateService {
     try{
       if (waTemplate.waTemplateId){
         waApi.submitTemplateUpdate(jsonData, waTemplate.waTemplateId)
-        // Object.assign(waTemplate, {'status': 'pending'});
+        Object.assign(waTemplate, {'status': TemplateStatus.pending});
         await this.templateRepository.save(waTemplate);
       }
       else{
         const response = waApi.submitTemplateNew(jsonData)
         Object.assign(waTemplate, {
           'waTemplateId': response['id'],
-          'status': response['status']
+          'status': TemplateStatus.pending,
         });
         await this.templateRepository.save(waTemplate);
       }
@@ -349,7 +355,7 @@ export class WaTemplateService {
 
     }
     catch (error){
-      return {'template': waTemplate, 'message': 'Template submited failed', 'status': false}
+      return {'template': waTemplate, 'message': error, 'status': false}
     }
   }
 
@@ -440,5 +446,129 @@ export class WaTemplateService {
     };
   }
 
+  async syncTemplate(
+    templateId: string,
+  ) {
+    const templateFind = await this.getTemplate(templateId)
+    if (!templateFind?.template){
+      throw Error("template doesn't exist")
+    }
+    if (!templateFind?.template?.account) throw Error("Whatsapp account doesn't found!")
+
+    const waAPI = await this.waAccountService.getWhatsAppApi(templateFind.template.account.id)
+    let data;
+    try{
+      data = await waAPI.getTemplateData(templateFind.template.waTemplateId)
+    }
+    catch (error){
+      console.log(error)
+    }
+    if (data['id']){
+      this.updateTemplateFromResponse(templateFind.template, data)
+    }
+    return {'template': templateFind.template, 'message': 'Template updated', 'status': true}
+  }
+
+
+  async updateTemplateFromResponse(waTemplate, remoteTemplateVals){
+      const templateVals = await this.getTemplateValsFromResponse(waTemplate, remoteTemplateVals, waTemplate.account)
+      const updateVals = {
+        "body": templateVals["body"],
+        "header_type": TemplateHeaderType[templateVals["header_type"]],
+        "header_text": templateVals["header_text"],
+        "footer_text": templateVals["footer_text"],
+        "lang_code": TemplateLanguage[templateVals["lang_code"]],
+        "template_type": TemplateCategory[templateVals["template_type"]],
+        "status": TemplateStatus[templateVals['status']],
+        "quality": TemplateQuality[templateVals['quality']]
+      }
+      Object.assign(waTemplate, updateVals)
+      await this.templateRepository.save(waTemplate);
+      return true
+  }
+
+  async getTemplateValsFromResponse(waTemplate, remoteTemplateVals, waAccount){
+        // """Get dictionary of field: values from whatsapp template response json.
+
+        // Relational fields will use arrays instead of commands.
+        // """
+
+        const qualityScore = remoteTemplateVals['quality_score']['score'].toLowerCase()
+        let templateVals = {
+            'body': false,
+            'footerText': false,
+            'headerText': false,
+            'attachment': false,
+            'headerType': 'none',
+            'language': remoteTemplateVals['language'],
+            'name': remoteTemplateVals['name'].replace("_", " ").toLowerCase(),
+            'quality': qualityScore == 'unknown' ? 'none' : qualityScore,
+            'status': remoteTemplateVals['status'].toLowerCase(),
+            'templateName': remoteTemplateVals['name'],
+            'category': remoteTemplateVals['category'].toLowerCase(),
+            'account': waAccount.id,
+            'waTemplateId': parseInt(remoteTemplateVals['id']),
+        }
+        interface button {
+          type: string;
+          text: string;
+          phone_number: string;
+          url: string;
+        }
+        let buttons: button[] = []
+        for (const component of remoteTemplateVals['components']){
+            const componentType = component['type']
+            if (componentType == 'HEADER'){
+                templateVals['headerType'] = component['format'].toLowerCase()
+                if (component['format'] == 'TEXT'){
+                    templateVals['headerText'] = component['text']
+                }
+                else if (component['format'] == 'LOCATION'){
+                    for (const locationVal of ['name', 'address', 'latitude', 'longitude']){
+                      templateVals['variables'].push({
+                          'name': locationVal,
+                          'line_type': 'location',
+                      })
+                    }
+                }
+                else if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(component['format'])){
+                  const documentUrl = component['example']?.header_handle ? component['example']?.header_handle[0] : false
+                  let mimetype, extension, data;
+                  if (documentUrl){
+                    const waApi = await this.waAccountService.getWhatsAppApi(waTemplate.account.id)
+                    const res = await waApi.getHeaderDataFromHandle(documentUrl)
+                    extension = mime.extension(mimetype)
+                  }
+                  else{
+                    const encoder = new TextEncoder();
+                    const data = encoder.encode('AAAA');
+                    const {extension, mimetype } = {
+                        'IMAGE': ['jpg', 'image/jpeg'],
+                        'VIDEO': ['mp4', 'video/mp4'],
+                        'DOCUMENT': ['pdf', 'application/pdf']
+                    }[component['format']]
+                  }
+                }
+            }else if (componentType == 'BODY'){
+              templateVals['body'] = component['text']
+            }else if (componentType == 'FOOTER'){
+              templateVals['footer_text'] = component['text']
+            }else if (componentType == 'BUTTONS'){
+              for (const [index, button] of component['buttons'].entries()){
+                if (['URL', 'PHONE_NUMBER', 'QUICK_REPLY'].includes(button['type'])){
+                  let buttonVals = {
+                      'type': button['type'].toLowerCase(),
+                      'text': button['text'],
+                      'phone_number': button['phone_number'],
+                      'url':button['url'] ? button['url'].replace('{{1}}', '') : false,
+                  }
+                  buttons.push(buttonVals)
+                }
+              }
+            }
+        }
+        templateVals['button'] = buttons
+        return templateVals
+  }
 }
 

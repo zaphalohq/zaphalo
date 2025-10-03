@@ -48,6 +48,7 @@ import {
 export default function TemplateForm({ onBack, recordId, readOnly=false }) {
   const [active, setActive] = useState("overview");
   const [preview, setPreview] = useState(false);
+  const [isValidated, setIsValidated] = useState(false);
   const { templateData, setTemplateData, attachment, setAttachment }: any = useContext(TemplateContext)
   const [file, setFile] = useState<File | null>(null);
 
@@ -71,8 +72,8 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
         language: templateView.language,
         bodyText: templateView.bodyText,
         footerText: templateView.footerText,
-        button: templateView.button,
-        variables: templateView.variables,
+        button: templateView.button ? templateView.button.map(({ type, phone_number, text, url }) => ({ type, phone_number, text, url })) : [],
+        variables: templateView.variables ? templateView.variables.map(({ name, value }) => ({ name, value })) : [],
         attachmentId: templateView?.attachment?.id || null,
         templateImg: templateView.templateImg,
       })
@@ -83,7 +84,7 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
           name: templateView.attachment.name,
         })
       }
-      if (templateData.state != 'New'){
+      if (templateData.state != 'new'){
         readOnly = false
       }
     }
@@ -186,7 +187,7 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
     return formValid;
   }
 
-  const handleSave = async (status: string) => {
+  const handleSave = async (e, submit: boolean) => {
     const formValid = checkValidation(templateData);
     if (!formValid){
       return
@@ -201,7 +202,6 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
     }
 
     delete templateDataToSubmit.templateImg;
-
     const response = await saveTemplate({ 
       variables: { 
         templateData: templateDataToSubmit,
@@ -212,18 +212,20 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
       setTemplateData({...templateData, templateId: response.data?.saveTemplate?.id})
 
       toast.success(`${response.data?.saveTemplate?.message}`);
-      onBack();
+      if(!submit){
+        onBack();
+      }
     }
   }
 
   const handleSaveAndSubmit = async () => {
-    await handleSave()
+    await handleSave(true)
     const response = await submitTemplate({
       variables: {
         templateId: templateData['templateId'],
       }
     });
-    if (response.data?.saveTemplate?.success) {
+    if (response.data?.submitTemplate?.success) {
       toast.success(`${response.data?.submitTemplate?.message}`);
       onBack();
     }
