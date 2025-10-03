@@ -28,7 +28,6 @@ import { toast } from 'react-toastify';
 const ContactsList = ({
     showForm,
     setIsNewContacts,
-    setReadOnly,
     setContact,
     onCreate
 }) => {
@@ -133,7 +132,7 @@ const ContactsList = ({
                     }}
                     className="max-w-sm"
                 />
-                <Select value={filter} onValueChange={(val) => setFilter(val)}>
+                {/* <Select value={filter} onValueChange={(val) => setFilter(val)}>
                     <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Filter by status" />
                     </SelectTrigger>
@@ -146,7 +145,7 @@ const ContactsList = ({
                         <SelectItem value="Failed">Failed</SelectItem>
                         <SelectItem value="Cancelled">Cancelled</SelectItem>
                     </SelectContent>
-                </Select>
+                </Select> */}
             </div>
 
             {/* Table List View */}

@@ -13,7 +13,7 @@ import { CreateContactMute, GetContactById, UpdateContactMute } from '@src/gener
 import { isDefined } from '@src/utils/validation/isDefined';
 import { toast } from 'react-toastify';
 
-const ContactForm = ({contactId,onBack,isNewContacts }) => {
+const ContactForm = ({ contactId, onBack, isNewContacts }) => {
 
   const [contactFormData, setContactFormData] = useState({
     id: '',
@@ -78,7 +78,7 @@ const ContactForm = ({contactId,onBack,isNewContacts }) => {
       toast.error(`${err}`);
     },
   });
-  const [UpdateContact] = useMutation(UpdateContactMute,{
+  const [UpdateContact] = useMutation(UpdateContactMute, {
     onCompleted: (data) => {
       toast.success('Contact updated successfully');
     },
@@ -119,7 +119,7 @@ const ContactForm = ({contactId,onBack,isNewContacts }) => {
       try {
         await UpdateContact({
           variables: {
-            UpdateContact: {...contactFormData, phoneNo: Number(contactFormData.phoneNo)}
+            UpdateContact: { ...contactFormData, phoneNo: Number(contactFormData.phoneNo) }
           }
         })
         onBack();
@@ -134,7 +134,9 @@ const ContactForm = ({contactId,onBack,isNewContacts }) => {
       <Card className="w-full max-w-2xl shadow-lg">
         <CardContent className="p-8 space-y-6">
 
-          <h2 className="text-2xl font-bold text-center">Create New Contact</h2>
+          <h2 className="text-2xl font-bold text-center">
+            {isNewContacts ? "Create New Contact" : "Update Contact"}
+          </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Contact Name */}
