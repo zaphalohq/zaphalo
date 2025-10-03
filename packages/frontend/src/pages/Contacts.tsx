@@ -9,7 +9,6 @@ const ContactsContent = () => {
 
 	const [showForm, setShowForm] = useState(false);
 	const [contact, setContact] = useState(false);
-	const [readOnly, setReadOnly] = useState(false);
 	const [isNewContacts, setIsNewContacts] = useState(true);
 
 
@@ -21,12 +20,10 @@ const ContactsContent = () => {
 					<div>
 						<ContactsList
 							showForm={setShowForm}
-							setReadOnly={setReadOnly}
 							setContact={setContact}
 							setIsNewContacts={setIsNewContacts}
 							onCreate={() => {
 								setContact(false)
-								setReadOnly(false)
 								setIsNewContacts(true)
 								setShowForm(true)
 							}} />

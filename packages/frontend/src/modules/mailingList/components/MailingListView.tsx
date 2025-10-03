@@ -163,7 +163,7 @@ export default function MailingListView({ onCreate, setIsMailingContactVis, isMa
                     setSelectedListId(mailingList.id)
                     // setIsMailingContactVis(true)
                   }}
-                    className="px-4 py-5 text-blue-500 hover:text-blue-700"
+                    className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
                   >
                     View
                   </TableCell>
