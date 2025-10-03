@@ -119,7 +119,7 @@ const ContactForm = ({contactId,onBack,isNewContacts }) => {
       try {
         await UpdateContact({
           variables: {
-            UpdateContact: {...contactFormData, phoneNo: Number(contactFormData.phoneNo)}
+            UpdateContact: {...contactFormData, phoneNo: Number(contactFormData.phoneNo) }
           }
         })
         onBack();
@@ -134,9 +134,11 @@ const ContactForm = ({contactId,onBack,isNewContacts }) => {
       <Card className="w-full max-w-2xl shadow-lg">
         <CardContent className="p-8 space-y-6">
 
-          <h2 className="text-2xl font-bold text-center">Create New Contact</h2>
+          <h2 className="text-2xl font-bold text-center">
+            {isNewContacts ? "Create New Contact" : "Update Contact"}
+          </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-4">
             {/* Contact Name */}
             <Input
               type="text"
@@ -173,19 +175,20 @@ const ContactForm = ({contactId,onBack,isNewContacts }) => {
 
             {fileError && <p className="text-red-500">{fileError}</p>}
 
-            {/* Buttons */}
-            <div className="flex justify-between mt-4">
-              <Button variant="outline" onClick={onBack}>
-                Cancel
-              </Button>
+          </div>
+          {/* Buttons */}
+          <div className="flex justify-between mt-4">
+            <Button variant="outline" onClick={onBack}>
+              Cancel
+            </Button>
 
-              {isNewContacts ? (
-                <Button type="submit">Create Contact</Button>
-              ) : (
-                <Button type="submit">Update Contact</Button>
-              )}
-            </div>
-          </form>
+            {isNewContacts ? (
+              <Button type="submit">Create Contact</Button>
+            ) : (
+              <Button type="submit">Update Contact</Button>
+            )}
+          </div>
+
         </CardContent>
       </Card>
     </div>
