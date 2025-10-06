@@ -310,12 +310,12 @@ export const GenerateInviteLink = gql`
 
 export const InstantsSelection = gql`mutation InstantsSelection($instantsId: String!) {
   InstantsSelection(instantsId: $instantsId) {
-        id
-        name
-        phoneNumberId
-        businessAccountId
-        defaultSelected
-    }
+    id
+    name
+    phoneNumberId
+    businessAccountId
+    defaultSelected
+  }
 }`
 
 
@@ -349,11 +349,16 @@ mutation WaAccountSave($whatsAppAccountData: WaAccountDto!) {
   }
 }`;
 
-export const WhatsAppAccountSync = gql`
-mutation WaAccountSync($whatsAppAccountData: WaAccountDto!) {
-  WaAccountSync(whatsAppAccountData: $whatsAppAccountData) {
-    id
-    name
+
+export const SyncWhatsAppAccountTemplates = gql`
+mutation syncWhatsAppAccountTemplates($waAccountId: String!) {
+  syncWhatsAppAccountTemplates(waAccountId: $waAccountId) {
+    waAccount {
+      id
+      name
+    }
+    message
+    status
   }
 }
 `;

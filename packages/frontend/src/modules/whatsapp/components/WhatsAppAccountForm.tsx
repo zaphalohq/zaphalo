@@ -11,7 +11,7 @@ import { Card, CardContent } from '@src/components/UI/card';
 import { Button } from "@src/components/UI/button";
 import { toast } from "react-toastify";
 import { useMutation, useQuery } from "@apollo/client";
-import { GetWaAccount, WhatsAppAccountCreate, WhatsAppAccountSave, WhatsAppAccountSync, WhatsAppAccountTestConnection } from "@src/generated/graphql";
+import { GetWaAccount, WhatsAppAccountCreate, WhatsAppAccountSave, SyncWhatsAppAccountTemplates, WhatsAppAccountTestConnection } from "@src/generated/graphql";
 import { isDefined } from "@src/utils/validation/isDefined";
 
 
@@ -32,7 +32,7 @@ const WhatsAppAccountForm = ({ onBack, waAccountId }) => {
 
     const [whatsAppAccountCreate] = useMutation(WhatsAppAccountCreate);
     const [whatsAppAccountSave] = useMutation(WhatsAppAccountSave);
-    const [whatsAppAccountSync] = useMutation(WhatsAppAccountSync);
+    const [syncWhatsAppAccountTemplates] = useMutation(SyncWhatsAppAccountTemplates);
     const [whatsAppAccountTestConnection] = useMutation(WhatsAppAccountTestConnection);
 
 
@@ -116,9 +116,9 @@ const WhatsAppAccountForm = ({ onBack, waAccountId }) => {
         const { id, __typename, defaultSelected, ...restFormData }: any = formData
 
         try {
-            const response = await whatsAppAccountSync({
+            const response = await syncWhatsAppAccountTemplates({
                 variables: {
-                    whatsAppAccountData: { accountId: id, ...restFormData },
+                    waAccountId: id,
                 }
             })
             if (response.data) {

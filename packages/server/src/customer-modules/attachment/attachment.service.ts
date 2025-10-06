@@ -40,4 +40,8 @@ export class AttachmentService {
         return await this.attachmentRepository.remove(attachment);
     }
 
+    async remove(attachment : Attachment) {
+        return await this.attachmentRepository.remove(attachment)
+    }
+
 }

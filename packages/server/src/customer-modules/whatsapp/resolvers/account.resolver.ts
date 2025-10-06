@@ -10,6 +10,7 @@ import { Workspace } from "src/modules/workspace/workspace.entity";
 import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
 import { SuccessResponse } from "../dtos/success.dto";
 import { ManyAccountResponse } from '../dtos/many-WAaccount-response';
+import { WaAccountResponse } from 'src/customer-modules/whatsapp/dtos/account/account-response.dto';
 
 
 @Resolver(() => WhatsAppAccount)
@@ -85,25 +86,6 @@ export class WaAccountResolver {
   }
 
   @UseGuards(GqlAuthGuard)
-  @Mutation(() => WhatsAppAccount)
-  async WaAccountSync(
-    @Context('req') req,
-    @Args('whatsAppAccountData') waAccount: WaAccountDto,
-  ): Promise<WhatsAppAccount | null | string> {
-    if (!waAccount.accountId) {
-      throw Error("WhatsApp account id not provided")
-    }
-
-    const WaAccounts = await this.waAccountService.findInstantsByInstantsId(waAccount.accountId)
-    const wa_api = await this.waAccountService.getWhatsAppApi(waAccount.accountId)
-    if (WaAccounts) {
-      const syncTemplate = await wa_api.syncTemplate();
-      await this.waAccountService.saveSyncTemplates(syncTemplate, WaAccounts)
-    }
-    return WaAccounts;
-  }
-
-  @UseGuards(GqlAuthGuard)
   @Mutation(() => SuccessResponse)
   async WaAccountTestConnection(
     @AuthWorkspace() workspace: Workspace,
@@ -119,8 +101,8 @@ export class WaAccountResolver {
       throw Error("WhatsApp account id provided is wrong.")
     }
 
-    const wa_api = await this.waAccountService.getWhatsAppApi(waAccount.accountId)
-    const res = await wa_api._test_connection()
+    const waApi = await this.waAccountService.getWhatsAppApi(waAccount.accountId)
+    const res = await waApi.testConnection()
     return {
       success: true,
       message: res,
