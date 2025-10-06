@@ -21,17 +21,18 @@ import { PageTitle } from '@src/modules/ui/components/PageTitle';
 import client from '@src/components/AppolloClientConnection/apolloClient';
 import ProtectedRoute from '@src/components/ProtectedRoute/ProtectedRoute';
 import VerifyLoginTokenEffect from '@src/modules/auth/pages/VerifySignInPage';
-import GetCurrentUserWrapper from '@src/modules/customWrapper/GetCurrentUserWrapper';
 import WorkspaceAdmin from '@src/pages/settings/SettingsWorkspace';
 import { SystemConfigProviderEffect } from '@src/modules/system-config/components/SystemConfigProviderEffect';
 import { SystemConfigProvider } from '@src/modules/system-config/components/SystemConfigProvider';
+import AppOverlay from "@src/modules/loader/AppOverlay";
+import GetCurrentUserWrapper from '@src/modules/loader/GetCurrentUserWrapper';
 
 // Whatsapp
 import WhatsappTemplate from '@src/pages/whatsapp/Template';
 
 
 export const AppRouterProviders = () => {
-  const pageTitle = "YaariAPI";
+  const pageTitle = "ZapHalo";
   return (
     <ApolloProvider client={client}>
       <SystemConfigProviderEffect/>
@@ -40,6 +41,7 @@ export const AppRouterProviders = () => {
         <PageTitle title={pageTitle} />
         <Outlet />
       </SystemConfigProvider>
+      <AppOverlay/>
     </ApolloProvider>
   );
 };

@@ -460,6 +460,8 @@ export class WaTemplateService {
     }
     if (!templateFind?.template?.account) throw Error("Whatsapp account doesn't found!")
 
+    if (!templateFind.template.waTemplateId) throw Error("Whatsapp temlate uid doesn't found!")
+
     const waAPI = await this.waAccountService.getWhatsAppApi(templateFind.template.account.id)
     let data;
     try{
