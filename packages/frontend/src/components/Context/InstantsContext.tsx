@@ -7,7 +7,6 @@ import {
   findAllInstants,
   WhatsAppAccountCreate,
   WhatsAppAccountSave,
-  WhatsAppAccountSync,
   WhatsAppAccountTestConnection,
 } from "@src/generated/graphql";
 
@@ -28,7 +27,6 @@ export interface InstantsContectProps {
   loading: any,
   isFormVisible: any,
   refetch: any,
-  WhatsAppAccountSync: any,
   HandleWhatsAppAccountTestConnection: any,
 
 }
@@ -53,7 +51,6 @@ export const InstantsProvider = ({ children }: { children: ReactNode }) => {
   const [whatsAppAccountCreate] = useMutation(WhatsAppAccountCreate);
   const [whatsAppAccountSave] = useMutation(WhatsAppAccountSave);
 
-  const [whatsAppAccountSync] = useMutation(WhatsAppAccountSync);
   const [whatsAppAccountTestConnection] = useMutation(WhatsAppAccountTestConnection);
 
   const { data, loading, refetch } = useQuery(findAllInstants);
@@ -113,27 +110,6 @@ export const InstantsProvider = ({ children }: { children: ReactNode }) => {
       HandleWhatsAppAccountCreate()
     }else{
       HandleWhatsAppAccountSave()
-    }
-  }
-
-
-  const HandleWhatsAppAccountSync = async () => {
-    const { id, __typename, defaultSelected, ...restFormData } : any = formData
-
-    try {
-      const response = await whatsAppAccountSync({
-        variables: {
-          whatsAppAccountData: { accountId: id, ...restFormData },
-        }
-      })
-      if (response.data) {
-        setInstantsData([])
-        await HandaleFeatchData()
-        HandleFormVisibility()
-        setIsNewInstants(false)
-      }
-    } catch (err) {
-      toast.error(`${err}`);
     }
   }
 
@@ -206,7 +182,6 @@ export const InstantsProvider = ({ children }: { children: ReactNode }) => {
       data,
       loading,
       refetch,
-      HandleWhatsAppAccountSync,
       HandleWhatsAppAccountTestConnection,
     }}>
     {children}

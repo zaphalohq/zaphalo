@@ -13,6 +13,9 @@ import { WaAccountService } from '../services/whatsapp-account.service';
 import { ManyTemplatesResponse } from "src/customer-modules/whatsapp/dtos/templates/many-templates-response.dto";
 import { TemplateResponse } from "src/customer-modules/whatsapp/dtos/templates/template-response.dto";
 import { TestTemplateOutput, WaTestTemplateInput } from "src/customer-modules/whatsapp/dtos/test-input.template.dto";
+import { WaAccountResponse } from 'src/customer-modules/whatsapp/dtos/account/account-response.dto';
+import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
+import { Workspace } from "src/modules/workspace/workspace.entity";
 
 
 @Resolver(() => WhatsAppTemplate)
@@ -106,10 +109,23 @@ export class WhatsAppTemplateResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => TemplateResponse)
   async syncTemplate(
+    @AuthWorkspace() workspace: Workspace,
     @Args('templateId') templateId: string
   ): Promise<TemplateResponse> {
-    const response = await this.templateService.syncTemplate(templateId);
+    const response = await this.templateService.syncTemplate(workspace.id, templateId);
     return response
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => WaAccountResponse)
+  async syncWhatsAppAccountTemplates(
+    @AuthWorkspace() workspace: Workspace,
+    @Args('waAccountId') waAccountId: string,
+  ): Promise<WaAccountResponse> {
+    if (!waAccountId) {
+      throw Error("WhatsApp account id not provided")
+    }
+    return await this.templateService.syncWhatsAppAccountTemplates(workspace.id, waAccountId)
   }
 
 }

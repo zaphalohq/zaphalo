@@ -214,75 +214,16 @@ export class WaAccountService {
     }
   }
 
-  convertTemplatePayloadToDbData(components: any[]) {
-    const dbComponent = {
-      headerType: 'NONE',
-      bodyText: '',
-      footerText: '',
-      button: [],
-      headerText: '',
-      templateImg: '',
-      variables: []
-    };
-
-    for (const component of components) {
-      switch (component.type) {
-        case 'HEADER':
-          dbComponent.headerType = component.format;
-          if (component.format === 'TEXT') {
-            dbComponent.headerText = component.text;
-          } else if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(component.format)) {
-            dbComponent.templateImg = component.example?.header_handle?.[0] || '';
-          }
-          break;
-        case 'BODY':
-          dbComponent.bodyText = component.text;
-          const variableValues = component.example?.body_text?.[0] || [];
-          dbComponent.variables = variableValues.map((val: string, idx: number) => ({
-            name: `{{${idx + 1}}}`,
-            value: val
-          }));
-          break;
-        case 'FOOTER':
-          dbComponent.footerText = component.text;
-          break;
-        case 'BUTTONS':
-          dbComponent.button = component.buttons;
-          break;
-      }
+  async getWaAccount(
+    waAccountId: string,
+  ) {
+    const waAccountFind = await this.waAccountRepository.findOne({
+      where: { id: waAccountId },
+    });
+    if (!waAccountFind){
+      throw new Error('Account not found');
     }
-
-    return dbComponent;
-  }
-
-  async saveSyncTemplates(templates, instants) {
-    const dbTemplates = await this.templateRepository.find();
-    const arrWaTempalteIds = dbTemplates.map((template) => template.waTemplateId)
-    for (const template of templates) {
-      if (!arrWaTempalteIds.includes(template.id)) {
-        const components = template.components || [];
-        const componentData: any = this.convertTemplatePayloadToDbData(components)
-        const dbTemplate = this.templateRepository.create({
-          account: instants,
-          name: template.name,
-          templateName: template.name,
-          status: TemplateStatus[template.status.toLowerCase()],
-          waTemplateId: template.id,
-          language: template.language,
-          category: template.category,
-          headerType: componentData.headerType,
-          headerText: componentData.headerText,
-          bodyText: componentData.bodyText,
-          footerText: componentData.footerText,
-          button: componentData.button,
-          variables: componentData.variables,
-          templateImg: componentData.templateImg
-        })
-        await this.templateRepository.save(dbTemplate);
-      }
-    }
-
-    return { success: 'template are synced' }
+    return {'waAccount': waAccountFind, 'message': 'Account found', 'status': true}
   }
 
   async prepareAttachmentVals(attachment, waAccount){
