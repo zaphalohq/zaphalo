@@ -17,6 +17,7 @@ import { PageHeader } from '@src/modules/ui/layout/page/components/PageHeader';
 import { Plus } from "lucide-react";
 import { formatLocalDate } from '@src/utils/formatLocalDate';
 import { TemplateContext, initTemplateData } from '@src/modules/whatsapp/Context/TemplateContext';
+import { loaderRef } from "@src/modules/loading/loaderRef";
 
 const statusColors: Record<string, string> = {
   Scheduled: "bg-blue-100 text-blue-800",
@@ -47,7 +48,6 @@ export default function TemplateList({
     templateName: ''
   });
   const [showSendPopup, setShowSendPopup] = useState(false);
-
   const { data, loading: loadingData, error,  refetch } = useQuery(SearchReadWhatsappTemplate, {
     variables: { page, pageSize, search, filter },
     fetchPolicy: "cache-and-network",
