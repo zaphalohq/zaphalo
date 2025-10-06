@@ -199,7 +199,14 @@ mutation CreateContacts($CreateContacts: createContactsDto!) {
     phoneNo
     profileImg
     defaultContact
-    address
+    address{
+      city
+      country
+      landmark
+      pincode
+      state
+      street
+    }
   }
 }`
 
@@ -211,7 +218,14 @@ mutation UpdateContact($UpdateContact: updateContactsDto!) {
     phoneNo
     profileImg
     defaultContact
-    address
+    address{
+      city
+      country
+      landmark
+      pincode
+      state
+      street
+    }
   }
 }`
 
@@ -601,16 +615,6 @@ mutation saveMailingContact($saveMailingContact: MailingContact!){
   saveMailingContact(saveMailingContact : $saveMailingContact){
     success
   }
-}
-`
-
-export const FindAllMailingContact = gql`
-query findAllMailingContactByMailingListId($mailingListId : String!){
- findAllMailingContactByMailingListId(mailingListId : $mailingListId){
-    contactName
-    contactNo
-    id
- }
 }
 `
 
@@ -1108,7 +1112,14 @@ query searchReadContacts($page: Int!, $pageSize: Int!, $search: String, $filter:
       contactName
       phoneNo
       profileImg
-      address
+      address{
+        city
+        country
+        landmark
+        pincode
+        state
+        street
+      }
     }
   }
 }
@@ -1121,7 +1132,14 @@ query getContactById($contactId: String!){
     contactName
     phoneNo
     profileImg
-    address
+    address{
+      city
+      country
+      landmark
+      pincode
+      state
+      street
+    }
   }
 }
 `
@@ -1149,6 +1167,24 @@ export const searchReadMailingList = gql`
       }
     }
   }
+`
+
+export const FindAllMailingContacts = gql`
+query findAllMailingContacts($mailingListId : String!,$page: Int!, $pageSize: Int!, $search: String){
+ findAllMailingContacts(mailingListId : $mailingListId,page: $page, pageSize: $pageSize, search: $search){
+    total,
+    totalPages,
+    currentPage,
+    MailingContacts {
+      contactName
+      contactNo
+      id
+      mailingList {
+        mailingListName
+      }
+    }
+ }
+}
 `
 
 export const deleteMailingListWithAllContacts = gql`
@@ -1180,7 +1216,7 @@ export const searchReadAccount = gql`
     }
   }
 `
-export const GetWaAccount=gql`
+export const GetWaAccount = gql`
   query getWaAccount($waAccountId: String!){
   getWaAccount(waAccountId: $waAccountId){
     id

@@ -1,8 +1,8 @@
 import { useMutation, useQuery } from '@apollo/client';
-import { deleteMailingListWithAllContacts, FindAllMailingContact, searchMailingList, searchReadMailingList } from '@src/generated/graphql';
+import { deleteMailingListWithAllContacts, RegisterMutation, searchMailingList, searchReadMailingList } from '@src/generated/graphql';
 import { useEffect, useRef, useState } from 'react';
 import { MdDelete } from 'react-icons/md';
-import MailingContactView from './MailingContactView';
+import MailingContactView from './MailingContactsList';
 import usePagination from '@src/utils/usePagination';
 import { PageHeader } from '@src/modules/ui/layout/page/components/PageHeader';
 import { Input } from "@src/components/UI/input";
@@ -23,13 +23,13 @@ export default function MailingListView({ onCreate, setIsMailingContactVis, isMa
   const searchRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
 
+  const [selectedListId, setSelectedListId] = useState<string | null>(null);
+
   const toggleSelect = (id: number) => {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
     );
   };
-
-  const [selectedListId, setSelectedListId] = useState<string | null>(null);
 
   const { data: mailingListData,
     loading: mailingListLoading,
@@ -39,16 +39,6 @@ export default function MailingListView({ onCreate, setIsMailingContactVis, isMa
       },
       fetchPolicy: 'cache-and-network',
     });
-
-  // const { data: mailingContactdata,
-  //   loading: mailingContactLoading,
-  //   refetch: mailingContactRefetch,
-  //   error: mailingContactError } = useQuery(FindAllMailingContact, {
-  //     variables: {
-  //       mailingListId: selectedListId
-  //     },
-  //     skip: !selectedListId
-  //   });
 
   const [deleteMailingList, { error }] = useMutation(deleteMailingListWithAllContacts)
   const deleteSelected = async () => {
@@ -76,11 +66,14 @@ export default function MailingListView({ onCreate, setIsMailingContactVis, isMa
     mailingListRefetch({ page, pageSize, search, filter })
       .finally(() => setLoading(false));
     setLoading(false);
-  }, [debouncedSearch, filter, page]);
+  }, [debouncedSearch, filter, page,selectedListId]);
 
   const malingListData = mailingListData?.searchReadMailingList.mailingList || []
   const totalPages = mailingListData?.searchReadMailingList.totalPages || 1
 
+  if(selectedListId!==null){
+    return <MailingContactView selectedListId={selectedListId} setSelectedListId={setSelectedListId}></MailingContactView>
+  }
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">

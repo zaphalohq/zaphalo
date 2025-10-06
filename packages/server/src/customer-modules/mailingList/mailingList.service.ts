@@ -68,7 +68,7 @@ export class MailingListService {
       skip,
       take: pageSize,
       order: { createdAt: 'DESC' },
-      relations: ['mailingContacts','broadcast']
+      relations: ['mailingContacts', 'broadcast']
     })
 
     return {
@@ -96,14 +96,38 @@ export class MailingListService {
 
 
 
-  async findAllContactsOfMailingList(mailingListId: string): Promise<MailingContacts[]> {
-    const mailinglist = await this.mailingContactsRepository.find(
+  async findAllContactsOfMailingList(
+    mailingListId: string,
+    page: number = 1,
+    pageSize: number = 10,
+    search: string = '',
+  ) {
+
+    const skip = (page - 1) * pageSize;
+
+    const where: any = {
+      mailingList: { id: mailingListId },
+    };
+
+    // Search (by name)
+    if (search) {
+      where.contactName = ILike(`%${search}%`);
+    }
+    const [MailingContacts, total] = await this.mailingContactsRepository.findAndCount(
       {
-        where: { mailingList: { id: mailingListId } },
+        where,
+        skip,
+        take: pageSize,
+        order: { createdAt: 'DESC' },
         relations: ['mailingList']
       }
     )
-    return mailinglist
+    return {
+      MailingContacts,
+      total,
+      totalPages: Math.ceil(total / pageSize),
+      currentPage: page,
+    };
   }
 
   async findMailingContactByContactNo(contactNo: string, mailingListId: string) {
@@ -122,43 +146,9 @@ export class MailingListService {
     })
   }
 
-  async selectedMailingContact(mailingListId: string, currentPage: number, itemsPerPage: number) {
-    const totalItems = await this.mailingContactsRepository.count({ where: { mailingList: { id: mailingListId } } });
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const mailingContact = await this.mailingContactsRepository.find({
-      where: { mailingList: { id: mailingListId } },
-      order: { createdAt: 'DESC' },
-      skip: startIndex,
-      take: itemsPerPage,
-    })
-
-    return {
-      mailingContact,
-      totalPages
-    }
-  }
-
-
-  async searchAndPaginateContact(
-    mailingListId: string,
-    searchTerm?: string,
-  ) {
-    const [mailingContact, totalCount] = await this.mailingContactsRepository.findAndCount({
-      where: searchTerm ? [
-        { mailingList: { id: mailingListId }, contactName: ILike(`%${searchTerm}%`) },
-        { mailingList: { id: mailingListId }, contactNo: ILike(`%${searchTerm}%`) },
-      ] : { mailingList: { id: mailingListId } },
-      order: { createdAt: 'DESC' },
-    });
-
-    return { mailingContact, totalCount };
-  }
-
   async findMailingListByName(mailingListName: string) {
     return await this.mailingListRepository.findOne({ where: { mailingListName } })
   }
-
 
   async saveMailingContact(saveMailingContact: MailingContact) {
     if (saveMailingContact.id) {
@@ -186,7 +176,30 @@ export class MailingListService {
 
 
   async deleteMailingContact(mailingContactId: string) {
-    return await this.mailingContactsRepository.delete({ id: mailingContactId })
+
+    const contact = await this.mailingContactsRepository.findOne({
+      where: { id: mailingContactId },
+      relations: ['mailingList'],
+    });
+
+    if (!contact) {
+      throw new Error('Mailing contact not found');
+    }
+
+    const mailingList = contact.mailingList
+
+    await this.mailingContactsRepository.delete({ id: mailingContactId })
+
+    const remainingCount = await this.mailingContactsRepository.count({
+      where: { mailingList: { id: mailingList.id } },
+    });
+
+    await this.mailingListRepository.update(mailingList.id, {
+      totalContacts: remainingCount,
+    });
+
+    return;
+
   }
 
   async searchMailingList(

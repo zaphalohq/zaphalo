@@ -14,6 +14,7 @@ import {
 import { Message } from "src/customer-modules/channel/entities/message.entity";
 import { Channel } from "src/customer-modules/channel/entities/channel.entity";
 import { UUIDScalarType } from "src/modules/api/scalars/uuid.scalar";
+import { Address } from "./contact-address.entity";
 
 
 
@@ -41,9 +42,9 @@ export class Contacts {
   @Field(() => String, { nullable: true })
   profileImg?: string;
 
-  @Column({ nullable: true })
-  @Field(() => String, { nullable: true })
-  address?: string;
+  @Field(() => Address, { nullable: true })
+  @Column(() => Address)
+  address?: Address;
 
   @CreateDateColumn()
   @Field()

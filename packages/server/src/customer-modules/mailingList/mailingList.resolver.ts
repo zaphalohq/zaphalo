@@ -6,7 +6,7 @@ import { MailingContact } from "./DTO/MailingListReqDto";
 import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
 import { SuccessResponse } from "../whatsapp/dtos/success.dto";
 import { MailingContacts } from "./mailingContacts.entity";
-import { SearchAndPaginateContactResDto, SelectedMailingContactResDto } from "./DTO/SelectedMailingContactResDto";
+import { SelectedMailingContactResDto } from "./DTO/SelectedMailingContactResDto";
 import { FindAllMailingListRes } from "./DTO/FindAllMailingListDto";
 import { SearchedRes } from "../whatsapp/dtos/searched.dto";
 
@@ -34,9 +34,16 @@ export class MailingListResolver {
     return response
   }
 
-  @Query(() => [MailingContacts])
-  async findAllMailingContactByMailingListId(@Args('mailingListId') mailingListId: string): Promise<MailingContacts[] | null> {
-    return await this.mailingListService.findAllMailingContactByMailingListId(mailingListId);
+  @Query(() => SelectedMailingContactResDto)
+  async findAllMailingContacts(
+    @Args('mailingListId') mailingListId: string,
+    @Args('page', { type: () => Int, defaultValue: 1 }) page: number,
+    @Args('pageSize', { type: () => Int, defaultValue: 10 }) pageSize: number,
+    @Args('search', { type: () => String, nullable: true }) search?: string,
+  ): Promise<SelectedMailingContactResDto> {
+      if (!search)
+      search = ''
+    return await this.mailingListService.findAllContactsOfMailingList(mailingListId,page,pageSize,search);
   }
 
   @Mutation(() => SuccessResponse)
@@ -48,37 +55,19 @@ export class MailingListResolver {
     }
   }
 
-  @Mutation(()=>SuccessResponse)
-  async deleteMailingListWithAllContacts(@Args('mailingId')mailingListId: string){
+  @Mutation(() => SuccessResponse)
+  async deleteMailingListWithAllContacts(@Args('mailingId') mailingListId: string) {
     return this.mailingListService.deleteMailingWithContacts(mailingListId)
   }
 
   @Mutation(() => SuccessResponse)
   async deleteMailingContact(@Args('mailingContactId') mailingContactId: string) {
     const deleteContact = await this.mailingListService.deleteMailingContact(mailingContactId)
-    console.log(deleteContact, 'deletecontact');
 
     return {
       success: true,
       message: 'Mailing Contact Deleted successfully'
     }
-  }
-
-  @Query(() => SelectedMailingContactResDto)
-  async selectedMailingContact(
-    @Args('mailingListId') mailingListId: string,
-    @Args('currentPage', { type: () => Int }) currentPage: number,
-    @Args('itemsPerPage', { type: () => Int }) itemsPerPage: number
-  ): Promise<SelectedMailingContactResDto | null> {
-    return await this.mailingListService.selectedMailingContact(mailingListId, currentPage, itemsPerPage);
-  }
-
-  @Query(() => SearchAndPaginateContactResDto)
-  async searchAndPaginateContact(
-    @Args('mailingListId') mailingListId: string,
-    @Args('searchTerm', { type: () => String, nullable: true }) searchTerm?: string,
-  ): Promise<SearchAndPaginateContactResDto | null> {
-    return this.mailingListService.searchAndPaginateContact(mailingListId, searchTerm);
   }
 
   @Query(() => SearchedRes)
