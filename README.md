@@ -1,6 +1,6 @@
-# YaariAPI
+# ZapHalo
 
-**YaariAPI** is a powerful WhatsApp API-integrated application designed for businesses and individuals to streamline messaging workflows. With a single phone number, users can integrate YaariAPI across multiple platforms (e.g., websites, apps), receive and manage messages via WhatsApp webhooks, leverage chatbot automation, and send bulk messages to millions of recipients efficiently. Inspired by platforms like Wati.io, YaariAPI offers an end-to-end solution for multi-channel messaging and customer engagement.
+**ZapHalo** is a powerful WhatsApp API-integrated application designed for businesses and individuals to streamline messaging workflows. With a single phone number, users can integrate ZapHalo across multiple platforms (e.g., websites, apps), receive and manage messages via WhatsApp webhooks, leverage chatbot automation, and send bulk messages to millions of recipients efficiently. Inspired by platforms like Wati.io, ZapHalo offers an end-to-end solution for multi-channel messaging and customer engagement.
 
 ## Features
 - **Multi-Platform Integration**: Embed your WhatsApp number on websites, apps, or other platforms with a simple link or widget.
@@ -33,8 +33,8 @@ Before installing, ensure you have the following installed:
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/YaariAPI.git
-cd YaariAPI
+git clone https://github.com/zaphalohq/zaphalo.git
+cd zaphalo
 ```
 
 ### 2. Set Up Environment Variables
@@ -49,7 +49,7 @@ DATABASE_HOST=localhost
 DATABASE_PORT=5432
 DATABASE_USER=your_postgres_user
 DATABASE_PASSWORD=your_postgres_password
-DATABASE_NAME=YaariAPI_db
+DATABASE_NAME=zaphalo_db
 
 # JWT
 JWT_SECRET=your_jwt_secret_key
@@ -138,7 +138,7 @@ yarn nx start
 1. **Integrate WhatsApp Number**:
    - Share your WhatsApp number (e.g., via a link like `https://wa.me/your_whatsapp_number`) on websites or apps.
 2. **Receive Messages**:
-   - Incoming messages are captured via the webhook and displayed in the YaariAPI app.
+   - Incoming messages are captured via the webhook and displayed in the ZapHalo app.
 3. **Chatbot Automation**:
    - Configure the chatbot in the app to respond to common queries (e.g., "Hi" → "Hello! How can I assist you?").
 4. **Bulk Messaging**:
