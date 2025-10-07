@@ -21,9 +21,9 @@
 
 ## Prerequisites
 Before installing, ensure you have the following installed:
-- **Node.js**: v16.x or higher
-- **npm**: v8.x or higher (or use Yarn/Pnpm)
-- **PostgreSQL**: v13.x or higher
+- **Node.js**: v22.x or higher
+- **npm**: v10.x or higher (or use Yarn/Pnpm)
+- **PostgreSQL**: v17.x or higher
 - **Git**: For cloning the repository
 - **WhatsApp Business API Account**: Approved account from Meta or a WhatsApp Business Solution Provider (BSP)
 
@@ -39,6 +39,8 @@ cd YaariAPI
 
 ### 2. Set Up Environment Variables
 Create `.env` files in both the backend and frontend directories.
+
+Refer to the `env.example` file(s) in the repository for example environment variable names and values.
 
 #### Backend (e.g., `packages/server/.env`)
 ```env
@@ -96,7 +98,7 @@ yarn install
 1. **Run Migrations** (if using TypeORM migrations):
    ```bash
    cd packages/server
-   yarn start
+   yarn nx start
    yarn database:migrate:prod
    or
    yarn nx run server:typeorm migration:run -d src/database/typeorm/core/core.datasource.ts
@@ -113,7 +115,7 @@ yarn install
 In a new terminal:
 ```bash
 cd packages/server
-yarn run start
+yarn nx start
 ```
 - The server will run on `http://localhost:3000` (GraphQL at `/graphql`, Webhook at `/webhook`) and Socket.IO on `ws://localhost:8080`.
 
@@ -121,7 +123,7 @@ yarn run start
 In a new terminal:
 ```bash
 cd packages/client
-yarn run dev
+yarn nx start
 ```
 - The React app will run on `http://localhost:5173` (default Vite port).
 
