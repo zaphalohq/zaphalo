@@ -4,18 +4,16 @@ import { MailingContacts } from "../mailingContacts.entity";
 @ObjectType()
 export class SelectedMailingContactResDto {
   @Field(() => [MailingContacts])
-  mailingContact: MailingContacts[];
+  MailingContacts: MailingContacts[];
 
   @Field()
   totalPages: number;
-}
-
-
-@ObjectType()
-export class SearchAndPaginateContactResDto {
-  @Field(() => [MailingContacts])
-  mailingContact: MailingContacts[];
 
   @Field()
-  totalCount: number;
+  total: number;
+
+  @Field()
+  currentPage: number;
 }
+
+

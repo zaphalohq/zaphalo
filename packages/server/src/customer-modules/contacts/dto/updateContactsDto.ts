@@ -1,4 +1,5 @@
 import { InputType, Field, Int, Float } from '@nestjs/graphql';
+import { AddressInput } from './addressInput.dto';
 
 @InputType()
 export class updateContactsDto {
@@ -14,8 +15,8 @@ export class updateContactsDto {
   @Field(() => Boolean, { nullable: true })
   defaultContact?: boolean;
 
-  @Field(() => String, { nullable: true })
-  address?: string;
+  @Field(() => AddressInput, { nullable: true })
+  address?: AddressInput;
 
   @Field(() => String, { nullable: true })
   profileImg?: string;

@@ -158,7 +158,7 @@ const ContactsList = ({
                             <TableHead className="px-4 py-3"></TableHead>
                             <TableHead className="px-4 py-3">Contact Name</TableHead>
                             <TableHead className="px-4 py-3">Contact Number</TableHead>
-                            <TableHead className="px-4 py-3">Address</TableHead>
+                            <TableHead className="px-4 py-3">Country</TableHead>
                             <TableHead className="px-4 py-3">Edit</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -191,7 +191,7 @@ const ContactsList = ({
                                     className="px-6 py-4 text-left truncate max-w-[200px]"
                                     title={contactData?.address || 'N/A'}
                                 >
-                                    {contactData?.address || 'N/A'}
+                                    {contactData?.address.country || 'N/A'}
                                 </TableCell>
                                 <TableCell className="px-4 py-2 text-left">
                                     <button

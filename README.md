@@ -1,6 +1,6 @@
-# YaariAPI
+# ZapHalo
 
-**YaariAPI** is a powerful WhatsApp API-integrated application designed for businesses and individuals to streamline messaging workflows. With a single phone number, users can integrate YaariAPI across multiple platforms (e.g., websites, apps), receive and manage messages via WhatsApp webhooks, leverage chatbot automation, and send bulk messages to millions of recipients efficiently. Inspired by platforms like Wati.io, YaariAPI offers an end-to-end solution for multi-channel messaging and customer engagement.
+**ZapHalo** is a powerful WhatsApp API-integrated application designed for businesses and individuals to streamline messaging workflows. With a single phone number, users can integrate ZapHalo across multiple platforms (e.g., websites, apps), receive and manage messages via WhatsApp webhooks, leverage chatbot automation, and send bulk messages to millions of recipients efficiently. Inspired by platforms like Wati.io, ZapHalo offers an end-to-end solution for multi-channel messaging and customer engagement.
 
 ## Features
 - **Multi-Platform Integration**: Embed your WhatsApp number on websites, apps, or other platforms with a simple link or widget.
@@ -21,9 +21,9 @@
 
 ## Prerequisites
 Before installing, ensure you have the following installed:
-- **Node.js**: v16.x or higher
-- **npm**: v8.x or higher (or use Yarn/Pnpm)
-- **PostgreSQL**: v13.x or higher
+- **Node.js**: v22.x or higher
+- **npm**: v10.x or higher (or use Yarn/Pnpm)
+- **PostgreSQL**: v17.x or higher
 - **Git**: For cloning the repository
 - **WhatsApp Business API Account**: Approved account from Meta or a WhatsApp Business Solution Provider (BSP)
 
@@ -33,12 +33,14 @@ Before installing, ensure you have the following installed:
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/YaariAPI.git
-cd YaariAPI
+git clone https://github.com/zaphalohq/zaphalo.git
+cd zaphalo
 ```
 
 ### 2. Set Up Environment Variables
 Create `.env` files in both the backend and frontend directories.
+
+Refer to the `env.example` file(s) in the repository for example environment variable names and values.
 
 #### Backend (e.g., `packages/server/.env`)
 ```env
@@ -47,7 +49,7 @@ DATABASE_HOST=localhost
 DATABASE_PORT=5432
 DATABASE_USER=your_postgres_user
 DATABASE_PASSWORD=your_postgres_password
-DATABASE_NAME=YaariAPI_db
+DATABASE_NAME=zaphalo_db
 
 # JWT
 JWT_SECRET=your_jwt_secret_key
@@ -96,7 +98,7 @@ yarn install
 1. **Run Migrations** (if using TypeORM migrations):
    ```bash
    cd packages/server
-   yarn start
+   yarn nx start
    yarn database:migrate:prod
    or
    yarn nx run server:typeorm migration:run -d src/database/typeorm/core/core.datasource.ts
@@ -113,7 +115,7 @@ yarn install
 In a new terminal:
 ```bash
 cd packages/server
-yarn run start
+yarn nx start
 ```
 - The server will run on `http://localhost:3000` (GraphQL at `/graphql`, Webhook at `/webhook`) and Socket.IO on `ws://localhost:8080`.
 
@@ -121,7 +123,7 @@ yarn run start
 In a new terminal:
 ```bash
 cd packages/client
-yarn run dev
+yarn nx start
 ```
 - The React app will run on `http://localhost:5173` (default Vite port).
 
@@ -136,7 +138,7 @@ yarn run dev
 1. **Integrate WhatsApp Number**:
    - Share your WhatsApp number (e.g., via a link like `https://wa.me/your_whatsapp_number`) on websites or apps.
 2. **Receive Messages**:
-   - Incoming messages are captured via the webhook and displayed in the YaariAPI app.
+   - Incoming messages are captured via the webhook and displayed in the ZapHalo app.
 3. **Chatbot Automation**:
    - Configure the chatbot in the app to respond to common queries (e.g., "Hi" → "Hello! How can I assist you?").
 4. **Bulk Messaging**:

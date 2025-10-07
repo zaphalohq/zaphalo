@@ -1,8 +1,8 @@
 import { useMutation, useQuery } from '@apollo/client';
-import { deleteMailingListWithAllContacts, FindAllMailingContact, searchMailingList, searchReadMailingList } from '@src/generated/graphql';
+import { deleteMailingListWithAllContacts, RegisterMutation, searchMailingList, searchReadMailingList } from '@src/generated/graphql';
 import { useEffect, useRef, useState } from 'react';
 import { MdDelete } from 'react-icons/md';
-import MailingContactView from './MailingContactView';
+import MailingContactsList from './MailingContactsList';
 import usePagination from '@src/utils/usePagination';
 import { PageHeader } from '@src/modules/ui/layout/page/components/PageHeader';
 import { Input } from "@src/components/UI/input";
@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@src/components/UI/select";
 import { Plus, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
+import MailingContactForm from './MailingContactForm';
 
 export default function MailingListView({ onCreate, setIsMailingContactVis, isMailingContactVis }: any) {
 
@@ -23,13 +24,16 @@ export default function MailingListView({ onCreate, setIsMailingContactVis, isMa
   const searchRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
 
+  const [selectedListId, setSelectedListId] = useState<string | null>(null);
+  const [selectedListName, setSelectedListName] = useState<string | null>(null);
+  const [isMailingContactFormVis, setIsMailingContactFormVis] = useState(false)
+  const [selectedContactId, setSelectedContactId]= useState<string | null>(null)
+
   const toggleSelect = (id: number) => {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
     );
   };
-
-  const [selectedListId, setSelectedListId] = useState<string | null>(null);
 
   const { data: mailingListData,
     loading: mailingListLoading,
@@ -39,16 +43,6 @@ export default function MailingListView({ onCreate, setIsMailingContactVis, isMa
       },
       fetchPolicy: 'cache-and-network',
     });
-
-  // const { data: mailingContactdata,
-  //   loading: mailingContactLoading,
-  //   refetch: mailingContactRefetch,
-  //   error: mailingContactError } = useQuery(FindAllMailingContact, {
-  //     variables: {
-  //       mailingListId: selectedListId
-  //     },
-  //     skip: !selectedListId
-  //   });
 
   const [deleteMailingList, { error }] = useMutation(deleteMailingListWithAllContacts)
   const deleteSelected = async () => {
@@ -76,10 +70,38 @@ export default function MailingListView({ onCreate, setIsMailingContactVis, isMa
     mailingListRefetch({ page, pageSize, search, filter })
       .finally(() => setLoading(false));
     setLoading(false);
-  }, [debouncedSearch, filter, page]);
+  }, [debouncedSearch, filter, page, selectedListId]);
 
   const malingListData = mailingListData?.searchReadMailingList.mailingList || []
   const totalPages = mailingListData?.searchReadMailingList.totalPages || 1
+
+  if (selectedListId !== null) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        {isMailingContactFormVis ? (
+          <MailingContactForm
+            selectedListName={selectedListName}
+            selectedListId={selectedListId}
+            selectedContactId={selectedContactId}
+            onBack={() => {
+              setIsMailingContactFormVis(false);
+              setSelectedContactId(null)
+            }} />
+        ) : (
+          <MailingContactsList
+            selectedListId={selectedListId}
+            setSelectedListId={setSelectedListId}
+            setSelectedContactId={setSelectedContactId}
+            onCreateOrUpdate={() => {
+              setIsMailingContactFormVis(true);
+            }}
+          />
+        )}
+      </div>
+    );
+  }
+
+
 
   return (
     <div className="p-6 space-y-6">
@@ -161,7 +183,7 @@ export default function MailingListView({ onCreate, setIsMailingContactVis, isMa
                   </TableCell>
                   <TableCell onClick={() => {
                     setSelectedListId(mailingList.id)
-                    // setIsMailingContactVis(true)
+                    setSelectedListName(mailingList.mailingListName)
                   }}
                     className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
                   >

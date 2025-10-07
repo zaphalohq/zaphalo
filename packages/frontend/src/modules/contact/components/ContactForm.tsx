@@ -20,7 +20,14 @@ const ContactForm = ({ contactId, onBack, isNewContacts }) => {
     contactName: '',
     phoneNo: '',
     profileImg: '',
-    address: '',
+    address: {
+      city: '',
+      landmark: '',
+      pincode: '',
+      state: '',
+      street: '',
+      country: ''
+    },
   });
 
   if (isDefined(contactId)) {
@@ -35,7 +42,14 @@ const ContactForm = ({ contactId, onBack, isNewContacts }) => {
         contactName: contactView.contactName,
         phoneNo: contactView.phoneNo,
         profileImg: contactView.profileImg,
-        address: contactView.address,
+        address: {
+          city: contactView.address.city || '',
+          country: contactView.address.country || '',
+          landmark: contactView.address.landmark || '',
+          pincode: contactView.address.pincode || '',
+          state: contactView.address.state || '',
+          street: contactView.address.street || '',
+        },
       })
     }
   }
@@ -75,6 +89,7 @@ const ContactForm = ({ contactId, onBack, isNewContacts }) => {
       toast.success('Contact created successfully');
     },
     onError: (err) => {
+      console.log(err)
       toast.error(`${err}`);
     },
   });
@@ -102,7 +117,14 @@ const ContactForm = ({ contactId, onBack, isNewContacts }) => {
       contactName: contactFormData.contactName,
       phoneNo: Number(contactFormData.phoneNo), // Convert to number
       profileImg: contactFormData.profileImg,
-      address: contactFormData.address,
+      address: {
+        city: contactFormData.address.city,
+        country: contactFormData.address.country,
+        landmark: contactFormData.address.landmark,
+        pincode: contactFormData.address.pincode,
+        state: contactFormData.address.state,
+        street: contactFormData.address.street,
+      },
     };
     if (isNewContacts) {
       try {
@@ -158,9 +180,57 @@ const ContactForm = ({ contactId, onBack, isNewContacts }) => {
             {/* Address */}
             <Input
               type="text"
-              placeholder="Address"
-              value={contactFormData.address}
-              onChange={(e) => setContactFormData({ ...contactFormData, address: e.target.value })}
+              placeholder="Street"
+              value={contactFormData.address.street}
+              onChange={(e) => setContactFormData({
+                ...contactFormData,
+                address: { ...contactFormData.address, street: e.target.value }
+              })}
+            />
+            <Input
+              type="text"
+              placeholder="Landmark"
+              value={contactFormData.address.landmark}
+              onChange={(e) => setContactFormData({
+                ...contactFormData,
+                address: { ...contactFormData.address, landmark: e.target.value }
+              })}
+            />
+            <Input
+              type="text"
+              placeholder="City"
+              value={contactFormData.address.city}
+              onChange={(e) => setContactFormData({
+                ...contactFormData,
+                address: { ...contactFormData.address, city: e.target.value }
+              })}
+            />
+            <Input
+              type="text"
+              placeholder="State"
+              value={contactFormData.address.state}
+              onChange={(e) => setContactFormData({
+                ...contactFormData,
+                address: { ...contactFormData.address, state: e.target.value }
+              })}
+            />
+            <Input
+              type="text"
+              placeholder="Pincode"
+              value={contactFormData.address.pincode}
+              onChange={(e) => setContactFormData({
+                ...contactFormData,
+                address: { ...contactFormData.address, pincode: e.target.value }
+              })}
+            />
+            <Input
+              type="text"
+              placeholder="country"
+              value={contactFormData.address.country}
+              onChange={(e) => setContactFormData({
+                ...contactFormData,
+                address: { ...contactFormData.address, country: e.target.value }
+              })}
             />
 
             {/* Upload Image */}
