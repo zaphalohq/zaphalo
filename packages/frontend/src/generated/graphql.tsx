@@ -1186,6 +1186,16 @@ query findAllMailingContacts($mailingListId : String!,$page: Int!, $pageSize: In
  }
 }
 `
+export const FindMalingContactByContactId = gql`
+  query findMailingContact($mailingContactId: String!){
+    findMailingContact(mailingContactId: $mailingContactId){
+      contactName
+      contactNo
+      id
+      createdAt
+    }
+  }
+`
 
 export const deleteMailingListWithAllContacts = gql`
   mutation DeleteMailingList($mailingId: String!) {

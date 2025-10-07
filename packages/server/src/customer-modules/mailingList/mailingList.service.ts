@@ -6,7 +6,6 @@ import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symb
 import { Connection, ILike, Repository } from 'typeorm';
 import { FindAllMailingListRes } from "./DTO/FindAllMailingListDto";
 
-
 @Injectable()
 export class MailingListService {
   private mailingListRepository: Repository<MailingList>
@@ -130,6 +129,20 @@ export class MailingListService {
     };
   }
 
+  async findMailingContactByContactId(mailingContactId: string) {
+    const contact= await this.mailingContactsRepository.findOne({
+      where: {
+        id: mailingContactId
+      },
+      relations: ['mailingList']
+    })
+    if(!contact){
+      throw Error("contact with this ID not found")
+    }
+
+    return contact
+  }
+
   async findMailingContactByContactNo(contactNo: string, mailingListId: string) {
     return await this.mailingContactsRepository.findOne({
       where: {
@@ -173,7 +186,6 @@ export class MailingListService {
       await this.mailingContactsRepository.save(mailingContact);
     }
   }
-
 
   async deleteMailingContact(mailingContactId: string) {
 

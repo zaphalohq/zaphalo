@@ -12,7 +12,7 @@ import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useRecoilState } from "recoil";
 
-const MailingContactsList = ({ selectedListId, setSelectedListId }) => {
+const MailingContactsList = ({ selectedListId, setSelectedListId, onCreateOrUpdate, setSelectedContactId }) => {
     const [page, setPage] = useState(1);
     const [pageSize] = useState(10);
     const [search, setSearch] = useState("");
@@ -24,6 +24,11 @@ const MailingContactsList = ({ selectedListId, setSelectedListId }) => {
     const [loading, setLoading] = useState(false);
 
     const [currentUserWorkspace] = useRecoilState(currentUserWorkspaceState);
+
+    const breadcrumbItems = [
+        { label: "Contacts List", onClick: () => setSelectedListId(null) },
+        { label: "Contacts" },
+    ];
 
 
     const { data: mailingContactdata,
@@ -56,13 +61,12 @@ const MailingContactsList = ({ selectedListId, setSelectedListId }) => {
         );
     };
 
-    
     const [deleteMailingContact, { error }] = useMutation(DeleteMailingContact)
     const deleteSelected = async () => {
         try {
             for (const id of selected) {
                 await deleteMailingContact({ variables: { mailingContactId: id } });
-                toast.success('Mailing list deleted successfully');
+                toast.success('Mailing Contact deleted successfully');
             }
             await mailingContactRefetch();
         } catch (err) {
@@ -75,32 +79,34 @@ const MailingContactsList = ({ selectedListId, setSelectedListId }) => {
 
     return (
         <div className="p-6 space-y-6">
-            <nav className="text-sm text-gray-600 mb-4">
-                <ol className="flex items-center space-x-2">
-                    <li>
-                        <button
-                            onClick={() => setSelectedListId(null)}
-                            className="text-blue-600 hover:underline font-medium"
-                        >
-                            Contacts List
-                        </button>
-                    </li>
-                    <li>
-                        <span>/</span>
-                    </li>
-                    <li className="text-gray-500">Contact Details</li>
-                </ol>
-            </nav>
-
             <div className="flex justify-between items-center">
-                <PageHeader title="Contacts" className="w-full"
+                <PageHeader title={
+                    <nav className="text-sm text-gray-600 flex items-center space-x-2">
+                        {breadcrumbItems.map((item, idx) => (
+                            <span key={idx} className="flex items-center gap-1">
+                                {item.onClick ? (
+                                    <button
+                                        onClick={item.onClick}
+                                        className="text-blue-600 hover:underline font-medium"
+                                    >
+                                        {item.label}
+                                    </button>
+                                ) : (
+                                    <span className="text-gray-500">{item.label}</span>
+                                )}
+                                {idx < breadcrumbItems.length - 1 && <span>/</span>}
+                            </span>
+                        ))}
+                    </nav>
+                }
+                    className="w-full"
                     actions={
                         <>
                             <Button
-                            // onClick={() => }
+                                onClick={() => onCreateOrUpdate()}
                             >
                                 <Plus className="w-4 h-4 mr-2" />
-                                Import
+                                Add New Contact In List
                             </Button>
                             {selected.length > 0 && (
                                 <button
@@ -140,6 +146,7 @@ const MailingContactsList = ({ selectedListId, setSelectedListId }) => {
                                 <TableHead className="px-4 py-3">Contact Name</TableHead>
                                 <TableHead className="px-4 py-3">Contacts Number</TableHead>
                                 <TableHead className="px-4 py-3">Mailing List</TableHead>
+                                <TableHead className="px-4 py-3">Edit</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody className="text-black">
@@ -160,6 +167,16 @@ const MailingContactsList = ({ selectedListId, setSelectedListId }) => {
                                     </TableCell>
                                     <TableCell className="px-4 py-5">
                                         {mailingContact.mailingList.mailingListName}
+                                    </TableCell>
+                                    <TableCell>
+                                        <button
+                                            onClick={() => {
+                                                setSelectedContactId(mailingContact.id)
+                                                onCreateOrUpdate();
+                                            }}
+                                            className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"                                        >
+                                            Edit
+                                        </button>
                                     </TableCell>
                                 </TableRow>
                             ))}

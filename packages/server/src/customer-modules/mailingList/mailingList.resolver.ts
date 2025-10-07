@@ -9,6 +9,7 @@ import { MailingContacts } from "./mailingContacts.entity";
 import { SelectedMailingContactResDto } from "./DTO/SelectedMailingContactResDto";
 import { FindAllMailingListRes } from "./DTO/FindAllMailingListDto";
 import { SearchedRes } from "../whatsapp/dtos/searched.dto";
+import { MailingContactResDto } from "./DTO/MailingContactResDto";
 
 @Resolver(() => MailingList)
 export class MailingListResolver {
@@ -35,18 +36,28 @@ export class MailingListResolver {
   }
 
   @Query(() => SelectedMailingContactResDto)
+  @UseGuards(GqlAuthGuard)
   async findAllMailingContacts(
     @Args('mailingListId') mailingListId: string,
     @Args('page', { type: () => Int, defaultValue: 1 }) page: number,
     @Args('pageSize', { type: () => Int, defaultValue: 10 }) pageSize: number,
     @Args('search', { type: () => String, nullable: true }) search?: string,
   ): Promise<SelectedMailingContactResDto> {
-      if (!search)
+    if (!search)
       search = ''
-    return await this.mailingListService.findAllContactsOfMailingList(mailingListId,page,pageSize,search);
+    return await this.mailingListService.findAllContactsOfMailingList(mailingListId, page, pageSize, search);
+  }
+
+  @Query(() => MailingContacts, { nullable: true })
+  @UseGuards(GqlAuthGuard)
+  async findMailingContact(
+    @Args('mailingContactId') mailingContactId: string,
+  ): Promise<MailingContacts | null> {
+    return await this.mailingListService.findMailingContactByContactId(mailingContactId)
   }
 
   @Mutation(() => SuccessResponse)
+  @UseGuards(GqlAuthGuard)
   async saveMailingContact(@Args('saveMailingContact') saveMailingContact: MailingContact) {
     await this.mailingListService.saveMailingContact(saveMailingContact)
     return {
@@ -56,11 +67,13 @@ export class MailingListResolver {
   }
 
   @Mutation(() => SuccessResponse)
+  @UseGuards(GqlAuthGuard)
   async deleteMailingListWithAllContacts(@Args('mailingId') mailingListId: string) {
     return this.mailingListService.deleteMailingWithContacts(mailingListId)
   }
 
   @Mutation(() => SuccessResponse)
+  @UseGuards(GqlAuthGuard)
   async deleteMailingContact(@Args('mailingContactId') mailingContactId: string) {
     const deleteContact = await this.mailingListService.deleteMailingContact(mailingContactId)
 
@@ -85,7 +98,6 @@ export class MailingListResolver {
     const mailigList = await this.mailingListService.readMailingList(search, limit);
     return mailigList
   }
-
 
 }
 
