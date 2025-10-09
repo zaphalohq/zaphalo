@@ -40,42 +40,40 @@ cd zaphalo
 ### 2. Set Up Environment Variables
 Create `.env` files in both the backend and frontend directories.
 
-Refer to the `env.example` file(s) in the repository for example environment variable names and values.
+You can create your `.env` files by copying the provided `.env.example` files in each directory:
 
 #### Backend (e.g., `packages/server/.env`)
-```env
-# Database
-DATABASE_HOST=localhost
-DATABASE_PORT=5432
-DATABASE_USER=your_postgres_user
-DATABASE_PASSWORD=your_postgres_password
-DATABASE_NAME=zaphalo_db
-
-# JWT
-JWT_SECRET=your_jwt_secret_key
-
-# WhatsApp API
-WHATSAPP_API_TOKEN=your_whatsapp_api_token
-WHATSAPP_PHONE_NUMBER_ID=your_phone_number_id
-
-# Webhook
-WEBHOOK_URL=http://localhost:3000/webhook
-WEBHOOK_VERIFY_TOKEN=your_webhook_verify_token
-
-# Socket.IO
-SOCKET_PORT=8080
+- copy `.env.example` file in new `.env` file by this command
+```bash
+cp packages/server/.env.example packages/server/.env
 ```
 
-#### Frontend (e.g., `packages/client/.env`)
+- your backend `.env` file look like:
 ```env
-VITE_API_URL=http://localhost:3000/graphql
-VITE_WS_URL=ws://localhost:8080
-VITE_WHATSAPP_NUMBER=your_whatsapp_number
+# Use this for local setup
+NODE_ENV=development
+PG_DATABASE_URL=your_db_url
+APP_SECRET=replace_me_with_a_random_string
+WEBSOCKET_PORT=4000
+FRONTEND_URL=http://localhost:5173
 ```
+
+#### Frontend (e.g., `packages/frontend/.env`)
+copy `.env.example` file in new `.env` file by this command
+```bash
+cp packages/frontend/.env.example packages/frontend/.env
+```
+
+- your frontend `.env` file look like:
+```env
+VITE_BACKEND_URL='http://localhost:3000'
+VITE_WEBSOCKET_URL='http://localhost:4000'
+```
+
 
 ### 3. Install Dependencies
 
-#### pacjages
+#### packages
 ```bash 
 cd packages
 yarn install
@@ -96,22 +94,14 @@ yarn install
 ### 4. Set Up the Database
 
 1. **Run Migrations** (if using TypeORM migrations):
+ - In a new terminal:
    ```bash
-   cd packages/server
-   yarn nx start
-   yarn database:migrate:prod
-   or
-   yarn nx run server:typeorm migration:run -d src/database/typeorm/core/core.datasource.ts
+   yarn nx start server
+   yarn nx command:prod server upgrade
+   yarn nx database:migrate:workspace:run server
    ```
 
-### 5. Configure WhatsApp Webhook
-1. your server should be live not run locally use ngrock like apps.
-2. Log in to your WhatsApp Business API provider (e.g., Meta Business Manager).
-3. Set the webhook URL to `http://localhost:3000/webhook` (or your production URL).
-4. Use the `WEBHOOK_VERIFY_TOKEN` from your `.env` to verify the webhook.
-5. Subscribe to events like `messages` to receive incoming messages.
-
-### 6. Start the Backend
+### 5. Start the Backend
 In a new terminal:
 ```bash
 cd packages/server
@@ -119,7 +109,12 @@ yarn nx start
 ```
 - The server will run on `http://localhost:3000` (GraphQL at `/graphql`, Webhook at `/webhook`) and Socket.IO on `ws://localhost:8080`.
 
-### 7. Start the Frontend
+OR (from repo root, start the server project directly):
+```bash
+yarn nx start server
+```
+
+### 6. Start the Frontend
 In a new terminal:
 ```bash
 cd packages/client
@@ -127,9 +122,14 @@ yarn nx start
 ```
 - The React app will run on `http://localhost:5173` (default Vite port).
 
-### 8. Verify the Setup
+OR (from repo root, start the frontend project directly):
+```bash
+yarn nx start frontend
+```
+
+### 7. Verify the Setup
 - Open your browser to `http://localhost:5173`.
-- Use GraphQL Playground at `http://localhost:3000/graphql` to test queries.
+- Use GraphQL Yoga at `http://localhost:3000/graphql` to test queries.
 - Send a test message to your WhatsApp number and check if it appears in the app.
 - Test bulk messaging by uploading a contact list and sending a message.
 
@@ -139,18 +139,13 @@ yarn nx start
    - Share your WhatsApp number (e.g., via a link like `https://wa.me/your_whatsapp_number`) on websites or apps.
 2. **Receive Messages**:
    - Incoming messages are captured via the webhook and displayed in the ZapHalo app.
-3. **Chatbot Automation**:
-   - Configure the chatbot in the app to respond to common queries (e.g., "Hi" → "Hello! How can I assist you?").
-4. **Bulk Messaging**:
+3. **Bulk Messaging**:
    - Upload a CSV of phone numbers and send a single message to millions of recipients.
-5. **Real-Time Interaction**:
+4. **Real-Time Interaction**:
    - Use the app to reply to messages instantly via WebSocket.
 
 
 ## Troubleshooting
-- **Webhook Not Receiving Messages**:
-  - Verify the `WEBHOOK_URL` and `WEBHOOK_VERIFY_TOKEN` in your WhatsApp Business API settings.
-  - Ensure your server is publicly accessible (use ngrok for local testing: `ngrok http 3000`).
 - **Database Connection Failed**:
   - Check `.env` credentials and ensure PostgreSQL is running (`pg_ctl status` or `ps aux | grep postgres`).
 - **GraphQL Errors**:
