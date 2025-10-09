@@ -3,7 +3,7 @@ import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConne
 
 
 export class New1759747194152 implements MigrationInterface {
-    name = 'Contact-addressField1759747194152'
+    name = 'ContactAddressField1759747194152'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         const { schema } = queryRunner.connection.options as PostgresConnectionOptions;
