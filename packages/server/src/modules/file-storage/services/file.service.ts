@@ -15,20 +15,24 @@ export class FileService {
     private readonly configService: ConfigService
   ) { }
 
+  getFileStore(){
+    const storagePath = this.configService.get('STORAGE_LOCAL_PATH');
+    let fileStoragePath = `${storagePath || '.local-storage'}`;
+    return `${fileStoragePath}/files-storage/`
+  }
+
   async getFileStream(params: {
     folderPath: string;
     filename: string;
   }): Promise<Readable> {
 
-    const storagePath = this.configService.get('STORAGE_LOCAL_PATH');
-
-    let fileStoragePath = `${storagePath || '.local-storage'}`;
+    const fileStoragePath = this.getFileStore()
 
     const filePath = join(process.cwd(),
-  `${fileStoragePath}/files-storage/`,
-  params.folderPath,
-  params.filename,
-  );
+      `${fileStoragePath}`,
+      params.folderPath,
+      params.filename,
+    );
     if (!existsSync(filePath)) {
       throw new Error(
         'File not found',
@@ -43,7 +47,6 @@ export class FileService {
           'File not found',
           );
       }
-
       throw error;
     }
   }
@@ -55,16 +58,12 @@ export class FileService {
       payloadToEncode.workspaceId,
     );
 
-    const signedPayload = this.jwtWrapperService.sign(
-      {
-        ...payloadToEncode,
-      },
-      {
-        secret,
-        expiresIn: fileTokenExpiresIn,
-      },
-    );
-
+    const signedPayload = this.jwtWrapperService.sign({
+      ...payloadToEncode,
+    },{
+      secret,
+      expiresIn: fileTokenExpiresIn,
+    });
     return signedPayload;
   }
 
@@ -77,13 +76,11 @@ export class FileService {
     name: string;
     folder: string;
     mimeType: string | undefined;
-  }): Promise<void> {
-    const storagePath = this.configService.get('STORAGE_LOCAL_PATH');
-
-    let fileStoragePath = `${storagePath || '.local-storage'}`;
+  }): Promise<string> {
+    let fileStoragePath = this.getFileStore()
 
     const filePath = join(
-      `${fileStoragePath}/files-storage/`,
+      `${fileStoragePath}`,
       params.folder,
       params.name,
     );
@@ -92,6 +89,7 @@ export class FileService {
     await this.createFolder(folderPath);
 
     await fs.writeFile(filePath, params.file);
+    return filePath
   }
 
 }

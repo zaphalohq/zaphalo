@@ -5,6 +5,8 @@ import { AttachmentService } from "./attachment.service";
 import { CreateAttachmentDto } from "./dto/createAttachmentDto";
 import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
 import { SuccessResponse } from "../whatsapp/dtos/success.dto";
+import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
+import { Workspace } from "src/modules/workspace/workspace.entity";
 
 @Resolver(() => Attachment)
 export class AttachmentResolver {
@@ -21,12 +23,9 @@ export class AttachmentResolver {
     @UseGuards(GqlAuthGuard)
     @Mutation(() => SuccessResponse)
     async DeleteOneAttachment(
-        @Context() context: { req: Request },
-        @Args('attachmentId') attachmentId: string)
-        : Promise<SuccessResponse | undefined> {
-        
-        const workspaceId = context.req.headers['x-workspace-id'];
-        await this.attachmentService.deleteOneAttachmentById(attachmentId, workspaceId);
+        @AuthWorkspace() workspace: Workspace,
+        @Args('attachmentId') attachmentId: string): Promise<SuccessResponse | undefined> {
+        await this.attachmentService.remove(attachmentId);
         return {
             success: true,
             message: 'attachment deleted successfully'
