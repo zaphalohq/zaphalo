@@ -73,7 +73,6 @@ export class WhatsAppApiService {
       'data': params.data,
       'timeout': 30000,
     }
-
     if (params.responseType){
       requestParams['responseType'] = params.responseType
     }

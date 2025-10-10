@@ -31,17 +31,11 @@ export class AttachmentService {
         return await this.attachmentRepository.findOne({ where : { id : attachmentId }})
     }
 
-    async deleteOneAttachmentById(attachmentId : string, workspaceId) {
+    async remove(attachmentId : string) {
         const attachment = await this.attachmentRepository.findOne({ where: { id: attachmentId }})
-        console.log(workspaceId,'workspace..................');
-        
         if(!attachment) throw Error('attachement doesnt exist!')
-        unlinkSync(`.local-storage\\files-storage\\workspace-${workspaceId}\\${attachment?.name}`);
+        unlinkSync(attachment.path);
         return await this.attachmentRepository.remove(attachment);
-    }
-
-    async remove(attachment : Attachment) {
-        return await this.attachmentRepository.remove(attachment)
     }
 
 }

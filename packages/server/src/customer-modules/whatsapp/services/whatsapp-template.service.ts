@@ -125,6 +125,7 @@ export class WaTemplateService {
     // """ Prepare header component for sending WhatsApp template message"""
     let header = {}
     const headerType = waTemplateId.headerType
+
     if (headerType == 'text' && templateVariablesValue['header-{{1}}']){
       var value = (freeTextJson || {})['header_text'] || templateVariablesValue['header-{{1}}'] || ' '
       header = {
@@ -512,18 +513,13 @@ export class WaTemplateService {
       const now = new Date()
       const workspaceFolderPath = `workspace-${workspaceId}`;
 
-      const attachment = await this.fileService.write({
+      const filePath = await this.fileService.write({
         file: fileData,
         name: filename,
         folder: workspaceFolderPath,
         mimeType: mimeType
       })
 
-      const filePath = join(
-        `.local-storage/`,
-        workspaceFolderPath,
-        filename,
-      );
       const attachement = await this.attachmentService.createOneAttachment({
         name: filename,
         originalname: filename,
@@ -549,7 +545,6 @@ export class WaTemplateService {
         'body': '',
         'footerText': '',
         'headerText': '',
-        'attachment': undefined,
         'headerType': TemplateHeaderType['NONE'],
         'language': TemplateLanguage[remoteTemplateVals['language']],
         'name': remoteTemplateVals['name'].replace("_", " ").toLowerCase(),
@@ -638,7 +633,13 @@ export class WaTemplateService {
 
   async createTemplateFromResponse(workspaceId, remoteTemplateVals, waAccount){
     const templateVals = await this.getTemplateValsFromResponse(workspaceId, remoteTemplateVals, waAccount)
-    // template_vals['header_attachment_ids'] = [Command.create(attachment) for attachment in template_vals['header_attachment_ids']]
+    if (templateVals['fileHandle']){
+      const newAttachment = await this.createTemplateAttachment(workspaceId, templateVals['fileHandle'])
+      if (newAttachment){
+        templateVals['attachment'] = newAttachment
+        templateVals['templateImg'] = newAttachment.name
+      }
+    }
     return templateVals
   }
 

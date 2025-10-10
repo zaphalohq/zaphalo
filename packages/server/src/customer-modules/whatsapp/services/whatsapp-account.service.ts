@@ -248,7 +248,6 @@ export class WaAccountService {
     }
     if (whatsappMediaType == 'document')
       vals[whatsappMediaType]['filename'] = attachment.name
-
     return vals
   }
 
