@@ -18,6 +18,9 @@ export class BroadcastRequest {
   @Field()
   contactListId: string;
 
+  @Field({ nullable: true })
+  scheduledAt?: Date
+
   @Field(() => broadcastStates, { nullable: true })
   status?: broadcastStates;
 }

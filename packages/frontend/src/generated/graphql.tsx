@@ -768,6 +768,7 @@ query searchReadBroadcast($page : Int!, $pageSize : Int!, $search: String, $filt
       id
       name
       createdAt
+      scheduledAt
       status
       whatsappAccount {
         id
@@ -792,6 +793,7 @@ export const SaveBroadcast = gql`
         id
         name
         createdAt
+        scheduledAt
         status
         whatsappAccount {
           id
@@ -817,6 +819,7 @@ query getBroadcast($broadcastId: String!) {
       id
       name
       createdAt
+      scheduledAt
       status
       whatsappAccount {
         id

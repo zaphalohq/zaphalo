@@ -59,12 +59,17 @@ export class BroadcastMessageJob {
       return
     }
     for (const receiver of contacts) {
-      const waMessage = await this.waMessageService.createWaMessage(workspaceId, {
+      const msgVal = {
         mobileNumber: receiver.contactNo,
         messageType: messageTypes.OUTBOUND,
         waAccountId: broadcast.whatsappAccount,
         waTemplateId: broadcast.template,
-      })
+      }
+      try{
+        const waMessage = await this.waMessageService.createWaMessage(workspaceId, msgVal, true)
+      }catch(err){
+        this.logger.error(`Whatsapp message send issue. ${err}`)
+      }
     }
   }
 }

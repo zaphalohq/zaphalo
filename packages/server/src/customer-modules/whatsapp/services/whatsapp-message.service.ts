@@ -1,4 +1,4 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { Connection, ILike, In, Repository } from 'typeorm';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { Cron } from '@nestjs/schedule';
@@ -25,6 +25,8 @@ import {
 export class WaMessageService {
   private waMessageRepository: Repository<WhatsAppMessage>
   private waTemplateRepository: Repository<WhatsAppTemplate>
+  protected readonly logger = new Logger(WaMessageService.name);
+
 
   constructor(
     @Inject(CONNECTION) connection: Connection,
@@ -38,7 +40,7 @@ export class WaMessageService {
 
 
 
-  async createWaMessage(workspaceId: string, whatsappMessageVal: any){
+  async createWaMessage(workspaceId: string, whatsappMessageVal: any, forceSend: boolean = false){
     const waMessage = this.waMessageRepository.create({
       mobileNumber: whatsappMessageVal.mobileNumber,
       messageType: whatsappMessageVal.messageType,
@@ -49,20 +51,22 @@ export class WaMessageService {
       msgUid: whatsappMessageVal.msgUid,
     })
     const newWaMessage = await this.waMessageRepository.save(waMessage)
+    if (!forceSend && !whatsappMessageVal.msgUid){
+      const whatsAppMessageCreatedEvent = new WhatsAppMessageCreatedEvent();
 
-    const whatsAppMessageCreatedEvent = new WhatsAppMessageCreatedEvent();
+      whatsAppMessageCreatedEvent.workspaceId = workspaceId
+      whatsAppMessageCreatedEvent.messageId = newWaMessage.id
 
-    whatsAppMessageCreatedEvent.workspaceId = workspaceId
-    whatsAppMessageCreatedEvent.messageId = newWaMessage.id
-    if (!whatsappMessageVal.msgUid){
       this.eventEmitter.emit('whatsapp.message.created', whatsAppMessageCreatedEvent)
+    }else{
+      await this.sendWhatsappMessage(waMessage.id)
     }
     return waMessage
   }
 
-  async sendWhatsappMessage(data: any): Promise<WhatsAppMessage | null | any> {
+  async sendWhatsappMessage(messageId: string): Promise<WhatsAppMessage | null | any> {
     const waMessage = await this.waMessageRepository.findOne({
-      where: {id: data.messageId},
+      where: {id: messageId},
       relations: [
         'waAccountId',
         'channelMessageId',
@@ -75,54 +79,59 @@ export class WaMessageService {
 
     if (!waMessage)
       return null
+    try {
+      const waApi = await this.waAccountService.getWhatsAppApi(waMessage.waAccountId.id)
 
-    const waApi = await this.waAccountService.getWhatsAppApi(waMessage.waAccountId.id)
+      let parentMessageId = false
+      let body = waMessage.body
 
-    let parentMessageId = false
-    let body = waMessage.body
+      const number = waMessage.mobileNumber
+      let messageType
+      let sendVals
+      if (!number)
+        throw new WhatsAppException(
+          'Invalid number',
+          WhatsAppExceptionCode.MOBILE_NUMBER_NOT_VALID,
+        );
 
-    const number = waMessage.mobileNumber
-    let messageType
-    let sendVals
-    if (!number)
-      throw new WhatsAppException(
-        'Invalid number',
-        WhatsAppExceptionCode.MOBILE_NUMBER_NOT_VALID,
-      );
-
-    // based on template
-    if (waMessage.waTemplateId){
-      messageType = 'template'
-      if (waMessage.waTemplateId.status != TemplateStatus.approved){
-        // || waMessage.waTemplateId.quality == 'red'):
-          throw new WhatsAppException(
-            'Template is not approved',
-            WhatsAppExceptionCode.TEMPLATE_NOT_APPROVED,
-          );
+      // based on template
+      if (waMessage.waTemplateId){
+        messageType = 'template'
+        if (waMessage.waTemplateId.status != TemplateStatus.approved){
+          // || waMessage.waTemplateId.quality == 'red'):
+            throw new WhatsAppException(
+              'Template is not approved',
+              WhatsAppExceptionCode.TEMPLATE_NOT_APPROVED,
+            );
+        }
+        // # generate sending values, components and attachments
+        sendVals = await this.waTemplateService.getSendTemplateVals(
+            waMessage?.waTemplateId,
+        )
       }
-      // # generate sending values, components and attachments
-      const sendVals = await this.waTemplateService.getSendTemplateVals(
-          waMessage?.waTemplateId,
-      )
-    }
-    else if (waMessage.channelMessageId.attachment){
-      let attachmentVals = await this.prepareAttachmentVals(waMessage.channelMessageId.attachment, waMessage.waAccountId)
-      messageType = attachmentVals.type
-      sendVals = attachmentVals[messageType]
-      if (waMessage.body)
-        sendVals['caption'] = body
-    }else{
-      messageType = 'text'
-      sendVals = {
-        "preview_url": true,
-        "body": body,
+      else if (waMessage.channelMessageId.attachment){
+        let attachmentVals = await this.prepareAttachmentVals(waMessage.channelMessageId.attachment, waMessage.waAccountId)
+        messageType = attachmentVals.type
+        sendVals = attachmentVals[messageType]
+        if (waMessage.body)
+          sendVals['caption'] = body
+      }else{
+        messageType = 'text'
+        sendVals = {
+          "preview_url": true,
+          "body": body,
+        }
       }
-    }
-    const msgUid = await waApi.sendWhatsApp(number, messageType, sendVals, parentMessageId)
+      const msgUid = await waApi.sendWhatsApp(number, messageType, sendVals, parentMessageId)
 
-    Object.assign(waMessage, {msgUid: msgUid})
-    await this.waMessageRepository.save(waMessage)
-    return waMessage
+      Object.assign(waMessage, {msgUid: msgUid})
+      await this.waMessageRepository.save(waMessage)
+      return waMessage
+    } catch (err){
+      Object.assign(waMessage, {failureReason: err.message ? err.message : err})
+      await this.waMessageRepository.save(waMessage)
+      this.logger.error(`WhatsApp message send error ${err}`)
+    }
   }
 
   async prepareAttachmentVals(attachment, waAccount){
