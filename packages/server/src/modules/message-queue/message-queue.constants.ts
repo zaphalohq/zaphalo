@@ -6,4 +6,5 @@ export enum MessageQueue {
   sendWaQueue = 'send-wa-queue.SendWhatsAppMessageJob',
   broadcastMessageQueue = 'broadcast-message-queue.BroadcastMessageJob',
   waTmplSyncQueue = 'wa-tmpl-sync-queue.UpdateTemplateJob',
+  broadcastSend = 'broadcast-send.BroadcastSendJob'
 }

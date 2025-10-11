@@ -13,10 +13,8 @@ const connectionFactory = {
 
 
     if (isGraphQL) {
-
       workspaceId = request?.req?.headers['x-workspace-id'] || request?.req?.workspaceId;
     } else {
-
       if (request?.headers && request?.headers['x-workspace-id']) {
         workspaceId = request.headers['x-workspace-id'];
       } else {

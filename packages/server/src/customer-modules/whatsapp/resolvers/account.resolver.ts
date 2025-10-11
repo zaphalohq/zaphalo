@@ -62,7 +62,7 @@ export class WaAccountResolver {
   async getWaAccount(
     @Args('waAccountId') waAccountId:string,
   ){
-    return await this.waAccountService.findInstantsByInstantsId(waAccountId)
+    return await this.waAccountService.getWaAccount(waAccountId)
   }
 
 

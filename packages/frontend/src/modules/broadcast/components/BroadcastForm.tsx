@@ -22,6 +22,11 @@ import {
 import { toast } from 'react-toastify';
 import { isDefined } from '@src/utils/validation/isDefined';
 
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { formatLocalDate, formatUTCDate } from '@src/utils/formatLocalDate';
+
+
 export default function BroadcastForm({ onBack, broadcastId, readOnly=false }) {
     const [broadcastData, setBroadcastData] = useState({
       broadcastId: '',
@@ -30,6 +35,7 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly=false }) {
       templateId: '',
       contactListId: '',
       status: '',
+      scheduledAt: '',
     })
 
     if (isDefined(broadcastId)){
@@ -40,7 +46,6 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly=false }) {
         fetchPolicy: "cache-and-network",
       })
       const broadcastView = broadcastViewData?.getBroadcast?.broadcast;
-
       if (broadcastView && !broadcastData.broadcastId){
         setBroadcastData({
           broadcastId: broadcastView.id,
@@ -48,6 +53,7 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly=false }) {
           whatsappAccountId: broadcastView.whatsappAccount.id,
           templateId: broadcastView.template.id,
           contactListId: broadcastView.contactList.id,
+          scheduledAt: formatUTCDate(broadcastView.scheduledAt),
           state: broadcastView.status,
         })
         if (broadcastView.state != 'New'){
@@ -85,6 +91,8 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly=false }) {
       toSubmiteData.whatsappAccountId = broadcastData.whatsappAccountId
       toSubmiteData.templateId = broadcastData.templateId
       toSubmiteData.contactListId = broadcastData.contactListId
+      toSubmiteData.scheduledAt = broadcastData.scheduledAt
+
       toSubmiteData.status = "new"
 
 
@@ -110,6 +118,7 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly=false }) {
           accountId: broadcast.whatsappAccount.id,
           templateId: broadcast.template.id,
           contactListId: broadcast.contactList.id,
+          scheduledAt: broadcast.scheduledAt,
           status: broadcast.status,
         })
         toast.success(`${response.data?.saveBroadcast?.message}`);
@@ -180,6 +189,14 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly=false }) {
               placeholder="Select Contact List"
               onSelect={(val) => setBroadcastData({ ...broadcastData, contactListId: val })}
               disabled={readOnly}
+            />
+
+            <DatePicker
+              selected={broadcastData.scheduledAt}
+              onChange={(val) => setBroadcastData({ ...broadcastData, scheduledAt: val })}
+              showTimeSelect
+              dateFormat="Pp"
+              className="border p-2 rounded"
             />
           </div>
 

@@ -12,6 +12,7 @@ export class WhatsAppException extends CustomException {
 }
 
 export enum WhatsAppExceptionCode {
+  WA_ACCOUNT_INVALID = "WA_ACCOUNT_INVALID",
   INVALID_API_CALL = "INVALID_API_CALL",
   MOBILE_NUMBER_NOT_VALID = 'MOBILE_NUMBER_NOT_VALID',
   TEMPLATE_NOT_SUBMITED = 'TEMPLATE_NOT_SUBMITED',

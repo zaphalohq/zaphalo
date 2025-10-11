@@ -76,25 +76,25 @@ export class BroadcastService {
   async saveBroadcast(workspaceId, broadcastData) {
     if (!broadcastData.broadcastId) throw new Error('Broadcast ID invalid!');
 
-
     const mailingList = await this.mailingListService.findMailingListById(broadcastData.mailingListId)
     if (!mailingList) throw new Error('mailingList not found');
     const templateRes = await this.waTemplateService.getTemplate(broadcastData.templateId)
     const template = templateRes?.template
     if (!template) throw new Error('template not found');
 
-    const account = await this.waAccountService.findInstantsByInstantsId(broadcastData.accountId);
-    if (!account) throw new Error('account not found');
+    const waAccountRes = await this.waAccountService.getWaAccount(broadcastData.accountId);
+    if (!waAccountRes.waAccount) throw new Error('Whatsapp account not found');
 
     const broadcastFind = await this.getBroadcast(broadcastData.broadcastId)
 
     if (!broadcastFind.broadcast) throw new Error('Broadcast ID invalid!');
 
     Object.assign(broadcastFind.broadcast, {
-      whatsappAccount: account,
+      whatsappAccount: waAccountRes.waAccount,
       name: broadcastData.broadcastName,
       template: template,
       contactList: mailingList,
+      scheduledAt: broadcastData.scheduledAt,
       status: broadcastData.status
     })
 

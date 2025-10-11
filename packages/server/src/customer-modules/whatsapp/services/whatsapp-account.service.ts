@@ -16,7 +16,10 @@ import { WaAccountDto } from '../dtos/whatsapp-account-update.dto';
 import { JwtWrapperService } from 'src/modules/jwt/jwt-wrapper.service';
 import { FileService } from 'src/modules/file-storage/services/file.service';
 import { WhatsAppSDKService } from 'src/customer-modules/whatsapp/services/whatsapp-api.service';
-
+import {
+  WhatsAppException,
+  WhatsAppExceptionCode,
+} from 'src/customer-modules/whatsapp/whatsapp.exception';
 
 export const SUPPORTED_ATTACHMENT_TYPE = {
   "audio": ["audio/aac", "audio/mp4", "audio/mpeg", "audio/amr", "audio/ogg"],
@@ -198,20 +201,21 @@ export class WaAccountService {
     return signedPayload;
   }
 
-
-  async getWhatsAppApi(instantsId?: string) {
-    if (instantsId) {
-      const instants = await this.findInstantsByInstantsId(instantsId)
-      if (!instants)
-        throw new Error("Not found whatsappaccount")
-      return this.whatsAppApiService.getWhatsApp(instants)
-    } else {
-      const findTrueInstants = await this.FindSelectedInstants()
-      if (!findTrueInstants)
-        throw new Error("Not found whatsappaccount")
-
-      return this.whatsAppApiService.getWhatsApp(findTrueInstants)
+  async getWhatsAppApi(waAccountId?: string) {
+    if (!waAccountId) {
+      throw new WhatsAppException(
+        "WhatsApp Account Id not Provided",
+        WhatsAppExceptionCode.WA_ACCOUNT_INVALID,
+      );
     }
+    const waAccountRes = await this.getWaAccount(waAccountId)
+    if (!waAccountRes.status){
+      throw new WhatsAppException(
+        "WhatsApp account not found",
+        WhatsAppExceptionCode.WA_ACCOUNT_INVALID,
+      );
+    }
+    return this.whatsAppApiService.getWhatsApp(waAccountRes.waAccount)
   }
 
   async getWaAccount(

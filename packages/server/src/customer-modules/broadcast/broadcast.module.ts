@@ -9,13 +9,19 @@ import { WhatsAppModule } from "src/customer-modules/whatsapp/whatsapp.module";
 import { MailingListModule } from "src/customer-modules/mailingList/mailingList.module";
 import { BroadcastMessageJob } from "src/customer-modules/broadcast/jobs/broadcast-message.job";
 import { BroadcastCreatedListener } from 'src/customer-modules/broadcast/listeners/broadcast-created.listener';
+import { BroadcastSendJob } from 'src/customer-modules/broadcast/crons/jobs/broadcast-send-cron.job';
+import { WorkspaceModule } from 'src/modules/workspace/workspace.module';
+import { Workspace } from 'src/modules/workspace/workspace.entity';
+
 
 @Module({
   imports : [
     NestjsQueryGraphQLModule.forFeature({
       imports: [
         NestjsQueryTypeOrmModule.forFeature([Broadcast, BroadcastContacts]),
+        NestjsQueryTypeOrmModule.forFeature([Workspace], 'core'),
         MailingListModule,
+        WorkspaceModule,
       ],
     }),
     WhatsAppModule,
@@ -24,7 +30,8 @@ import { BroadcastCreatedListener } from 'src/customer-modules/broadcast/listene
     BroadcastService,
     BroadcastResolver,
     BroadcastMessageJob,
-    BroadcastCreatedListener
+    BroadcastCreatedListener,
+    BroadcastSendJob,
   ],
   exports: [
     BroadcastService,

@@ -1,3 +1,5 @@
+import { format } from "date-fns"
+
 export function formatLocalDate(utcString) {
   if (!utcString) return "";
   const date = new Date(utcString);
@@ -16,4 +18,11 @@ export function formatLocalDate(utcString) {
   const hh = String(hours).padStart(2, "0");
 
   return `${day}/${month}/${year} ${hh}:${minutes}:${seconds} ${ampm}`;
+}
+
+export function formatUTCDate(utcString) {
+  if (!utcString) return "";
+
+  const date = new Date(utcString)
+  return date
 }
