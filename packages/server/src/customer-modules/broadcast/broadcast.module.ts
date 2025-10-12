@@ -1,10 +1,10 @@
 import { Module } from "@nestjs/common";
 import { NestjsQueryGraphQLModule } from "@ptc-org/nestjs-query-graphql";
 import { NestjsQueryTypeOrmModule } from "@ptc-org/nestjs-query-typeorm";
-import { BroadcastService } from "./broadcast.service";
-import { BroadcastResolver } from "./broadcast.resolver";
-import { Broadcast } from "./broadcast.entity";
-import { BroadcastContacts } from "./broadcastContacts.entity";
+import { BroadcastService } from "src/customer-modules/broadcast/services/broadcast.service";
+import { BroadcastResolver } from "src/customer-modules/broadcast/resolvers/broadcast.resolver";
+import { Broadcast } from "src/customer-modules/broadcast/entities/broadcast.entity";
+import { BroadcastTrace } from "src/customer-modules/broadcast/entities/broadcast-trace.entity";
 import { WhatsAppModule } from "src/customer-modules/whatsapp/whatsapp.module";
 import { MailingListModule } from "src/customer-modules/mailingList/mailingList.module";
 import { BroadcastMessageJob } from "src/customer-modules/broadcast/jobs/broadcast-message.job";
@@ -18,7 +18,7 @@ import { Workspace } from 'src/modules/workspace/workspace.entity';
   imports : [
     NestjsQueryGraphQLModule.forFeature({
       imports: [
-        NestjsQueryTypeOrmModule.forFeature([Broadcast, BroadcastContacts]),
+        NestjsQueryTypeOrmModule.forFeature([Broadcast, BroadcastTrace]),
         NestjsQueryTypeOrmModule.forFeature([Workspace], 'core'),
         MailingListModule,
         WorkspaceModule,

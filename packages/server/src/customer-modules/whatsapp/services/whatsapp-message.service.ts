@@ -13,7 +13,7 @@ import { InjectMessageQueue } from 'src/modules/message-queue/decorators/message
 import { MessageQueue } from 'src/modules/message-queue/message-queue.constants';
 
 
-import { WhatsAppMessage } from "src/customer-modules/whatsapp/entities/whatsapp-message.entity";
+import { WhatsAppMessage, messageStates } from "src/customer-modules/whatsapp/entities/whatsapp-message.entity";
 import { WhatsAppTemplate, TemplateStatus } from "src/customer-modules/whatsapp/entities/whatsapp-template.entity";
 import { WhatsAppMessageCreatedEvent } from 'src/customer-modules/whatsapp/events/whatsapp-message-created.event';
 import {
@@ -123,12 +123,15 @@ export class WaMessageService {
         }
       }
       const msgUid = await waApi.sendWhatsApp(number, messageType, sendVals, parentMessageId)
-
-      Object.assign(waMessage, {msgUid: msgUid})
+      if (msgUid){
+        Object.assign(waMessage, {state: messageStates['sent'], msgUid: msgUid})
+      }else{
+        Object.assign(waMessage, {state: messageStates['bounced']})
+      }
       await this.waMessageRepository.save(waMessage)
       return waMessage
     } catch (err){
-      Object.assign(waMessage, {failureReason: err.message ? err.message : err})
+      Object.assign(waMessage, {state: messageStates['error'], failureReason: err.message ? err.message : err})
       await this.waMessageRepository.save(waMessage)
       this.logger.error(`WhatsApp message send error ${err}`)
     }
@@ -140,7 +143,6 @@ export class WaMessageService {
     let whatsappMediaType = ''
 
     for (const [key, value] of Object.entries(SUPPORTED_ATTACHMENT_TYPE)) {
-      console.log(`Key: ${key}, Value: ${value}`);
       if (value.includes(attachment.mimetype)){
         whatsappMediaType = key
         break

@@ -1,5 +1,6 @@
 import { Field, ObjectType } from "@nestjs/graphql";
-import { Broadcast } from "../broadcast.entity";
+import { Broadcast } from 'src/customer-modules/broadcast/entities/broadcast.entity';
+
 
 @ObjectType()
 export class ManyBrodcastsResponse {
