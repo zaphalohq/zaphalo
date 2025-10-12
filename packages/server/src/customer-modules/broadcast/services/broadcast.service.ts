@@ -1,16 +1,18 @@
-import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
+import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { Connection, Repository, In, ILike } from 'typeorm';
 import axios, { all } from 'axios';
-import { Broadcast } from "./broadcast.entity";
-import { BroadcastContacts } from "./broadcastContacts.entity";
+import { Broadcast } from "src/customer-modules/broadcast/entities/broadcast.entity";
+import { BroadcastTrace } from "src/customer-modules/broadcast/entities/broadcast-trace.entity";
 import { MailingListService } from "src/customer-modules/mailingList/mailingList.service";
 import { WaTemplateService } from "src/customer-modules/whatsapp/services/whatsapp-template.service";
 import { WaAccountService } from "src/customer-modules/whatsapp/services/whatsapp-account.service";
+import { WaMessageService } from "src/customer-modules/whatsapp/services/whatsapp-message.service";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
-import { WhatsAppSDKService } from '../whatsapp/services/whatsapp-api.service';
+import { WhatsAppSDKService } from 'src/customer-modules/whatsapp/services/whatsapp-api.service';
 import { broadcastStates } from "src/customer-modules/broadcast/enums/broadcast.state.enum"
 import { BroadcastCreatedEvent } from 'src/customer-modules/broadcast/events/broadcast-created.event';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { messageTypes } from "src/customer-modules/whatsapp/entities/whatsapp-message.entity";
 
 import {
   BroadcastException,
@@ -21,18 +23,20 @@ import {
 @Injectable()
 export class BroadcastService {
   private broadcastRepository: Repository<Broadcast>
-  private broadcastContactsRepository: Repository<BroadcastContacts>
+  private broadcastTraceRepository: Repository<BroadcastTrace>
+  protected readonly logger = new Logger(BroadcastService.name);
 
   constructor(
     @Inject(CONNECTION) connection: Connection,
     private readonly mailingListService: MailingListService,
     private readonly waTemplateService: WaTemplateService,
     private readonly waAccountService: WaAccountService,
+    private readonly waMessageService: WaMessageService,
     private readonly whatsAppApiService: WhatsAppSDKService,
     private eventEmitter: EventEmitter2
   ) {
     this.broadcastRepository = connection.getRepository(Broadcast);
-    this.broadcastContactsRepository = connection.getRepository(BroadcastContacts);
+    this.broadcastTraceRepository = connection.getRepository(BroadcastTrace);
   }
 
   async createBroadcast(workspaceId, broadcastData) {
@@ -190,5 +194,48 @@ export class BroadcastService {
       totalPages: Math.ceil(total / pageSize),
       currentPage: page,
     };
+  }
+
+  async getRemainingContacts(broadcast: Broadcast){
+    const contacts = broadcast?.contactList?.mailingContacts
+    const traces = await this.broadcastTraceRepository
+      .createQueryBuilder()
+      .where({ broadcast: {id: broadcast.id}})
+      .select(['mobile'])
+      .getRawMany();
+
+    const alreadySentContacts = traces.map(trace => trace.mobile);
+    const filtered = contacts.filter((contact) => !alreadySentContacts.includes(contact.contactNo));
+    return filtered
+  }
+
+  async sendWhatsappMessage(workspaceId: string, broadcast: Broadcast){
+    Object.assign(broadcast, {status: broadcastStates['in_progress']})
+    await this.broadcastRepository.save(broadcast)
+    const contacts = await this.getRemainingContacts(broadcast)
+    if (!contacts.length){
+      Object.assign(broadcast, {status: broadcastStates['done']})
+      await this.broadcastRepository.save(broadcast)
+      return
+    }
+    for (const receiver of contacts) {
+      const msgVal = {
+        mobileNumber: receiver.contactNo,
+        messageType: messageTypes.OUTBOUND,
+        waAccountId: broadcast.whatsappAccount,
+        waTemplateId: broadcast.template,
+      }
+      try{
+        const waMessage = await this.waMessageService.createWaMessage(workspaceId, msgVal, true)
+        const trace = this.broadcastTraceRepository.create({
+          broadcast: broadcast,
+          whatsAppMesssage: waMessage,
+          mobile: receiver.contactNo,
+        })
+        this.broadcastTraceRepository.save(trace)
+      }catch(err){
+        this.logger.error(`Whatsapp message send issue. ${err}`)
+      }
+    }
   }
 }

@@ -136,7 +136,7 @@ export class WaTemplateService {
     else if(['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerType)){
       header = {
         "type": 'header',
-        "parameters": [await this.waAccountService.prepareAttachmentVals(attachment, waTemplateId.account.id)]
+        "parameters": [await this.waAccountService.prepareAttachmentVals(attachment, waTemplateId.account)]
       }
     }
     else if(headerType == 'location'){

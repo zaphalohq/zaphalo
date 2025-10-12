@@ -4,7 +4,8 @@ import { Process } from 'src/modules/message-queue/decorators/process.decorator'
 import { MessageQueue } from 'src/modules/message-queue/message-queue.constants';
 import { getWorkspaceConnection } from 'src/modules/workspace-manager/workspace.manager.utils';
 import { WaMessageService } from 'src/customer-modules/whatsapp/services/whatsapp-message.service';
-import { Broadcast } from 'src/customer-modules/broadcast/broadcast.entity';
+import { BroadcastService } from "src/customer-modules/broadcast/services/broadcast.service";
+import { Broadcast } from 'src/customer-modules/broadcast/entities/broadcast.entity';
 import { messageTypes } from "src/customer-modules/whatsapp/entities/whatsapp-message.entity";
 
 export type BroadcastJobData = { workspaceId: string, broadcastId: string};
@@ -18,7 +19,7 @@ export class BroadcastMessageJob {
   protected readonly logger = new Logger(BroadcastMessageJob.name);
 
   constructor(
-    private readonly waMessageService: WaMessageService,
+    private readonly broadcastService: BroadcastService,
   ) {}
 
   @Process(BroadcastMessageJob.name)
@@ -38,10 +39,11 @@ export class BroadcastMessageJob {
       });
 
       if (broadcast){
-        await this.sendWhatsappMessage(data.workspaceId, broadcast)
+        await this.broadcastService.sendWhatsappMessage(data.workspaceId, broadcast)
         this.logger.log(
           `Workspace ${data.workspaceId} braodcast ${data.broadcastId} sent to contacts`,
         );
+        return
       }
       this.logger.log(
         `Workspace ${data.workspaceId} braodcast ${data.broadcastId} not found`,
@@ -50,26 +52,6 @@ export class BroadcastMessageJob {
       this.logger.warn(
         `Failed workspace ${data.workspaceId} braodcast ${data.broadcastId} sendindg to contacts. ${err}`,
       );
-    }
-  }
-
-  async sendWhatsappMessage(workspaceId: string, broadcast: Broadcast){
-    const contacts = broadcast?.contactList?.mailingContacts
-    if (!contacts){
-      return
-    }
-    for (const receiver of contacts) {
-      const msgVal = {
-        mobileNumber: receiver.contactNo,
-        messageType: messageTypes.OUTBOUND,
-        waAccountId: broadcast.whatsappAccount,
-        waTemplateId: broadcast.template,
-      }
-      try{
-        const waMessage = await this.waMessageService.createWaMessage(workspaceId, msgVal, true)
-      }catch(err){
-        this.logger.error(`Whatsapp message send issue. ${err}`)
-      }
     }
   }
 }

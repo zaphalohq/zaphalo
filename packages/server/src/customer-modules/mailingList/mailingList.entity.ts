@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { MailingContacts } from './mailingContacts.entity';
 import { UUIDScalarType } from 'src/modules/api/scalars/uuid.scalar';
-import { Broadcast } from '../broadcast/broadcast.entity';
+import { Broadcast } from 'src/customer-modules/broadcast/entities/broadcast.entity';
 
 @Entity({ name: 'MailingList' })
 @ObjectType()

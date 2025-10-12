@@ -1,9 +1,9 @@
 import { Args, Context, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { UseGuards } from "@nestjs/common";
-import { Broadcast } from "./broadcast.entity";
-import { BroadcastService } from "./broadcast.service";
+import { Broadcast } from "src/customer-modules/broadcast/entities/broadcast.entity";
+import { BroadcastService } from "src/customer-modules/broadcast/services/broadcast.service";
 import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
-import { SearchedRes } from "../whatsapp/dtos/searched.dto";
+import { SearchedRes } from "src/customer-modules/whatsapp/dtos/searched.dto";
 
 import { BroadcastResponse } from "src/customer-modules/broadcast/dto/broadcast-response.dto";
 import { BroadcastRequest } from "src/customer-modules/broadcast/dto/brodcast-request-dto";
