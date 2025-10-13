@@ -1,6 +1,6 @@
 import { useQuery, useMutation, gql } from "@apollo/client";
 import { useEffect, useRef, useState, useContext } from "react";
-import { findDefaultSelectedInstants, ChannelMessage, MakeUnseenMsgSeen } from "@src/generated/graphql";
+import { ChannelMessage, MakeUnseenMsgSeen } from "@src/generated/graphql";
 import { ChatsContext } from "@components/Context/ChatsContext"
 import { VITE_BACKEND_URL } from '@src/config';
 import { useWebSocket } from "./Websocket_hooks/WebSocket";
@@ -15,7 +15,6 @@ interface Message {
 
 export default function MessageDisplay() {
   const LIMIT = 20;
-  const [selectedPhoneNo, setSelectedPhoneNo] = useState<number | null>(null);
   const [messages, setMessages] = useState([]);
   const [cursor, setCursor] = useState<string | null>(null);
   const { chatsDetails, newMessage, setNewMessage, myCurrentMessage }: any = useContext(ChatsContext)
@@ -26,7 +25,6 @@ export default function MessageDisplay() {
     variables: { channelId:  chatsDetails?.channelId, cursor: null, limit: LIMIT },
     fetchPolicy: "cache-and-network",
   });
-  const { data: selectedInstantsData, loading: selectedInstantsLoading } = useQuery(findDefaultSelectedInstants);
   const [makeUnseenMsgSeen, { data: makeSeenMsgUnseenData }] = useMutation(MakeUnseenMsgSeen);
 
   const { socketMessages }: any = useWebSocket()
@@ -96,12 +94,6 @@ export default function MessageDisplay() {
     })
     return currentDate
   }
-
-  useEffect(() => {
-    if (!selectedInstantsLoading && selectedInstantsData) {
-      setSelectedPhoneNo(Number(selectedInstantsData.findDefaultSelectedInstants.phoneNumberId))
-    }
-  }, [selectedInstantsData, selectedInstantsLoading])
 
   useEffect(() => {
     if (chatsDetails.channelId == '')

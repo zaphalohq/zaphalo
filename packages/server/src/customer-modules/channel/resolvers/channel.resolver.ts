@@ -37,23 +37,9 @@ export class ChannelResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Channel)
   async findExistingChannelByPhoneNoOrCreateChannel(@Args('phoneNo') phoneNo: string): Promise<Channel | undefined> {
-    const findTrueInstants = await this.waAccountService.FindSelectedInstants()
-    const contact = await this.contactService.findOneContact(Number(phoneNo))
-    const senderId = Number(findTrueInstants?.phoneNumberId)
+    const contact = await this.contactService.findActiveContactOrCreate(phoneNo, phoneNo)
     const channelName = contact?.contactName;
-    const memberIds = [Number(phoneNo), senderId]
-    if (!findTrueInstants) throw new Error('findTrueInstants not found');
-    const existingChannel = await this.channelService.findExistingChannelByPhoneNo(memberIds)
-    if (existingChannel && existingChannel?.id) {
-      return existingChannel
-    } else {
-      const createdChannel = await this.channelService.findOrCreateChannel(
-        senderId,
-        memberIds,
-        channelName,
-      );
-      return createdChannel.channel
-    }
+    return await this.channelService.findActiveChannelOrCreate(phoneNo, channelName)
   }
 
 
