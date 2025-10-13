@@ -251,12 +251,6 @@ query findAllChannel {
 }
 `
 
-export const findDefaultSelectedInstants = gql`query MyQuery {
-  findDefaultSelectedInstants {
-    phoneNumberId
-  }
-}`
-
 export const findOrCreateChannel = gql`
   mutation FindOrCreateChannel($phoneNo: String!) {
     findExistingChannelByPhoneNoOrCreateChannel(phoneNo: $phoneNo) {
@@ -371,31 +365,14 @@ mutation syncWhatsAppAccountTemplates($waAccountId: String!) {
 }
 `;
 
-export const WhatsAppAccountTestConnection = gql(`
+export const WhatsAppAccountTestConnection = gql`
 mutation WaAccountTestConnection($whatsAppAccountData: WaAccountDto!) {
   WaAccountTestConnection(whatsAppAccountData: $whatsAppAccountData) {
     message
     success
     error
   }
-}`
-)
-
-export const findAllInstants = gql`
-  query findAllInstants{
-    findAllInstants {
-      id
-      name
-      appId
-      phoneNumberId
-      businessAccountId
-      accessToken
-      appSecret
-      defaultSelected
-      waWebhookToken
-    }
-  }
-`;
+}`;
 
 export const ReadWaAccount = gql`
 query readWaAccount($search: String, $limit: Int){

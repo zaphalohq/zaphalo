@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react"
 import ContactList from "./ContactsArea"
 import CreateContacts from "./CreateContacts"
 import ChannelLists from "./ChannelLists"
-import AllInstants from "./AllInstants"
+import SelectWaAccount from "@src/modules/whatsapp/components/account/SelectWaAccount"
 import { SearchWhite } from "@components/UI/Search"
 
 
@@ -50,7 +50,7 @@ const ChatsSide = ({ setIsChatOpen }: any) => {
             <button onClick={() => setIsInstantsVis(!isInstantsVis)} className='p-2 hover-light rounded cursor-pointer'><FiList /></button>
             <div className="menuref1" ref={modalRef1}>
               {isInstantsVis ?
-                <AllInstants /> 
+                <SelectWaAccount/>
                  : null} 
             </div>
           </div>

@@ -2,7 +2,6 @@ import { FiArrowLeft, FiEdit2 } from 'react-icons/fi'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { ChatsContext } from '@components/Context/ChatsContext'
 import { useQuery } from '@apollo/client'
-import { findDefaultSelectedInstants } from '@src/generated/graphql'
 
 const CurrentChannelNav = () => {
   const { chatsDetails }: any = useContext(ChatsContext)
@@ -25,12 +24,6 @@ const CurrentChannelNav = () => {
   }, []);
 
   const [selectedPhoneNo, setSelectedPhoneNo ] = useState<number | null>(null);
-  const { data: selectedInstantsData, loading: selectedInstantsLoading } = useQuery(findDefaultSelectedInstants);
-  useEffect(() => {
-    if(!selectedInstantsLoading && selectedInstantsData){
-      setSelectedPhoneNo(Number(selectedInstantsData.findDefaultSelectedInstants.phoneNumberId))
-    }
-  },[selectedInstantsData,selectedInstantsLoading])
 
   return (
     <div className="flex items-center justify-between px-6 py-3 bg-white border-b">

@@ -67,13 +67,6 @@ export class WaAccountResolver {
 
 
   @UseGuards(GqlAuthGuard)
-  @Query(() => WhatsAppAccount)
-  async findDefaultSelectedInstants(): Promise<WhatsAppAccount | null> {
-    return await this.waAccountService.FindSelectedInstants();
-  }
-
-
-  @UseGuards(GqlAuthGuard)
   @Mutation(() => WhatsAppAccount)
   async DeleteInstants(@Args('waAccountId') waAccountId: string): Promise<WhatsAppAccount | null> {
     return this.waAccountService.DeleteInstants(waAccountId)
