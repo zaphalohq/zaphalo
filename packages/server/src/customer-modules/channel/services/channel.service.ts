@@ -54,22 +54,12 @@ export class ChannelService {
   }
 
   async findExistingChannelByPhoneNo(memberIds: any): Promise<Channel | undefined> {
-    const channelExist = await this.channelRepository.find({
+    const channelExist = await this.channelRepository.findOne({
       where: { channelMembers: memberIds.map((member) => ({ phoneNo: member })) },
       relations: ['channelMembers']
     })
 
-    const membersIdsStr = memberIds.sort((a, b) => a - b).join(',')
-    const stillChannelExist = channelExist.find(channel => {
-      const channelPhoneNoStr = channel.channelMembers
-      .map(channelMembers => channelMembers.phoneNo)
-      .sort((a, b) => a - b)
-      .join(',')
-
-      return channelPhoneNoStr == membersIdsStr;
-    })
-
-    return stillChannelExist
+    return channelExist ? channelExist : undefined
   }
 
   async createMessage(

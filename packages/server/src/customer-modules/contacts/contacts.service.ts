@@ -15,7 +15,7 @@ export class ContactsService {
         this.contactsRepository = connection.getRepository(Contacts);
     }
 
-    async findOneContact(senderId: number) {
+    async findOneContact(senderId) {
         return await this.contactsRepository.findOne({ where: { phoneNo: senderId } })
     }
 
@@ -45,7 +45,7 @@ export class ContactsService {
         };
     }
 
-    async getContactbyId(contactId: string){
+    async getContactbyId(contactId: string) {
         return await this.contactsRepository.findOne({ where: { id: contactId } })
     }
 
@@ -57,18 +57,19 @@ export class ContactsService {
             contactName: CreateContacts.contactName,
             phoneNo: CreateContacts.phoneNo,
             profileImg: CreateContacts.profileImg,
-            defaultContact: CreateContacts.defaultContact || false,
-            address: CreateContacts.address,
+            street:CreateContacts.street,
+            city:CreateContacts.city,
+            country:CreateContacts.country,
+            state:CreateContacts.state,
+            zipcode:CreateContacts.zipcode
         });
         await this.contactsRepository.save(createdContacts);
         return createdContacts
     }
 
-
     async findAllContacts(): Promise<Contacts[]> {
 
         return await this.contactsRepository.find({
-            where: { defaultContact: false },
             order: { createdAt: 'ASC' },
         });
     }
@@ -88,8 +89,12 @@ export class ContactsService {
         if (!updateContact) throw Error("contact doesn't found.")
         updateContact.contactName = UpdateContact.contactName;
         updateContact.phoneNo = UpdateContact.phoneNo;
+        updateContact.street=UpdateContact.street;
+        updateContact.city=UpdateContact.city;
+        updateContact.country=UpdateContact.country;
+        updateContact.state=UpdateContact.state;
         updateContact.profileImg = UpdateContact.profileImg;
-        updateContact.address = UpdateContact.address;
+        updateContact.zipcode=UpdateContact.zipcode;
         return await this.contactsRepository.save(updateContact);
     }
 
@@ -104,13 +109,13 @@ export class ContactsService {
 
     async findActiveContactOrCreate(senderMobile, senderName) {
         const existingContact = await this.contactsRepository.findOne({
-            where: {phoneNo: senderMobile}
+            where: { phoneNo: senderMobile }
         })
 
-        if (!existingContact){
+        if (!existingContact) {
             const createdContacts = this.contactsRepository.create({
-                contactName : senderName,
-                phoneNo : senderMobile,
+                contactName: senderName,
+                phoneNo: senderMobile,
             })
             await this.contactsRepository.save(createdContacts);
             return createdContacts

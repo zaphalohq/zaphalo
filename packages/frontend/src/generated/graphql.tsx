@@ -195,37 +195,31 @@ export const CreateContactMute = gql`
 mutation CreateContacts($CreateContacts: createContactsDto!) {
   CreateContacts(CreateContacts: $CreateContacts) {
     id
-    contactName
     phoneNo
+    country
+    contactName
+    city
+    createdAt
     profileImg
-    defaultContact
-    address{
-      city
-      country
-      landmark
-      pincode
-      state
-      street
-    }
+    zipcode
+    state
+    street
   }
 }`
 
 export const UpdateContactMute = gql`
 mutation UpdateContact($UpdateContact: updateContactsDto!) {
   UpdateContact(UpdateContact: $UpdateContact) {
-    id
-    contactName
-    phoneNo
-    profileImg
-    defaultContact
-    address{
+      contactName
+      id
+      phoneNo
       city
-      country
-      landmark
-      pincode
-      state
       street
-    }
+      zipcode
+      profileImg
+      state
+      createdAt
+      country
   }
 }`
 
@@ -1116,18 +1110,16 @@ query searchReadContacts($page: Int!, $pageSize: Int!, $search: String, $filter:
     totalPages,
     currentPage,
     contacts {
-      id
       contactName
+      id
       phoneNo
+      city
+      street
+      zipcode
       profileImg
-      address{
-        city
-        country
-        landmark
-        pincode
-        state
-        street
-      }
+      state
+      createdAt
+      country
     }
   }
 }
@@ -1136,18 +1128,16 @@ query searchReadContacts($page: Int!, $pageSize: Int!, $search: String, $filter:
 export const GetContactById = gql`
 query getContactById($contactId: String!){
   getContactById(contactId: $contactId){
-    id
+    city
     contactName
+    country
+    createdAt
+    id
     phoneNo
+    state
     profileImg
-    address{
-      city
-      country
-      landmark
-      pincode
-      state
-      street
-    }
+    street
+    zipcode
   }
 }
 `

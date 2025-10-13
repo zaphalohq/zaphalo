@@ -14,7 +14,6 @@ import {
 import { Message } from "src/customer-modules/channel/entities/message.entity";
 import { Channel } from "src/customer-modules/channel/entities/channel.entity";
 import { UUIDScalarType } from "src/modules/api/scalars/uuid.scalar";
-import { Address } from "./contact-address.entity";
 
 
 
@@ -29,9 +28,9 @@ export class Contacts {
   @Field()
   contactName: string;
 
-  @Column({ type: 'bigint' })
-  @Field(() => Float)
-  phoneNo: number;
+  @Column({ type: 'varchar' })
+  @Field(() => String)
+  phoneNo: string;
 
   @Field(() => [Channel])
   @ManyToMany(() => Channel, channel => channel.channelMembers)
@@ -42,16 +41,28 @@ export class Contacts {
   @Field(() => String, { nullable: true })
   profileImg?: string;
 
-  @Field(() => Address, { nullable: true })
-  @Column(() => Address)
-  address?: Address;
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  street?: string;
+
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  city?: string;
+
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  state?: string;
+
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  country?: string
+
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  zipcode?: string;
 
   @CreateDateColumn()
   @Field()
   createdAt: Date;
-
-  @Column({ type: 'boolean', default: false, nullable: true })
-  @Field(() => Boolean)
-  defaultContact: boolean;
 
 }
