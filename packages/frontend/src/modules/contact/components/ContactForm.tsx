@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import InputLabel from '@components/UI/InputLabel';
 import SubmitButton from '@components/UI/SubmitButton';
 import CloseButton from '@components/UI/CloseButton';
@@ -12,49 +12,61 @@ import { useMutation, useQuery } from '@apollo/client';
 import { CreateContactMute, GetContactById, UpdateContactMute } from '@src/generated/graphql';
 import { isDefined } from '@src/utils/validation/isDefined';
 import { toast } from 'react-toastify';
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
+import { CitySelect, CountrySelect, GetCountries, StateSelect } from "react-country-state-city";
+import "react-country-state-city/dist/react-country-state-city.css";
+
 
 const ContactForm = ({ contactId, onBack, isNewContacts }) => {
+
+  const [countryObj, setCountryObj] = useState(null)
 
   const [contactFormData, setContactFormData] = useState({
     id: '',
     contactName: '',
     phoneNo: '',
     profileImg: '',
-    address: {
-      city: '',
-      landmark: '',
-      pincode: '',
-      state: '',
-      street: '',
-      country: ''
-    },
+    street: '',
+    city: '',
+    country: '',
+    state: '',
+    zipcode: ''
   });
 
-  if (isDefined(contactId)) {
-    const { data: contactViewData, loading: viewLoading, error: viewError } = useQuery(GetContactById, {
-      variables: { contactId: contactId },
-      fetchPolicy: "cache-and-network",
-    })
-    const contactView = contactViewData?.getContactById;
-    if (contactView && !contactFormData.contactName) {
-      setContactFormData({
-        id: contactView.id,
-        contactName: contactView.contactName,
-        phoneNo: contactView.phoneNo,
-        profileImg: contactView.profileImg,
-        address: {
-          city: contactView.address.city || '',
-          country: contactView.address.country || '',
-          landmark: contactView.address.landmark || '',
-          pincode: contactView.address.pincode || '',
-          state: contactView.address.state || '',
-          street: contactView.address.street || '',
-        },
-      })
-    }
-  }
 
+  // to get data while updating
+  const { data: contactViewData } = useQuery(GetContactById, {
+    variables: { contactId },
+    skip: !isDefined(contactId),
+    fetchPolicy: 'cache-and-network',
+  });
 
+  useEffect(() => {
+    const fetchAndSetContact = async () => {
+      if (contactViewData?.getContactById && !contactFormData.contactName) {
+        const contactView = contactViewData.getContactById;
+
+        setContactFormData({
+          id: contactView.id,
+          contactName: contactView.contactName,
+          phoneNo: contactView.phoneNo,
+          profileImg: contactView.profileImg,
+          street: contactView.street,
+          city: contactView.city,
+          country: contactView.country,
+          state: contactView.state,
+          zipcode: contactView.zipcode,
+        });
+
+        const countries = await GetCountries()
+        const country = countries.find((e) => e.name === contactView.country)
+        setCountryObj(country)
+      }
+    };
+
+    fetchAndSetContact();
+  }, [contactViewData]);
 
   const [fileError, setFileError] = useState('');
 
@@ -115,17 +127,16 @@ const ContactForm = ({ contactId, onBack, isNewContacts }) => {
     };
     const submitData: toSubmitData = {
       contactName: contactFormData.contactName,
-      phoneNo: Number(contactFormData.phoneNo), // Convert to number
+      phoneNo: contactFormData.phoneNo, // Convert to number
       profileImg: contactFormData.profileImg,
-      address: {
-        city: contactFormData.address.city,
-        country: contactFormData.address.country,
-        landmark: contactFormData.address.landmark,
-        pincode: contactFormData.address.pincode,
-        state: contactFormData.address.state,
-        street: contactFormData.address.street,
-      },
+      street: contactFormData.street || '',
+      country: contactFormData.country || '',
+      state: contactFormData.state || '',
+      city: contactFormData.city || '',
+      zipcode: contactFormData.zipcode || '',
     };
+
+    console.log(submitData)
     if (isNewContacts) {
       try {
         await CreateContact({
@@ -141,9 +152,10 @@ const ContactForm = ({ contactId, onBack, isNewContacts }) => {
       try {
         await UpdateContact({
           variables: {
-            UpdateContact: { ...contactFormData, phoneNo: Number(contactFormData.phoneNo) }
+            UpdateContact: contactFormData
           }
         })
+        console.log(contactFormData)
         onBack();
       } catch (err) {
         console.error('Error during updating', err)
@@ -169,67 +181,72 @@ const ContactForm = ({ contactId, onBack, isNewContacts }) => {
               onChange={(e) => setContactFormData({ ...contactFormData, contactName: e.target.value })}
             />
 
-            {/* Phone Number */}
-            <Input
-              type="number"
-              placeholder="Phone Number"
+            <PhoneInput
+              forceDialCode={true}
+              defaultCountry="ua"
               value={contactFormData.phoneNo}
-              onChange={(e) => setContactFormData({ ...contactFormData, phoneNo: e.target.value })}
+              onChange={(phone) => setContactFormData({ ...contactFormData, phoneNo: phone })}
+              containerClassName="!w-full !flex !items-center !rounded-lg !border !border-gray-300 transition-all"
+              inputClassName="!flex-1 !border !border-gray-300 !rounded-lg !px-3 !py-2 !text-gray-700 focus:!border-gray-500 focus:!ring-1 focus:!ring-gray-400 focus:!outline-none"
+              countrySelectorStyleProps={{
+                buttonStyle: {
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.5rem',
+                  backgroundColor: 'white',
+                  padding: '0 10px',
+                  marginRight: '8px', // gap between flag & number input
+                },
+              }}
             />
 
-            {/* Address */}
+            {/* addreess */}
             <Input
               type="text"
               placeholder="Street"
-              value={contactFormData.address.street}
+              value={contactFormData.street}
               onChange={(e) => setContactFormData({
                 ...contactFormData,
-                address: { ...contactFormData.address, street: e.target.value }
-              })}
-            />
-            <Input
-              type="text"
-              placeholder="Landmark"
-              value={contactFormData.address.landmark}
-              onChange={(e) => setContactFormData({
-                ...contactFormData,
-                address: { ...contactFormData.address, landmark: e.target.value }
+                street: e.target.value
               })}
             />
             <Input
               type="text"
               placeholder="City"
-              value={contactFormData.address.city}
+              value={contactFormData.city}
               onChange={(e) => setContactFormData({
                 ...contactFormData,
-                address: { ...contactFormData.address, city: e.target.value }
+                city: e.target.value
               })}
+            />
+            <CountrySelect
+              defaultValue={countryObj?.id}
+              containerClassName=""
+              inputClassName="!w-full !border !border-gray-300 !rounded-lg border-none"
+              onChange={(_country) => {
+                setCountryObj(_country); // ✅ update the selected country object
+                setContactFormData({ ...contactFormData, country: _country?.name });
+              }}
+              placeHolder="Select Country"
+            showFlag={false}
+            />
+            <StateSelect
+              key={countryObj?.id}
+              countryid={countryObj?.id}
+              inputClassName="!w-full !border !border-gray-300 !rounded-lg border-none"
+              defaultValue={contactFormData.state}
+              onChange={(_state) => {
+                setContactFormData({ ...contactFormData, state: _state?.name });
+              }}
+              placeHolder="Select State"
             />
             <Input
               type="text"
-              placeholder="State"
-              value={contactFormData.address.state}
+              placeholder="Zipcode"
+              value={contactFormData.zipcode}
+              maxLength={6}
               onChange={(e) => setContactFormData({
                 ...contactFormData,
-                address: { ...contactFormData.address, state: e.target.value }
-              })}
-            />
-            <Input
-              type="text"
-              placeholder="Pincode"
-              value={contactFormData.address.pincode}
-              onChange={(e) => setContactFormData({
-                ...contactFormData,
-                address: { ...contactFormData.address, pincode: e.target.value }
-              })}
-            />
-            <Input
-              type="text"
-              placeholder="country"
-              value={contactFormData.address.country}
-              onChange={(e) => setContactFormData({
-                ...contactFormData,
-                address: { ...contactFormData.address, country: e.target.value }
+                zipcode: e.target.value
               })}
             />
 
@@ -260,7 +277,7 @@ const ContactForm = ({ contactId, onBack, isNewContacts }) => {
           </form>
         </CardContent>
       </Card>
-    </div>
+    </div >
   );
 };
 

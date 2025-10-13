@@ -14973,6 +14973,11 @@ rc@^1.2.8:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
+react-country-state-city@^1.1.12:
+  version "1.1.12"
+  resolved "https://registry.yarnpkg.com/react-country-state-city/-/react-country-state-city-1.1.12.tgz#da4486005538a5f5c5e629a77463b379a6986c5e"
+  integrity sha512-9xOfUvm5uw5zZEjjNT3eooWvrJB08Hv1MITPYfgeQUttCHEpxbD/iqMzXNBF2g3Owc9MEnhrKCSpKn5DpTDHqg==
+
 react-datepicker@^8.7.0:
   version "8.7.0"
   resolved "https://registry.yarnpkg.com/react-datepicker/-/react-datepicker-8.7.0.tgz#30a70c43dcc7b46c8253e504c1a51cb20c82e782"
@@ -15020,6 +15025,11 @@ react-icons@^5.5.0:
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/react-icons/-/react-icons-5.5.0.tgz#8aa25d3543ff84231685d3331164c00299cdfaf2"
   integrity sha512-MEFcXdkP3dLo8uumGI5xN3lDFNsRtrjbOEKDLD7yv76v4wpnEq2Lt2qeHaQOr34I/wPN3s3+N08WkQ+CW37Xiw==
+
+react-international-phone@^4.6.0:
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/react-international-phone/-/react-international-phone-4.6.0.tgz#b6627a1771c1050cfddfcb9f7c6bc5260b3906c6"
+  integrity sha512-lzj5fLfACRKeaitggFIHWl6LM69aO2uivJbEVyVBjAe0+kkvZjToduqnK2/dm9Zu+l8XfVjd+Fn1ZAyG/t8XAg==
 
 react-is@^16.13.1, react-is@^16.7.0:
   version "16.13.1"

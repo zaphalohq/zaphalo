@@ -189,9 +189,9 @@ const ContactsList = ({
                                 </TableCell>
                                 <TableCell
                                     className="px-6 py-4 text-left truncate max-w-[200px]"
-                                    title={contactData?.address || 'N/A'}
+                                    title={contactData?.country || 'N/A'}
                                 >
-                                    {contactData?.address.country || 'N/A'}
+                                    {contactData?.country || 'N/A'}
                                 </TableCell>
                                 <TableCell className="px-4 py-2 text-left">
                                     <button

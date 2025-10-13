@@ -67,8 +67,7 @@ export class WaAccountService {
     })
     await this.contactsService.createContacts({
       contactName: waAccount.name,
-      phoneNo: Number(waAccount.phoneNumberId),
-      defaultContact: true,
+      phoneNo: waAccount.phoneNumberId,
     })
 
     const waAccountSaved = await this.waAccountRepository.save(whatappInstants)
