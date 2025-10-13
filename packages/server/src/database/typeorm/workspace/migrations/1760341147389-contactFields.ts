@@ -1,8 +1,8 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
-export class New1760341147389 implements MigrationInterface {
-    name = 'ContactField1760341147389'
+export class ContactFields1760341147389 implements MigrationInterface {
+    name = 'ContactFields1760341147389'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         const { schema } = queryRunner.connection.options as PostgresConnectionOptions;
