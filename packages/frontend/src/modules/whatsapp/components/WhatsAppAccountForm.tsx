@@ -46,15 +46,16 @@ const WhatsAppAccountForm = ({ onBack, waAccountId }) => {
     useEffect(() => {
         if (accountData?.getWaAccount) {
             setFormData({
-                id: accountData.getWaAccount.id,
-                name: accountData.getWaAccount.name,
-                appId: accountData.getWaAccount.appId,
-                phoneNumberId: accountData.getWaAccount.phoneNumberId,
-                businessAccountId: accountData.getWaAccount.businessAccountId,
-                accessToken: accountData.getWaAccount.accessToken,
-                appSecret: accountData.getWaAccount.appSecret,
-                waWebhookToken: accountData.getWaAccount.waWebhookToken,
+                id: accountData.getWaAccount.waAccount.id,
+                name: accountData.getWaAccount.waAccount.name,
+                appId: accountData.getWaAccount.waAccount.appId,
+                phoneNumberId: accountData.getWaAccount.waAccount.phoneNumberId,
+                businessAccountId: accountData.getWaAccount.waAccount.businessAccountId,
+                accessToken: accountData.getWaAccount.waAccount.accessToken,
+                appSecret: accountData.getWaAccount.waAccount.appSecret,
+                waWebhookToken: accountData.getWaAccount.waAccount.waWebhookToken,
             });
+            console.log(accountData?.getWaAccount.waAccount)
         }
     }, [accountData]);
 

@@ -18,6 +18,7 @@ import {
   BroadcastException,
   BroadcastExceptionCode,
 } from 'src/customer-modules/broadcast/broadcast.exception';
+import { DeleteBroadcastResponseDto } from "../dto/broadcast-delete-res.dto";
 
 
 @Injectable()
@@ -194,6 +195,64 @@ export class BroadcastService {
       totalPages: Math.ceil(total / pageSize),
       currentPage: page,
     };
+  }
+
+  async getContactList(contactListId: string) {
+    const contactList = await this.mailingListService.findMailingListById(contactListId)
+    if (!contactList) {
+      return {
+        contactList: null,
+        message: 'Contact list not found',
+        status: false
+      };
+    }
+
+    return {
+      contactList: contactList,
+      message: 'Contact list found',
+      status: true
+    };
+  }
+
+  async deleteBroadcast(broadcastId: string): Promise<DeleteBroadcastResponseDto> {
+    const broadcast = await this.broadcastRepository.findOne({
+      where: { id: broadcastId },
+    });
+
+    if (!broadcast) {
+      throw new Error('Broadcast not found');
+    }
+
+    if (broadcast.status !== broadcastStates.new) {
+      throw new Error(`BroadCast "${broadcast.name}" not Deleted!! Status:${broadcast.status}`);
+    }
+
+    await this.broadcastRepository.delete(broadcastId);
+
+    return {
+      message: 'Broadcast deleted successfully',
+      status: true,
+    };
+  }
+
+  async getBroadcastBytemplate(templateId: string) {
+    const broadcast =await this.broadcastRepository.findOne(
+      {
+        where: {
+          template: { id: templateId }
+        },
+        relations: [
+          'template',
+          'contactList',
+          'whatsappAccount'
+        ]
+      }
+    )
+    if(!broadcast){
+      throw new Error("Broadcasts of this template not found")
+    }
+
+    return broadcast
   }
 
   async getRemainingContacts(broadcast: Broadcast){

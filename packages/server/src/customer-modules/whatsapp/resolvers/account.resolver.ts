@@ -58,7 +58,7 @@ export class WaAccountResolver {
   }
 
   @UseGuards(GqlAuthGuard)
-  @Query(() => WhatsAppAccount)
+  @Query(() => WaAccountResponse)
   async getWaAccount(
     @Args('waAccountId') waAccountId:string,
   ){
