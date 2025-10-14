@@ -65,11 +65,7 @@ export class WaAccountService {
       appSecret: waAccount.appSecret,
       defaultSelected: defaultWaAccount,
     })
-    await this.contactsService.createContacts({
-      contactName: waAccount.name,
-      phoneNo: waAccount.phoneNumberId,
-    })
-
+    
     const waAccountSaved = await this.waAccountRepository.save(whatappInstants)
     const waWebhookToken = this.encodeWaWebhookToken({ sub: req.user.userId, workspaceId: req.user.workspace, waAccount })
     waAccountSaved.waWebhookToken = waWebhookToken
