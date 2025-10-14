@@ -1218,6 +1218,7 @@ export const searchReadAccount = gql`
         businessAccountId
         accessToken
         appSecret
+        defaultSelected
         waWebhookToken
       }
     }
