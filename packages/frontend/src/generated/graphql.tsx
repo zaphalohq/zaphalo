@@ -1218,7 +1218,6 @@ export const searchReadAccount = gql`
         businessAccountId
         accessToken
         appSecret
-        defaultSelected
         waWebhookToken
       }
     }
@@ -1227,16 +1226,43 @@ export const searchReadAccount = gql`
 export const GetWaAccount = gql`
   query getWaAccount($waAccountId: String!){
   getWaAccount(waAccountId: $waAccountId){
-    id
-    name
-    appId
-    appSecret
-    phoneNumberId
-    businessAccountId
-    createdAt
-    defaultSelected
-    accessToken
-    waWebhookToken
+     waAccount {
+      accessToken
+      appId
+      businessAccountId
+      appSecret
+      createdAt
+      defaultSelected
+      id
+      name
+      phoneNumberId
+      waWebhookToken
+    }
   }
 }
+`
+
+export const GetContactList = gql`
+  query getContactList($contactListId: String!){
+    getContactList(contactListId: $contactListId){
+      contactList {
+        mailingContacts {
+          contactName
+          contactNo
+          createdAt
+        }
+        mailingListName
+        totalContacts
+      }
+    }
+  }
+`
+
+export const DeleteBroadCast = gql`
+  mutation deleteBroadcast($broadcastId: String!){
+    deleteBroadcast(broadcastId: $broadcastId){
+      message
+      status
+    }
+  }
 `

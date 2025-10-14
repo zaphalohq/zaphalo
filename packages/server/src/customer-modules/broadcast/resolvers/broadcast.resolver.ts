@@ -10,6 +10,8 @@ import { BroadcastRequest } from "src/customer-modules/broadcast/dto/brodcast-re
 import { ManyBrodcastsResponse } from "src/customer-modules/broadcast/dto/many-brodcast-response.dto";
 import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
 import { Workspace } from "src/modules/workspace/workspace.entity";
+import { ContactListResponse } from "../dto/contactList-response.dto";
+import { DeleteBroadcastResponseDto } from "../dto/broadcast-delete-res.dto";
 
 
 @Resolver(() => Broadcast)
@@ -22,7 +24,7 @@ export class BroadcastResolver {
   async readBroadcast(
     @Args('search', { type: () => String, nullable: true }) search?: string,
     @Args('limit', { type: () => Int, nullable: true }) limit?: number,
-    ): Promise<Broadcast[] | null> {
+  ): Promise<Broadcast[] | null> {
     return this.broadcastService.readBroadcast(search, limit);
   }
 
@@ -34,9 +36,9 @@ export class BroadcastResolver {
     @Args('search', { type: () => String, nullable: true }) search?: string,
     @Args('filter', { type: () => String, nullable: true }) filter?: string,
   ) {
-    if(!search)
+    if (!search)
       search = ''
-    if(!filter)
+    if (!filter)
       filter = ''
     const response = await this.broadcastService.searchReadBroadcast(page, pageSize, search, filter)
     return response
@@ -48,9 +50,9 @@ export class BroadcastResolver {
     @AuthWorkspace() workspace: Workspace,
     @Args('broadcastData') broadcastData: BroadcastRequest
   ): Promise<BroadcastResponse> {
-    if (broadcastData.broadcastId){
+    if (broadcastData.broadcastId) {
       return await this.broadcastService.saveBroadcast(workspace.id, broadcastData);
-    }else{
+    } else {
       return await this.broadcastService.createBroadcast(workspace.id, broadcastData);
     }
   }
@@ -62,5 +64,21 @@ export class BroadcastResolver {
   ): Promise<BroadcastResponse> {
     const response = await this.broadcastService.getBroadcast(broadcastId);
     return response
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => ContactListResponse)
+  async getContactList(
+    @Args('contactListId') contactListId: string
+  ): Promise<ContactListResponse> {
+    return await this.broadcastService.getContactList(contactListId);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => DeleteBroadcastResponseDto)
+  async deleteBroadcast(
+    @Args('broadcastId', { type: () => String }) broadcastId: string,
+  ): Promise<DeleteBroadcastResponseDto> {
+    return this.broadcastService.deleteBroadcast(broadcastId);
   }
 }

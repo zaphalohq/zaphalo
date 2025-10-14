@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 
 import { Input } from "@src/components/UI/input";
 import { Button } from "@src/components/UI/button";
@@ -7,11 +7,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@src/components/UI/select";
 import usePagination from '@src/utils/usePagination';
 import { Trash2 } from "lucide-react";
-import { SearchedBroadcast, SearchReadBroadcast } from '@src/generated/graphql';
+import { DeleteBroadCast, SearchedBroadcast, SearchReadBroadcast } from '@src/generated/graphql';
 import { PageHeader } from '@src/modules/ui/layout/page/components/PageHeader';
 import { Plus } from "lucide-react";
 import { formatLocalDate } from '@src/utils/formatLocalDate';
 import TemplatePreviewDialog from '@src/modules/whatsapp/components/templates/TemplatePreview';
+import { toast } from 'react-toastify';
 
 export default function BroadcastList({
   onCreate,
@@ -19,6 +20,8 @@ export default function BroadcastList({
   setReadOnly,
   setBroadcast,
   setPreview,
+  setIsContactListvis,
+  setContactListId
 }) {
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
@@ -40,9 +43,24 @@ export default function BroadcastList({
     );
   };
 
-  const deleteSelected = () => {
-    setItems((prev) => prev.filter((item) => !selected.includes(item.id)));
-    setSelected([]);
+  const [deleteBroadcast, { error: deleteError }] = useMutation(DeleteBroadCast)
+  const deleteSelected = async() => {
+    if (!selected.length) return;
+
+    await Promise.all(
+      selected.map(async (id) => {
+        try {
+          await deleteBroadcast({ variables: { broadcastId: id} });
+          toast.success(`Broadcast deleted successfully`);
+        } catch (err: any) {
+          // Show toast for broadcasts that cannot be deleted
+          toast.error(` ${err.message || 'Cannot delete'}`);
+        }
+      })
+    );
+
+    setSelected([]); // clear selection
+    await refetch();
   };
 
   useEffect(() => {
@@ -69,13 +87,13 @@ export default function BroadcastList({
       <div className="flex justify-between items-center">
         {/*<h1 className="text-2xl font-bold"></h1>*/}
         <PageHeader title="WhatsApp Broadcasts" className="w-full"
-        actions={
-          <>
-            <Button onClick={onCreate}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Broadcast
-            </Button>
-             {selected.length > 0 && (
+          actions={
+            <>
+              <Button onClick={onCreate}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Broadcast
+              </Button>
+              {selected.length > 0 && (
                 <button
                   onClick={deleteSelected}
                   className="flex items-center gap-1 px-3 py-1 rounded bg-red-500 text-white hover:bg-red-600"
@@ -84,8 +102,8 @@ export default function BroadcastList({
                   Delete ({selected.length})
                 </button>
               )}
-          </>
-        }/>
+            </>
+          } />
       </div>
 
       <div className="flex gap-4 items-center">
@@ -159,11 +177,9 @@ export default function BroadcastList({
                     className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
                     title="preview"
                   >
-                      Edit
+                    Edit
                   </TableCell>
                   <TableCell onClick={() => {
-                    setDbTemplateId(broadcast.template.id)
-                    setShowTemplate(true)
                     setReadOnly(true)
                   }}
                     className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
@@ -174,8 +190,8 @@ export default function BroadcastList({
                     }}>Preview</span>
                   </TableCell>
                   <TableCell onClick={() => {
-                    setMailingListId(broadcast.mailingList.id)
-                    setIsMailingListVis(true)
+                    setContactListId(broadcast.contactList.id)
+                    setIsContactListvis(true)
                   }}
                     className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
                     title="preview"
@@ -194,7 +210,7 @@ export default function BroadcastList({
           </TableBody>
         </Table>
       )}
-       {/* Pagination */}
+      {/* Pagination */}
       <div className="flex justify-between items-center p-3 border-t bg-gray-50">
         <button
           disabled={page === 1}
