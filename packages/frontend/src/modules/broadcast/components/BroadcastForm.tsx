@@ -12,118 +12,118 @@ import {
   SelectTrigger,
   SelectValue
 } from "@src/components/UI/select";
-import { 
+import {
   ReadWaAccount,
   ReadWaTemplate,
   ReadMailingList,
   GetBroadcast,
   SaveBroadcast,
-  SendBroadcast } from "@src/generated/graphql";
+  SendBroadcast
+} from "@src/generated/graphql";
 import { toast } from 'react-toastify';
 import { isDefined } from '@src/utils/validation/isDefined';
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { formatLocalDate, formatUTCDate } from '@src/utils/formatLocalDate';
+import { Label } from "@src/components/UI/label";
 
 
-export default function BroadcastForm({ onBack, broadcastId, readOnly=false }) {
-    const [broadcastData, setBroadcastData] = useState({
-      broadcastId: '',
-      broadcastName: '',
-      whatsappAccountId: '',
-      templateId: '',
-      contactListId: '',
-      status: '',
-      scheduledAt: '',
+export default function BroadcastForm({ onBack, broadcastId, readOnly = false }) {
+  const [broadcastData, setBroadcastData] = useState({
+    broadcastId: '',
+    broadcastName: '',
+    whatsappAccountId: '',
+    templateId: '',
+    contactListId: '',
+    status: '',
+    scheduledAt: '',
+  })
+
+  if (isDefined(broadcastId)) {
+    const { data: broadcastViewData, loading: viewLoading, error: viewError } = useQuery(GetBroadcast, {
+      variables: {
+        broadcastId
+      },
+      fetchPolicy: "cache-and-network",
     })
-
-    if (isDefined(broadcastId)){
-      const { data : broadcastViewData, loading: viewLoading, error: viewError } = useQuery(GetBroadcast, {
-        variables: {
-            broadcastId
-        },
-        fetchPolicy: "cache-and-network",
+    const broadcastView = broadcastViewData?.getBroadcast?.broadcast;
+    if (broadcastView && !broadcastData.broadcastId) {
+      setBroadcastData({
+        broadcastId: broadcastView.id,
+        broadcastName: broadcastView.name,
+        whatsappAccountId: broadcastView.whatsappAccount.id,
+        templateId: broadcastView.template.id,
+        contactListId: broadcastView.contactList.id,
+        scheduledAt: formatUTCDate(broadcastView.scheduledAt),
+        status: broadcastView.status,
       })
-      const broadcastView = broadcastViewData?.getBroadcast?.broadcast;
-      if (broadcastView && !broadcastData.broadcastId){
-        setBroadcastData({
-          broadcastId: broadcastView.id,
-          broadcastName: broadcastView.name,
-          whatsappAccountId: broadcastView.whatsappAccount.id,
-          templateId: broadcastView.template.id,
-          contactListId: broadcastView.contactList.id,
-          scheduledAt: formatUTCDate(broadcastView.scheduledAt),
-          state: broadcastView.status,
-        })
-        if (broadcastView.state != 'New'){
-          readOnly = false
-        }
+      if (broadcastView.state != 'New') {
+        readOnly = false
       }
     }
+  }
 
 
-    const [saveBroadcast, { data, loading, error }] = useMutation(SaveBroadcast, {
-      onCompleted: (data) => {
-      },
-      onError: (err) => {
-        toast.error(`${err}`);
-      },
+  const [saveBroadcast, { data, loading, error }] = useMutation(SaveBroadcast, {
+    onCompleted: (data) => {
+    },
+    onError: (err) => {
+      toast.error(`${err}`);
+    },
+  });
+
+
+  const handleSave = async (status: string) => {
+    if (
+      !broadcastData.whatsappAccountId ||
+      !broadcastData.templateId ||
+      !broadcastData.contactListId ||
+      !broadcastData.broadcastName
+    ) {
+      toast.error('Please fill all required fields before broadcasting.');
+      return;
+    }
+
+    type toSubmiteData = {
+      [key: string]: any;
+    };
+    const toSubmiteData: toSubmiteData = {};
+    toSubmiteData.broadcastName = broadcastData.broadcastName
+    toSubmiteData.whatsappAccountId = broadcastData.whatsappAccountId
+    toSubmiteData.templateId = broadcastData.templateId
+    toSubmiteData.contactListId = broadcastData.contactListId
+    toSubmiteData.scheduledAt = broadcastData.scheduledAt
+
+    toSubmiteData.status = "new"
+
+    if (broadcastData.broadcastId) {
+      toSubmiteData.broadcastId = broadcastData.broadcastId
+    }
+    if (status) {
+      toSubmiteData.status = status
+    }
+
+    const response = await saveBroadcast({
+      variables: {
+        broadcastData: toSubmiteData
+      }
     });
 
-
-    const handleSave = async (status: string) => {
-      if (
-        !broadcastData.whatsappAccountId ||
-        !broadcastData.templateId ||
-        !broadcastData.contactListId ||
-        !broadcastData.broadcastName
-        ) {
-        toast.error('Please fill all required fields before broadcasting.');
-      return;
-      }
-
-      type toSubmiteData = {
-        [key: string]: any;
-      };
-      const toSubmiteData: toSubmiteData = {};
-      toSubmiteData.broadcastName = broadcastData.broadcastName
-      toSubmiteData.whatsappAccountId = broadcastData.whatsappAccountId
-      toSubmiteData.templateId = broadcastData.templateId
-      toSubmiteData.contactListId = broadcastData.contactListId
-      toSubmiteData.scheduledAt = broadcastData.scheduledAt
-
-      toSubmiteData.status = "new"
-
-
-
-      if (broadcastData.broadcastId){
-        toSubmiteData.broadcastId = broadcastData.broadcastId
-      }
-      if (status){
-        toSubmiteData.status = status
-      }
-
-      const response = await saveBroadcast({
-        variables: {
-          broadcastData: toSubmiteData
-        }
-      });
-
-      const broadcast = response.data?.saveBroadcast?.broadcast;
-      if (response.data?.saveBroadcast?.status) {
-        setBroadcastData({
-          broadcastId: broadcast.id,
-          broadcastName: broadcast.broadcastName,
-          accountId: broadcast.whatsappAccount.id,
-          templateId: broadcast.template.id,
-          contactListId: broadcast.contactList.id,
-          scheduledAt: broadcast.scheduledAt,
-          status: broadcast.status,
-        })
-        toast.success(`${response.data?.saveBroadcast?.message}`);
-        onBack();
-      }
+    const broadcast = response.data?.saveBroadcast?.broadcast;
+    if (response.data?.saveBroadcast?.status) {
+      setBroadcastData({
+        broadcastId: broadcast.id,
+        broadcastName: broadcast.broadcastName,
+        whatsappAccountId: broadcast.whatsappAccount.id,
+        templateId: broadcast.template.id,
+        contactListId: broadcast.contactList.id,
+        scheduledAt: broadcast.scheduledAt,
+        status: broadcast.status,
+      })
+      toast.success(`${response.data?.saveBroadcast?.message}`);
+      onBack();
+    }
   }
 
   const handleSaveAndSend = async () => {
@@ -147,19 +147,22 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly=false }) {
             />
             <Input
               placeholder="Status"
-              value={broadcastData.state}
+              value={broadcastData.status}
               readOnly
               disabled
               hidden
             />
+
+            <Label>Broadcast Name</Label>
             <Input
-              placeholder="Broadcast Name"
+              placeholder="enter broadcast name"
               value={broadcastData.broadcastName}
               onChange={(e) => setBroadcastData({ ...broadcastData, broadcastName: e.target.value })}
               readOnly={readOnly}
               disabled={readOnly}
             />
 
+            <Label>Whatsapp Account</Label>
             <SelectField
               selectedVal={broadcastData.whatsappAccountId}
               query={ReadWaAccount}
@@ -170,17 +173,19 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly=false }) {
               disabled={readOnly}
             />
 
+            <Label>Template</Label>
             <SelectField
               selectedVal={broadcastData.templateId}
               query={ReadWaTemplate}
               queryValueName="readWaTemplate"
-              filter={{account: {id: broadcastData.whatsappAccountId || null}}}
+              filter={{ account: { id: broadcastData.whatsappAccountId || null } }}
               dispalyName="templateName"
               placeholder="Select Template"
               onSelect={(val) => setBroadcastData({ ...broadcastData, templateId: val })}
               disabled={readOnly}
             />
-
+            
+            <Label>Mailing List</Label>
             <SelectField
               selectedVal={broadcastData.contactListId}
               query={ReadMailingList}
@@ -191,6 +196,7 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly=false }) {
               disabled={readOnly}
             />
 
+            <Label>Date</Label>
             <DatePicker
               selected={broadcastData.scheduledAt}
               onChange={(val) => setBroadcastData({ ...broadcastData, scheduledAt: val })}
@@ -210,5 +216,5 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly=false }) {
         </CardContent>
       </Card>
     </div>
-    );
+  );
 }

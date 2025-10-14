@@ -16,6 +16,7 @@ import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 import { CitySelect, CountrySelect, GetCountries, StateSelect } from "react-country-state-city";
 import "react-country-state-city/dist/react-country-state-city.css";
+import { Label } from '@src/components/UI/label';
 
 
 const ContactForm = ({ contactId, onBack, isNewContacts }) => {
@@ -174,16 +175,18 @@ const ContactForm = ({ contactId, onBack, isNewContacts }) => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Contact Name */}
+            <Label>Contact Name</Label>
             <Input
               type="text"
-              placeholder="Contact Name"
+              placeholder="enter contact name"
               value={contactFormData.contactName}
               onChange={(e) => setContactFormData({ ...contactFormData, contactName: e.target.value })}
             />
 
+            <Label>Phone No</Label>
             <PhoneInput
               forceDialCode={true}
-              defaultCountry="ua"
+              defaultCountry="in"
               value={contactFormData.phoneNo}
               onChange={(phone) => setContactFormData({ ...contactFormData, phoneNo: phone })}
               containerClassName="!w-full !flex !items-center !rounded-lg !border !border-gray-300 transition-all"
@@ -200,24 +203,29 @@ const ContactForm = ({ contactId, onBack, isNewContacts }) => {
             />
 
             {/* addreess */}
+            <Label>Street</Label>
             <Input
               type="text"
-              placeholder="Street"
+              placeholder="enter street"
               value={contactFormData.street}
               onChange={(e) => setContactFormData({
                 ...contactFormData,
                 street: e.target.value
               })}
             />
+
+            <Label>City</Label>
             <Input
               type="text"
-              placeholder="City"
+              placeholder="enter city"
               value={contactFormData.city}
               onChange={(e) => setContactFormData({
                 ...contactFormData,
                 city: e.target.value
               })}
             />
+
+            <Label>Country</Label>
             <CountrySelect
               defaultValue={countryObj?.id}
               containerClassName=""
@@ -227,8 +235,10 @@ const ContactForm = ({ contactId, onBack, isNewContacts }) => {
                 setContactFormData({ ...contactFormData, country: _country?.name });
               }}
               placeHolder="Select Country"
-            showFlag={false}
+              showFlag={false}
             />
+
+            <Label>State</Label>
             <StateSelect
               key={countryObj?.id}
               countryid={countryObj?.id}
@@ -239,9 +249,11 @@ const ContactForm = ({ contactId, onBack, isNewContacts }) => {
               }}
               placeHolder="Select State"
             />
+
+            <Label>Zipcode</Label>
             <Input
               type="text"
-              placeholder="Zipcode"
+              placeholder="enter zipcode"
               value={contactFormData.zipcode}
               maxLength={6}
               onChange={(e) => setContactFormData({
@@ -251,6 +263,7 @@ const ContactForm = ({ contactId, onBack, isNewContacts }) => {
             />
 
             {/* Upload Image */}
+            <Label>Profile Photo</Label>
             <div className="flex items-center rounded-lg border border-gray-300 overflow-hidden">
               <Input
                 type="file"

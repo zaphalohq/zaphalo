@@ -18,7 +18,7 @@ import { DeleteBroadcastResponseDto } from "../dto/broadcast-delete-res.dto";
 export class BroadcastResolver {
   constructor(
     private readonly broadcastService: BroadcastService,
-  ) {}
+  ) { }
 
   @Query(() => Broadcast)
   async readBroadcast(
@@ -36,9 +36,9 @@ export class BroadcastResolver {
     @Args('search', { type: () => String, nullable: true }) search?: string,
     @Args('filter', { type: () => String, nullable: true }) filter?: string,
   ) {
-    if(!search)
+    if (!search)
       search = ''
-    if(!filter)
+    if (!filter)
       filter = ''
     const response = await this.broadcastService.searchReadBroadcast(page, pageSize, search, filter)
     return response
@@ -50,9 +50,9 @@ export class BroadcastResolver {
     @AuthWorkspace() workspace: Workspace,
     @Args('broadcastData') broadcastData: BroadcastRequest
   ): Promise<BroadcastResponse> {
-    if (broadcastData.broadcastId){
+    if (broadcastData.broadcastId) {
       return await this.broadcastService.saveBroadcast(workspace.id, broadcastData);
-    }else{
+    } else {
       return await this.broadcastService.createBroadcast(workspace.id, broadcastData);
     }
   }
@@ -80,5 +80,14 @@ export class BroadcastResolver {
     @Args('broadcastId', { type: () => String }) broadcastId: string,
   ): Promise<DeleteBroadcastResponseDto> {
     return this.broadcastService.deleteBroadcast(broadcastId);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => [Broadcast])
+  async getBroadcastsOfTemplate(
+    @Args('templateId') templateId: string
+  ){
+    const broadcast = await this.broadcastService.getBroadcastBytemplate(templateId);
+    return broadcast
   }
 }

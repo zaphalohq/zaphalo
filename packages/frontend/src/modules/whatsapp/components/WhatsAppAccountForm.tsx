@@ -13,6 +13,7 @@ import { toast } from "react-toastify";
 import { useMutation, useQuery } from "@apollo/client";
 import { GetWaAccount, WhatsAppAccountCreate, WhatsAppAccountSave, SyncWhatsAppAccountTemplates, WhatsAppAccountTestConnection } from "@src/generated/graphql";
 import { isDefined } from "@src/utils/validation/isDefined";
+import { Label } from "@src/components/UI/label";
 
 
 const WhatsAppAccountForm = ({ onBack, waAccountId }) => {
@@ -157,46 +158,57 @@ const WhatsAppAccountForm = ({ onBack, waAccountId }) => {
                     <h2 className="text-2xl font-bold text-center">Create New Account</h2>
 
                     <form className="space-y-4">
+                        <Label>Account Name</Label>
                         <Input
                             required={true}
                             type="text"
                             value={formData.name}
-                            placeholder="Account Name"
+                            placeholder="enter account name"
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         />
+
+                        <Label>App ID</Label>
                         <Input
                             required={true}
                             type="text"
                             value={formData.appId}
-                            placeholder="App ID"
+                            placeholder="enter app id"
                             onChange={(e) => setFormData({ ...formData, appId: e.target.value })}
                         />
+
+                        <Label>App Secret</Label>
                         <Input
                             required={true}
                             type="password"
                             value={formData.appSecret}
-                            placeholder="App Secret"
+                            placeholder="enter app secret"
                             onChange={(e) => setFormData({ ...formData, appSecret: e.target.value })}
                         />
+
+                        <Label>Phone Number ID</Label>
                         <Input
                             required={true}
                             type="text"
                             value={formData.phoneNumberId}
-                            placeholder="Phone Number ID"
+                            placeholder="enter phone id"
                             onChange={(e) => setFormData({ ...formData, phoneNumberId: e.target.value })}
                         />
+
+                        <Label>Business Account ID</Label>
                         <Input
                             required={true}
                             type="text"
                             value={formData.businessAccountId}
-                            placeholder="Business Account ID"
+                            placeholder="enter bussiness account id"
                             onChange={(e) => setFormData({ ...formData, businessAccountId: e.target.value })}
                         />
+
+                        <Label>Access Token</Label>
                         <Input
                             required={true}
                             type="password"
                             value={formData.accessToken}
-                            placeholder="Access Token"
+                            placeholder="enter access token"
                             onChange={(e) => setFormData({ ...formData, accessToken: e.target.value })}
                         />
                         <div className="flex justify-between">

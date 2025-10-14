@@ -1267,3 +1267,14 @@ export const DeleteBroadCast = gql`
     }
   }
 `
+
+export const GetBroadcastsOfTemplate= gql`
+  query getBroadcastsOfTemplate($templateId: String!){
+    getBroadcastsOfTemplate(templateId: $templateId){
+      name
+      sentCount
+      status
+      createdAt
+    }
+  }
+`
