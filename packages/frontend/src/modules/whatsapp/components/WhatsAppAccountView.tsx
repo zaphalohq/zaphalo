@@ -135,7 +135,7 @@ const WhatsAppAccountView = ({ onCreate, setwaAccount, setisFormVisible }) => {
         ) : (
           <Table className="w-full text-sm text-left rtl:text-right text-stone-500 rounded-2xl">
             <TableHeader className="text-black">
-              <TableRow className="bg-gray-100 uppercase text-sm font-semibold">
+              <TableRow className="bg-gray-100 text-sm font-semibold">
                 <TableHead className="px-4 py-2"></TableHead>
                 <TableHead className="px-4 py-2">Name</TableHead>
                 <TableHead className="px-4 py-2">App ID</TableHead>
