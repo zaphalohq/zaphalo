@@ -236,22 +236,16 @@ export class BroadcastService {
   }
 
   async getBroadcastBytemplate(templateId: string) {
-    const broadcast =await this.broadcastRepository.findOne(
+    const broadcast =await this.broadcastRepository.find(
       {
         where: {
           template: { id: templateId }
-        },
-        relations: [
-          'template',
-          'contactList',
-          'whatsappAccount'
-        ]
+        }
       }
     )
     if(!broadcast){
       throw new Error("Broadcasts of this template not found")
     }
-
     return broadcast
   }
 

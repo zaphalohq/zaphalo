@@ -32,6 +32,8 @@ export default function TemplateList({
   setReadOnly,
   setRecord,
   setPreview,
+  setIsBroadCastVis,
+  setTemplateId
 }) {
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
@@ -190,7 +192,7 @@ export default function TemplateList({
               <TableHead className="px-4 py-3">Sync</TableHead>
               <TableHead className="px-4 py-3"></TableHead>
               <TableHead className="px-4 py-3">Preview</TableHead>
-              <TableHead className="px-4 py-3">Contact List</TableHead>
+              <TableHead className="px-4 py-3">Broadcast List</TableHead>
               <TableHead className="px-4 py-3">Test</TableHead>
             </TableRow>
           </TableHeader>
@@ -252,8 +254,8 @@ export default function TemplateList({
                     }}>Preview</span>
                   </TableCell>
                   <TableCell onClick={() => {
-                    setMailingListId(template.id)
-                    setIsMailingListVis(true)
+                    setTemplateId(template.id)
+                    setIsBroadCastVis(true)
                   }}
                     className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
                     title="preview"
