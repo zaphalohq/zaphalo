@@ -37,7 +37,7 @@ export class ChannelService {
   }
 
 
-  async findOrCreateChannel(phoneNo: any, memberIds: number[], channelName?: string) {
+  async findOrCreateChannel(phoneNo: any, memberIds: any, channelName?: string) {
     const contacts = await this.contactsservice.findContactsByPhoneNoArr(memberIds)
     const isChannelExist = await this.findExistingChannelByPhoneNo(memberIds)
 
@@ -175,6 +175,15 @@ export class ChannelService {
       take: 100
     })
     return messages;
+  }
+
+  async findLastMsgOfChannel(channelId: any): Promise<Message | null> {
+    const message = await this.messageRepository.findOne({
+      where: { channel: { id: channelId } },
+      relations: ['channel', 'sender', 'attachment'],
+      order: { createdAt: 'DESC' },
+    })
+    return message;
   }
 
   async makeUnseenSeen(messages?: Message[], messageId?: string): Promise<void> {

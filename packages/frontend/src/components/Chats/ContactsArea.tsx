@@ -26,6 +26,7 @@ const ContactList = ({ HandleNewChatVisiablity, HandleCreateContactVis }: any) =
 
     const [searchedContactsChar, setSearchContactsChar] = useState("")
     const [filteredContacts, setFilteredContacts] = useState(allContacts);
+    
     useEffect(() => {
 
         if (!searchedContactsChar) {
@@ -38,7 +39,6 @@ const ContactList = ({ HandleNewChatVisiablity, HandleCreateContactVis }: any) =
                 .startsWith(searchedContactsChar.toLowerCase() || "")
         );
         setFilteredContacts(searchedContacts);
-
     }, [searchedContactsChar, allContacts])
 
     return (
@@ -58,13 +58,6 @@ const ContactList = ({ HandleNewChatVisiablity, HandleCreateContactVis }: any) =
                         <FiPlus />
                     </span>
                     <span className="font-semibold">New contacts</span>
-                </div>
-
-                <div className="bg-gray-100 cursor-pointer hover-light w-full  flex gap-3 px-4 items-center p-2 border-b border-gray-200">
-                    <span className="text-lg rounded-full bg-stone-200 p-3 text-stone-950">
-                        <FiUsers />
-                    </span>
-                    <span className="font-semibold">New group</span>
                 </div>
                 <div className="px-4 p-2 bg-gray-100 font-medium sticky top-0 ">All contacts</div>
                 {filteredContacts.map((contactData, index) => <ListContacts key={index} phoneNo={contactData.phoneNo} HandleNewChatVisiablity={HandleNewChatVisiablity} profileImg={contactData.profileImg} contactName={contactData.contactName} />)}

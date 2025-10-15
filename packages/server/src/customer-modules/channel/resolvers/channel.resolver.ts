@@ -17,6 +17,7 @@ import { Channel } from "src/customer-modules/channel/entities/channel.entity";
 import { ChannelService } from "src/customer-modules/channel/services/channel.service";
 import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
 import { Workspace } from "src/modules/workspace/workspace.entity";
+import { Message } from "../entities/message.entity";
 
 @Resolver(() => Channel)
 export class ChannelResolver {
@@ -38,10 +39,10 @@ export class ChannelResolver {
   @Mutation(() => Channel)
   async findExistingChannelByPhoneNoOrCreateChannel(@Args('phoneNo') phoneNo: string): Promise<Channel | undefined> {
     const findTrueInstants = await this.waAccountService.FindSelectedInstants()
-    const contact = await this.contactService.findOneContact(Number(phoneNo))
-    const senderId = Number(findTrueInstants?.phoneNumberId)
+    const contact = await this.contactService.findOneContact(phoneNo)
+    const senderId = findTrueInstants?.phoneNumberId
     const channelName = contact?.contactName;
-    const memberIds = [Number(phoneNo), senderId]
+    const memberIds = [phoneNo, senderId]
     if (!findTrueInstants) throw new Error('findTrueInstants not found');
     const existingChannel = await this.channelService.findExistingChannelByPhoneNo(memberIds)
     if (existingChannel && existingChannel?.id) {
@@ -69,5 +70,9 @@ export class ChannelResolver {
     return await this.channelService.updateChannelNameById(channelId, updatedValue)
   }
 
+  @ResolveField(() => Message, { nullable: true })
+  async lastMsgOfChannle(@Parent() channel: Channel): Promise<Message | null> {
+    return await this.channelService.findLastMsgOfChannel(channel.id);
+  }
 }
 
