@@ -17,6 +17,7 @@ import { Channel } from "src/customer-modules/channel/entities/channel.entity";
 import { ChannelService } from "src/customer-modules/channel/services/channel.service";
 import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
 import { Workspace } from "src/modules/workspace/workspace.entity";
+import { Message } from "../entities/message.entity";
 
 @Resolver(() => Channel)
 export class ChannelResolver {
@@ -55,5 +56,9 @@ export class ChannelResolver {
     return await this.channelService.updateChannelNameById(channelId, updatedValue)
   }
 
+  @ResolveField(() => Message, { nullable: true })
+  async lastMsgOfChannle(@Parent() channel: Channel): Promise<Message | null> {
+    return await this.channelService.findLastMsgOfChannel(channel.id);
+  }
 }
 

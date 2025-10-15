@@ -8,7 +8,7 @@ function getInitials(name = "") {
 }
 
 
-const CurrentChannel = ({ channelName, channelId, chennelMembers, unseen, setIsChannelExist }: any) => {
+const CurrentChannel = ({ channelName, channelId, chennelMembers, unseen, setIsChannelExist,lastMsgOfChannle,lastMsgTime }: any) => {
   const { chatsDetails, setChatsDetails, newMessage, setNewMessage, isNewChannelCreated }: any = useContext(ChatsContext)
   const [unseenMessageCount, setUnseenMessageCount] = useState(0);
   const [isUnseen, setIsUnseen] = useState(true);
@@ -74,6 +74,10 @@ const CurrentChannel = ({ channelName, channelId, chennelMembers, unseen, setIsC
              <div className='flex items-center w-5 h-5 text-xs justify-center bg-green-500 rounded-full text-white'>
                {unseenMessageCount}
              </div> : <></>}
+        </div>
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-gray-500 truncate">{lastMsgOfChannle?.textMessage}</p>
+          {lastMsgTime ? <p className="text-xs text-gray-400">{new Date(lastMsgTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p> : <></>}
         </div>
       </div>
     </div>

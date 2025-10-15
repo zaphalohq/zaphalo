@@ -8,7 +8,7 @@ import {
   Resolver,
   Int,
 } from "@nestjs/graphql";
-import { UseGuards } from "@nestjs/common";
+import { Res, UseGuards } from "@nestjs/common";
 import { message } from "aws-sdk/clients/sns";
 
 import { WaAccountService } from "src/customer-modules/whatsapp/services/whatsapp-account.service";
@@ -193,6 +193,5 @@ export class MessageResolver {
   ): Promise<MessageEdge> {
     return this.channelService.getMessages(channelId, cursor, limit);
   }
-
 }
 

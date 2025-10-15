@@ -247,6 +247,10 @@ query findAllChannel {
     messages {
       unseen
     }
+    lastMsgOfChannle{
+      textMessage
+      createdAt
+    } 
   }
 }
 `

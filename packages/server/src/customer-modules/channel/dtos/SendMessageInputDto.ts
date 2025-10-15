@@ -24,8 +24,8 @@ export class Attachments {
 
 @InputType()
 export class SendMessageInput {
-  @Field(() => [Number])
-  receiverId: number[];
+  @Field(() => [String])
+  receiverId: string[];
 
   @Field(() => String)
   textMessage: string;
