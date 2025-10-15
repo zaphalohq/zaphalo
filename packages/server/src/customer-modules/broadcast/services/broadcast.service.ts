@@ -61,16 +61,10 @@ export class BroadcastService {
       name: broadcastData.broadcastName,
       template: template,
       contactList: mailingList,
+      scheduledAt: broadcastData.scheduledAt,
       status: broadcastData.status
     })
     await this.broadcastRepository.save(broadcast)
-
-    const broadcastCreatedEvent = new BroadcastCreatedEvent();
-
-    broadcastCreatedEvent.workspaceId = workspaceId
-    broadcastCreatedEvent.broadcastId = broadcast.id
-
-    this.eventEmitter.emit('broadcast.message.created', broadcastCreatedEvent)
 
     const broadcastFind = await this.getBroadcast(broadcast.id)
 
