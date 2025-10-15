@@ -17,7 +17,8 @@ function cleanFilter(filter: Record<string, any>) {
   );
 }
 
-export default function SelectField({ query, filter={}, queryValueName, dispalyName, selectedVal="", placeholder, onSelect, disabled=false }) {
+
+export default function SelectField({ query, filter={}, queryValueName, dispalyName, selectedVal="", placeholder, onSelect, disabled=false, required=false, className}) {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState("");
 
@@ -46,8 +47,9 @@ export default function SelectField({ query, filter={}, queryValueName, dispalyN
         onSelect(val);
       }}
       disabled={disabled}
+      required
     >
-      <SelectTrigger className="w-full">
+      <SelectTrigger className={`w-full ${className}`}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
 
