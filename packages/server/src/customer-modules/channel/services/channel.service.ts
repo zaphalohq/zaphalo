@@ -282,7 +282,7 @@ export class ChannelService {
     return mediaData
   }
 
-  async findActiveChannelOrCreate(senderMobile, senderName, createIfNotFound){
+  async findActiveChannelOrCreate(senderMobile, senderName, createIfNotFound: boolean = true){
     const contact = await this.contactsservice.findActiveContactOrCreate(senderMobile, senderName)
 
     const channelExist = await this.channelRepository.findOne({
