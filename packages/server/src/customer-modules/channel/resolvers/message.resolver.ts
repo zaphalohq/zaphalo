@@ -24,7 +24,6 @@ import { MessageEdge } from "src/customer-modules/channel/dtos/message-response.
 import { AttachmentService } from "src/customer-modules/attachment/attachment.service";
 import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
 import { Workspace } from "src/modules/workspace/workspace.entity";
-import { use } from "react";
 
 
 @Resolver(() => Message)
