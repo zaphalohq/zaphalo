@@ -5,7 +5,7 @@ import { Broadcast } from 'src/customer-modules/broadcast/entities/broadcast.ent
 @ObjectType()
 export class BroadcastResponse {
   @Field(() => Broadcast, { nullable: true })
-  broadcast: Broadcast;
+  broadcast?: Broadcast;
 
   @Field()
   status: boolean;

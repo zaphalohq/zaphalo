@@ -11,9 +11,8 @@ import { ManyBrodcastsResponse } from "src/customer-modules/broadcast/dto/many-b
 import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
 import { Workspace } from "src/modules/workspace/workspace.entity";
 import { ContactListResponse } from "../dto/contactList-response.dto";
-import { DeleteBroadcastResponseDto } from "../dto/broadcast-delete-res.dto";
 
-
+@UseGuards(GqlAuthGuard)
 @Resolver(() => Broadcast)
 export class BroadcastResolver {
   constructor(
@@ -28,7 +27,6 @@ export class BroadcastResolver {
     return this.broadcastService.readBroadcast(search, limit);
   }
 
-  @UseGuards(GqlAuthGuard)
   @Query(() => ManyBrodcastsResponse)
   async searchReadBroadcast(
     @Args('page', { type: () => Int, defaultValue: 1 }) page: number,
@@ -44,7 +42,6 @@ export class BroadcastResolver {
     return response
   }
 
-  @UseGuards(GqlAuthGuard)
   @Mutation(() => BroadcastResponse)
   async saveBroadcast(
     @AuthWorkspace() workspace: Workspace,
@@ -57,7 +54,6 @@ export class BroadcastResolver {
     }
   }
 
-  @UseGuards(GqlAuthGuard)
   @Query(() => BroadcastResponse)
   async getBroadcast(
     @Args('broadcastId') broadcastId: string
@@ -66,7 +62,6 @@ export class BroadcastResolver {
     return response
   }
 
-  @UseGuards(GqlAuthGuard)
   @Query(() => ContactListResponse)
   async getContactList(
     @Args('contactListId') contactListId: string
@@ -74,15 +69,34 @@ export class BroadcastResolver {
     return await this.broadcastService.getContactList(contactListId);
   }
 
-  @UseGuards(GqlAuthGuard)
-  @Mutation(() => DeleteBroadcastResponseDto)
-  async deleteBroadcast(
+  @Mutation(() => BroadcastResponse)
+  async cancelBroadcast(
     @Args('broadcastId', { type: () => String }) broadcastId: string,
-  ): Promise<DeleteBroadcastResponseDto> {
-    return this.broadcastService.deleteBroadcast(broadcastId);
+  ): Promise<BroadcastResponse> {
+    return this.broadcastService.cancelBroadcast(broadcastId);
   }
 
-  @UseGuards(GqlAuthGuard)
+  @Mutation(() => BroadcastResponse)
+  async sendBroadcast(
+    @Args('broadcastId', { type: () => String }) broadcastId: string,
+  ): Promise<BroadcastResponse> {
+    return this.broadcastService.sendBroadcast(broadcastId);
+  }
+
+  @Mutation(() => BroadcastResponse)
+  async scheduleBroadcast(
+    @Args('broadcastId', { type: () => String }) broadcastId: string,
+  ): Promise<BroadcastResponse> {
+    return this.broadcastService.scheduleBroadcast(broadcastId);
+  }
+
+  @Mutation(() => BroadcastResponse)
+  async deleteBroadcast(
+    @Args('broadcastIds', { type: () => [String] }) broadcastIds: string[],
+  ): Promise<BroadcastResponse> {
+    return this.broadcastService.deleteBroadcast(broadcastIds);
+  }
+
   @Query(() => [Broadcast])
   async getBroadcastsOfTemplate(
     @Args('templateId') templateId: string

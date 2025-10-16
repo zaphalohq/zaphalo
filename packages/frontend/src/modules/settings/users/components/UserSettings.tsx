@@ -93,7 +93,6 @@ const UsersSettings = () => {
     const response = await suspendWorkspaceMember({
       userId: userId,
     });
-    console.log("....................response................", response);
     workspaceDataRefetch();
   }
 
@@ -102,8 +101,6 @@ const UsersSettings = () => {
     let mounted = true;
     const users = []
     workspaceData?.getWorkspaceMember?.members?.forEach((userMember) => {
-    console.log("................userMember.active...............", userMember.active);
-      
       users.push( {
         id: userMember.user.id,
         name: userMember.user.firstName,
