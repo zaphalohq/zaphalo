@@ -54,6 +54,7 @@ import { GET_WORKSPACE_USER_INFO } from '@src/modules/settings/users/graphql/que
 import InviteUserInline from './InviteUserInline';
 import { useUpdateWorkspaceUserRole } from '@src/modules/settings/users/hooks/useUpdateWorkspaceUserRole';
 import { useUpdateUser } from '@src/modules/settings/users/hooks/useUpdateUser';
+import { toast } from 'react-toastify';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
@@ -78,6 +79,14 @@ const UsersSettings = () => {
       userId: userId,
       role: role,
     });
+    if (response.errors) {
+      toast.error(response.errors.message);
+    } else if (response.data.updateUserRole.success === false) {
+      // Backend returned failure message in data
+      toast.info(response.data.updateUserRole.message);
+    } else {
+      toast.success(response.data.updateUserRole.message);
+    }
     workspaceDataRefetch();
   }
 
@@ -85,7 +94,14 @@ const UsersSettings = () => {
     const response = await deleteWorkspaceMember({
       userId: userId,
     });
-    console.log("....................response................", response);
+    if (response.errors) {
+      toast.error(response.errors.message);
+    } else if (response.data.deleteWorkspaceMember.success === false) {
+      // Backend returned failure message in data
+      toast.info(response.data.deleteWorkspaceMember.message);
+    } else {
+      toast.success(response.data.deleteWorkspaceMember.message);
+    }
     workspaceDataRefetch();
   }
 
@@ -93,6 +109,14 @@ const UsersSettings = () => {
     const response = await suspendWorkspaceMember({
       userId: userId,
     });
+    if (response.errors) {
+      toast.error(response.errors.message);
+    } else if (response.data.suspendWorkspaceMember.success === false) {
+      // Backend returned failure message in data
+      toast.info(response.data.suspendWorkspaceMember.message);
+    } else {
+      toast.success(response.data.suspendWorkspaceMember.message);
+    }
     workspaceDataRefetch();
   }
 
