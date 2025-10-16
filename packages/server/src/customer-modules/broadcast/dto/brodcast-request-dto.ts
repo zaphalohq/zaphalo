@@ -20,7 +20,4 @@ export class BroadcastRequest {
 
   @Field({ nullable: true })
   scheduledAt?: Date
-
-  @Field(() => broadcastStates, { nullable: true })
-  status?: broadcastStates;
 }

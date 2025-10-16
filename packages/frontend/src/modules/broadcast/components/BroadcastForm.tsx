@@ -18,7 +18,10 @@ import {
   ReadMailingList,
   GetBroadcast,
   SaveBroadcast,
-  SendBroadcast
+  SendBroadcast,
+  CancelBroadCast,
+  ScheduleBroadCast,
+  SendBroadCast
 } from "@src/generated/graphql";
 import { toast } from 'react-toastify';
 import { isDefined } from '@src/utils/validation/isDefined';
@@ -56,7 +59,7 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
         whatsappAccountId: broadcastView.whatsappAccount.id,
         templateId: broadcastView.template.id,
         contactListId: broadcastView.contactList.id,
-        scheduledAt: formatUTCDate(broadcastView.scheduledAt),
+        scheduledAt: broadcastView.scheduledAt ? formatUTCDate(broadcastView.scheduledAt) : '',
         status: broadcastView.status,
       })
       if (broadcastView.state != 'New') {
@@ -74,15 +77,30 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
     },
   });
 
+  const [sendBroadcast] = useMutation(SendBroadCast, {
+    onError: (err) => {
+    },
+  });
 
-  const handleSave = async (status: string) => {
+  const [scheduleBroadcast] = useMutation(ScheduleBroadCast, {
+    onError: (err) => {
+    },
+  });
+
+  const [cancelBroadcast] = useMutation(CancelBroadCast, {
+    onError: (err) => {
+    },
+  });
+
+
+  const handleSave = async () => {
     if (
       !broadcastData.whatsappAccountId ||
       !broadcastData.templateId ||
       !broadcastData.contactListId ||
       !broadcastData.broadcastName
     ) {
-      toast.error('Please fill all required fields before broadcasting.');
+      toast.error('Please fill all required fields.');
       return;
     }
 
@@ -94,17 +112,13 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
     toSubmiteData.whatsappAccountId = broadcastData.whatsappAccountId
     toSubmiteData.templateId = broadcastData.templateId
     toSubmiteData.contactListId = broadcastData.contactListId
-    toSubmiteData.scheduledAt = broadcastData.scheduledAt | ''
-
-    toSubmiteData.status = "new"
+    if (broadcastData.scheduledAt){
+      toSubmiteData.scheduledAt = broadcastData.scheduledAt
+    }
 
     if (broadcastData.broadcastId) {
       toSubmiteData.broadcastId = broadcastData.broadcastId
     }
-    if (status) {
-      toSubmiteData.status = status
-    }
-
     const response = await saveBroadcast({
       variables: {
         broadcastData: toSubmiteData
@@ -115,21 +129,60 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
     if (response.data?.saveBroadcast?.status) {
       setBroadcastData({
         broadcastId: broadcast.id,
-        broadcastName: broadcast.broadcastName,
+        broadcastName: broadcast.name,
         whatsappAccountId: broadcast.whatsappAccount.id,
         templateId: broadcast.template.id,
         contactListId: broadcast.contactList.id,
-        scheduledAt: broadcast.scheduledAt,
+        scheduledAt: broadcast.scheduledAt ? formatUTCDate(broadcast.scheduledAt) : '',
         status: broadcast.status,
       })
       toast.success(`${response.data?.saveBroadcast?.message}`);
+    }
+    return  broadcast.id
+  }
+
+  const handleSaveAndCancel = async () => {
+    // handleSave("cancel")
+    const response = await cancelBroadcast({
+      variables: {
+        broadcastId: broadcastData.broadcastId
+      }
+    });
+    if (response.errors) {
+      toast.error(response.errors.message);
+    } else if (response.data.cancelBroadcast.success === false) {
+      // Backend returned failure message in data
+      toast.info(response.data.cancelBroadcast.message);
+    } else {
+      toast.success(response.data.cancelBroadcast.message);
       onBack();
     }
   }
 
   const handleSaveAndSend = async () => {
-    handleSave("in_progress")
-    onBack();
+    if (!broadcastData.scheduledAt) {
+      toast.error('Please select schedule date.');
+      return;
+    }
+    const id = await handleSave();
+    if (!id) {
+      toast.error('Broadcast not saved.');
+      return;
+    }
+    const response = await sendBroadcast({
+      variables: {
+        broadcastId: id
+      }
+    });
+    if (response.errors) {
+      toast.error(response.errors.message);
+    } else if (response.data.sendBroadcast.success === false) {
+      // Backend returned failure message in data
+      toast.info(response.data.sendBroadcast.message);
+    } else {
+      toast.success(response.data.sendBroadcast.message);
+      onBack();
+    }
   }
 
   const handleSaveAndSchedule = async () => {
@@ -137,13 +190,25 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
       toast.error('Please select schedule date.');
       return;
     }
-    handleSave("scheduled")
-    onBack();
-  }
-
-  const handleSaveAndCancel = async () => {
-    handleSave("cancel")
-    onBack();
+    const id = await handleSave();
+    if (!id) {
+      toast.error('Broadcast not saved.');
+      return;
+    }
+    const response = await scheduleBroadcast({
+      variables: {
+        broadcastId: id
+      }
+    });
+    if (response.errors) {
+      toast.error(response.errors.message);
+    } else if (response.data.scheduleBroadcast.success === false) {
+      // Backend returned failure message in data
+      toast.info(response.data.scheduleBroadcast.message);
+    } else {
+      toast.success(response.data.scheduleBroadcast.message);
+      onBack();
+    }
   }
 
   const handleSubmit = (e) => {
@@ -172,13 +237,6 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
               <Input
                 placeholder="Broadcast ID"
                 value={broadcastData.broadcastId}
-                readOnly
-                disabled
-                hidden
-              />
-              <Input
-                placeholder="Status"
-                value={broadcastData.status}
                 readOnly
                 disabled
                 hidden
@@ -235,7 +293,7 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
               <Label className="w-full">Schedule Date</Label>
               <div className="flex w-full">
                 <DatePicker
-                  selected={broadcastData.scheduledAt}
+                  selected={broadcastData.scheduledAt ? broadcastData.scheduledAt : ''}
                   onChange={(val) => setBroadcastData({ ...broadcastData, scheduledAt: val })}
                   showTimeSelect
                   dateFormat="Pp"
@@ -251,6 +309,13 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
                   disabled:cursor-not-allowed disabled:opacity-50 
                   [&>span]:line-clamp-1 w-full`} />
               </div>
+              {readOnly && (<Label>Status</Label>)}
+              {readOnly && (<Input
+                placeholder="Status"
+                value={broadcastData.status}
+                readOnly
+                disabled
+              />)}
             </div>
 
             <div className="flex justify-left my-4">
@@ -264,14 +329,14 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
               {!readOnly && (
                 <Button className="m-1" onClick={() => handleSaveAndSchedule()}>Schedule</Button>
               )}
-              {broadcastId && (
+              {broadcastData.broadcastId && (
                 <Button className="m-1" variant="outline" onClick={() => handleSaveAndCancel()}>
                   Cancel
                 </Button>
               )}
-                <Button className="m-1" variant="outline" onClick={onBack}>
-                  Back
-                </Button>
+              <Button className="m-1" variant="outline" onClick={onBack}>
+                Back
+              </Button>
             </div>
           </form>
         </CardContent>
