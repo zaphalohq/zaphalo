@@ -27,6 +27,16 @@ export class workspaceMemberResolver {
     @AuthWorkspace() workspace: WorkspaceMember,
     @Args('userId') userId: string,
     @Args('role') role: Role): Promise<WorkspaceMember> {
+    const [workspaceMembers, totalCount] = await this.workspaceMemberRepository.findAndCount({
+      where: {
+        workspaceId: workspace.id,
+        role: Role.ADMIN
+      },
+      relations: ['user'],
+    });
+    if (totalCount < 2 && role == Role.USER){
+      throw new Error('Workspace should have minimum one admin.');
+    }
     const workspaceMember = await this.workspaceMemberRepository.findOne({
       where: {
         userId,
@@ -47,16 +57,31 @@ export class workspaceMemberResolver {
     @AuthWorkspace() workspace: WorkspaceMember,
     @Args('userId') userId: string): Promise<WorkspaceMember> {
 
+    const [workspaceMembers, totalCount] = await this.workspaceMemberRepository.findAndCount({
+      where: {
+        workspaceId: workspace.id,
+      },
+      relations: ['user'],
+    });
+
+    if (totalCount < 2){
+      throw new Error('Workspace should have minimum one user.');
+    }
     const workspaceMember = await this.workspaceMemberRepository.findOne({
       where: {
         userId,
       },
       relations: ['user'],
     });
-
-    if (!workspaceMember) {
-      throw new Error('Current user not found');
+    if (!workspaceMember){
+      throw new Error("Workspace member doesn't exist.");
     }
+    const hasAdmin = workspaceMembers.some(member => member.role === 'admin' && member.id != workspaceMember.id);
+
+    if (!hasAdmin){
+      throw new Error('Workspace singal admin can not deleted.');
+    }
+
     Object.assign(workspaceMember, {deletedAt: new Date()});
     await this.workspaceMemberRepository.save(workspaceMember);
     return workspaceMember
@@ -66,6 +91,15 @@ export class workspaceMemberResolver {
   async suspendWorkspaceMember(
     @AuthWorkspace() workspace: WorkspaceMember,
     @Args('userId') userId: string): Promise<WorkspaceMember> {
+    const [workspaceMembers, totalCount] = await this.workspaceMemberRepository.findAndCount({
+      where: {
+        workspaceId: workspace.id,
+      },
+      relations: ['user'],
+    });
+    if (totalCount < 2){
+      throw new Error('Workspace should have minimum one user.');
+    }
 
     const workspaceMember = await this.workspaceMemberRepository.findOne({
       where: {
@@ -74,9 +108,15 @@ export class workspaceMemberResolver {
       relations: ['user'],
     });
 
-    if (!workspaceMember) {
-      throw new Error('Current user not found');
+    if (!workspaceMember){
+      throw new Error("Workspace member doesn't exist.");
     }
+    const hasAdmin = workspaceMembers.some(member => member.role === 'admin' && member.id != workspaceMember.id);
+
+    if (!hasAdmin){
+      throw new Error('Workspace singal admin can not suspended.');
+    }
+
     Object.assign(workspaceMember, {active: false});
     await this.workspaceMemberRepository.save(workspaceMember);
     return workspaceMember
