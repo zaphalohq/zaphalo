@@ -178,7 +178,7 @@ const ContactForm = ({ contactId, onBack, isNewContacts }) => {
             <Label>Contact Name</Label>
             <Input
               type="text"
-              placeholder="enter contact name"
+              placeholder="Enter Contact Name"
               value={contactFormData.contactName}
               onChange={(e) => setContactFormData({ ...contactFormData, contactName: e.target.value })}
             />
@@ -206,7 +206,7 @@ const ContactForm = ({ contactId, onBack, isNewContacts }) => {
             <Label>Street</Label>
             <Input
               type="text"
-              placeholder="enter street"
+              placeholder="Enter Street"
               value={contactFormData.street}
               onChange={(e) => setContactFormData({
                 ...contactFormData,
@@ -217,7 +217,7 @@ const ContactForm = ({ contactId, onBack, isNewContacts }) => {
             <Label>City</Label>
             <Input
               type="text"
-              placeholder="enter city"
+              placeholder="Enter City"
               value={contactFormData.city}
               onChange={(e) => setContactFormData({
                 ...contactFormData,
@@ -253,7 +253,7 @@ const ContactForm = ({ contactId, onBack, isNewContacts }) => {
             <Label>Zipcode</Label>
             <Input
               type="text"
-              placeholder="enter zipcode"
+              placeholder="Enter Zipcode"
               value={contactFormData.zipcode}
               maxLength={6}
               onChange={(e) => setContactFormData({

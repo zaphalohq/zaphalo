@@ -110,7 +110,6 @@ const ChannelLists = ({ searchChannel }: any) => {
             chennelMembers={channel.channelMembers}
             unseen={channel.messages.length}
             lastMsgOfChannle={channel.lastMsgOfChannle}
-            lastMsgTime={channel.lastMsgOfChannle?.createdAt}
           />)}
     </div>
   )

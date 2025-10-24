@@ -155,7 +155,7 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
 
             <Label>Broadcast Name</Label>
             <Input
-              placeholder="enter broadcast name"
+              placeholder="Enter Broadcast Name"
               value={broadcastData.broadcastName}
               onChange={(e) => setBroadcastData({ ...broadcastData, broadcastName: e.target.value })}
               readOnly={readOnly}

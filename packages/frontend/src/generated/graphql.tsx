@@ -250,6 +250,7 @@ query findAllChannel {
     lastMsgOfChannle{
       textMessage
       createdAt
+      messageType
     } 
   }
 }
@@ -755,6 +756,7 @@ query searchReadBroadcast($page : Int!, $pageSize : Int!, $search: String, $filt
       }
       contactList {
         id
+        mailingListName
       }
     }
   }

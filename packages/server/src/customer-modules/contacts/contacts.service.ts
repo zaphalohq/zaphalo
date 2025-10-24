@@ -5,12 +5,15 @@ import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symb
 import { Connection, Like, Repository } from 'typeorm';
 import { updateContactsDto } from "./dto/updateContactsDto";
 import { throwError } from "rxjs";
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class ContactsService {
     private contactsRepository: Repository<Contacts>
+
     constructor(
         @Inject(CONNECTION) connection: Connection,
+        private eventEmitter: EventEmitter2
     ) {
         this.contactsRepository = connection.getRepository(Contacts);
     }
@@ -57,11 +60,11 @@ export class ContactsService {
             contactName: CreateContacts.contactName,
             phoneNo: CreateContacts.phoneNo,
             profileImg: CreateContacts.profileImg,
-            street:CreateContacts.street,
-            city:CreateContacts.city,
-            country:CreateContacts.country,
-            state:CreateContacts.state,
-            zipcode:CreateContacts.zipcode
+            street: CreateContacts.street,
+            city: CreateContacts.city,
+            country: CreateContacts.country,
+            state: CreateContacts.state,
+            zipcode: CreateContacts.zipcode
         });
         await this.contactsRepository.save(createdContacts);
         return createdContacts
@@ -84,18 +87,33 @@ export class ContactsService {
 
     }
 
-    async UpdateContact(UpdateContact: updateContactsDto) {
+    async UpdateContact(workspace, UpdateContact: updateContactsDto) {
         const updateContact = await this.contactsRepository.findOne({ where: { id: UpdateContact.id } })
         if (!updateContact) throw Error("contact doesn't found.")
-        updateContact.contactName = UpdateContact.contactName;
-        updateContact.phoneNo = UpdateContact.phoneNo;
-        updateContact.street=UpdateContact.street;
-        updateContact.city=UpdateContact.city;
-        updateContact.country=UpdateContact.country;
-        updateContact.state=UpdateContact.state;
-        updateContact.profileImg = UpdateContact.profileImg;
-        updateContact.zipcode=UpdateContact.zipcode;
-        return await this.contactsRepository.save(updateContact);
+
+        try {
+
+            updateContact.contactName = UpdateContact.contactName;
+            updateContact.phoneNo = UpdateContact.phoneNo;
+            updateContact.street = UpdateContact.street;
+            updateContact.city = UpdateContact.city;
+            updateContact.country = UpdateContact.country;
+            updateContact.state = UpdateContact.state;
+            updateContact.profileImg = UpdateContact.profileImg;
+            updateContact.zipcode = UpdateContact.zipcode;
+
+            const savedContact = await this.contactsRepository.save(updateContact);
+
+            this.eventEmitter.emit('contact.updated', {
+                workspaceId: workspace.id,
+                    phoneNo: savedContact.phoneNo,
+                contactName: savedContact.contactName,
+            })
+            return savedContact
+        } catch (err) {
+            console.log(err);
+        }
+
     }
 
     async DeleteContact(contactId: string) {
