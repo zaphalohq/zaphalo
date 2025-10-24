@@ -814,6 +814,41 @@ query getBroadcast($broadcastId: String!) {
   }
 }`
 
+export const SendBroadCast = gql`
+  mutation sendBroadcast($broadcastId: String!){
+    sendBroadcast(broadcastId: $broadcastId){
+      message
+      status
+    }
+  }
+`
+
+export const ScheduleBroadCast = gql`
+  mutation scheduleBroadcast($broadcastId: String!){
+    scheduleBroadcast(broadcastId: $broadcastId){
+      message
+      status
+    }
+  }
+`
+
+export const CancelBroadCast = gql`
+  mutation cancelBroadcast($broadcastId: String!){
+    cancelBroadcast(broadcastId: $broadcastId){
+      message
+      status
+    }
+  }
+`
+
+export const DeleteBroadCast = gql`
+  mutation deleteBroadcast($broadcastIds: [String!]!){
+    deleteBroadcast(broadcastIds: $broadcastIds){
+      message
+      status
+    }
+  }
+`
 
 // Whatsapp Template
 
@@ -1238,15 +1273,6 @@ export const GetContactList = gql`
         mailingListName
         totalContacts
       }
-    }
-  }
-`
-
-export const DeleteBroadCast = gql`
-  mutation deleteBroadcast($broadcastId: String!){
-    deleteBroadcast(broadcastId: $broadcastId){
-      message
-      status
     }
   }
 `

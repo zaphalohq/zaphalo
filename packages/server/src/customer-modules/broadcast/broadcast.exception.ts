@@ -13,4 +13,6 @@ export class BroadcastException extends CustomException {
 
 export enum BroadcastExceptionCode {
   INVALID_WHATSAPP_ACCOUNT = "INVALID_WHATSAPP_ACCOUNT",
+  INVALID_STATUS = "INVALID_STATUS",
+  INVALID_RECORD = "INVALID_RECORD",
 }

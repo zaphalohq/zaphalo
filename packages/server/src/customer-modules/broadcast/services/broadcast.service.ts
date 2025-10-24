@@ -18,8 +18,16 @@ import {
   BroadcastException,
   BroadcastExceptionCode,
 } from 'src/customer-modules/broadcast/broadcast.exception';
-import { DeleteBroadcastResponseDto } from "../dto/broadcast-delete-res.dto";
 
+const relations = {
+  template: {
+    attachment: true
+  },
+  contactList: {
+    mailingContacts: true
+  },
+  whatsappAccount: true
+}
 
 @Injectable()
 export class BroadcastService {
@@ -61,16 +69,9 @@ export class BroadcastService {
       name: broadcastData.broadcastName,
       template: template,
       contactList: mailingList,
-      status: broadcastData.status
+      scheduledAt: broadcastData.scheduledAt ? broadcastData.scheduledAt : null,
     })
     await this.broadcastRepository.save(broadcast)
-
-    const broadcastCreatedEvent = new BroadcastCreatedEvent();
-
-    broadcastCreatedEvent.workspaceId = workspaceId
-    broadcastCreatedEvent.broadcastId = broadcast.id
-
-    this.eventEmitter.emit('broadcast.message.created', broadcastCreatedEvent)
 
     const broadcastFind = await this.getBroadcast(broadcast.id)
 
@@ -81,13 +82,13 @@ export class BroadcastService {
   async saveBroadcast(workspaceId, broadcastData) {
     if (!broadcastData.broadcastId) throw new Error('Broadcast ID invalid!');
 
-    const mailingList = await this.mailingListService.findMailingListById(broadcastData.mailingListId)
-    if (!mailingList) throw new Error('mailingList not found');
+    const contactList = await this.mailingListService.findMailingListById(broadcastData.contactListId)
+    if (!contactList) throw new Error('mailingList not found');
     const templateRes = await this.waTemplateService.getTemplate(broadcastData.templateId)
     const template = templateRes?.template
     if (!template) throw new Error('template not found');
 
-    const waAccountRes = await this.waAccountService.getWaAccount(broadcastData.accountId);
+    const waAccountRes = await this.waAccountService.getWaAccount(broadcastData.whatsappAccountId);
     if (!waAccountRes.waAccount) throw new Error('Whatsapp account not found');
 
     const broadcastFind = await this.getBroadcast(broadcastData.broadcastId)
@@ -98,9 +99,8 @@ export class BroadcastService {
       whatsappAccount: waAccountRes.waAccount,
       name: broadcastData.broadcastName,
       template: template,
-      contactList: mailingList,
-      scheduledAt: broadcastData.scheduledAt,
-      status: broadcastData.status
+      contactList: contactList,
+      scheduledAt: broadcastData.scheduledAt ? broadcastData.scheduledAt : null,
     })
 
     await this.broadcastRepository.save(broadcastFind.broadcast)
@@ -137,15 +137,7 @@ export class BroadcastService {
   ) {
     const broadcastFind = await this.broadcastRepository.findOne({
       where: { id: broadcastId },
-      relations: {
-        template: {
-          attachment: true
-        },
-        contactList: {
-          mailingContacts: true
-        },
-        whatsappAccount: true
-      }
+      relations
     });
     if (!broadcastFind){
       throw new Error('Broadcast not found');
@@ -214,26 +206,104 @@ export class BroadcastService {
     };
   }
 
-  async deleteBroadcast(broadcastId: string): Promise<DeleteBroadcastResponseDto> {
-    const broadcast = await this.broadcastRepository.findOne({
-      where: { id: broadcastId },
-    });
+  async deleteBroadcast(broadcastIds: string[]){
+    const broadcasts = await await this.broadcastRepository.find({
+      where: {
+        id: In(broadcastIds)
+      }
+    })
+    for (const broadcast of broadcasts){
+      if(broadcast.status != broadcastStates.new){
+        throw new BroadcastException(
+          `${broadcast.status} broadcast can not be delete.`,
+          BroadcastExceptionCode.INVALID_STATUS,
+        );
+      }
+    }
+
+    await this.broadcastRepository.delete(broadcastIds);
+
+    return {
+      'message': 'Broadcast deleted',
+      'status': true
+    }
+  }
+
+  async cancelBroadcast(broadcastId: string){
+    const broadcastFind = await this.getBroadcast(broadcastId)
+    const broadcast = broadcastFind.broadcast
 
     if (!broadcast) {
       throw new Error('Broadcast not found');
     }
 
-    if (broadcast.status !== broadcastStates.new) {
-      throw new Error(`BroadCast "${broadcast.name}" not Deleted!! Status:${broadcast.status}`);
+    if (![broadcastStates.new, broadcastStates.scheduled, broadcastStates.in_progress].includes(broadcast.status)) {
+      throw new BroadcastException(
+        `${broadcast.status} broadcast can not be cancelled.`,
+        BroadcastExceptionCode.INVALID_STATUS,
+      );
+    }
+    Object.assign(broadcast, {
+      status: broadcastStates.cancel
+    })
+    await this.broadcastRepository.save(broadcast);
+    return {
+      'broadcast': broadcast,
+      'message': 'Broadcast cancelled',
+      'status': true
+    }
+  }
+
+  async sendBroadcast(broadcastId: string){
+    const broadcastFind = await this.getBroadcast(broadcastId)
+    const broadcast = broadcastFind.broadcast
+
+    if (!broadcast) {
+      throw new Error('Broadcast not found');
     }
 
-    await this.broadcastRepository.delete(broadcastId);
-
+    if (![broadcastStates.new].includes(broadcast.status)) {
+      throw new BroadcastException(
+        `${broadcast.status} broadcast can not be send.`,
+        BroadcastExceptionCode.INVALID_STATUS,
+      );
+    }
+    Object.assign(broadcast, {
+      status: broadcastStates.in_progress
+    })
+    await this.broadcastRepository.save(broadcast);
     return {
-      message: 'Broadcast deleted successfully',
-      status: true,
-    };
+      'broadcast': broadcast,
+      'message': 'Broadcast sent for send',
+      'status': true
+    }
   }
+
+  async scheduleBroadcast(broadcastId: string){
+    const broadcastFind = await this.getBroadcast(broadcastId)
+    const broadcast = broadcastFind.broadcast
+
+    if (!broadcast) {
+      throw new Error('Broadcast not found');
+    }
+
+    if (![broadcastStates.new, broadcastStates.in_progress].includes(broadcast.status)) {
+      throw new BroadcastException(
+        `${broadcast.status} broadcast can not be scheduled.`,
+        BroadcastExceptionCode.INVALID_STATUS,
+      );
+    }
+    Object.assign(broadcast, {
+      status: broadcastStates.scheduled
+    })
+    await this.broadcastRepository.save(broadcast);
+    return {
+      'broadcast': broadcast,
+      'message': 'Broadcast scheduled',
+      'status': true
+    }
+  }
+
 
   async getBroadcastBytemplate(templateId: string) {
     const broadcast =await this.broadcastRepository.find(

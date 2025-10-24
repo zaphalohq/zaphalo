@@ -48,22 +48,21 @@ export default function BroadcastList({
     );
   };
 
-  const [deleteBroadcast, { error: deleteError }] = useMutation(DeleteBroadCast)
-  const deleteSelected = async () => {
+  const [deleteBroadcast, { error: deleteError }] = useMutation(DeleteBroadCast, {
+    onError: (err) => {
+    },
+  })
+  const deleteSelected = async() => {
     if (!selected.length) return;
+    const response = await deleteBroadcast({ variables: { broadcastIds: selected} });
 
-    await Promise.all(
-      selected.map(async (id) => {
-        try {
-          await deleteBroadcast({ variables: { broadcastId: id } });
-          toast.success(`Broadcast deleted successfully`);
-        } catch (err: any) {
-          // Show toast for broadcasts that cannot be deleted
-          toast.error(` ${err.message || 'Cannot delete'}`);
-        }
-      })
-    );
-
+    if (response.errors) {
+      toast.error(response.errors.message);
+    } else if (response.data.deleteBroadcast.success === false) {
+      toast.info(response.data.deleteBroadcast.message);
+    } else {
+      toast.success(response.data.deleteBroadcast.message);
+    }
     setSelected([]); // clear selection
     await refetch();
   };
@@ -176,6 +175,7 @@ export default function BroadcastList({
               <TableHead className="px-4 py-3">Name</TableHead>
               <TableHead className="px-4 py-3">Account</TableHead>
               <TableHead className="px-4 py-3">Template</TableHead>
+              <TableHead className="px-4 py-3">Schedule on</TableHead>
               <TableHead className="px-4 py-3">Create on</TableHead>
               <TableHead className="px-4 py-3">Status</TableHead>
               <TableHead className="px-4 py-3"></TableHead>
@@ -197,6 +197,9 @@ export default function BroadcastList({
                   <TableCell className="px-4 py-5">{broadcast.name}</TableCell>
                   <TableCell className="px-4 py-5">{broadcast.whatsappAccount.name}</TableCell>
                   <TableCell className="px-4 py-5">{broadcast.template.templateName}</TableCell>
+                  <TableCell className="px-4 py-5">{
+                    formatLocalDate(broadcast.scheduledAt)
+                  }</TableCell>
                   <TableCell className="px-4 py-5">{
                     formatLocalDate(broadcast.createdAt)
                   }</TableCell>

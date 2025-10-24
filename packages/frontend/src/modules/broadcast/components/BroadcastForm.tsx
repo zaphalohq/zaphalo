@@ -18,13 +18,17 @@ import {
   ReadMailingList,
   GetBroadcast,
   SaveBroadcast,
-  SendBroadcast
+  SendBroadcast,
+  CancelBroadCast,
+  ScheduleBroadCast,
+  SendBroadCast
 } from "@src/generated/graphql";
 import { toast } from 'react-toastify';
 import { isDefined } from '@src/utils/validation/isDefined';
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+
 import { formatLocalDate, formatUTCDate } from '@src/utils/formatLocalDate';
 import { Label } from "@src/components/UI/label";
 
@@ -39,7 +43,7 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
     status: '',
     scheduledAt: '',
   })
-
+  const [errors, setErrors] = useState({});
   if (isDefined(broadcastId)) {
     const { data: broadcastViewData, loading: viewLoading, error: viewError } = useQuery(GetBroadcast, {
       variables: {
@@ -55,7 +59,7 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
         whatsappAccountId: broadcastView.whatsappAccount.id,
         templateId: broadcastView.template.id,
         contactListId: broadcastView.contactList.id,
-        scheduledAt: formatUTCDate(broadcastView.scheduledAt),
+        scheduledAt: broadcastView.scheduledAt ? formatUTCDate(broadcastView.scheduledAt) : '',
         status: broadcastView.status,
       })
       if (broadcastView.state != 'New') {
@@ -73,15 +77,30 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
     },
   });
 
+  const [sendBroadcast] = useMutation(SendBroadCast, {
+    onError: (err) => {
+    },
+  });
 
-  const handleSave = async (status: string) => {
+  const [scheduleBroadcast] = useMutation(ScheduleBroadCast, {
+    onError: (err) => {
+    },
+  });
+
+  const [cancelBroadcast] = useMutation(CancelBroadCast, {
+    onError: (err) => {
+    },
+  });
+
+
+  const handleSave = async () => {
     if (
       !broadcastData.whatsappAccountId ||
       !broadcastData.templateId ||
       !broadcastData.contactListId ||
       !broadcastData.broadcastName
     ) {
-      toast.error('Please fill all required fields before broadcasting.');
+      toast.error('Please fill all required fields.');
       return;
     }
 
@@ -93,17 +112,13 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
     toSubmiteData.whatsappAccountId = broadcastData.whatsappAccountId
     toSubmiteData.templateId = broadcastData.templateId
     toSubmiteData.contactListId = broadcastData.contactListId
-    toSubmiteData.scheduledAt = broadcastData.scheduledAt
-
-    toSubmiteData.status = "new"
+    if (broadcastData.scheduledAt){
+      toSubmiteData.scheduledAt = broadcastData.scheduledAt
+    }
 
     if (broadcastData.broadcastId) {
       toSubmiteData.broadcastId = broadcastData.broadcastId
     }
-    if (status) {
-      toSubmiteData.status = status
-    }
-
     const response = await saveBroadcast({
       variables: {
         broadcastData: toSubmiteData
@@ -114,105 +129,216 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
     if (response.data?.saveBroadcast?.status) {
       setBroadcastData({
         broadcastId: broadcast.id,
-        broadcastName: broadcast.broadcastName,
+        broadcastName: broadcast.name,
         whatsappAccountId: broadcast.whatsappAccount.id,
         templateId: broadcast.template.id,
         contactListId: broadcast.contactList.id,
-        scheduledAt: broadcast.scheduledAt,
+        scheduledAt: broadcast.scheduledAt ? formatUTCDate(broadcast.scheduledAt) : '',
         status: broadcast.status,
       })
       toast.success(`${response.data?.saveBroadcast?.message}`);
+    }
+    return  broadcast.id
+  }
+
+  const handleSaveAndCancel = async () => {
+    // handleSave("cancel")
+    const response = await cancelBroadcast({
+      variables: {
+        broadcastId: broadcastData.broadcastId
+      }
+    });
+    if (response.errors) {
+      toast.error(response.errors.message);
+    } else if (response.data.cancelBroadcast.success === false) {
+      // Backend returned failure message in data
+      toast.info(response.data.cancelBroadcast.message);
+    } else {
+      toast.success(response.data.cancelBroadcast.message);
       onBack();
     }
   }
 
   const handleSaveAndSend = async () => {
-    handleSave("in_progress")
-    onBack();
+    if (!broadcastData.scheduledAt) {
+      toast.error('Please select schedule date.');
+      return;
+    }
+    const id = await handleSave();
+    if (!id) {
+      toast.error('Broadcast not saved.');
+      return;
+    }
+    const response = await sendBroadcast({
+      variables: {
+        broadcastId: id
+      }
+    });
+    if (response.errors) {
+      toast.error(response.errors.message);
+    } else if (response.data.sendBroadcast.success === false) {
+      // Backend returned failure message in data
+      toast.info(response.data.sendBroadcast.message);
+    } else {
+      toast.success(response.data.sendBroadcast.message);
+      onBack();
+    }
   }
+
+  const handleSaveAndSchedule = async () => {
+    if (!broadcastData.scheduledAt) {
+      toast.error('Please select schedule date.');
+      return;
+    }
+    const id = await handleSave();
+    if (!id) {
+      toast.error('Broadcast not saved.');
+      return;
+    }
+    const response = await scheduleBroadcast({
+      variables: {
+        broadcastId: id
+      }
+    });
+    if (response.errors) {
+      toast.error(response.errors.message);
+    } else if (response.data.scheduleBroadcast.success === false) {
+      // Backend returned failure message in data
+      toast.info(response.data.scheduleBroadcast.message);
+    } else {
+      toast.success(response.data.scheduleBroadcast.message);
+      onBack();
+    }
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const newErrors = {};
+    if (!broadcastData.broadcastName.trim()) newErrors.broadcastName = "Broadcast name is required";
+    if (!broadcastData.whatsappAccountId.trim()) newErrors.whatsappAccountId = "Whatsapp Account is required";
+    if (!broadcastData.templateId.trim()) newErrors.templateId = "Template is required";
+    if (!broadcastData.contactListId.trim()) newErrors.contactListId = "Contact List is required";
+    setErrors(newErrors);
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <Card className="w-full max-w-2xl shadow-lg">
         <CardContent className="p-8 space-y-6">
-          <h2 className="text-2xl font-bold text-center">Create New Broadcast</h2>
-
+           {!broadcastId ? (
+            <h2 className="text-2xl font-bold text-center">Create Broadcast</h2>
+            ) :
+           (
+            <h2 className="text-2xl font-bold text-center">Edit Broadcast</h2>
+            )
+         }
+        <form onSubmit={handleSubmit}>
           <div className="space-y-4">
-            <Input
-              placeholder="Broadcast ID"
-              value={broadcastData.broadcastId}
-              readOnly
-              disabled
-              hidden
-            />
-            <Input
-              placeholder="Status"
-              value={broadcastData.status}
-              readOnly
-              disabled
-              hidden
-            />
+              <Input
+                placeholder="Broadcast ID"
+                value={broadcastData.broadcastId}
+                readOnly
+                disabled
+                hidden
+              />
 
-            <Label>Broadcast Name</Label>
-            <Input
-              placeholder="Enter Broadcast Name"
-              value={broadcastData.broadcastName}
-              onChange={(e) => setBroadcastData({ ...broadcastData, broadcastName: e.target.value })}
-              readOnly={readOnly}
-              disabled={readOnly}
-            />
+              <Label>Broadcast Title</Label>
+              <Input
+                placeholder="Broadcast Title"
+                className={errors.broadcastName ? "border-red-500 focus-visible:ring-red-500 focus-visible:border-gray-300" : ""}
+                value={broadcastData.broadcastName}
+                onChange={(e) => setBroadcastData({ ...broadcastData, broadcastName: e.target.value })}
+                readOnly={readOnly}
+                disabled={readOnly}
+              />
 
-            <Label>Whatsapp Account</Label>
-            <SelectField
-              selectedVal={broadcastData.whatsappAccountId}
-              query={ReadWaAccount}
-              queryValueName="readWaAccount"
-              dispalyName="name"
-              placeholder="Select Account"
-              onSelect={(val) => setBroadcastData({ ...broadcastData, whatsappAccountId: val })}
-              disabled={readOnly}
-            />
+              <Label>Whatsapp Account</Label>
+              <SelectField
+                className={errors.broadcastName ? "border-red-500 focus-visible:ring-red-500 focus-visible:border-gray-300" : ""}
+                selectedVal={broadcastData.whatsappAccountId}
+                query={ReadWaAccount}
+                queryValueName="readWaAccount"
+                dispalyName="name"
+                placeholder="Select Account"
+                onSelect={(val) => setBroadcastData({ ...broadcastData, whatsappAccountId: val })}
+                disabled={readOnly}
+              />
 
-            <Label>Template</Label>
-            <SelectField
-              selectedVal={broadcastData.templateId}
-              query={ReadWaTemplate}
-              queryValueName="readWaTemplate"
-              filter={{ account: { id: broadcastData.whatsappAccountId || null } }}
-              dispalyName="templateName"
-              placeholder="Select Template"
-              onSelect={(val) => setBroadcastData({ ...broadcastData, templateId: val })}
-              disabled={readOnly}
-            />
-            
-            <Label>Mailing List</Label>
-            <SelectField
-              selectedVal={broadcastData.contactListId}
-              query={ReadMailingList}
-              queryValueName="readMailingList"
-              dispalyName="mailingListName"
-              placeholder="Select Contact List"
-              onSelect={(val) => setBroadcastData({ ...broadcastData, contactListId: val })}
-              disabled={readOnly}
-            />
+              <Label>Template</Label>
+              <SelectField
+                className={errors.broadcastName ? "border-red-500 focus-visible:ring-red-500 focus-visible:border-gray-300" : ""}
+                selectedVal={broadcastData.templateId}
+                query={ReadWaTemplate}
+                queryValueName="readWaTemplate"
+                filter={{ account: { id: broadcastData.whatsappAccountId || null } }}
+                dispalyName="templateName"
+                placeholder="Select Template"
+                onSelect={(val) => setBroadcastData({ ...broadcastData, templateId: val })}
+                disabled={readOnly}
+              />
+              
+              <Label>Contact List</Label>
+              <SelectField
+                className={errors.contactListId ? "border-red-500 focus-visible:ring-red-500 focus-visible:border-gray-300" : ""}
+                selectedVal={broadcastData.contactListId}
+                query={ReadMailingList}
+                queryValueName="readMailingList"
+                dispalyName="mailingListName"
+                placeholder="Select Contact List"
+                onSelect={(val) => setBroadcastData({ ...broadcastData, contactListId: val })}
+                disabled={readOnly}
+                required
+              />
 
-            <Label>Date</Label>
-            <DatePicker
-              selected={broadcastData.scheduledAt}
-              onChange={(val) => setBroadcastData({ ...broadcastData, scheduledAt: val })}
-              showTimeSelect
-              dateFormat="Pp"
-              className="border p-2 rounded"
-            />
-          </div>
+              <Label className="w-full">Schedule Date</Label>
+              <div className="flex w-full">
+                <DatePicker
+                  selected={broadcastData.scheduledAt ? broadcastData.scheduledAt : ''}
+                  onChange={(val) => setBroadcastData({ ...broadcastData, scheduledAt: val })}
+                  showTimeSelect
+                  dateFormat="Pp"
+                  disabled={readOnly}
+                  className={`border p-2 rounded 
+                  flex h-10 items-center 
+                  justify-between rounded-md 
+                  bg-background px-3 py-2 
+                  text-sm ring-offset-background 
+                  placeholder:text-muted-foreground 
+                  focus:outline-none focus:ring-2 
+                  focus:ring-ring focus:ring-offset-2 
+                  disabled:cursor-not-allowed disabled:opacity-50 
+                  [&>span]:line-clamp-1 w-full`} />
+              </div>
+              {readOnly && (<Label>Status</Label>)}
+              {readOnly && (<Input
+                placeholder="Status"
+                value={broadcastData.status}
+                readOnly
+                disabled
+              />)}
+            </div>
 
-          <div className="flex justify-between">
-            <Button variant="outline" onClick={onBack}>
-              Cancel
-            </Button>
-            <Button onClick={() => handleSave()}>Save Broadcast</Button>
-            <Button onClick={() => handleSaveAndSend()}>Send Broadcast</Button>
-          </div>
+            <div className="flex justify-left my-4">
+
+              {!readOnly && (
+                <Button className="m-1" onClick={() => handleSave()}>Save</Button>
+              )}
+              {!readOnly && (
+                <Button className="m-1" onClick={() => handleSaveAndSend()}>Send</Button>
+              )}
+              {!readOnly && (
+                <Button className="m-1" onClick={() => handleSaveAndSchedule()}>Schedule</Button>
+              )}
+              {broadcastData.broadcastId && (
+                <Button className="m-1" variant="outline" onClick={() => handleSaveAndCancel()}>
+                  Cancel
+                </Button>
+              )}
+              <Button className="m-1" variant="outline" onClick={onBack}>
+                Back
+              </Button>
+            </div>
+          </form>
         </CardContent>
       </Card>
     </div>
