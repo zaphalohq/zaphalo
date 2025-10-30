@@ -68,19 +68,14 @@ export class MailingListResolver {
 
   @Mutation(() => SuccessResponse)
   @UseGuards(GqlAuthGuard)
-  async deleteMailingListWithAllContacts(@Args('mailingId') mailingListId: string) {
-    return this.mailingListService.deleteMailingWithContacts(mailingListId)
+  async deleteMailingListWithAllContacts(@Args('mailingIds', { type: () => [String] }) mailingListIds: string[]) {
+    return this.mailingListService.deleteMailingWithContacts(mailingListIds)
   }
 
   @Mutation(() => SuccessResponse)
   @UseGuards(GqlAuthGuard)
-  async deleteMailingContact(@Args('mailingContactId') mailingContactId: string) {
-    const deleteContact = await this.mailingListService.deleteMailingContact(mailingContactId)
-
-    return {
-      success: true,
-      message: 'Mailing Contact Deleted successfully'
-    }
+  async deleteMailingContact(@Args('mailingContactIds', { type: () => [String] }) mailingContactIds: string[]) {
+    return await this.mailingListService.deleteMailingContact(mailingContactIds)
   }
 
   @Query(() => SearchedRes)

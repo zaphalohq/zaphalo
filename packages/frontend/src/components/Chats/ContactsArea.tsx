@@ -57,7 +57,7 @@ const ContactList = ({ HandleNewChatVisiablity, HandleCreateContactVis }: any) =
                     <span className="text-lg rounded-full bg-stone-200 p-3 text-stone-950">
                         <FiPlus />
                     </span>
-                    <span className="font-semibold">New contacts</span>
+                    <span className="font-bold">New contacts</span>
                 </div>
                 <div className="px-4 p-2 bg-gray-100 font-medium sticky top-0 ">All contacts</div>
                 {filteredContacts.map((contactData, index) => <ListContacts key={index} phoneNo={contactData.phoneNo} HandleNewChatVisiablity={HandleNewChatVisiablity} profileImg={contactData.profileImg} contactName={contactData.contactName} />)}

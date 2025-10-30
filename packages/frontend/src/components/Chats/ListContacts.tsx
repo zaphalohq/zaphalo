@@ -53,7 +53,7 @@ const ListContacts = ({ contactName, phoneNo, HandleNewChatVisiablity, profileIm
        </div>
      }
      <div className='flex flex-col'>
-      <span className="font-semibold">{contactName}</span>
+      <span className="font-semibold ">{contactName}</span>
       <div className='text-sm font-medium text-gray-700'>{phoneNo}</div>
     </div>
   </div>

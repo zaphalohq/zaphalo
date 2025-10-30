@@ -1,7 +1,24 @@
-# ZapHalo
+<div align="center">
+   <h1>ZapHalo</h1>
+   <p><strong>Open Source WhatsApp API Integration and Business Solutions</strong></p>
+</div>
+</div>
 
 **ZapHalo** is a powerful WhatsApp API-integrated application designed for businesses and individuals to streamline messaging workflows. With a single phone number, users can integrate ZapHalo across multiple platforms (e.g., websites, apps), receive and manage messages via WhatsApp webhooks, leverage chatbot automation, and send bulk messages to millions of recipients efficiently. Inspired by platforms like Wati.io, ZapHalo offers an end-to-end solution for multi-channel messaging and customer engagement.
 
+<div align="center">
+   <img src="./packages/frontend/public/dashboardScreenShot.png" alt="ZapHalo — WhatsApp API Integration" width="900" />
+   <p><em>Screenshot: ZapHalo dashboard</em></p>
+</div>
+
+<!--
+Place the image file at one of these recommended locations in the repo:
+- packages/frontend/public/assets/hero.png
+- docs/assets/hero.png
+
+Or use a remote URL:
+<img src="https://example.com/path/to/hero.png" alt="ZapHalo — WhatsApp API Integration" />
+-->
 ## Features
 - **Multi-Platform Integration**: Embed your WhatsApp number on websites, apps, or other platforms with a simple link or widget.
 - **Webhook Message Handling**: Capture incoming WhatsApp messages in real-time using webhooks and display them within the app.

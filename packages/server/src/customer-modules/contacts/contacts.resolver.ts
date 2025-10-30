@@ -6,12 +6,15 @@ import { createContactsDto } from "./dto/createContactsDto";
 import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
 import { updateContactsDto } from "./dto/updateContactsDto";
 import { ManyContactResponse } from "./dto/many-contact-response.dto";
+import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
+import { Workspace } from "src/modules/workspace/workspace.entity";
+import { ContactResponse } from "./dto/contact-response.dto";
 
 @Resolver(() => Contacts)
 export class ContactsResolver {
     constructor(
         private readonly contactsservice: ContactsService
-    ) {}
+    ) { }
 
     @UseGuards(GqlAuthGuard)
     @Mutation(() => Contacts)
@@ -30,8 +33,8 @@ export class ContactsResolver {
     async searchReadContacts(
         @Args('page', { type: () => Int, defaultValue: 1 }) page: number,
         @Args('pageSize', { type: () => Int, defaultValue: 10 }) pageSize: number,
-        @Args('search', { type: () => String, nullable: true}) search?: string,
-        @Args('filter', { type: () => String, nullable: true}) filter?: string,
+        @Args('search', { type: () => String, nullable: true }) search?: string,
+        @Args('filter', { type: () => String, nullable: true }) filter?: string,
     ) {
         if (!search)
             search = ''
@@ -43,19 +46,27 @@ export class ContactsResolver {
 
     @UseGuards(GqlAuthGuard)
     @Query(() => Contacts)
-    async getContactById(@Args('contactId') contactId: string){
+    async getContactById(@Args('contactId') contactId: string) {
         return await this.contactsservice.getContactbyId(contactId)
     }
 
     @UseGuards(GqlAuthGuard)
     @Mutation(() => Contacts)
-    async UpdateContact(@Args('UpdateContact') UpdateContact: updateContactsDto): Promise<updateContactsDto | undefined> {
-        return await this.contactsservice.UpdateContact(UpdateContact)
+    async UpdateContact(
+        @AuthWorkspace() workspace: Workspace,
+        @Args('UpdateContact') UpdateContact: updateContactsDto): Promise<updateContactsDto | undefined> {
+        return await this.contactsservice.UpdateContact(workspace, UpdateContact)
     }
 
     @UseGuards(GqlAuthGuard)
-    @Mutation(() => Contacts)
-    async DeleteContact(@Args('contactId') contactId: string) {
-        return this.contactsservice.DeleteContact(contactId)
+    @Mutation(() => ContactResponse)
+    async DeleteContact(@Args('ContactIds', { type: () => [String] }) ContactIds: string[]) {
+        return this.contactsservice.DeleteContact(ContactIds)
+    }
+
+    @UseGuards(GqlAuthGuard)
+    @Query(() => Contacts)
+    async findContactByChannleId(@Args('channelId') channelId: string) {
+        return await this.contactsservice.findContactByChannleId(channelId)
     }
 }

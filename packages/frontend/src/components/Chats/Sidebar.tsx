@@ -5,6 +5,7 @@ import CreateContacts from "./CreateContacts"
 import ChannelLists from "./ChannelLists"
 import SelectWaAccount from "@src/modules/whatsapp/components/account/SelectWaAccount"
 import { SearchWhite } from "@components/UI/Search"
+import CreateUpdateContactDialog from "./CreateUpdateContactDialog"
 
 
 const ChatsSide = ({ setIsChatOpen }: any) => {
@@ -46,7 +47,7 @@ const ChatsSide = ({ setIsChatOpen }: any) => {
                 <ContactList HandleCreateContactVis={HandleCreateContactVis} HandleNewChatVisiablity={HandleNewChatVisiablity} /> 
                  : null} 
             </div>
-            {isCreateContactVis ? <CreateContacts HandleCreateContactVis={HandleCreateContactVis} /> : null}
+             {isCreateContactVis ? <CreateUpdateContactDialog open={isCreateContactVis} isNewContact={true} contactId={false} onBack={()=>setIsCreateContactVis(false)} /> : null}
             <button onClick={() => setIsInstantsVis(!isInstantsVis)} className='p-2 hover-light rounded cursor-pointer'><FiList /></button>
             <div className="menuref1" ref={modalRef1}>
               {isInstantsVis ?
