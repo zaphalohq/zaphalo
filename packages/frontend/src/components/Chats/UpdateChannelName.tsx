@@ -1,50 +1,52 @@
-import { FormEvent, useContext, useState } from 'react'
+import { FormEvent, useContext, useEffect, useState } from 'react'
 import { FaSyncAlt } from 'react-icons/fa'
-import { useMutation } from '@apollo/client'
+import { useLazyQuery, useMutation } from '@apollo/client'
 import CloseButton from '@components/UI/CloseButton'
 import InputLabel from '@components/UI/InputLabel'
 import SubmitButton from '@components/UI/SubmitButton'
-import { updateChannelNameById } from '@src/generated/graphql'
+import { GetContactByChannelId, updateChannelNameById } from '@src/generated/graphql'
 import { ChatsContext } from '@components/Context/ChatsContext'
+import ContactForm from '@src/modules/contact/components/ContactForm'
+import CreateUpdateContactDialog from './CreateUpdateContactDialog'
 
 const UpdateChannelName = () => {
   const { isUpdateChannelName, setIsUpdateChannelName }: any = useContext(ChatsContext)
   const [channelNameChange, setChannelNameChange] = useState("")
   const [UpdateChannel] = useMutation(updateChannelNameById)
-  const { chatsDetails } : any = useContext(ChatsContext)
-  
-  const HandleUpdateChannelName = async (event : FormEvent) => {
-    localStorage.setItem("chatsDetails", JSON.stringify({
-      ...chatsDetails,
-      channelName : channelNameChange
-    }))
-    
-    try {
-      const response = await UpdateChannel({ variables : {
-        channelId: chatsDetails.channelId,
-        updatedValue: channelNameChange
-      } });
-      setIsUpdateChannelName(false)
-      setChannelNameChange("")
-    } catch (err) {
-      console.error('Error update channel name:', err);
-    }
-  }
+  const { chatsDetails }: any = useContext(ChatsContext)
+  const [contactId, setContactId] = useState<string | null>(null)
+
+  const[findContactByChannleId]=useLazyQuery(GetContactByChannelId)
+
+  useEffect(() => {
+    const fetchContact = async () => {
+      if (!chatsDetails || !chatsDetails.chennelMembers?.length) return;
+
+      const channelId = chatsDetails.channelId;
+      try {
+        const { data } = await findContactByChannleId({ variables: { channelId: channelId } });
+        if (data?.findContactByChannleId?.id) {
+          setContactId(data.findContactByChannleId.id);
+        }
+      } catch (err) {
+        console.error("Error fetching contact by phone:", err);
+      }
+    };
+
+    fetchContact();
+  }, [chatsDetails]);
 
   return (
-    <>
-      { isUpdateChannelName ? <div className="absolute z-11 inset-0  md:h-100% bg-stone-900/30 " >
-        <CloseButton onClick={() => setIsUpdateChannelName(false) } 
-                    right="md:right-120 right-4" top="top-60" />
-        <form onSubmit={HandleUpdateChannelName} className="absolute top-[35%]  md:right-[35%] md:w-[30rem] bg-stone-100 p-10 rounded flex flex-col gap-4">
-          <h2 className="text-lg font-semibold text-center">Update Channel Name</h2>
-          <div className='text-lg text-violet-600'>Current Channel Name : {chatsDetails.channelName}</div>
-          <InputLabel type="text" name='update channel name' value={channelNameChange} HandleInputChange={(e : any) => setChannelNameChange(e.target.value)} title="Channel Name" placeholder="updated channel name" />
-          <SubmitButton type="submit" Icon={FaSyncAlt} title='Submit' />
-        </form>
-      </div> : <></>}
-    </>
+    isUpdateChannelName && contactId ?  (
+      <CreateUpdateContactDialog
+        open={isUpdateChannelName}
+        isNewContact={false}
+        contactId={contactId}
+        onBack={() => setIsUpdateChannelName(false)}
+      />
+    ) : null
   )
+
 }
 
 export default UpdateChannelName

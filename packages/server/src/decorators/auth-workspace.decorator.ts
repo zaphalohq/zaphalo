@@ -8,9 +8,9 @@ export const AuthWorkspace = createParamDecorator(
 
     const user = request.user
     const workspaceId = request.headers['x-workspace-id'];
-    const currentUserWorkspace = user.user.workspaces.find(
+    const currentUserWorkspace = user.user.workspaceMembers.find(
       (userWorkspace) => userWorkspace.workspace.id === workspaceId,
     );
-    return currentUserWorkspace ? currentUserWorkspace.workspace : user.user.workspaces[0].workspace;
+    return currentUserWorkspace ? currentUserWorkspace.workspace : user.user.workspaceMembers[0].workspace;
   },
 );

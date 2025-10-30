@@ -1,11 +1,10 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-
 import { User } from 'src/modules/user/user.entity';
 import { Workspace } from 'src/modules/workspace/workspace.entity';
 import { WorkspaceMember } from 'src/modules/workspace/workspaceMember.entity';
-import { DataSource, Connection, createConnection, getConnectionManager, DataSourceOptions } from 'typeorm';
+import { DataSource, getConnectionManager, DataSourceOptions } from 'typeorm';
 import { typeORMWorkspaceModuleOptions } from 'src/database/typeorm/workspace/workspace.datasource';
-import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
+import { AppToken } from 'src/modules/app-token/app-token.entity';
 
 @Injectable()
 export class TypeORMService implements OnModuleInit, OnModuleDestroy {
@@ -23,6 +22,7 @@ export class TypeORMService implements OnModuleInit, OnModuleDestroy {
         User,
         Workspace,
         WorkspaceMember,
+        AppToken
       ],
       ssl: undefined,
     });

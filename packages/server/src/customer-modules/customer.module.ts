@@ -1,30 +1,32 @@
 import { Module } from '@nestjs/common';
 import { ContactsModule } from './contacts/contacts.module';
-import { channelModule } from './channel/channel.module';
-// import { TemplateModule } from './template/template.module';
+import { ChannelModule } from './channel/channel.module';
 import { MailingListModule } from './mailingList/mailingList.module';
 import { BroadcastModule } from './broadcast/broadcast.module';
 import { WhatsAppModule } from './whatsapp/whatsapp.module';
+import { WhatsAppWebhookModule } from './whatsapp-webhook/whatsapp-webhook.module';
 import { AttachmentModule } from 'src/customer-modules/attachment/attachment.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
     ContactsModule,
-    channelModule,
-    // TemplateModule,
+    ChannelModule,
     MailingListModule,
     BroadcastModule,
     WhatsAppModule,
     AttachmentModule,
+    WhatsAppWebhookModule,
+    DashboardModule,
   ],
   exports: [
     ContactsModule,
-    channelModule,
-    // TemplateModule,
+    ChannelModule,
     MailingListModule,
     BroadcastModule,
     WhatsAppModule,
-    AttachmentModule
+    AttachmentModule,
+    WhatsAppWebhookModule,
   ],
 })
 export class CustomerModule { }

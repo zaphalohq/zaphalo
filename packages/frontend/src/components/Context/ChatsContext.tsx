@@ -24,6 +24,7 @@ export const ChatsProvider = ({ children }: any) => {
             receiverId: [],
             profileImg: '',
             channelName: '',
+            sender: '',
             memberIds: '',
             channelId: '',
             phoneNo: '',
@@ -34,19 +35,18 @@ export const ChatsProvider = ({ children }: any) => {
     })
 
     const [newMessage, setNewMessage] = useState([{
+            id: '',
+            sender: '',
             channelId: '',
             phoneNo: '',
+            messageId: '',
             textMessage: [],
             unseen: 0,
         }])
 
     const [ isNewChannelCreated, setIsNewChannelCreated ] = useState(false);
 
-    const [myCurrentMessage, setMyCurrentMessage] = useState({
-        message: '',
-        count: 0,
-        attachmentUrl : ''
-    })
+    const [myCurrentMessage, setMyCurrentMessage] = useState([])
 
     const [ isUpdateChannelName, setIsUpdateChannelName] = useState(false)
 

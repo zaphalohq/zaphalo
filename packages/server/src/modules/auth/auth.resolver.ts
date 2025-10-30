@@ -23,7 +23,7 @@ export class AuthResolver {
     if (!user) {
       throw new Error('Invalid credentials');
     }
-    const workspace = user.workspaces ? user.workspaces[0].workspace : null
+    const workspace = user.workspaceMembers ? user.workspaceMembers[0].workspace : null
     if (!workspace){
       throw new Error("User workspace does not setup.");
     }
@@ -42,10 +42,8 @@ export class AuthResolver {
       lastName,
       email,
       password,
-      // picture,
       workspaceId,
       workspaceInviteToken,
-      // local,
     } = UserInput;
 
       const existingUser = await this.userRepository.findOne({
@@ -106,7 +104,6 @@ export class AuthResolver {
   @Mutation(() => AuthResponse)
   async getAuthTokensFromLoginToken(
     @Args('loginToken') loginToken: string,
-    // @OriginHeader() origin: string,
   ) {
     return this.authService.verifyToken(loginToken)
   }

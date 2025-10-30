@@ -1,15 +1,15 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { Connection, Repository } from 'typeorm';
+import { Injectable } from "@nestjs/common";
 import { HttpService } from '@nestjs/axios';
-import axios from "axios";
-import path from 'path';
 import fs from 'fs/promises';
-
+import { join } from 'path';
 import { WhatsAppAccount } from "src/customer-modules/whatsapp/entities/whatsapp-account.entity";
-// import { WhatsAppAccountService } from "./whatsapp-account.service";
-import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
-
+import FormData from 'form-data';
+import { createReadStream } from "fs";
 const DEFAULT_ENDPOINT = "https://graph.facebook.com/v23.0"
+import {
+  WhatsAppException,
+  WhatsAppExceptionCode,
+} from 'src/customer-modules/whatsapp/whatsapp.exception';
 
 @Injectable()
 export class WhatsAppSDKService {
@@ -19,63 +19,66 @@ export class WhatsAppSDKService {
 }
 
 export class WhatsAppApiService {
-  private readonly wa_account_id: WhatsAppAccount;
-  private readonly phone_uid: String;
-  private readonly token: String;
+  private readonly waAccount: WhatsAppAccount;
+  private readonly phoneUid: String;
+  public readonly token: String;
   private readonly httpService: HttpService;
   private readonly is_shared_account: boolean;
 
   constructor(
     private readonly whatsAppAccount: WhatsAppAccount,
   ) {
-    this.wa_account_id = whatsAppAccount
-    this.phone_uid = whatsAppAccount.phoneNumberId;
+    this.waAccount = whatsAppAccount
+    this.phoneUid = whatsAppAccount.phoneNumberId;
     this.token = whatsAppAccount.accessToken;
     this.httpService = new HttpService();
-    this.is_shared_account = false
-    // this.templateRepository = connection.getRepository(Template);
   }
 
   async apiRequests(params: {
-    request_type: string,
+    requestType: string,
     url: string,
-    auth_type?: string,
+    authType?: string,
     params?: {},
     headers?: {},
     data?: {},
-    files?: false,
-    endpoint_include?: boolean
+    responseType?: string
+    endpointInclude?: boolean,
   }) {
 
     let headers = params.headers || {}
-    // const params = params.params || {}
     let res;
-    if (!this.token || !this.phone_uid) {
+    if (!this.token || !this.phoneUid) {
       throw new Error("To use WhatsApp Configure it first")
     }
-    if (params.auth_type == 'oauth') {
+    if (params.authType == 'oauth') {
       headers = {
         ...headers,
         Authorization: `OAuth ${this.token}`,
       }
     }
-    if (params.auth_type == 'bearer') {
+    if (params.authType == 'bearer') {
       headers = {
         ...headers,
         Authorization: `Bearer ${this.token}`,
       }
     }
-    const call_url = !params.endpoint_include ? (DEFAULT_ENDPOINT + params.url) : params.url
+
+    const callUrl = !params.endpointInclude ? (DEFAULT_ENDPOINT + params.url) : params.url
+
+    const requestParams = {
+      'method': params.requestType,
+      'url': callUrl,
+      'params': params.params,
+      'headers': headers,
+      'data': params.data,
+      'timeout': 30000,
+    }
+    if (params.responseType){
+      requestParams['responseType'] = params.responseType
+    }
 
     try {
-      res = await this.httpService.axiosRef({
-        'method': params.request_type,
-        'url': call_url,
-        'params': params.params,
-        'headers': headers,
-        'data': params.data,
-        'timeout': 30000
-      })
+      res = await this.httpService.axiosRef(requestParams)
     } catch (err) {
       console.error(
         `WhatsApp network failure: ${err?.message}`,
@@ -83,10 +86,10 @@ export class WhatsAppApiService {
       return err;
     }
 
-    // raise if json-parseable and 'error' in json
     try {
-      if ('error' in res)
+      if ('error' in res){
         throw new Error(JSON.stringify(res.data))
+      }
     } catch (err) {
       console.error(
         `WhatsApp network failure: ${err?.message}`,
@@ -96,23 +99,23 @@ export class WhatsAppApiService {
     return res
   }
 
-  prepare_error_response(response) {
+  prepareErrorResponse(response) {
     //
     //  This method is used to prepare error response
     //  :return tuple[str, int]: (error_message, whatsapp_error_code | -1)
     //
-    if (response.response.data.error) {
+    if (response?.response?.data?.error) {
       const error = response.response.data.error;
       let desc = error.message;
       desc += (' - ' + (error.error_user_title ? error.error_user_title : ''));
       desc += ('\n\n' + (error.error_user_msg ? error.error_user_msg : ''));
-      let code = error.code || 'Yaari';
+      let code = error.code || 'ZapHalo';
       return (desc ? desc : ["Non-descript Error", code]);
     }
     return ["Something went wrong when contacting WhatsApp, please try again later. If this happens frequently, contact support.", -1]
   }
 
-  async getAllTemplate(fetch_all = true) {
+  async getAllTemplate(fetchAll: boolean = true) {
     // """
     //     This method is used to get all the template from the WhatsApp Business Account
 
@@ -121,44 +124,42 @@ export class WhatsAppApiService {
     // if self.is_shared_account:
     //     raise WhatsAppError(failure_type='account')
 
-    let template_url = `/${this.wa_account_id.businessAccountId}/message_templates?fields=name,components,language,status,category,id,quality_score`
-    console.info("Sync templates for account %s [%s]", this.wa_account_id.name, this.wa_account_id.id)
+    let templateUrl = `/${this.waAccount.businessAccountId}/message_templates?fields=name,components,language,status,category,id,quality_score`
+    console.info("Sync templates for account %s [%s]", this.waAccount.name, this.waAccount.id)
 
-    let final_response: any[] = new Array()
-    if (fetch_all) {
-      // # Fetch 200 templates at once
-      template_url = template_url + "&limit=1";
-      let endpoint_include = false;
-      while (template_url) {
+    let finalResponse: any[] = new Array()
+    if (fetchAll) {
+      templateUrl = templateUrl + "&limit=1";
+      let endpointInclude = false;
+      while (templateUrl) {
         let response = await this.apiRequests({
-          "request_type": "GET",
-          "url": template_url,
-          "auth_type": "bearer",
-          "endpoint_include": endpoint_include
+          "requestType": "GET",
+          "url": templateUrl,
+          "authType": "bearer",
+          "endpointInclude": endpointInclude
         })
-        // response_json = response.data
-        if (final_response) {
+        if (finalResponse) {
           // # Add fetched data to existing response
-          let response_data = response.data.data
-          final_response = [...final_response, ...response_data];
+          let responseData = response.data.data
+          finalResponse = [...finalResponse, ...responseData];
         } else {
-          final_response = response.data.data
+          finalResponse = response.data.data
         }
         // # Fetch the next URL if it exists in response to fetch more templates
-        template_url = response.data?.paging?.next
-        endpoint_include = template_url !== undefined;
+        templateUrl = response.data?.paging?.next
+        endpointInclude = templateUrl !== undefined;
       }
     }
     else {
       let response = await this.apiRequests({
-        "request_type": "GET",
-        "url": template_url,
-        "auth_type": "bearer"
+        "requestType": "GET",
+        "url": templateUrl,
+        "authType": "bearer"
       });
-      final_response = response.data
+      finalResponse = response.data
     }
 
-    return final_response
+    return finalResponse
   }
 
   async getTemplateData(waTemplateId) {
@@ -170,72 +171,75 @@ export class WhatsAppApiService {
     // if self.is_shared_account:
     //     raise WhatsAppError(failure_type='account')
 
-    console.info("Get template details for template uid %s using account %s [%s]", waTemplateId, this.wa_account_id.name, this.wa_account_id.id)
+    console.info("Get template details for template uid %s using account %s [%s]", waTemplateId, this.waAccount.name, this.waAccount.id)
     const response = await this.apiRequests({
-      "request_type": "GET",
+      "requestType": "get",
       "url": `/${waTemplateId}?fields=name,components,language,status,category,id,quality_score`,
-      "auth_type": "bearer"
+      "authType": "bearer"
     })
+    if(response.status != 200){
+      throw new WhatsAppException(
+        this.prepareErrorResponse(response),
+        WhatsAppExceptionCode.TEMPLATE_NOT_SUBMITED,
+      );
+    }
     return response.data
   }
 
 
 
   async uploadDemoDocument(attachment?: any) {
-    // """
-    //     This method is used to get a handle to later upload a demo document.
-    //     Only use for template registration.
-
-    //     API documentation https://developers.facebook.com/docs/graph-api/guides/upload
-    // """
+    //API documentation https://developers.facebook.com/docs/graph-api/guides/upload
     const { filename, mimetype, path, size }: any = attachment;
-
-    //......................its need if we use 
-    const buffer = await fs.readFile(path)
-    if (this.is_shared_account)
-      throw new Error("Account not properly configured")
+    const fileBuffer = await fs.readFile(path)
+    const fileLength = fileBuffer.length;
 
     // Open session
-    const appId = this.wa_account_id.appId
+    const appId = this.waAccount.appId
     const params = {
-      'file_length': attachment.file_size,
+      'file_name': attachment.originalname,
+      'file_length': fileLength,
       'file_type': attachment.mimetype,
       'access_token': this.token,
     }
-    console.info("Open template sample document upload session with file size %s Bites of mimetype %s on account %s [%s]", attachment.file_size, attachment.mimetype, this.wa_account_id.name, this.wa_account_id.id)
-    const uploads_session_response = await this.apiRequests({
-      "request_type": "POST",
+    console.info("Open template sample document upload session with file size %s Bites of mimetype %s on account %s [%s]", fileLength, attachment.mimetype, this.waAccount.name, this.waAccount.id)
+    // const uploadsSessionResponse = await this.post(
+    //   url: `/${appId}/uploads`,
+    //   params: params
+    // )
+    const uploadsSessionResponse = await this.apiRequests({
+      "requestType": "post",
       "url": `/${appId}/uploads`,
       "params": params
     })
-    const uploads_session_response_json = uploads_session_response.data
-    const upload_session_id = uploads_session_response_json.id
-    if (!upload_session_id)
+
+    const uploadsSessionResponseJson = uploadsSessionResponse.data
+    const uploadSessionId = uploadsSessionResponseJson.id
+
+    if (!uploadSessionId)
       throw new Error("Document upload session open failed, please retry after sometime.")
 
     // Upload file
-    console.info("Upload sample document on the opened session using account %s [%s]", this.wa_account_id.name, this.wa_account_id.id)
-    const upload_file_response = await this.apiRequests({
-      "request_type": "POST",
-      "url": `/${upload_session_id}`,
+    console.info("Upload sample document on the opened session using account %s [%s]", this.waAccount.name, this.waAccount.id)
+
+    const uploadFileResponse = await this.apiRequests({
+      "requestType": "post",
+      "url": `/${uploadSessionId}`,
       "params": params,
-      "auth_type": "oauth",
+      "authType": "oauth",
       "headers": { 'file_offset': '0' },
-      data: {
-        'data-binary': buffer
-      }
+      "data": fileBuffer
     })
-    const upload_file_response_json = upload_file_response.data
-    const file_handle = upload_file_response_json.h
-    if (!file_handle)
+
+    const uploadFileResponseJson = uploadFileResponse.data
+    const fileHandle = uploadFileResponseJson.h
+
+    if (!fileHandle)
       throw new Error("Document upload failed, please retry after sometime.")
-    return file_handle
+    return fileHandle
   }
 
-  private countWhatsappSend = 0
   async submitTemplateNew(json_data) {
-    console.log(this.countWhatsappSend +1,'countWhatsappSendcountWhatsappSendcountWhatsappSend');
-    
     // """
     //     This method is used to submit template for approval
     //     If template was submitted before, we have wa_template_uid and we call template update URL
@@ -245,24 +249,28 @@ export class WhatsAppApiService {
     if (this.is_shared_account) {
       throw new Error("Account not properly configured")
     }
-
-    console.info("Submit new template for account %s [%s]", this.wa_account_id.name, this.wa_account_id.id)
+    console.info("Submit new template for account %s [%s]", this.waAccount.name, this.waAccount.id)
     const response = await this.apiRequests({
-      "request_type": "POST",
-      "url": `/${this.wa_account_id.businessAccountId}/message_templates`,
-      "auth_type": "bearer",
+      "requestType": "post",
+      "url": `/${this.waAccount.businessAccountId}/message_templates`,
+      "authType": "bearer",
       "headers": { "Content-Type": "application/json" },
       "data": json_data
     })
     const response_data = response.data
-    if (response.data?.id) {
+    if (response_data?.id) {
       return {
         'success': response.status == 200,
-        "data": response.data ? JSON.stringify(response.data) : undefined,
-        "error": response.error ? JSON.stringify(response.error) : undefined,
+        "data": response.data,
+        "error": response.error,
       }
     }
-    throw new Error(this.prepare_error_response(response))
+
+    throw new WhatsAppException(
+      this.prepareErrorResponse(response),
+      WhatsAppExceptionCode.MOBILE_NUMBER_NOT_VALID,
+    );
+    // return this.prepareErrorResponse(response)
   }
 
   async sendTemplateMsg(json_data) {
@@ -270,19 +278,16 @@ export class WhatsAppApiService {
       throw new Error("Account not properly configured")
     }
 
-    console.info("Submit new template for account %s [%s]", this.wa_account_id.name, this.wa_account_id.id)
+    console.info("Submit new template for account %s [%s]", this.waAccount.name, this.waAccount.id)
     const response = await this.apiRequests({
-      "request_type": "POST",
-      "url": `/${this.wa_account_id.phoneNumberId}/messages`,
-      "auth_type": "bearer",
+      "requestType": "post",
+      "url": `/${this.waAccount.phoneNumberId}/messages`,
+      "authType": "bearer",
       "headers": { "Content-Type": "application/json" },
       "data": json_data
     })
     const response_data = response.data
-    console.log(response,'..................');
-    console.log(response.data,'..................');
 
-    
     return response_data
     // throw new Error(this.prepare_error_response(response))
   }
@@ -291,16 +296,16 @@ export class WhatsAppApiService {
     if (this.is_shared_account) {
       throw new Error("Account not properly configured")
     }
-    console.info("Update template : %s for account %s [%s]", waTemplateId, this.wa_account_id.name, this.wa_account_id.id)
+    console.info("Update template : %s for account %s [%s]", waTemplateId, this.waAccount.name, this.waAccount.id)
     const response = await this.apiRequests({
-      "request_type": "POST",
+      "requestType": "post",
       "url": `/${waTemplateId}`,
-      "auth_type": "bearer",
+      "authType": "bearer",
       "headers": { 'Content-Type': 'application/json' },
       "data": json_data
     })
     const response_data = response.data
-    if (response_data?.success)
+    if (response_data?.success){
       return {
         'id': response_data.id,
         'status': response.status,
@@ -308,7 +313,8 @@ export class WhatsAppApiService {
         "data": response.data ? JSON.stringify(response.data) : undefined,
         "error": response.error ? JSON.stringify(response.error) : undefined,
       }
-    throw new Error(this.prepare_error_response(response))
+    }
+    return this.prepareErrorResponse(response)
   }
 
   async syncTemplate() {
@@ -316,148 +322,163 @@ export class WhatsAppApiService {
       throw new Error("Account not properly configured")
     }
     const response = await this.apiRequests({
-      "request_type": "GET",
-      "url": `/${this.wa_account_id.businessAccountId}/message_templates`,
-      "auth_type": "bearer"
+      "requestType": "get",
+      "url": `/${this.waAccount.businessAccountId}/message_templates`,
+      "authType": "bearer"
     })
+    if(response.status == 401){
+      throw Error(response.response.statusText);
+    }
     return response.data.data
   }
 
-
-
-  async sendWhatsApp(number, message_type, send_vals, parent_message_id = false) {
+  async sendWhatsApp(
+    // json_data
+    number,
+    messageType,
+    sendVals,
+    parentMessage = false
+  ) {
     // """ Send WA messages for all message type using WhatsApp Business Account
 
     // API Documentation:
     //     Normal        - https://developers.facebook.com/docs/whatsapp/cloud-api/guides/send-messages
     //     Template send - https://developers.facebook.com/docs/whatsapp/cloud-api/guides/send-message-templates
     // """
-    let data = [{
+
+    let data = {
       'messaging_product': 'whatsapp',
       'recipient_type': 'individual',
       'to': number
-    }];
-    // if there is parent_message_id then we send message as reply
-    if (parent_message_id) {
-      data['context'] = { 'message_id': parent_message_id };
+    };
+    // // if there is parent_message_id then we send message as reply
+    if (parentMessage) {
+      data['context'] = { 'message_id': parentMessage };
     }
-    if (message_type in ['template', 'text', 'document', 'image', 'audio', 'video']) {
-      data['type'] = message_type;
-      data['message_type'] = send_vals;
+    if (['template', 'text', 'document', 'image', 'audio', 'video'].includes(messageType)) {
+      data['type'] = messageType;
+      data[messageType] = sendVals;
     }
     const json_data = JSON.stringify(data)
-    console.info("Send %s message from account %s [%s]", message_type, this.wa_account_id.name, this.wa_account_id.id)
+    console.info("Send %s message from account %s [%s]", messageType, this.waAccount.name, this.waAccount.id)
     const response = await this.apiRequests({
-      "request_type": "POST",
-      "url": `/${this.phone_uid}/messages`,
-      "auth_type": "bearer",
+      "requestType": "post",
+      "url": `/${this.phoneUid}/messages`,
+      "authType": "bearer",
       "headers": { 'Content-Type': 'application/json' },
       "data": json_data
     })
+
     const response_data = response.data
     if (response_data?.messages) {
       let msg_uid = response_data.messages[0].id;
       return msg_uid
     }
-    throw new Error(this.prepare_error_response(response))
+    throw new WhatsAppException(
+      this.prepareErrorResponse(response),
+      WhatsAppExceptionCode.MOBILE_NUMBER_NOT_VALID,
+    );
+  }
+
+  async getMediaUrl(mediaId: string) {
+    const response = await this.apiRequests({
+      "requestType": "get",
+      "url": `/${mediaId}`,
+      "authType": "bearer",
+    })
+    const response_data = response.data
+    if (response_data) {
+      return response_data
+    }
+    throw new Error(this.prepareErrorResponse(response))
   }
 
   async getHeaderDataFromHandle(url) {
     // """ This method is used to get template demo document from url """
-    console.info("Get header data for url %s from account %s [%s]", url, this.wa_account_id.name, this.wa_account_id.id);
+    console.info("Get header data for url %s from account %s [%s]", url, this.waAccount.name, this.waAccount.id);
     const response = await this.apiRequests({
-      "request_type": "GET",
+      "requestType": "get",
       "url": url,
-      "endpoint_include": true
+      "endpointInclude": true,
+      'responseType': 'arraybuffer',
     })
-    const res = await this.httpService.axiosRef({
-      "method": "head", "url": url
-    });
-    if (!res) {
+    if (!response) {
       throw new Error("Res is null");
     }
-    const mimetype = res.headers;
-    console.log(".....................response..............", res);
-    const data = response.data;
-    return [data, mimetype]
+    return response
   }
 
-  async _get_whatsapp_document(document_id) {
+  async getWhatsAppDocument(documentId) {
     // """
     //     This method is used to get document from WhatsApp sent by user
 
     //     API Documentation: https://developers.facebook.com/docs/whatsapp/cloud-api/reference/media
     // """
-    console.info("Get document url for document uid %s from account %s [%s]", document_id, this.wa_account_id.name, this.wa_account_id.id)
+    console.info("Get document url for document uid %s from account %s [%s]", documentId, this.waAccount.name, this.waAccount.id)
     const response = await this.apiRequests({
-      "request_type": "GET",
-      "url": `/${document_id}`,
-      "auth_type": "bearer"
+      "requestType": "get",
+      "url": `/${documentId}`,
+      "authType": "bearer"
     })
-    const response_data = response.data
-    const file_url = response_data.url
-    console.info("Get document from url for account %s [%s]", this.wa_account_id.name, this.wa_account_id.id)
-    const file_response = await this.apiRequests({
-      "request_type": "GET",
-      "url": file_url,
-      "auth_type": "bearer",
-      "endpoint_include": true
+    const responseData = response.data
+    const fileUrl = responseData.url
+    console.info("Get document from url for account %s [%s]", this.waAccount.name, this.waAccount.id)
+    const fileResponse = await this.apiRequests({
+      "requestType": "get",
+      "url": fileUrl,
+      "authType": "bearer",
+      "endpointInclude": true,
+      'responseType': 'arraybuffer',
     })
-    return file_response.content
+    return [responseData, fileResponse.data]
   }
 
-  async _upload_whatsapp_document(self, attachment) {
+  async uploadWhatsappDocument(attachment) {
     // """
     //     This method is used to upload document for sending via WhatsApp
 
     //     API Documentation: https://developers.facebook.com/docs/whatsapp/cloud-api/reference/media
     // """
-    const { filename, mimetype, path, size }: any = attachment;
-    const buffer = await fs.readFile(path)
+    const { filename, originalname, mimetype, path, size }: any = attachment;
 
-    const files = [['file', [filename, buffer, mimetype]]]
-    const payload = { 'messaging_product': 'whatsapp', 'file': files }
-    // const params = {
-    //     'file_name': filename,
-    //     'file_length': attachment.file_size,
-    //     'file_type': attachment.mimetype,
-    //     'access_token': this.token,
-    // }
-    console.info("Upload document of mimetype %s for phone uid %s", mimetype, this.phone_uid)
-    const response = self.apiRequests({
-      "request_type": "POST",
-      "url": `/${self.phone_uid}/media`,
-      "auth_type": 'bearer',
-      "data": payload,
+    const filePath = join(
+      process.cwd(),
+      path
+    );
+
+    const form = new FormData();
+    form.append('messaging_product', 'whatsapp');
+    form.append('file', createReadStream(filePath), {
+      filename: originalname,
+      contentType: mimetype,
+    });
+
+    console.info("Upload document of mimetype %s for phone uid %s", mimetype, this.phoneUid)
+    const response = await this.apiRequests({
+      "requestType": "post",
+      "url": `/${this.phoneUid}/media`,
+      "authType": 'bearer',
+      "data": form,
     })
     const response_data = response.data
     if (response_data?.id) {
       return response_data.id
     }
-    throw new Error(this.prepare_error_response(response));
+    throw new Error(this.prepareErrorResponse(response));
   }
 
 
-  async testInstants() {
-    if (this.is_shared_account) {
-      throw new Error("Account not properly configured")
-    }
-    const response = await this.apiRequests({
-      "request_type": "GET",
-      "url": `/${this.wa_account_id.phoneNumberId}?access_token=${this.token}`,
-      // "auth_type": "bearer"
-    })
-    return response.data
-  }
-
-  async _test_connection() {
+  async testConnection() {
     // """ This method is used to test connection of WhatsApp Business Account"""
-    // console.info("Test connection: Verify set phone uid is available in account %s [%s]", this.wa_account_id.name, this.wa_account_id.id)
+    // console.info("Test connection: Verify set phone uid is available in account %s [%s]", this.waAccount.name, this.waAccount.id)
     const response = await this.apiRequests({
-      'request_type': "GET",
-      'url': `/${this.wa_account_id.businessAccountId}/phone_numbers`,
-      'auth_type': 'bearer',
+      'requestType': "get",
+      'url': `/${this.waAccount.businessAccountId}/phone_numbers`,
+      'authType': 'bearer',
     })
+    if(response.status == 403){
+      throw Error(this.prepareErrorResponse(response));
+    }
     const data = response.data.data
     let phone_values: String[] = new Array();
 
@@ -465,17 +486,17 @@ export class WhatsAppApiService {
       phone_values.push(data[key].id);
     }
 
-    if (!Object.values(phone_values).includes(this.wa_account_id.phoneNumberId))
+    if (!Object.values(phone_values).includes(this.waAccount.phoneNumberId))
       throw new Error("Phone number Id is wrong.")
-    console.info(`Test connection: check app uid and token set in account ${this.wa_account_id.name} ${this.wa_account_id.id}`);
+    console.info(`Test connection: check app uid and token set in account ${this.waAccount.name} ${this.waAccount.id}`);
     const uploads_session_response = await this.apiRequests({
-      "request_type": "POST",
-      'url': `/${this.wa_account_id.appId}/uploads`,
+      "requestType": "post",
+      'url': `/${this.waAccount.appId}/uploads`,
       'params': { 'access_token': this.token },
     })
     const upload_session_id = uploads_session_response.data.id
     if (!upload_session_id)
-      throw new Error(this.prepare_error_response(uploads_session_response))
-    return
+      throw new Error(this.prepareErrorResponse(uploads_session_response))
+    return `Test connection: success for account ${this.waAccount.name}`;
   }
 }

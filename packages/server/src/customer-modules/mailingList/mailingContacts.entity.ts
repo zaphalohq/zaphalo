@@ -1,4 +1,4 @@
-import { Field, Float, Int, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType } from '@nestjs/graphql';
 import { IDField } from '@ptc-org/nestjs-query-graphql';
 import {
     Column,
@@ -27,7 +27,9 @@ export class MailingContacts {
     contactNo: string;
 
     @Field(() => MailingList)
-    @ManyToOne(() => MailingList, MailingList => MailingList.mailingContacts)
+    @ManyToOne(() => MailingList, MailingList => MailingList.mailingContacts, {
+        onDelete: 'CASCADE'
+    })
     mailingList: Relation<MailingList>
 
     @Field(() => String)

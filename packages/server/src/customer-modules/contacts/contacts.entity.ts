@@ -10,8 +10,9 @@ import {
   PrimaryGeneratedColumn,
   Relation
 } from "typeorm";
-import { Message } from "src/customer-modules/channel/message.entity";
-import { Channel } from "src/customer-modules/channel/channel.entity";
+
+import { Message } from "src/customer-modules/channel/entities/message.entity";
+import { Channel } from "src/customer-modules/channel/entities/channel.entity";
 import { UUIDScalarType } from "src/modules/api/scalars/uuid.scalar";
 
 
@@ -27,16 +28,12 @@ export class Contacts {
   @Field()
   contactName: string;
 
-  @Column({ type: 'bigint' })
-  @Field(() => Float)
-  phoneNo: number;
-
-  @Field(() => [Message])
-  @OneToMany(() => Message, (message) => message.sender)
-  messages: Relation<Message[]>;
+  @Column({ type: 'varchar' })
+  @Field(() => String)
+  phoneNo: string;
 
   @Field(() => [Channel])
-  @ManyToMany(() => Channel, channel => channel.contacts)
+  @ManyToMany(() => Channel, channel => channel.channelMembers)
   @JoinColumn({ name: 'channel' })
   channel: Relation<Channel[]>
 
@@ -44,12 +41,28 @@ export class Contacts {
   @Field(() => String, { nullable: true })
   profileImg?: string;
 
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  street?: string;
+
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  city?: string;
+
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  state?: string;
+
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  country?: string
+
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  zipcode?: string;
+
   @CreateDateColumn()
   @Field()
   createdAt: Date;
-
-  @Column({ type: 'boolean', default: false, nullable: true })
-  @Field(() => Boolean)
-  defaultContact: boolean;
 
 }

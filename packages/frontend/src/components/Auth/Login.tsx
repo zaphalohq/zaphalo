@@ -7,9 +7,11 @@ import { cookieStorage } from '@src/utils/cookie-storage';
 import { useSignInWithGoogle } from '@src/modules/auth/hooks/useSignInWithGoogle';
 import { workspacesState } from '@src/modules/auth/states/workspaces';
 import { currentUserWorkspaceState } from '@src/modules/auth/states/currentUserWorkspaceState';
+import { authProvidersState } from '@src/modules/system-config/states/authProvidersState';
 
 function Login() {
   const [currentUserWorkspace] = useRecoilState(currentUserWorkspaceState);
+  const [authProviders] = useRecoilState(authProvidersState);
   const { signInWithGoogle } = useSignInWithGoogle();
   const setWorkspaces = useSetRecoilState(workspacesState);
   const [login, { data, loading, error }] = useMutation(LoginMutation);
@@ -130,27 +132,30 @@ function Login() {
                 </button>
               </div>
             </form>
-            <div className="my-8 flex items-center">
-              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-              <span className="px-4 text-gray-300 text-sm">or</span>
-              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-            </div>
+            {authProviders.google &&
+              <>
+              <div className="my-8 flex items-center">
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+                <span className="px-4 text-gray-300 text-sm">or</span>
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+              </div>
 
-            <button
-              type="button"
-              onClick={signInWithGoogle}
-              className="w-full cursor-pointer bg-white/10 backdrop-blur-sm border border-white/20 text-white font-medium py-4 px-6 rounded-xl 
-                       hover:bg-white/20 transition-all duration-200 transform hover:scale-[1.02] 
-                       shadow-lg hover:shadow-xl group relative overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-              <span className="relative flex items-center justify-center">
-                <svg className="w-5 h-5 mr-3" viewBox="0 0 18 19" fill="none">
-                  <path fillRule="evenodd" clipRule="evenodd" d="M8.842 18.083a8.8 8.8 0 0 1-8.65-8.948 8.841 8.841 0 0 1 8.8-8.652h.153a8.464 8.464 0 0 1 5.7 2.257l-2.193 2.038A5.27 5.27 0 0 0 9.09 3.4a5.882 5.882 0 0 0-.2 11.76h.124a5.091 5.091 0 0 0 5.248-4.057L14.3 11H9V8h8.34c.066.543.095 1.09.088 1.636-.086 5.053-3.463 8.449-8.4 8.449l-.186-.002Z" fill="currentColor" />
-                </svg>
-                Continue with Google
-              </span>
-            </button>
+              <button
+                type="button"
+                onClick={signInWithGoogle}
+                className="w-full cursor-pointer bg-white/10 backdrop-blur-sm border border-white/20 text-white font-medium py-4 px-6 rounded-xl
+                         hover:bg-white/20 transition-all duration-200 transform hover:scale-[1.02]
+                         shadow-lg hover:shadow-xl group relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                <span className="relative flex items-center justify-center">
+                  <svg className="w-5 h-5 mr-3" viewBox="0 0 18 19" fill="none">
+                    <path fillRule="evenodd" clipRule="evenodd" d="M8.842 18.083a8.8 8.8 0 0 1-8.65-8.948 8.841 8.841 0 0 1 8.8-8.652h.153a8.464 8.464 0 0 1 5.7 2.257l-2.193 2.038A5.27 5.27 0 0 0 9.09 3.4a5.882 5.882 0 0 0-.2 11.76h.124a5.091 5.091 0 0 0 5.248-4.057L14.3 11H9V8h8.34c.066.543.095 1.09.088 1.636-.086 5.053-3.463 8.449-8.4 8.449l-.186-.002Z" fill="currentColor" />
+                  </svg>
+                  Continue with Google
+                </span>
+              </button>
+              </>
+            }
 
             <div className="mt-8 text-center">
               <p className="text-gray-400 text-sm">

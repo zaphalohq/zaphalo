@@ -113,7 +113,7 @@ export const ContactsProvider = ({ children }: { children: ReactNode }) => {
             })
             HandleFetchData()
         } catch (err) {
-            console.error("error from HandleDeleteInstants", err)
+            console.error("error from deletecontact", err)
         }
     }
 

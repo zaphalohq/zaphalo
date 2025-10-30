@@ -8,7 +8,7 @@ const SubmitButton = ({ title, type, onClick, Icon } : {
 }) => {
   return (
     <div>
-      <button type={type} onClick={onClick} className='w-full cursor-pointer bg-violet-500 hover:bg-violet-600 text-white rounded p-2 px-8 flex items-center justify-center gap-4' >
+      <button type={type} onClick={onClick} className='w-full cursor-pointer bg-green-500 hover:bg-green-600 text-white rounded p-2 px-8 flex items-center justify-center gap-4' >
         <div  >{Icon ? <Icon /> : null }</div>
         <div>{title}</div>
       </button>

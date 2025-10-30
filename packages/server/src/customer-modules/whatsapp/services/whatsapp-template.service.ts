@@ -2,105 +2,71 @@ import axios from "axios";
 import cron from 'node-cron';
 import path from 'path';
 import fs from 'fs/promises';
+import * as mime from 'mime-types';
 import { Connection, ILike, In, Repository } from 'typeorm';
 import { Inject, Injectable } from "@nestjs/common";
-import { WhatsAppTemplate } from "../entities/whatsapp-template.entity";
+import {
+  WhatsAppTemplate,
+  TemplateHeaderType,
+  TemplateLanguage,
+  TemplateCategory,
+  TemplateStatus,
+  TemplateQuality } from "../entities/whatsapp-template.entity";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 import { WhatsAppSDKService } from './whatsapp-api.service'
 import { AttachmentService } from "src/customer-modules/attachment/attachment.service";
-import { WaAccountService } from "./whatsapp-account.service";
+import { WaAccountService, SUPPORTED_ATTACHMENT_TYPE } from "./whatsapp-account.service";
 import { Attachment } from "src/customer-modules/attachment/attachment.entity";
 import { Account } from "aws-sdk";
 import { WhatsAppAccount } from "../entities/whatsapp-account.entity";
-import { FindAllTemplate } from "../dtos/findAllTemplate.dto";
+import { TestTemplateOutput, WaTestTemplateInput } from "src/customer-modules/whatsapp/dtos/test-input.template.dto";
+import { FileService } from "src/modules/file-storage/services/file.service";
+import { v4 as uuidv4 } from 'uuid';
+import { join } from 'path';
+const LATITUDE_LONGITUDE_REGEX = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/;
+
+function slugify(text: string): string {
+  return text
+    .toString() // Ensure the input is a string
+    .normalize('NFD') // Decompose combined graphemes into separate ones
+    .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+    .toLowerCase() // Convert the string to lowercase
+    .trim() // Remove whitespace from both ends of a string
+    .replace(/\s+/g, '_') // Replace spaces with hyphens
+    .replace(/[^\w-]+/g, '') // Remove all non-word chars
+    .replace(/--+/g, '_'); // Replace multiple hyphens with a single one
+}
 
 
 @Injectable()
-export class TemplateService {
+export class WaTemplateService {
   private templateRepository: Repository<WhatsAppTemplate>
 
   constructor(
     @Inject(CONNECTION) connection: Connection,
     private readonly waAccountService: WaAccountService,
-    private readonly whatsAppApiService: WhatsAppSDKService,
     private readonly attachmentService: AttachmentService,
-
+    private fileService: FileService,
   ) {
     this.templateRepository = connection.getRepository(WhatsAppTemplate);
   }
 
-  // async submitTemplate(templateData: WaTemplateRequestInput): Promise<any> {
-  //   const findSelectedInstants = await this.waAccountService.findInstantsByInstantsId(templateData.accountId)
-  //   if (!findSelectedInstants)
-  //     throw new Error("Whatsapp configration missing!")
-  //   const wa_api = this.whatsAppApiService.getWhatsApp(findSelectedInstants)
+  async createTemplate(templateData) {
+    if (!templateData.whatsappAccountId) throw new Error('Template Whatsapp Account ID invalid!');
 
-  //   if (!findSelectedInstants) throw new Error('findSelectedInstants not found');
-  //   const businessId = findSelectedInstants?.businessAccountId
-  //   const accessToken = findSelectedInstants?.accessToken
-  //   // const variablesValue = templateData.variables.map((variable: any) => variable.value)
-  //   const payload = await this.generatePayload(templateData);
-
-  //   // try {
-  //   // const response = await axios({
-  //   //   url: `https://graph.facebook.com/v22.0/${businessId}/message_templates`,
-  //   //   method: 'POST',
-  //   //   headers: {
-  //   //     Authorization: `Bearer ${accessToken}`,
-  //   //     'Content-Type': 'application/json',
-  //   //   },
-  //   //   data: 
-  //   // });
-  //   const payload_json = JSON.stringify({ ...payload });
-  //   const response = await wa_api.submitTemplateNew(payload_json)
-  //   return response
-  //   //   const templateAPiResponse = response.data
-
-  //   //   if (templateAPiResponse.success || templateAPiResponse.id) {
-  //   //     const templateCreation = this.templateRepository.create({
-  //   //       templateId: templateAPiResponse.id,
-  //   //       status: templateAPiResponse.status.toLowerCase(),
-  //   //       ...templateData,
-  //   //     })
-
-  //   //     await this.templateRepository.save(templateCreation)
-
-  //   //     this.getTemplateStatusByCron(templateAPiResponse.id)
-  //   //     return {
-  //   //       success: true,
-  //   //       data: response.data,
-  //   //     };
-  //   //   }
-  //   // } catch (error) {
-  //   //   console.error({
-  //   //     success: false,
-  //   //     error: error.response?.data || error.message,
-  //   //   });
-  //   //   return {
-  //   //     success: false,
-  //   //     error: error.response?.data || error.message,
-  //   //   };
-  //   // }
-
-  // }
-
-  async saveTemplate(templateData, instantsId) {
-    let account: WhatsAppAccount | null = null;
-    if (instantsId) {
-      account = await this.waAccountService.findInstantsByInstantsId(instantsId);
-      if (!account) throw Error('template doesnt exist')
-    }
+    const account = await this.waAccountService.findInstantsByInstantsId(templateData.whatsappAccountId);
+    if (!account) throw Error("Whatsapp account doesn't found!")
 
     let attachment: Attachment | null = null;
 
     if (templateData.attachmentId) {
       attachment = await this.attachmentService.findOneAttachmentById(templateData.attachmentId);
-      if (!attachment) throw new Error('Attachment does not exist');
+      if (!attachment) throw new Error("Attachment doesn't found!");
     }
 
     const template = this.templateRepository.create({
+      name: slugify(templateData.templateName),
       templateName: templateData.templateName,
-      status: 'saved',
       category: templateData.category,
       language: templateData.language,
       headerType: templateData.headerType,
@@ -108,466 +74,616 @@ export class TemplateService {
       footerText: templateData.footerText,
       button: templateData.button,
       variables: templateData.variables,
+      account: account,
     });
-
-    if (account) {
-      template.account = account
-    }
 
     if (attachment) {
       template.templateImg = attachment.name;
       template.attachment = attachment;
     }
 
-
     await this.templateRepository.save(template);
-    return template;
-    // if (templateData.attachmentId) {
-    //   const attachment = await this.attachmentService.findOneAttachmentById(templateData.attachmentId)
-    //   if (!attachment) throw Error('attachment doesnt exist')
-    //   const newTemplate = this.templateRepository.create({
-    //     account: account,
-    //     templateName: templateData.templateName,
-    //     status: 'saved',
-    //     category: templateData.category,
-    //     language: templateData.language,
-    //     headerType: templateData.headerType,
-    //     bodyText: templateData.bodyText,
-    //     footerText: templateData.footerText,
-    //     button: templateData.button,
-    //     variables: templateData.variables,
-    //     templateImg: attachment.name,
-    //     attachment: attachment
-    //   });
-    //   await this.templateRepository.save(newTemplate);
-    //   return newTemplate;
-    // } else {
-    //   const newTemplate = this.templateRepository.create({
-    //     account: instantsId,
-    //     templateName: templateData.templateName,
-    //     status: 'saved',
-    //     category: templateData.category,
-    //     language: templateData.language,
-    //     headerType: templateData.headerType,
-    //     bodyText: templateData.bodyText,
-    //     footerText: templateData.footerText,
-    //     button: templateData.button,
-    //     variables: templateData.variables,
-    //   });
-    //   await this.templateRepository.save(newTemplate);
-    //   return newTemplate;
+    return {'template': template, 'message': 'Template saved', 'status': true}
   }
 
+  async updateTemplate(templateData) {
+    if (!templateData.templateId) throw new Error('Template ID invalid!');
+    if (!templateData.whatsappAccountId) throw new Error('Template Whatsapp Account ID invalid!');
 
+    const templateFind = await this.getTemplate(templateData.templateId)
+    if (!templateFind.template) throw Error("Template doesn't found!")
+    
+    const account = await this.waAccountService.findInstantsByInstantsId(templateData.whatsappAccountId);
+    if (!account) throw Error("Whatsapp account doesn't found!")
 
-  async updateTemplate(updatetemplateData, dbTemplateId, instantsId?: string) {
-    const template = await this.templateRepository.findOne({ where: { id: dbTemplateId } })
-    if (!template) throw Error("template doesn't exist")
-    if (instantsId) {
-      const account = await this.waAccountService.findInstantsByInstantsId(instantsId);
-      if (!account) throw Error('template doesnt exist')
-      template.account = account;
-    }
-    if (updatetemplateData.templateName) template.templateName = updatetemplateData.templateName;
-    if (updatetemplateData.status) template.status = updatetemplateData.status;
-    if (updatetemplateData.id) template.waTemplateId = updatetemplateData.id;
-    if (updatetemplateData.category) template.category = updatetemplateData.category;
-    if (updatetemplateData.language) template.language = updatetemplateData.language;
-    if (updatetemplateData.headerType) template.headerType = updatetemplateData.headerType;
-    if (updatetemplateData.headerText) template.headerText = updatetemplateData.headerText;
-    if (updatetemplateData.bodyText) template.bodyText = updatetemplateData.bodyText;
-    if (updatetemplateData.footerText) template.footerText = updatetemplateData.footerText;
-    if (updatetemplateData.button) template.button = updatetemplateData.button;
-    if (updatetemplateData.variables) template.variables = updatetemplateData.variables;
-    if (updatetemplateData.attachmentId) {
-      const attachment = await this.attachmentService.findOneAttachmentById(updatetemplateData.attachmentId)
-      if (!attachment) throw Error('attachment doesnt exist')
-      template.attachment = attachment;
-      template.templateImg = attachment.name;
-    }
-
-    await this.templateRepository.save(template);
-    return template;
-  }
-
-  async generatePayload(templateData: any, header_handle?: string) {
-    const variablesValue = templateData?.variables?.map((variable: any) => variable.value) || [];
-    const payload = {
-      name: templateData.templateName.toLowerCase().replace(/\s/g, '_'),
+    Object.assign(templateFind.template, {
+      name: slugify(templateData.templateName),
+      templateName: templateData.templateName,
+      account: account,
       category: templateData.category,
       language: templateData.language,
-      components: [
-        templateData.headerType === 'TEXT' && {
-          type: 'HEADER',
-          format: 'TEXT',
-          text: templateData.headerText,
-        },
-        templateData.headerType === 'IMAGE' && {
-          type: 'HEADER',
-          format: 'IMAGE',
-          example: {
-            header_handle: [header_handle],
-          },
-        },
-        templateData.headerType === 'VIDEO' && {
-          type: 'HEADER',
-          format: 'VIDEO',
-          example: {
-            header_handle: [header_handle],
-          },
-        },
-        templateData.headerType === 'DOCUMENT' && {
-          type: 'HEADER',
-          format: 'DOCUMENT',
-          example: {
-            header_handle: [header_handle],
-          },
-        },
-        {
-          type: 'BODY',
-          text: templateData.bodyText,
-          ...(variablesValue.length > 0 && {
-            example: {
-              body_text: [variablesValue]
-            }
-          })
-        },
-        templateData.footerText && {
-          type: 'FOOTER',
-          text: templateData.footerText,
-        },
-        (templateData.button?.length ?? 0) > 0 && {
-          type: 'BUTTONS',
-          buttons: templateData.button,
-        },
-      ].filter(Boolean),
-    };
+      headerType: templateData.headerType,
+      headerText: templateData.headerText,
+      bodyText: templateData.bodyText,
+      footerText: templateData.footerText,
+      button: templateData.button,
+      variables: templateData.variables,
+    })
 
-    return payload;
-  }
-
-  async getTemplateStatusByCron(waTemplateId: string) {
-    const findSelectedInstants = await this.waAccountService.FindSelectedInstants();
-    if (!findSelectedInstants) throw new Error('findSelectedInstants not found');
-
-    const accessToken = findSelectedInstants.accessToken;
-    const templateFromDb = await this.findTemplateByWaTemplateId(waTemplateId);
-    if (!templateFromDb) throw new Error("template not found in database");
-
-    const checkStatus = async () => {
-      const templateByApi = await this.getTemplateStatusByWhatsappApi(waTemplateId, accessToken);
-      const status = templateByApi?.data?.status?.toLowerCase();
-
-      if (status === 'approved') {
-        templateFromDb.status = 'approved';
-        await this.templateRepository.save(templateFromDb);
-        return true;
-      }
-
-      return false;
-    };
-
-    const immediateStatus = await checkStatus();
-    if (immediateStatus) {
-      return {
-        success: true,
-        message: 'Template approved immediately.',
-      };
+    if (templateData.attachmentId) {
+      const attachment = await this.attachmentService.findOneAttachmentById(templateData.attachmentId)
+      if (!attachment) throw Error('attachment doesnt exist')
+      templateFind.template.attachment = attachment;
+      templateFind.template.templateImg = attachment.name;
     }
 
-    const task = cron.schedule('*/10 * * * * *', async () => {
-      console.log('🔁 Running cron to check template status...');
-      const approved = await checkStatus();
+    await this.templateRepository.save(templateFind.template);
+    return {'template': templateFind.template, 'message': 'Broadcast saved', 'status': true}
+  }
 
-      if (approved) {
-        task.stop();
+  async getHeaderComponent(waTemplateId, freeTextJson, templateVariablesValue, attachment){
+    // """ Prepare header component for sending WhatsApp template message"""
+    let header = {}
+    const headerType = waTemplateId.headerType
+
+    if (headerType == 'text' && templateVariablesValue['header-{{1}}']){
+      var value = (freeTextJson || {})['header_text'] || templateVariablesValue['header-{{1}}'] || ' '
+      header = {
+          'type': 'header',
+          'parameters': [{'type': 'text', 'text': value}]
       }
+    }
+    else if(['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerType)){
+      header = {
+        "type": 'header',
+        "parameters": [await this.waAccountService.prepareAttachmentVals(attachment, waTemplateId.account)]
+      }
+    }
+    else if(headerType == 'location'){
+      header = {
+          "type": "header",
+          "parameters": [await this.prepareLocationVals(templateVariablesValue)]
+      }
+    }
+    return header
+  }
+
+  prepareLocationVals(templateVariablesValue){
+    // """ Prepare location values for sending WhatsApp template message having header type location"""
+    this.checkLocationLatitudeLongitude(templateVariablesValue['location-latitude'], templateVariablesValue['location-longitude'])
+    return {
+        'type': 'location',
+        'location': {
+            'name': templateVariablesValue['location-name'],
+            'address': templateVariablesValue['location-address'],
+            'latitude': templateVariablesValue['location-latitude'],
+            'longitude': templateVariablesValue['location-longitude'],
+        }
+    }
+  }
+
+  checkLocationLatitudeLongitude(latitude, longitude){
+    if (! LATITUDE_LONGITUDE_REGEX.test(`${latitude}, ${longitude}`)){
+      new Error(`Location Latitude and Longitude ${latitude} / ${longitude} is not in proper format.`)
+    }
+  }
+
+  getBodyComponent(waTemplateId, freeTextJson, templateVariablesValue){
+    if (waTemplateId.variables.length == 0){
+        return undefined
+    }
+    let parameters: any[] = []
+    let free_text_count = 1
+    for (const bodyVal of waTemplateId.variables)
+    {
+      parameters.push({
+          'type': 'text',
+          'text': bodyVal.value
+      })
+    }
+    return {'type': 'body', 'parameters': parameters}
+  }
+
+  getButtonComponents(waTemplateId, freeTextJson, templateVariablesValue){
+    // """ Prepare button component for sending WhatsApp template message"""
+    let components: any[] = []
+    return components
+  }
+
+  async getSendTemplateVals(waTemplateId){
+    const freeTextJson = {}
+    let attachment
+      
+    attachment = waTemplateId?.attachment
+
+    let components: any[] = []
+    const templateVariablesValue = waTemplateId?.variables?.map((v: any) => v.value) || [];
+
+    // # generate content
+    const header = await this.getHeaderComponent(waTemplateId, freeTextJson, templateVariablesValue, attachment)
+    let body = await this.getBodyComponent(waTemplateId, freeTextJson, templateVariablesValue)
+    let buttons = this.getButtonComponents(waTemplateId, freeTextJson, templateVariablesValue)
+    if (Object.keys(header).length !== 0){
+      components.push(header)
+    }
+    if (body){
+      components.push(body)
+    }
+    // components = components & buttons
+
+    let templateVals = {
+        'name': slugify(waTemplateId.templateName),
+        'language': {'code': waTemplateId.language},
+    }
+
+    if (components){
+      templateVals['components'] = components
+    }
+    return templateVals
+  }
+
+  getTemplateHeadComponent(waTemplateId, fileHandle){
+    // """Return header component according to header type for template registration to whatsapp"""
+    if (waTemplateId.headerType == 'NONE'){
+      return false
+    }
+    let headComponent;
+    headComponent = {'type': 'HEADER', 'format': waTemplateId.headerType}
+    if (waTemplateId.headerType == 'TEXT' && waTemplateId.headerText){
+      headComponent['text'] = waTemplateId.header_text
+    }
+
+    else if(['IMAGE', 'VIDEO', 'DOCUMENT'].includes(waTemplateId.headerType)){
+      headComponent['example'] = {
+        'header_handle': [fileHandle]
+      }
+    }
+    return headComponent
+  }
+
+  getTemplateBodyComponent(waTemplateId){
+    // """Return body component for template registration to whatsapp"""
+    if (!waTemplateId.bodyText){
+        return false
+    }
+    const body_component = {'type': 'BODY', 'text': waTemplateId.bodyText}
+
+    let body_params: any[] = []
+    for (const bodyVal of waTemplateId.variables){
+      body_params.push(bodyVal.value)
+    }
+    if (body_params.length > 0){
+      body_component['example'] = {'body_text': [body_params]}
+    }
+    return body_component
+  }
+
+  getTemplateButtonComponent(waTemplateId){
+    // """Return button component for template registration to whatsapp"""
+    if (!waTemplateId.buttons){
+      return false
+    }
+    let buttons: any[] = []
+    for (const button of waTemplateId.buttons) {
+      var buttonData = {
+        'type': button.type,
+        'text': button.text
+      }
+      if (button.type == 'URL'){
+        buttonData['url'] = button.website_url
+      }else if (button.type == 'PHONE_NUMBER'){
+        buttonData['phone_number'] = button.phone_number
+      }
+      buttons.push(buttonData)
+    }
+    return {'type': 'BUTTONS', 'buttons': buttons}
+  }
+
+  getTemplateFooterComponent(waTemplateId){
+    if (!waTemplateId.footer_text){
+      return false
+    }
+    return {'type': 'FOOTER', 'text': waTemplateId.footerText}
+  }
+
+  async submitTemplate(templateId){
+        // """Register template to WhatsApp Business Account """
+    const waTemplate = await this.templateRepository.findOne({
+      where: { id: templateId },
+      relations: ['account', 'attachment'],
+    })
+    if (!waTemplate) throw Error("template doesn't exist")
+
+    if (!waTemplate.category){
+      throw new Error("Template category is missing")
+    }
+
+    const waApi = await this.waAccountService.getWhatsAppApi(waTemplate.account.id)
+
+    let attachment;
+
+    if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(waTemplate.headerType)){
+      attachment = waTemplate.attachment
+      if (!attachment){
+        throw new Error("Header Document is missing")
+      }
+    }
+    let fileHandle = false
+
+    if (attachment){
+      try{
+        fileHandle = await waApi.uploadDemoDocument(attachment);
+      }
+      catch (error){
+        throw new Error("Whats app demo document not uploaded")
+      }
+    }
+    let components: any[] = [];
+    const head = this.getTemplateHeadComponent(waTemplate, fileHandle)
+    components = [this.getTemplateBodyComponent(waTemplate)]
+    const buttons = this.getTemplateButtonComponent(waTemplate)
+    const footer = this.getTemplateFooterComponent(waTemplate)
+
+    if (head){
+      components.push(head)
+    }
+    if (buttons){
+      components.push(buttons)
+    }
+    if (footer){
+      components.push(footer)
+    }
+    
+    const jsonData = JSON.stringify({
+        'name': slugify(waTemplate.templateName),
+        'language': waTemplate.language,
+        'category': waTemplate.category,
+        'components': components,
+    })
+    try{
+      if (waTemplate.waTemplateId){
+        waApi.submitTemplateUpdate(jsonData, waTemplate.waTemplateId)
+        Object.assign(waTemplate, {'status': TemplateStatus.pending});
+        await this.templateRepository.save(waTemplate);
+      }
+      else{
+        const response = await waApi.submitTemplateNew(jsonData)
+        if (response.success){
+          Object.assign(waTemplate, {
+            'waTemplateId': response.data.id,
+            'status': TemplateStatus.pending,
+          });
+          await this.templateRepository.save(waTemplate);
+        }
+      }
+      return {'template': waTemplate, 'message': 'Template submited', 'status': true}
+
+    }
+    catch (error){
+      return {'template': waTemplate, 'message': error, 'status': false}
+    }
+  }
+
+  async testTemplate(testTemplateData: WaTestTemplateInput){
+    const template: any = await this.getTemplate(testTemplateData.dbTemplateId)
+    if (!template?.template){
+      throw Error("template doesn't exist")
+    }
+    const messageType = 'template'
+
+    const wa_api = await this.waAccountService.getWhatsAppApi(template.template.account.id)
+
+    const sendVals = await this.getSendTemplateVals(template.template)
+
+    const waApi = await this.waAccountService.getWhatsAppApi(template.template.account.id)
+
+    const msgUid = await waApi.sendWhatsApp(testTemplateData.testPhoneNo, messageType, sendVals)
+
+    return { success: 'test template send successfully' }
+  }
+
+  async getTemplate(
+    templateId: string,
+  ) {
+    const templateFind = await this.templateRepository.findOne({
+      where: { id: templateId },
+      relations: ["account", "attachment"],
+    });
+    if (!templateFind){
+      throw new Error('Template not found');
+    }
+    return {'template': templateFind, 'message': 'Template found', 'status': true}
+  }
+
+  async readWaTemplate(
+    search?: string,
+    filter?: Record<string, any>,
+    limit?: number,
+  ) {
+    let where = {}
+    if (search){
+     where = {templateName: ILike(`%${search}%`)};
+    }
+    if(filter){
+      Object.assign(where, filter)
+    }
+    const waTemplates = await this.templateRepository.find({
+      where: where,
+      order: { createdAt: 'ASC' },
+      take: limit,
+    });
+    return waTemplates;
+  }
+
+  async searchReadTemplate(
+    page: number = 1,
+    pageSize: number = 10,
+    search: string = '',
+    filter: string = '',
+  ) {
+    const skip = (page - 1) * pageSize;
+
+    const where: any = {};
+
+    // Search (by name)
+    if (search) {
+      where.templateName = ILike(`%${search}%`);
+    }
+
+    // Filter (by status)
+    if (filter && filter !== 'All') {
+      where.status = filter;
+    }
+
+    const [templates, total] = await this.templateRepository.findAndCount({
+      where,
+      skip,
+      take: pageSize,
+      order: { createdAt: 'DESC' },
+      relations: ["account", "attachment"],
     });
 
     return {
-      success: true,
-      message: 'Started cron job to monitor template status every 10 seconds.',
+      templates,
+      total,
+      totalPages: Math.ceil(total / pageSize),
+      currentPage: page,
     };
   }
 
-  async getTemplateStatusByWhatsappApi(templateId: string, accessToken: string): Promise<any> {
-    try {
-      const response = await axios({
-        url: `https://graph.facebook.com/v22.0/${templateId}?fields=name,status,category,language,components`,
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      return {
-        success: true,
-        data: response.data,
-      };
-    } catch (error) {
-      console.error({
-        success: false,
-        error: error.response?.data || error.message,
-      });
-
-      return {
-        success: false,
-        error: error.response?.data || error.message,
-      };
+  async syncTemplate(
+    workspaceId: string,
+    templateId: string,
+  ) {
+    const templateFind = await this.getTemplate(templateId)
+    if (!templateFind?.template){
+      throw Error("template doesn't exist")
     }
-  }
+    if (!templateFind?.template?.account) throw Error("Whatsapp account doesn't found!")
 
-  async getAllTemplates() {
-    const url = `https://graph.facebook.com/v22.0/467842749737629/message_templates`;
+    if (!templateFind.template.waTemplateId) throw Error("Whatsapp temlate uid doesn't found!")
 
-    try {
-      const response = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer EAAL391PN5tABOxIYkjT5MS0XG1467ookiRaAdsZC7j1i5zXelAUdRwAvlg8hqwcZB9i5bzvfsD37VU4wCPZBOPndgCZBUyiTsFxl6eKVce9ZCzyXcUSOjKg3zlOfJlfm9swpyNrJf8DDNZCljA5kE6SEwwV8H8A4DsMWGJZAfCaZCiD9wkyZCxva6iTjDNxPj04ZBhrEzsnEnqWoMfaScRss0ZB8Dqf6O5s26Woi5ayov2VIwZAHt1mZA`,
-        },
-      });
-
-      const templates = response;
-
-      return "fsds"
-    } catch (err) {
-      console.error('Error fetching templates:', err.response?.data || err.message);
-      return "fsds"
+    const waAPI = await this.waAccountService.getWhatsAppApi(templateFind.template.account.id)
+    let data;
+    try{
+      data = await waAPI.getTemplateData(templateFind.template.waTemplateId)
     }
-  }
-
-  async findAllTemplate(currentPage, itemsPerPage): Promise<FindAllTemplate> {
-    const totalItems = await this.templateRepository.count();
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage
-    const allTemplates =  await this.templateRepository.find({
-      order: { createdAt: 'DESC' },
-      relations: ["account", "attachment"],
-      skip: startIndex,
-      take: itemsPerPage,
-    })
-    return { allTemplates, totalPages}
-  }
-
-  async findAllApprovedTemplate(): Promise<WhatsAppTemplate[]> {
-    return await this.templateRepository.find({
-      where: { status: In(['APPROVED', 'approved']) },
-      order: { createdAt: 'DESC' },
-      relations: ["account", "attachment"]
-    })
-  }
-
-  async findtemplateByDbId(dbTemplateId: string): Promise<WhatsAppTemplate | null> {
-    return await this.templateRepository.findOne({
-      where: { id: dbTemplateId },
-      relations: ["account", "attachment"]
-    })
-  }
-
-  async findTemplateByWaTemplateId(waTemplateId: string) {
-    return await this.templateRepository.findOne({ where: { waTemplateId } })
-  }
-
-  async uploadFile(url) {
-    const response1 = await axios.get(url, { responseType: 'arraybuffer' });
-    const filename = path.basename(url);
-    const buffer = Buffer.from(response1.data);
-    const mimetype = response1.headers['content-type'];
-    const size = parseInt(response1.headers['content-length'] || `${buffer.length}`);
-    // const { filename, mimetype, size, buffer }: any = file;
-    // const buffer = await fs.readFile(path)
-
-    const findSelectedInstants = await this.waAccountService.FindSelectedInstants()
-    if (!findSelectedInstants) throw new Error('findSelectedInstants not found');
-    const appId = findSelectedInstants?.appId
-    const accessToken = findSelectedInstants?.accessToken
-
-    const uploadSessionRes = await axios.post(
-      `https://graph.facebook.com/v22.0/${appId}/uploads`,
-      null,
-      {
-        params: {
-          file_name: filename,
-          file_length: size,
-          file_type: mimetype,
-          access_token: `${accessToken}`,
-        },
-      }
-    );
-
-    const response = await axios({
-      url: `https://graph.facebook.com/v22.0/${uploadSessionRes.data.id}`,
-      method: 'POST',
-      headers: {
-        Authorization: `OAuth ${accessToken}`,
-        file_offset: 0
-      },
-      data: {
-        'data-binary': buffer
-      }
-    });
-    return response.data.h
-  }
-
-  async saveSyncTemplates(templates, instants) {
-    const dbTemplates = await this.templateRepository.find();
-    const arrWaTempalteIds = dbTemplates.map((template) => template.waTemplateId)
-    for (const template of templates) {
-      if (!arrWaTempalteIds.includes(template.id)) {
-        const components = template.components || [];
-        const componentData: any = this.convertTemplatePayloadToDbData(components)
-        const dbTemplate = this.templateRepository.create({
-          account: instants,
-          templateName: template.name,
-          status: template.status,
-          waTemplateId: template.id,
-          language: template.language,
-          category: template.category,
-          headerType: componentData.headerType,
-          headerText: componentData.headerText,
-          bodyText: componentData.bodyText,
-          footerText: componentData.footerText,
-          button: componentData.button,
-          variables: componentData.variables,
-          templateImg: componentData.templateImg
-        })
-        await this.templateRepository.save(dbTemplate);
-      }
+    catch (error){
+      console.log(error)
     }
-
-    return { success: 'template are synced' }
+    if (data['id']){
+      await this.updateTemplateFromResponse(workspaceId, templateFind.template, data)
+    }
+    return {'template': templateFind.template, 'message': 'Template updated', 'status': true}
   }
 
-  convertTemplatePayloadToDbData(components: any[]) {
-    const dbComponent = {
-      headerType: 'NONE',
-      bodyText: '',
-      footerText: '',
-      button: [],
-      headerText: '',
-      templateImg: '',
-      variables: []
-    };
 
-    for (const component of components) {
-      switch (component.type) {
-        case 'HEADER':
-          dbComponent.headerType = component.format;
-          if (component.format === 'TEXT') {
-            dbComponent.headerText = component.text;
-          } else if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(component.format)) {
-            dbComponent.templateImg = component.example?.header_handle?.[0] || '';
-          }
-          break;
-        case 'BODY':
-          dbComponent.bodyText = component.text;
+  async updateTemplateFromResponse(workspaceId, waTemplate, remoteTemplateVals){
+      const templateVals = await this.getTemplateValsFromResponse(workspaceId, remoteTemplateVals, waTemplate.account)
+
+      let updateVals = {
+        "body": templateVals["body"],
+        "headerType": templateVals["headerType"],
+        "headerText": templateVals["headerText"],
+        "footerText": templateVals["footerText"],
+        "language": templateVals["language"],
+        "category": templateVals["category"],
+        "status": templateVals['status'],
+        "quality": templateVals['quality'],
+      }
+      if (!waTemplate.attachment && templateVals['fileHandle']){
+        const newAttachment = await this.createTemplateAttachment(workspaceId, templateVals['fileHandle'])
+        if (newAttachment){
+          updateVals['attachment'] = newAttachment
+          updateVals['templateImg'] = newAttachment.name
+        }
+      }
+      Object.assign(waTemplate, updateVals)
+      await this.templateRepository.save(waTemplate);
+      return true
+  }
+
+  async createTemplateAttachment(workspaceId, fileResponse){
+    if (fileResponse){
+      const mimeType = fileResponse.mimeType
+      const extension = mime.extension(mimeType) || '';
+      const filename = `${uuidv4()}.${extension}`
+      const fileData = fileResponse.data
+      const file_size = fileResponse.file_size
+      const now = new Date()
+      const workspaceFolderPath = `workspace-${workspaceId}`;
+
+      const filePath = await this.fileService.write({
+        file: fileData,
+        name: filename,
+        folder: workspaceFolderPath,
+        mimeType: mimeType
+      })
+
+      const attachement = await this.attachmentService.createOneAttachment({
+        name: filename,
+        originalname: filename,
+        size: Buffer.from(fileData).length,
+        mimetype: mimeType,
+        path: filePath,
+        createdAt: now,
+        updatedAt: now
+      })
+
+      return attachement
+    }
+    return false
+  }
+
+  async getTemplateValsFromResponse(workspaceId, remoteTemplateVals, waAccount){
+    // """Get dictionary of field: values from whatsapp template response json.
+
+    // Relational fields will use arrays instead of commands.
+    // """
+    const qualityScore = remoteTemplateVals['quality_score']['score'].toLowerCase()
+    let templateVals = {
+        'body': '',
+        'footerText': '',
+        'headerText': '',
+        'headerType': TemplateHeaderType['NONE'],
+        'language': TemplateLanguage[remoteTemplateVals['language']],
+        'name': remoteTemplateVals['name'].replace("_", " ").toLowerCase(),
+        'quality': TemplateQuality[qualityScore == 'unknown' ? 'none' : qualityScore],
+        'status': TemplateStatus[remoteTemplateVals['status'].toLowerCase()],
+        'templateName': remoteTemplateVals['name'],
+        'category': TemplateCategory[remoteTemplateVals['category']],
+        'account': waAccount.id,
+        'waTemplateId': remoteTemplateVals['id'],
+    }
+    interface button {
+      type: string;
+      text: string;
+      phone_number: string;
+      url: string;
+    }
+    let buttons: button[] = []
+    for (const component of remoteTemplateVals['components']){
+        const componentType = component['type']
+        if (componentType == 'HEADER'){
+            templateVals['headerType'] = TemplateHeaderType[component['format']]
+            if (component['format'] == 'TEXT'){
+                templateVals['headerText'] = component['text']
+            }
+            else if (component['format'] == 'LOCATION'){
+                for (const locationVal of ['name', 'address', 'latitude', 'longitude']){
+                  templateVals['variables'].push({
+                      'name': locationVal,
+                      'line_type': 'location',
+                  })
+                }
+            }
+            else if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(component['format'])){
+              const documentUrl = component['example']?.header_handle ? component['example']?.header_handle[0] : false
+              let mimetype, extension, data;
+              if (documentUrl){
+                const waApi = await this.waAccountService.getWhatsAppApi(waAccount.id)
+                const response = await waApi.getHeaderDataFromHandle(documentUrl)
+                mimetype = response.headers['content-type']
+                data = response.data
+                extension = mime.extension(mimetype)
+                templateVals['fileHandle'] = {
+                  'name': `${templateVals["templateName"]}.${extension}`,
+                  'data': data,
+                  'mimeType': mimetype,
+                }
+              }
+              // else{
+              //   const encoder = new TextEncoder();
+              //   const data = encoder.encode('AAAA');
+              //   const {extension, mimetype } = {
+              //       'IMAGE': ['jpg', 'image/jpeg'],
+              //       'VIDEO': ['mp4', 'video/mp4'],
+              //       'DOCUMENT': ['pdf', 'application/pdf']
+              //   }[component['format']]
+              // }
+
+              
+            }
+        }else if (componentType == 'BODY'){
+          templateVals['body'] = component['text']
           const variableValues = component.example?.body_text?.[0] || [];
-          dbComponent.variables = variableValues.map((val: string, idx: number) => ({
+          templateVals['variables'] = variableValues.map((val: string, idx: number) => ({
             name: `{{${idx + 1}}}`,
             value: val
           }));
-          break;
-        case 'FOOTER':
-          dbComponent.footerText = component.text;
-          break;
-        case 'BUTTONS':
-          dbComponent.button = component.buttons;
-          break;
+        }else if (componentType == 'FOOTER'){
+          templateVals['footer_text'] = component['text']
+        }else if (componentType == 'BUTTONS'){
+          for (const [index, button] of component['buttons'].entries()){
+            if (['URL', 'PHONE_NUMBER', 'QUICK_REPLY'].includes(button['type'])){
+              let buttonVals = {
+                  'type': button['type'].toLowerCase(),
+                  'text': button['text'],
+                  'phone_number': button['phone_number'],
+                  'url':button['url'] ? button['url'].replace('{{1}}', '') : false,
+              }
+              buttons.push(buttonVals)
+            }
+          }
+        }
+    }
+    templateVals['button'] = buttons
+    return templateVals
+  }
+
+  async createTemplateFromResponse(workspaceId, remoteTemplateVals, waAccount){
+    const templateVals = await this.getTemplateValsFromResponse(workspaceId, remoteTemplateVals, waAccount)
+    if (templateVals['fileHandle']){
+      const newAttachment = await this.createTemplateAttachment(workspaceId, templateVals['fileHandle'])
+      if (newAttachment){
+        templateVals['attachment'] = newAttachment
+        templateVals['templateImg'] = newAttachment.name
       }
     }
-
-    return dbComponent;
+    return templateVals
   }
 
 
-  async generateSendMessagePayload(templateData: any, recipientPhone: string, mediaLink?: string) {
-    const variablesValue = templateData?.variables?.map((v: any) => v.value) || [];
-    const components: any[] = [];
-
-    if (templateData.headerType === 'IMAGE' && mediaLink) {
-      components.push({
-        type: 'header',
-        parameters: [
-          {
-            type: 'image',
-            image: {
-              link: mediaLink,
-            },
-          },
-        ],
-      });
-    } else if (templateData.headerType === 'VIDEO' && mediaLink) {
-      components.push({
-        type: 'header',
-        parameters: [
-          {
-            type: 'video',
-            video: {
-              link: mediaLink,
-            },
-          },
-        ],
-      });
-    } else if (templateData.headerType === 'DOCUMENT' && mediaLink) {
-      components.push({
-        type: 'header',
-        parameters: [
-          {
-            type: 'document',
-            document: {
-              link: mediaLink,
-            },
-          },
-        ],
-      });
-    } else if (templateData.headerType === 'TEXT') {
-      components.push({
-        type: 'header',
-        parameters: [
-          {
-            type: 'text',
-            text: templateData.headerText,
-          },
-        ],
-      });
+  async syncWhatsAppAccountTemplates(workspaceId, waAccountId){
+    const waAccount = await this.waAccountService.getWaAccount(waAccountId)
+    if (!waAccount.waAccount){
+      throw new Error("WhatsApp Account not found!")
     }
 
-    if (variablesValue.length > 0) {
-      components.push({
-        type: 'body',
-        parameters: variablesValue.map((text: string) => ({
-          type: 'text',
-          text,
-        })),
-      });
+    try{
+      const waApi = await this.waAccountService.getWhatsAppApi(waAccount.waAccount.id)
+      const response = await waApi.getAllTemplate(true)
+      const existingTmpls = await this.templateRepository.find({
+        where: {account: {id: waAccount.waAccount.id}},
+        relations: ['account', 'attachment'],
+      })
+      const existingTmplId: { [key: number]: string } = {};
+      existingTmpls.forEach((template) => {
+        if (template.waTemplateId !== null)
+          existingTmplId[template.waTemplateId] = template
+      })
+      let templateUpdateCount = 0
+      let templateCreateCount = 0
+      if (response){
+        for (const template of response){
+          const existingTmpl = existingTmplId[template['id']]
+          if (existingTmpl){
+            templateUpdateCount += 1
+            await this.updateTemplateFromResponse(workspaceId, existingTmpl, template)
+          }
+          else{
+            templateCreateCount += 1
+            const createVals = await this.createTemplateFromResponse(workspaceId, template, waAccount.waAccount)
+            const templateNew = await this.templateRepository.create(createVals)
+            await this.templateRepository.save(templateNew);
+          }
+        }
+      }
+      return {'waAccount': waAccount.waAccount, 'message': 'WhatsApp account templates sync done.', 'status': true}
     }
-
-    return {
-      messaging_product: 'whatsapp',
-      to: recipientPhone,
-      type: 'template',
-      template: {
-        name: templateData.templateName.toLowerCase().replace(/\s/g, '_'),
-        language: {
-          code: templateData.language,
-        },
-        ...((variablesValue.length > 0 || ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(templateData.headerType)) && components.length > 0 && { components }),
-      },
-    };
+    catch (error){
+      return {'waAccount': waAccount.waAccount, 'message': 'WhatsApp account templates sync not done.', 'status': false}
+    }
   }
-
-
-  
-    async searchedTemplate(
-      searchTerm?: string,
-    ) {
-      const [broadcasts, totalCount] = await this.templateRepository.findAndCount({
-        where: { templateName: ILike(`%${searchTerm}%`) },
-        order: { createdAt: 'ASC' },
-      });
-  
-      return { searchedData: broadcasts, totalCount };
-    }
-
 }
 

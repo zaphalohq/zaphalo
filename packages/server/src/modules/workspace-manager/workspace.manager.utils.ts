@@ -2,8 +2,8 @@ import { Connection, createConnection, getConnectionManager } from 'typeorm';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import { typeORMWorkspaceModuleOptions } from 'src/database/typeorm/workspace/workspace.datasource';
 
-export function getWorkspaceConnection(tenantId: string): Promise<Connection> {
-  const connectionName = `workspace_${tenantId}`;
+export function getWorkspaceConnection(workspaceId: string): Promise<Connection> {
+  const connectionName = `workspace_${workspaceId}`;
   const connectionManager = getConnectionManager();
 
   if (connectionManager.has(connectionName)) {

@@ -7,8 +7,11 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
+export const WEBSOCKET_PORT =
+  process.env.WEBSOCKET_PORT || 4000
 
-@WebSocketGateway(Number(process.env.WEBSOCKET_PORT), { cors: { origin: '*' } })
+
+@WebSocketGateway(Number(WEBSOCKET_PORT) || undefined, { namespace: '/chat', cors: { origin: '*' } })
 export class WebSocketService implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server : Server
@@ -24,8 +27,8 @@ export class WebSocketService implements OnGatewayConnection, OnGatewayDisconnec
     this.server.emit("message", "brodcasting............")
   }
 
-  sendMessageToChannel(channelId,messages, phoneNo, newChannelCreated) {
-    const message = JSON.stringify({messages,channelId,phoneNo, newChannelCreated})
+  sendMessageToChannel(channel, sender, messages, newChannelCreated) {
+    const message = JSON.stringify({messages, sender, channelId: channel.id, newChannelCreated})
     this.server.emit('message', message);
   }
 

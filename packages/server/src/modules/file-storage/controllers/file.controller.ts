@@ -30,7 +30,6 @@ export class FileController {
     const workspaceId = (req as any)?.workspaceId;
 
     const workspaceFolderPath = `workspace-${workspaceId}`;
-    console.log(workspaceFolderPath);
     
     if (!workspaceId) {
       throw new Error(

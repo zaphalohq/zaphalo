@@ -3,6 +3,7 @@ import { Attachment } from "./attachment.entity";
 import { CreateAttachmentDto } from "./dto/createAttachmentDto";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 import { Connection, Repository } from 'typeorm';
+import { unlinkSync } from "fs";
 
 @Injectable()
 export class AttachmentService {
@@ -13,10 +14,6 @@ export class AttachmentService {
     ) { 
         this.attachmentRepository = connection.getRepository(Attachment);
     }
-
-    // async findOneAttachment(senderId: number) {
-    //     return await this.attachmentRepository.findOne({ where: { phoneNo: senderId }})
-    // }
 
     async createOneAttachment(createAttachmentDto: CreateAttachmentDto) {
         const attachment = this.attachmentRepository.create({
@@ -34,14 +31,11 @@ export class AttachmentService {
         return await this.attachmentRepository.findOne({ where : { id : attachmentId }})
     }
 
-    // async DeleteContact(contactId : string){
-    //     const deleteContact = await this.contactsRepository.findOne({ where : { id : contactId }});
-    //     if (deleteContact)
-    //         return  await this.contactsRepository.remove(deleteContact)
-    //     else
-    //         return null
-
-    // }
-
+    async remove(attachmentId : string) {
+        const attachment = await this.attachmentRepository.findOne({ where: { id: attachmentId }})
+        if(!attachment) throw Error('attachement doesnt exist!')
+        unlinkSync(attachment.path);
+        return await this.attachmentRepository.remove(attachment);
+    }
 
 }

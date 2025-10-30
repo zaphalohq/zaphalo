@@ -12,19 +12,20 @@ const InstantsForm = () => {
 		isNewInstants,
 		setIsNewInstants,
 		HandleFormVisibility,
-		HandleCreateInstants,
+		HandleWhatsAppAccountCreateOrSave,
 		formData,
 		HandleInputChange,
-		HandleSyncAndSaveInstants,
+		HandleWhatsAppAccountSave,
+		HandleWhatsAppAccountSync,
 		HandaleFeatchData,
-		HandleTestAndSaveInstants,
+		HandleWhatsAppAccountTestConnection,
 	}: any = useContext(InstantsContext)
 	return (
 		<div className="fixed inset-0 bg-stone-900/30 flex items-center justify-center">
 			<CloseButton onClick={() => {
 				setIsNewInstants(false)
 				HandleFormVisibility()
-			}} right="right-70" top="top-35" />
+			}} right="right-92" top="top-26" />
 			<form className="grid grid-cols-2 place-content-center px-8 gap-4 p-8 bg-stone-50 rounded-lg ">
 				<div className="col-span-2">
 					<InputLabel required={true} type="text" name='name' value={formData.name} HandleInputChange={HandleInputChange} title="Name" placeholder="eg: ConstroERP" />
@@ -38,15 +39,17 @@ const InstantsForm = () => {
 				</div>
 				<div className="grid grid-cols-3 col-span-2 gap-4 pt-4">
 					<SubmitButton type="button" onClick={async () => {
-							await HandleCreateInstants()
+							await HandleWhatsAppAccountCreateOrSave()
 							HandaleFeatchData()
 					}} Icon={FaSave} title='Save Account' />
 					<SubmitButton type="button" onClick={async () => {
-							await HandleSyncAndSaveInstants()
+							await HandleWhatsAppAccountCreateOrSave()
+							await HandleWhatsAppAccountSync()
 							HandaleFeatchData()
 					}} Icon={FaSyncAlt} title='Sync Template' />
 					<SubmitButton type="button" onClick={async () => {
-							await HandleTestAndSaveInstants()
+							await HandleWhatsAppAccountCreateOrSave()
+							await HandleWhatsAppAccountTestConnection()
 					}} Icon={SiTestrail} title='Test Account' />
 				</div>
 			</form>

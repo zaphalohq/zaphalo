@@ -3,8 +3,10 @@ import { useEffect, useRef, useState } from "react"
 import ContactList from "./ContactsArea"
 import CreateContacts from "./CreateContacts"
 import ChannelLists from "./ChannelLists"
-import AllInstants from "./AllInstants"
+import SelectWaAccount from "@src/modules/whatsapp/components/account/SelectWaAccount"
 import { SearchWhite } from "@components/UI/Search"
+import CreateUpdateContactDialog from "./CreateUpdateContactDialog"
+
 
 const ChatsSide = ({ setIsChatOpen }: any) => {
   const [isNewChatOpen, setIsNewChatOpen] = useState(false)
@@ -34,7 +36,7 @@ const ChatsSide = ({ setIsChatOpen }: any) => {
 
   const [searchChannel, setSearchChannel] = useState("")
   return (
-    <div>
+    <aside className="w-80 bg-white border-r border-gray-200 flex flex-col">
       <div className='sticky inset-shadow-sm z-11'>
         <div className='flex justify-between p-4.5 bg-white border-b border-gray-300 '>
           <h2 className='text-xl font-bold text-stone-950'>Chats</h2>
@@ -45,11 +47,11 @@ const ChatsSide = ({ setIsChatOpen }: any) => {
                 <ContactList HandleCreateContactVis={HandleCreateContactVis} HandleNewChatVisiablity={HandleNewChatVisiablity} /> 
                  : null} 
             </div>
-            {isCreateContactVis ? <CreateContacts HandleCreateContactVis={HandleCreateContactVis} /> : null}
+             {isCreateContactVis ? <CreateUpdateContactDialog open={isCreateContactVis} isNewContact={true} contactId={false} onBack={()=>setIsCreateContactVis(false)} /> : null}
             <button onClick={() => setIsInstantsVis(!isInstantsVis)} className='p-2 hover-light rounded cursor-pointer'><FiList /></button>
             <div className="menuref1" ref={modalRef1}>
               {isInstantsVis ?
-                <AllInstants /> 
+                <SelectWaAccount/>
                  : null} 
             </div>
           </div>
@@ -62,7 +64,7 @@ const ChatsSide = ({ setIsChatOpen }: any) => {
           <ChannelLists searchChannel={searchChannel} />
         </div>
       </div>
-    </div>
+    </aside>
   )
 }
 

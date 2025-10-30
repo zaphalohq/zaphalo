@@ -91,7 +91,7 @@ export class AuthService {
         firstName: users.firstName,
         lastName: users.lastName
       },
-      workspaces: users.workspaces,
+      workspaces: users.workspaceMembers,
     };
   }
 

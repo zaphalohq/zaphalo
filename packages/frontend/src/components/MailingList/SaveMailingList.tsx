@@ -5,8 +5,9 @@ import excel from "@src/assets/excel.png"
 import { cookieStorage } from "@src/utils/cookie-storage";
 import { Post } from "@src/modules/domain-manager/hooks/axios";
 import { currentUserWorkspaceState } from "@src/modules/auth/states/currentUserWorkspaceState";
+import { toast } from "react-toastify";
 
-const SaveMailingList = () => {
+const SaveMailingList = ({setIsSaveMailingListVis}: any) => {
   const [error, setError] = useState<string>(null)
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState<string>("");
@@ -22,6 +23,7 @@ const SaveMailingList = () => {
 
   const handleUpload = async () => {
     if (!file) return;
+      setError('')
 
     const formData = new FormData();
     formData.append("file", file);
@@ -32,6 +34,11 @@ const SaveMailingList = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
+            
+      if(response.data.success){
+        setIsSaveMailingListVis(false);
+        toast.success(response.data.message);
+      }
 
     } catch (error) {
       const message =
@@ -63,19 +70,19 @@ const SaveMailingList = () => {
             {error}
           </p>
         </div>}
-        <h2 className="text-lg font-semibold text-gray-800 mb-2">Mailing List Name</h2>
-        <input onChange={(e) => setMailingListName(e.target.value)} className='border-none outline-none bg-blue-50 w-full p-2 rounded' placeholder="Enter Mailing List Name" type="text" name="mailingListName" />
+        <h2 className="text-lg font-semibold text-gray-800 mb-2">Contact List Name</h2>
+        <input onChange={(e) => setMailingListName(e.target.value)} className='border-none outline-none bg-blue-50 w-full p-2 rounded' placeholder="Enter Contact List Name" type="text" name="mailingListName" />
         <h2 className="text-lg font-semibold text-gray-800 my-2">Upload Contact List</h2>
 
-        <label className="flex mt-4 py-8 bg-chat flex-col mb-4 items-center justify-center border-2 border-dashed border-violet-300 rounded-lg cursor-pointer hover:border-violet-500 transition-colors">
+        <label className="flex mt-4 py-8 bg-chat flex-col mb-4 items-center justify-center border-2 border-dashed border-green-300 rounded-lg cursor-pointer hover:border-green-500 transition-colors">
           <input
             type="file"
             onChange={handleFileChange}
             className="hidden"
             accept=".xlsx, .xls"
           />
-          <div className="text-5xl font-extrabold text-violet-500"><FiUpload /></div>
-          <div className="bg-violet-500 p-2 px-6 mt-4 rounded-full text-white font-semibold">Upload</div>
+          <div className="text-5xl font-extrabold text-green-500"><FiUpload /></div>
+          <div className="bg-green-500 p-2 px-6 mt-4 rounded-full text-white font-semibold">Upload</div>
           <span className="text-gray-600 pt-4">{fileName || "Suppoted files: .xlsx, .xls"}</span>
         </label>
 

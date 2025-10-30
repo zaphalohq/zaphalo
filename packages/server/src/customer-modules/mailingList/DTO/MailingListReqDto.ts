@@ -11,6 +11,9 @@ export class MailingContact {
 
   @Field()
   contactNo: string;
+
+  @Field()
+  mailingListId : string;
 }
 
 @InputType()

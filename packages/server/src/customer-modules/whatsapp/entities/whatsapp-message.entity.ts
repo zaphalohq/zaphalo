@@ -1,6 +1,6 @@
 import { Field, ObjectType } from "@nestjs/graphql";
 import { IDField } from "@ptc-org/nestjs-query-graphql";
-import { UUIDScalarType } from "src/modules/api/scalars/uuid.scalar";
+import { registerEnumType } from '@nestjs/graphql';
 import {
   Column,
   Entity,
@@ -8,10 +8,14 @@ import {
   JoinColumn,
   ManyToOne,
   Relation,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from "typeorm";
-import { registerEnumType } from '@nestjs/graphql';
-import { WhatsAppTemplate } from './whatsapp-template.entity';
-import { WhatsAppAccount } from './whatsapp-account.entity';
+
+import { WhatsAppTemplate } from 'src/customer-modules/whatsapp/entities/whatsapp-template.entity';
+import { WhatsAppAccount } from 'src/customer-modules/whatsapp/entities/whatsapp-account.entity';
+import { Message } from 'src/customer-modules/channel/entities/message.entity';
+import { UUIDScalarType } from "src/modules/api/scalars/uuid.scalar";
 
 
 export enum messageTypes {
@@ -66,14 +70,14 @@ export class WhatsAppMessage {
   @Column({ type: 'enum', enum: messageStates, default: messageStates.outgoing})
   state: messageStates;
 
-  @Column({ type: 'enum', enum: messageFailureTypes})
+  @Column({ type: 'enum', enum: messageFailureTypes, nullable: true})
   messageFailureType: messageFailureTypes;
 
-  @Column()
+  @Column({nullable: true})
   @Field()
   failureReason: string;
 
-  @Column()
+  @Column({ nullable: true })
   @Field()
   freeTextJson: string;
 
@@ -82,7 +86,7 @@ export class WhatsAppMessage {
   @Field(() => WhatsAppTemplate, { nullable: true })
   waTemplateId: Relation<WhatsAppTemplate>;
 
-  @Column()
+  @Column({nullable: true})
   @Field()
   msgUid: string;
 
@@ -91,12 +95,25 @@ export class WhatsAppMessage {
   @Field(() => WhatsAppAccount, { nullable: true })
   waAccountId: Relation<WhatsAppAccount>;
 
-  @ManyToOne(() => WhatsAppMessage)
+  @ManyToOne(() => WhatsAppMessage, { nullable: true })
   @JoinColumn()
   @Field(() => WhatsAppMessage, { nullable: true })
   parentId: Relation<WhatsAppMessage>;
 
-  @Column()
+  @ManyToOne(() => Message, { nullable: true })
+  @JoinColumn()
+  @Field(() => Message, { nullable: true })
+  channelMessageId: Relation<Message>;
+
+  @Column({ nullable: true })
   @Field()
-  htmlBody: string;
+  body: string;
+
+  @CreateDateColumn({ type: 'timestamptz' })
+  @Field()
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamptz' })
+  @Field()
+  updatedAt: Date;
 }

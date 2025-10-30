@@ -27,7 +27,6 @@ export class JwtWrapperService {
   ) {}
 
   sign(payload: string | object, options?: JwtSignOptions): string {
-    // Typescript does not handle well the overloads of the sign method, helping it a little bit
     if (typeof payload === 'object') {
       return this.jwtService.sign(payload, options);
     }
@@ -56,7 +55,6 @@ export class JwtWrapperService {
       throw new Error('No payload found.');
     }
 
-    // TODO: check if this is really needed
     if (type !== 'FILE' && !payload.sub) {
       throw new Error(
         'No payload sub found.',
@@ -64,7 +62,6 @@ export class JwtWrapperService {
     }
 
     try {
-      // TODO: Deprecate this once old API KEY tokens are no longer in use
       if (!payload.type && !payload.workspaceId && type === 'ACCESS') {
         return this.jwtService.verify(token, {
           ...options,

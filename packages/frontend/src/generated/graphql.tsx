@@ -118,8 +118,9 @@ export const UserQueryFragmentFragmentDoc = gql`
       name
       isWorkspaceSetup,
       profileImg,
+      inviteToken,
     }
-    workspaces {
+    workspaceMembers {
       id
       role
       workspace {
@@ -191,36 +192,34 @@ mutation Register($firstName: String!, $lastName: String!, $email: String!, $pas
 
 
 export const CreateContactMute = gql`
-mutation CreateContacts(
-  $contactName: String!,
-  $phoneNo: Float!,
-  $profileImg: String,
-  $defaultContact: Boolean,
-) {
-  CreateContacts(CreateContacts: {
-  contactName: $contactName, 
-  phoneNo: $phoneNo, 
-  profileImg: $profileImg,
-  defaultContact: $defaultContact
-  }) {
+mutation CreateContacts($CreateContacts: createContactsDto!) {
+  CreateContacts(CreateContacts: $CreateContacts) {
     id
+    phoneNo
+    country
+    contactName
+    city
+    createdAt
+    profileImg
+    zipcode
+    state
+    street
   }
 }`
 
 export const UpdateContactMute = gql`
-mutation UpdateContact(
-  $id: String!,
-  $contactName: String!,
-  $phoneNo: Float!,
-  $profileImg: String,
-) {
-  UpdateContact(UpdateContact: {
-  id: $id, 
-  contactName: $contactName, 
-  phoneNo: $phoneNo, 
-  profileImg: $profileImg,
-  }) {
-    id
+mutation UpdateContact($UpdateContact: updateContactsDto!) {
+  UpdateContact(UpdateContact: $UpdateContact) {
+      contactName
+      id
+      phoneNo
+      city
+      street
+      zipcode
+      profileImg
+      state
+      createdAt
+      country
   }
 }`
 
@@ -241,22 +240,21 @@ query findAllChannel {
   findAllChannel {
     channelName
     id
-    contacts {
+    channelMembers {
       id
       phoneNo
     }
     messages {
       unseen
     }
+    lastMsgOfChannle{
+      textMessage
+      createdAt
+      messageType
+    } 
   }
 }
 `
-
-export const findDefaultSelectedInstants = gql`query MyQuery {
-  findDefaultSelectedInstants {
-    phoneNumberId
-  }
-}`
 
 export const findOrCreateChannel = gql`
   mutation FindOrCreateChannel($phoneNo: String!) {
@@ -280,22 +278,25 @@ export const findAllUnseen = gql`query MyQuery {
   }
 }`
 
-export const findMsgByChannelId = gql`query GetMessagesByChannel($channelId: String!) {
-  findMsgByChannelId(channelId: $channelId) {
-    textMessage
-    sender {
-      id
-      phoneNo
-    }
-    createdAt
-    attachmentUrl
-  },
+export const MakeUnseenMsgSeen = gql`
+mutation makeUnseenMsgSeenByMsgId($messageId : String!){
+  makeUnseenMsgSeenByMsgId(messageId: $messageId){
+    success
+    message
+  }
 }`
 
+
 export const SEND_MESSAGE = gql`
-  mutation SendMessage($input: SendMessageInput!) {
-  sendMessage(input: $input) {
-    success
+  mutation SendMessage($sendMessageInput: SendMessageInput!) {
+  sendMessage(sendMessageInput: $sendMessageInput) {
+    textMessage
+    createdAt
+    attachmentUrl
+    messageType
+    attachment {
+      originalname
+    }
   }
 }
 `;
@@ -316,71 +317,73 @@ export const GenerateInviteLink = gql`
 
 export const InstantsSelection = gql`mutation InstantsSelection($instantsId: String!) {
   InstantsSelection(instantsId: $instantsId) {
-        id
-        name
-        phoneNumberId
-        businessAccountId
-        defaultSelected
-    }
+    id
+    name
+    phoneNumberId
+    businessAccountId
+    defaultSelected
+  }
 }`
 
 
 export const DeleteContact = gql`
 mutation DeleteContact(
-  $contactId : String!,
+  $ContactIds : [String!]!,
   ){
-    DeleteContact(contactId: $contactId) {
-    contactName
-    createdAt
-    phoneNo
-    profileImg
+    DeleteContact(ContactIds: $ContactIds) {
+    message
+    status
     }
   }
 `
+// WhatsApp Account
 
-
-export const WhatsappInstantsSave = gql`
-mutation WaAccountSave($whatsappInstantsData: WaAccountDto!, $instanceId: String) {
-  WaAccountSave(whatsappInstantsData: $whatsappInstantsData, instanceId: $instanceId) {
+export const WhatsAppAccountCreate = gql`
+mutation WaAccountCreate($whatsAppAccountData: WaAccountDto!) {
+  WaAccountCreate(whatsAppAccountData: $whatsAppAccountData) {
     id
     name
+  }
+}`;
+
+export const WhatsAppAccountSave = gql`
+mutation WaAccountSave($whatsAppAccountData: WaAccountDto!) {
+  WaAccountSave(whatsAppAccountData: $whatsAppAccountData) {
+    id
+    name
+  }
+}`;
+
+
+export const SyncWhatsAppAccountTemplates = gql`
+mutation syncWhatsAppAccountTemplates($waAccountId: String!) {
+  syncWhatsAppAccountTemplates(waAccountId: $waAccountId) {
+    waAccount {
+      id
+      name
+    }
+    message
+    status
   }
 }
 `;
 
-export const WhatsappInstantsSyncAndSave = gql`
-mutation SyncAndSaveInstants($whatsappInstantsData: WaAccountDto!, $instanceId: String) {
-  SyncAndSaveInstants(whatsappInstantsData: $whatsappInstantsData, instanceId: $instanceId) {
-    id
-    name
+export const WhatsAppAccountTestConnection = gql`
+mutation WaAccountTestConnection($whatsAppAccountData: WaAccountDto!) {
+  WaAccountTestConnection(whatsAppAccountData: $whatsAppAccountData) {
+    message
+    success
+    error
   }
-}
-`;
+}`;
 
-export const WhatsappInstantsTestAndSave = gql(`
-mutation TestAndSaveInstants($whatsappInstantsData: WaAccountDto!, $instanceId: String) {
-  TestAndSaveInstants(whatsappInstantsData: $whatsappInstantsData, instanceId: $instanceId) {
+export const ReadWaAccount = gql`
+query readWaAccount($search: String, $limit: Int){
+  readWaAccount(search: $search, limit: $limit){
     id
     name
   }
 }`
-)
-
-
-export const findAllInstants = gql`
-  query findAllInstants{
-    findAllInstants {
-      id
-      name
-      appId
-      phoneNumberId
-      businessAccountId
-      accessToken
-      appSecret
-      defaultSelected
-    }
-  }
-`;
 
 export const UpdatedInstants = gql`
 mutation updateInstants(
@@ -456,9 +459,9 @@ mutation TestAndUpdateInstants(
 
 export const DeleteInstantsMutation = gql`
 mutation DeleteInstants(
-  $id : String!,
+  $waAccountId : String!
   ){
-    DeleteInstants(DeleteInstants: {id: $id}) {
+    DeleteInstants(waAccountId: $waAccountId) {
       accessToken
       appId
       createdAt
@@ -493,113 +496,7 @@ export const findCountForDash = gql`query findWorkspaceByIdForDash($workspaceId:
 
 
 
-export const GET_TEMPLATE_STATUS = gql`
-mutation getTemplateStatus($templateId: String!) {
-  getTemplateStatus(templateId: $templateId) {
-    success
-    data
-    error
-  }
-}
-`;
 
-
-export const findWaAllTemplate = gql`
-query findAllTemplate($currentPage : Int!, $itemsPerPage : Int!){
-    findAllTemplate(currentPage: $currentPage, itemsPerPage: $itemsPerPage){
-    totalPages
-    allTemplates{
-      account {
-        id
-      }
-      attachment {
-        id
-        originalname
-        name
-      }
-      bodyText
-      category
-      button {
-        phone_number
-        text
-        type
-        url
-      }
-      footerText
-      headerText
-      headerType
-      id
-      language
-      status
-      templateName
-      waTemplateId
-      templateImg
-      variables {
-        name
-        value
-      }
-    }
-  }
-}`
-
-
-export const findAllApprovedTemplate = gql`
-query findAllApprovedTemplate {
-    findAllApprovedTemplate {
-    account {
-      id
-    }
-    attachment {
-      id
-      originalname
-      name
-    }
-    bodyText
-    category
-    button {
-      phone_number
-      text
-      type
-      url
-    }
-    footerText
-    headerText
-    headerType
-    id
-    language
-    status
-    templateName
-    waTemplateId
-    templateImg
-    variables {
-      name
-      value
-    }
-  }
-}`
-
-export const SUBMIT_TEMPLATE = gql`
-mutation SubmitTemplate($templateData: WaTemplateRequestInput!, $waTemplateId: String, $dbTemplateId: String) {
-  submitWaTemplate(templateData: $templateData, waTemplateId: $waTemplateId, dbTemplateId: $dbTemplateId) {
-    success
-    data
-    error
-  }
-}`;
-
-// export const SAVE_TEMPLATE = gql`
-// mutation saveTemplate($templateData: WaTemplateRequestInput!) {
-//   saveTemplate(templateData: $templateData) {
-//     id
-//   }
-// }`;
-
-export const SAVE_TEMPLATE = gql`
-mutation saveTemplate($templateData: WaTemplateRequestInput!, $dbTemplateId: String) {
-  saveTemplate(templateData: $templateData, dbTemplateId: $dbTemplateId) {
-    id
-  }
-}`;
 
 export const WaTestTemplate = gql`
 mutation testTemplate($testTemplateData: WaTestTemplateInput!){
@@ -614,17 +511,6 @@ export const Send_Template_Message = gql`
   sendTemplateToWhatssapp
 }
 `;
-
-export const SEND_TEMPLATE_TO_WHATSAPP = gql`
-  mutation BroadcastTemplate($broadcastData: BroadcastReqDto!) {
-    BroadcastTemplate(broadcastData: $broadcastData){
-    success
-    message
-    error
-  }
-  }
-`;
-
 
 export const UpdateWorkspaceDetails = gql`
 mutation UpdateWorkspaceDetails(
@@ -647,8 +533,12 @@ mutation UpdateWorkspaceDetails(
 `
 
 export const getSystemStatus = gql`
-  query SystemStatus {
-    getSystemStatus
+  query systemConfig {
+    systemConfig {
+      authProviders {
+        google
+      }
+    }
   }
 `;
 
@@ -684,29 +574,20 @@ export const CreateOneAttachmentDoc = gql`
         }
       ) {
       id
+      name
+      originalname
     }
   }
 `;
 
-
-
-export const findAllMailingList = gql`
-  query FindAllMailingList($currentPage: Int!, $itemsPerPage: Int!) {
-    findAllMailingList(currentPage: $currentPage, itemsPerPage: $itemsPerPage) {
-    mailingList {
-      id
-      mailingListName
-      createdAt
-      mailingContacts {
-        contactName
-        contactNo
-        id
-      }
-    }
-    totalPages
-    }
+export const DeleteOneAttachment = gql`
+mutation DeleteOneAttachment($attachmentId: String!){
+  DeleteOneAttachment(attachmentId: $attachmentId){
+    success
+    message
   }
-`;
+}
+`
 
 export const SaveMailingContact = gql`
 mutation saveMailingContact($saveMailingContact: MailingContact!){
@@ -716,46 +597,17 @@ mutation saveMailingContact($saveMailingContact: MailingContact!){
 }
 `
 
-export const FindAllMailingContact = gql`
-query findAllMailingContactByMailingListId($mailingListId : String!){
- findAllMailingContactByMailingListId(mailingListId : $mailingListId){
-    contactName
-    contactNo
-    id
- }
-}
-`
-
 export const DeleteMailingContact = gql`
-mutation deleteMailingContact($mailingContactId : String!){
-  deleteMailingContact(mailingContactId: $mailingContactId){
+mutation deleteMailingContact($mailingContactIds : [String!]!){
+  deleteMailingContact(mailingContactIds: $mailingContactIds){
+    message
     success
+    error
  }
 }
 `
 
-export const findAllBroadcasts = gql`
-query findAllBroadcast($currentPage : Int!, $itemsPerPage : Int!) {
-  findAllBroadcast(currentPage: $currentPage, itemsPerPage: $itemsPerPage) {
-  allBroadcast {
-      id
-    broadcastName
-    totalBroadcast
-    totalBroadcastSend
-    isBroadcastDone
-    account {
-      id
-    }
-    template {
-      id
-    }
-    mailingList {
-      id
-      }
-  }
-  totalPages
-    }
-}`
+
 
 export const SearchedBroadcast = gql`
 query searchBroadcast($searchTerm: String){
@@ -783,6 +635,15 @@ query searchMailingList($searchTerm: String){
   }
 }
 `
+
+
+export const ReadMailingList = gql`
+query readMailingList($search: String, $limit: Int){
+  readMailingList(search: $search, limit: $limit){
+    id
+    mailingListName
+  }
+}`
 
 // export const FindtemplateByDbId = gql`
 // query findtemplateByDbId($dbTemplateId: String!){
@@ -861,3 +722,609 @@ query GetMailingContacts($mailingListId: String!,
     }
   }
 }`
+
+
+// Broadcast
+
+export const ReadBroadcast = gql`
+query readBroadcast($search: String, $limit: Int){
+  readBroadcast(search: $search, limit: $limit){
+    id
+    name
+  }
+}`
+
+export const SearchReadBroadcast = gql`
+query searchReadBroadcast($page : Int!, $pageSize : Int!, $search: String, $filter: String) {
+  searchReadBroadcast(page: $page, pageSize: $pageSize, search: $search, filter: $filter) {
+    total
+    totalPages
+    currentPage
+    broadcasts {
+      id
+      name
+      createdAt
+      scheduledAt
+      status
+      whatsappAccount {
+        id
+        name
+      }
+      template {
+        id
+        templateName
+      }
+      contactList {
+        id
+        mailingListName
+      }
+    }
+  }
+}`
+
+
+export const SaveBroadcast = gql`
+  mutation saveBroadcast($broadcastData: BroadcastRequest!) {
+    saveBroadcast(broadcastData: $broadcastData){
+      broadcast {
+        id
+        name
+        createdAt
+        scheduledAt
+        status
+        whatsappAccount {
+          id
+        }
+        template {
+          id
+          templateName
+        }
+        contactList {
+          id
+        }
+      }
+      message
+      status
+    }
+  }
+`;
+
+export const GetBroadcast = gql`
+query getBroadcast($broadcastId: String!) {
+  getBroadcast(broadcastId: $broadcastId) {
+    broadcast {
+      id
+      name
+      createdAt
+      scheduledAt
+      status
+      whatsappAccount {
+        id
+      }
+      template {
+        id
+        templateName
+      }
+      contactList {
+        id
+      }
+    }
+    message
+    status
+  }
+}`
+
+export const SendBroadCast = gql`
+  mutation sendBroadcast($broadcastId: String!){
+    sendBroadcast(broadcastId: $broadcastId){
+      message
+      status
+    }
+  }
+`
+
+export const ScheduleBroadCast = gql`
+  mutation scheduleBroadcast($broadcastId: String!){
+    scheduleBroadcast(broadcastId: $broadcastId){
+      message
+      status
+    }
+  }
+`
+
+export const CancelBroadCast = gql`
+  mutation cancelBroadcast($broadcastId: String!){
+    cancelBroadcast(broadcastId: $broadcastId){
+      message
+      status
+    }
+  }
+`
+
+export const DeleteBroadCast = gql`
+  mutation deleteBroadcast($broadcastIds: [String!]!){
+    deleteBroadcast(broadcastIds: $broadcastIds){
+      message
+      status
+    }
+  }
+`
+
+// Whatsapp Template
+
+export const GetTemplate = gql`
+query getTemplate($templateId: String!) {
+  getTemplate(templateId: $templateId) {
+    template {
+      id
+      name
+      templateName
+      category
+      language
+      waTemplateId
+      templateImg
+      createdAt
+      status
+      footerText
+      headerText
+      headerType
+      bodyText
+      account {
+        id
+        name
+      }
+      attachment {
+        id
+        originalname
+        name
+      }
+      button {
+        phone_number
+        text
+        type
+        url
+      }
+      variables {
+        name
+        value
+      }
+    }
+    message
+    status
+  }
+}`
+
+export const ReadWaTemplate = gql`
+query readWaTemplate($search: String, $limit: Int, $filter: JSONObject){
+  readWaTemplate(search: $search, limit: $limit, filter: $filter){
+    id
+    name
+    templateName
+  }
+}`
+
+export const SearchReadWhatsappTemplate = gql`
+query searchReadTemplate($page : Int!, $pageSize : Int!, $search: String, $filter: String) {
+  searchReadTemplate(page: $page, pageSize: $pageSize, search: $search, filter: $filter) {
+    total
+    totalPages
+    currentPage
+    templates{
+      id
+      name
+      templateName
+      category
+      language
+      waTemplateId
+      templateImg
+      createdAt
+      status
+      footerText
+      headerText
+      headerType
+      bodyText
+      account {
+        id
+        name
+      }
+      attachment {
+        id
+        originalname
+        name
+      }
+      button {
+        phone_number
+        text
+        type
+        url
+      }
+      variables {
+        name
+        value
+      }
+    }
+  }
+}`
+
+export const SaveWhatsappTemplate = gql`
+mutation saveTemplate($templateData: WaTemplateRequestInput!) {
+  saveTemplate(templateData: $templateData) {
+    template {
+      id
+      name
+      templateName
+      category
+      language
+      waTemplateId
+      templateImg
+      createdAt
+      status
+      footerText
+      headerText
+      headerType
+      bodyText
+      account {
+        id
+        name
+      }
+      attachment {
+        id
+        originalname
+        name
+      }
+      button {
+        phone_number
+        text
+        type
+        url
+      }
+      variables {
+        name
+        value
+      }
+    }
+    message
+    status
+  }
+}`;
+
+
+export const SubmitWhatsappTemplate = gql`
+mutation submitTemplate($templateId: String!) {
+  submitTemplate(templateId: $templateId) {
+    template {
+      id
+      name
+      templateName
+      category
+      language
+      waTemplateId
+      templateImg
+      createdAt
+      status
+      footerText
+      headerText
+      headerType
+      bodyText
+      account {
+        id
+        name
+      }
+      attachment {
+        id
+        originalname
+        name
+      }
+      button {
+        phone_number
+        text
+        type
+        url
+      }
+      variables {
+        name
+        value
+      }
+    }
+    message
+    status
+  }
+}`;
+
+
+export const SyncTemplate = gql`
+mutation syncTemplate($templateId: String!) {
+  syncTemplate(templateId: $templateId) {
+    template {
+      id
+      name
+      templateName
+      category
+      language
+      waTemplateId
+      templateImg
+      createdAt
+      status
+      footerText
+      headerText
+      headerType
+      bodyText
+      account {
+        id
+        name
+      }
+      attachment {
+        id
+        originalname
+        name
+      }
+      button {
+        phone_number
+        text
+        type
+        url
+      }
+      variables {
+        name
+        value
+      }
+    }
+    message
+    status
+  }
+}`
+
+// Messages
+
+export const SearchReadChannelMessage = gql`
+query channelMessage($channelId: String!, $page : Int!, $pageSize : Int!, $search: String, $filter: String) {
+  searchReadChannelMessage(channelId: $channelId, page: $page, pageSize: $pageSize, search: $search, filter: $filter) {
+    channel {
+      id
+      channelName
+    }
+    messages{
+      textMessage
+      createdAt
+      attachmentUrl
+      messageType
+      sender {
+        phoneNo
+      }
+      attachment {
+        originalname
+      }
+    }
+  }
+}`
+
+export const ChannelMessage = gql`
+query messages($channelId: String!, $cursor: String, $limit : Int!){
+  messages(channelId: $channelId, cursor: $cursor, limit: $limit, ) {
+    cursor
+    edges {
+      id
+      textMessage
+      createdAt
+      attachmentUrl
+      messageType
+      sender {
+        phoneNo
+      }
+      attachment {
+        originalname
+      }
+    }
+    hasMore
+  }
+}`
+
+
+
+export const SearchReadContacts = gql`
+query searchReadContacts($page: Int!, $pageSize: Int!, $search: String, $filter: String) {
+  searchReadContacts(page: $page, pageSize: $pageSize, search: $search, filter: $filter) {
+    total,
+    totalPages,
+    currentPage,
+    contacts {
+      contactName
+      id
+      phoneNo
+      city
+      street
+      zipcode
+      profileImg
+      state
+      createdAt
+      country
+    }
+  }
+}
+`;
+
+export const GetContactById = gql`
+query getContactById($contactId: String!){
+  getContactById(contactId: $contactId){
+    city
+    contactName
+    country
+    createdAt
+    id
+    phoneNo
+    state
+    profileImg
+    street
+    zipcode
+  }
+}
+`
+
+export const searchReadMailingList = gql`
+  query searchReadMailingList($page: Int!, $pageSize: Int!, $search: String, $filter: String){
+    searchReadMailingList(page: $page, pageSize: $pageSize, search: $search, filter: $filter){
+      total,
+      totalPages,
+      currentPage,
+      mailingList {
+      id
+      mailingListName
+      createdAt
+      totalContacts
+      mailingContacts {
+        contactName
+        contactNo
+        id
+        }
+      broadcast {
+        name
+        id
+        }
+      }
+    }
+  }
+`
+
+export const FindAllMailingContacts = gql`
+query findAllMailingContacts($mailingListId : String!,$page: Int!, $pageSize: Int!, $search: String){
+ findAllMailingContacts(mailingListId : $mailingListId,page: $page, pageSize: $pageSize, search: $search){
+    total,
+    totalPages,
+    currentPage,
+    MailingContacts {
+      contactName
+      contactNo
+      id
+      mailingList {
+        mailingListName
+      }
+    }
+ }
+}
+`
+export const FindMalingContactByContactId = gql`
+  query findMailingContact($mailingContactId: String!){
+    findMailingContact(mailingContactId: $mailingContactId){
+      contactName
+      contactNo
+      id
+      createdAt
+    }
+  }
+`
+
+export const deleteMailingListWithAllContacts = gql`
+  mutation DeleteMailingList($mailingIds: [String!]!) {
+    deleteMailingListWithAllContacts(mailingIds: $mailingIds) {
+      success
+      message
+    }
+  }
+`;
+
+export const searchReadAccount = gql`
+ query searchReadAccount($page: Int!, $pageSize: Int!, $search: String){
+    searchReadAccount(page: $page, pageSize: $pageSize, search: $search){
+      total,
+      totalPages,
+      currentPage,
+      accounts{
+        id
+        name
+        appId
+        phoneNumberId
+        businessAccountId
+        accessToken
+        appSecret
+        defaultSelected
+        waWebhookToken
+      }
+    }
+  }
+`
+export const GetWaAccount = gql`
+  query getWaAccount($waAccountId: String!){
+  getWaAccount(waAccountId: $waAccountId){
+     waAccount {
+      accessToken
+      appId
+      businessAccountId
+      appSecret
+      createdAt
+      defaultSelected
+      id
+      name
+      phoneNumberId
+      waWebhookToken
+    }
+  }
+}
+`
+
+export const GetContactList = gql`
+  query getContactList($contactListId: String!){
+    getContactList(contactListId: $contactListId){
+      contactList {
+        mailingContacts {
+          contactName
+          contactNo
+          createdAt
+        }
+        mailingListName
+        totalContacts
+      }
+    }
+  }
+`
+
+export const GetBroadcastsOfTemplate= gql`
+  query getBroadcastsOfTemplate($templateId: String!){
+    getBroadcastsOfTemplate(templateId: $templateId){
+      name
+      sentCount
+      status
+      createdAt
+    }
+  }
+`
+export const GetContactByChannelId=gql`
+  query findContactByChannleId($channelId: String!){
+    findContactByChannleId(channelId: $channelId){
+      id
+      contactName
+      phoneNo
+    }
+}`
+
+export const GetDashboardStats = gql`
+  query getDashboardStats{
+    getDashboardStats{
+      deliveredCount
+      failedCount
+      sentCount
+      contacts {
+        phoneNo
+        contactName
+        profileImg
+      }
+      broadcasts {
+        name
+        totalContacts
+        failedCount
+        sentCount
+        status
+        updatedAt
+    }
+    }
+  }
+`
+
+export const GetEngegmentGraphData = gql`
+  query getEngagementGraphData($startDate: String!, $endDate: String!){
+    getEngagementGraphData(startDate: $startDate, endDate: $endDate){
+      date
+      deliveredCount
+      sentCount
+    }
+  }
+`

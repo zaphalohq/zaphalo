@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { cookieStorage } from '@src/utils/cookie-storage';
+import { VITE_BACKEND_URL } from '@src/config';
 
 export const Post = async (url, formData, headers) => {
 
@@ -13,7 +14,7 @@ export const Post = async (url, formData, headers) => {
 
   const authtoken = accessToken ? JSON.parse(accessToken).accessToken : false;
 	return await axios.post(
-		`${import.meta.env.VITE_BACKEND_URL}${url}`,
+		`${VITE_BACKEND_URL}${url}`,
 		formData,
 		{
 			headers: {

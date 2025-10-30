@@ -1,15 +1,15 @@
-import { Args, Context, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { Args, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { UseGuards } from "@nestjs/common";
 import { MailingList } from "./mailingList.entity";
 import { MailingListService } from "./mailingList.service";
 import { MailingContact } from "./DTO/MailingListReqDto";
 import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
 import { SuccessResponse } from "../whatsapp/dtos/success.dto";
-import { MailingContactResDto } from "./DTO/MailingContactResDto";
 import { MailingContacts } from "./mailingContacts.entity";
-import { SearchAndPaginateContactResDto, SelectedMailingContactResDto } from "./DTO/SelectedMailingContactResDto";
+import { SelectedMailingContactResDto } from "./DTO/SelectedMailingContactResDto";
 import { FindAllMailingListRes } from "./DTO/FindAllMailingListDto";
 import { SearchedRes } from "../whatsapp/dtos/searched.dto";
+import { MailingContactResDto } from "./DTO/MailingContactResDto";
 
 @Resolver(() => MailingList)
 export class MailingListResolver {
@@ -20,20 +20,44 @@ export class MailingListResolver {
 
   @Query(() => FindAllMailingListRes)
   @UseGuards(GqlAuthGuard)
-  async findAllMailingList(
-    @Args('currentPage', { type: () => Int }) currentPage: number,
-    @Args('itemsPerPage', { type: () => Int }) itemsPerPage: number
+  async searchReadMailingList(
+    @Args('page', { type: () => Int, defaultValue: 1 }) page: number,
+    @Args('pageSize', { type: () => Int, defaultValue: 10 }) pageSize: number,
+    @Args('search', { type: () => String, nullable: true }) search?: string,
+    @Args('filter', { type: () => String, nullable: true }) filter?: string,
   ): Promise<FindAllMailingListRes> {
-    return this.mailingListService.findAllMailingList(currentPage, itemsPerPage)
+    if (!search)
+      search = ''
+    if (!filter)
+      filter = ''
+
+    const response = await this.mailingListService.searchReadMailingList(page, pageSize, search, filter)
+    return response
   }
 
-  @Query(() => [MailingContacts])
-  async findAllMailingContactByMailingListId(@Args('mailingListId') mailingListId: string): Promise<MailingContacts[] | null> {
-    return await this.mailingListService.findAllMailingContactByMailingListId(mailingListId);
+  @Query(() => SelectedMailingContactResDto)
+  @UseGuards(GqlAuthGuard)
+  async findAllMailingContacts(
+    @Args('mailingListId') mailingListId: string,
+    @Args('page', { type: () => Int, defaultValue: 1 }) page: number,
+    @Args('pageSize', { type: () => Int, defaultValue: 10 }) pageSize: number,
+    @Args('search', { type: () => String, nullable: true }) search?: string,
+  ): Promise<SelectedMailingContactResDto> {
+    if (!search)
+      search = ''
+    return await this.mailingListService.findAllContactsOfMailingList(mailingListId, page, pageSize, search);
   }
 
+  @Query(() => MailingContacts, { nullable: true })
+  @UseGuards(GqlAuthGuard)
+  async findMailingContact(
+    @Args('mailingContactId') mailingContactId: string,
+  ): Promise<MailingContacts | null> {
+    return await this.mailingListService.findMailingContactByContactId(mailingContactId)
+  }
 
   @Mutation(() => SuccessResponse)
+  @UseGuards(GqlAuthGuard)
   async saveMailingContact(@Args('saveMailingContact') saveMailingContact: MailingContact) {
     await this.mailingListService.saveMailingContact(saveMailingContact)
     return {
@@ -43,34 +67,15 @@ export class MailingListResolver {
   }
 
   @Mutation(() => SuccessResponse)
-  async deleteMailingContact(@Args('mailingContactId') mailingContactId: string) {
-    const deleteContact = await this.mailingListService.deleteMailingContact(mailingContactId)
-    console.log(deleteContact, 'deletecontact');
-
-    // if(deleteContact.raw){
-
-    // }
-    return {
-      success: true,
-      message: 'Mailing Contact Deleted successfully'
-    }
+  @UseGuards(GqlAuthGuard)
+  async deleteMailingListWithAllContacts(@Args('mailingIds', { type: () => [String] }) mailingListIds: string[]) {
+    return this.mailingListService.deleteMailingWithContacts(mailingListIds)
   }
 
-  @Query(() => SelectedMailingContactResDto)
-  async selectedMailingContact(
-    @Args('mailingListId') mailingListId: string,
-    @Args('currentPage', { type: () => Int }) currentPage: number,
-    @Args('itemsPerPage', { type: () => Int }) itemsPerPage: number
-  ): Promise<SelectedMailingContactResDto | null> {
-    return await this.mailingListService.selectedMailingContact(mailingListId, currentPage, itemsPerPage);
-  }
-
-  @Query(() => SearchAndPaginateContactResDto)
-  async searchAndPaginateContact(
-    @Args('mailingListId') mailingListId: string,
-    @Args('searchTerm', { type: () => String, nullable: true }) searchTerm?: string,
-  ): Promise<SearchAndPaginateContactResDto | null> {
-    return this.mailingListService.searchAndPaginateContact(mailingListId, searchTerm);
+  @Mutation(() => SuccessResponse)
+  @UseGuards(GqlAuthGuard)
+  async deleteMailingContact(@Args('mailingContactIds', { type: () => [String] }) mailingContactIds: string[]) {
+    return await this.mailingListService.deleteMailingContact(mailingContactIds)
   }
 
   @Query(() => SearchedRes)
@@ -78,6 +83,15 @@ export class MailingListResolver {
     @Args('searchTerm', { type: () => String, nullable: true }) searchTerm?: string,
   ): Promise<SearchedRes | null> {
     return this.mailingListService.searchMailingList(searchTerm);
+  }
+
+  @Query(() => [MailingList])
+  async readMailingList(
+    @Args('search', { type: () => String, nullable: true }) search?: string,
+    @Args('limit', { type: () => Int, nullable: true }) limit?: number,
+  ): Promise<MailingList[] | undefined> {
+    const mailigList = await this.mailingListService.readMailingList(search, limit);
+    return mailigList
   }
 
 }

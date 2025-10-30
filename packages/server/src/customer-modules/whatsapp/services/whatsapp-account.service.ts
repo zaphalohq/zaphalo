@@ -1,122 +1,90 @@
+import { Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/common';
+import { Connection, Repository, ILike } from 'typeorm';
 import axios from 'axios';
-import { Connection, Repository } from 'typeorm';
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { WhatsAppAccount } from '../entities/whatsapp-account.entity';
-import { WhatsAppTemplate } from 'src/customer-modules/whatsapp/entities/whatsapp-template.entity';
+import crypto from "crypto";
+import * as mime from 'mime-types';
+import { v4 as uuidv4 } from 'uuid';
+import { dirname, join } from 'path';
+
+import { WhatsAppAccount } from 'src/customer-modules/whatsapp/entities/whatsapp-account.entity';
+import { WhatsAppTemplate, TemplateStatus } from 'src/customer-modules/whatsapp/entities/whatsapp-template.entity';
+import { WhatsAppMessage } from 'src/customer-modules/whatsapp/entities/whatsapp-message.entity';
+import { AttachmentService } from 'src/customer-modules/attachment/attachment.service';
 import { ContactsService } from 'src/customer-modules/contacts/contacts.service';
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 import { WaAccountDto } from '../dtos/whatsapp-account-update.dto';
+import { JwtWrapperService } from 'src/modules/jwt/jwt-wrapper.service';
+import { FileService } from 'src/modules/file-storage/services/file.service';
+import { WhatsAppSDKService } from 'src/customer-modules/whatsapp/services/whatsapp-api.service';
+import {
+  WhatsAppException,
+  WhatsAppExceptionCode,
+} from 'src/customer-modules/whatsapp/whatsapp.exception';
+
+export const SUPPORTED_ATTACHMENT_TYPE = {
+  "audio": ["audio/aac", "audio/mp4", "audio/mpeg", "audio/amr", "audio/ogg"],
+  "document": [
+    'text/plain', 'application/pdf', 'application/vnd.ms-powerpoint', 'application/msword',
+    'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  ],
+  'image': ['image/jpeg', 'image/png'],
+  'video': ['video/mp4',],
+}
 
 @Injectable()
 export class WaAccountService {
   private waAccountRepository: Repository<WhatsAppAccount>
-  private waTemplateRepository: Repository<WhatsAppTemplate>
+  private templateRepository: Repository<WhatsAppTemplate>
+
   constructor(
     @Inject(CONNECTION) connection: Connection,
     private readonly contactsService: ContactsService,
-    ) {
+    private readonly jwtWrapperService: JwtWrapperService,
+    private readonly whatsAppApiService: WhatsAppSDKService,
+    private readonly fileService: FileService,
+    private readonly attachmentService: AttachmentService,
+  ) {
     this.waAccountRepository = connection.getRepository(WhatsAppAccount);
-    this.waTemplateRepository = connection.getRepository(WhatsAppTemplate);
+    this.templateRepository = connection.getRepository(WhatsAppTemplate);
   }
 
-  async WaAccountCreate(WhatsappInstantsData: WaAccountDto): Promise<WhatsAppAccount> {
+  async WaAccountCreate(req, waAccount: WaAccountDto): Promise<WhatsAppAccount> {
     const waAccounts = await this.waAccountRepository.find();
     let defaultWaAccount = false;
     if (waAccounts.length < 1) {
       defaultWaAccount = true
     }
     const whatappInstants = this.waAccountRepository.create({
-      name: WhatsappInstantsData.name,
-      appId: WhatsappInstantsData.appId,
-      phoneNumberId: WhatsappInstantsData.phoneNumberId,
-      businessAccountId: WhatsappInstantsData.businessAccountId,
-      accessToken: WhatsappInstantsData.accessToken,
-      appSecret: WhatsappInstantsData.appSecret,
-      defaultSelected: defaultWaAccount
+      name: waAccount.name,
+      appId: waAccount.appId,
+      phoneNumberId: waAccount.phoneNumberId,
+      businessAccountId: waAccount.businessAccountId,
+      accessToken: waAccount.accessToken,
+      appSecret: waAccount.appSecret,
+      defaultSelected: defaultWaAccount,
     })
-    await this.contactsService.createContacts({
-      contactName: WhatsappInstantsData.name,
-      phoneNo: Number(WhatsappInstantsData.phoneNumberId),
-      defaultContact: true,
-    })
-    await this.waAccountRepository.save(whatappInstants)
-    return whatappInstants;
+    
+    const waAccountSaved = await this.waAccountRepository.save(whatappInstants)
+    const waWebhookToken = this.encodeWaWebhookToken({ sub: req.user.userId, workspaceId: req.user.workspace, waAccount })
+    waAccountSaved.waWebhookToken = waWebhookToken
+    await this.waAccountRepository.save(waAccountSaved)
+
+    return waAccountSaved;
   }
 
-  async SyncTemplate(instants: any, businessAccountId: string, accessToken: string): Promise<any> {
-    const response = await axios.get(
-  `https://graph.facebook.com/v22.0/${businessAccountId}/message_templates`,
-  {
-    headers: { Authorization: `Bearer ${accessToken}` },
+  async WaAccountSave(updatedInstants: WaAccountDto): Promise<WhatsAppAccount | null> {
+    const id = updatedInstants.accountId;
+    const waAccount = await this.waAccountRepository.findOne({ where: { id } });
+    if (!waAccount) {
+      throw new NotFoundException(`Instant with ID ${id} not found`);
+    }
+    Object.assign(waAccount, updatedInstants);
+    await this.waAccountRepository.save(waAccount);
+    return waAccount
   }
-  );
-    const templates = response.data?.data;
 
-    for (const template of templates) {
-      console.log(template,'..........................');
-
-      const components = template.components || [];
-            // const header = components.find((component) => component.type === 'HEADER');
-            // const body = components.find((component) => component.type === 'BODY');
-            // const footer = components.find((component) => component.type === 'FOOTER');
-            // const buttonsComponent = components.find((component) => component.type === 'BUTTONS');
-
-            // const variableList: { name: string; value: string }[] = [];
-            // if (body?.example?.body_text?.[0]) {
-            //     body.example.body_text?.[0].forEach((variable, index) => {
-            //         variableList.push({ name: `{{${index + 1}}}`, value: variable });
-            //     });
-            // }
-
-            // const buttons = buttonsComponent?.buttons?.map((btn) => ({
-            //     type: btn.type,
-            //     text: btn.text,
-            //     url: btn.url,
-            //     phone_number: btn.phone_number
-            // }));
-
-      const newTemplate = this.waTemplateRepository.create({
-        account: instants,
-        templateName: template.name,
-        status: template.status,
-        waTemplateId: template.id,
-        category: template.category,
-        language: template.language,
-        // rawComponents: components
-                // bodyText: body?.text,
-                // footerText: footer?.text,
-                // header_handle: header?.example?.header_handle?.[0]?.handle || null,
-                // button: buttons,
-                // variables: variableList,
-      });
-      await this.waTemplateRepository.save(newTemplate);
-    }
-
-    return {
-      success: true,
-      message: 'Templates imported successfully',
-      count: templates.length
-    };
-  };
-
-
-  async TestInstants(phoneNumberId: string, accessToken: string) {
-    try {
-      const url = `https://graph.facebook.com/v22.0/${phoneNumberId}?access_token=${accessToken}`;
-
-      const response = await axios.get(url);
-
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error?.response?.data?.error?.message || error.message
-      };
-    }
-  };
 
   async findAllAccounts(): Promise<WhatsAppAccount[]> {
     return await this.waAccountRepository.find({
@@ -124,21 +92,33 @@ export class WaAccountService {
     });
   }
 
-  async UpdateInstants(id: string, updatedInstants: WaAccountDto): Promise<WhatsAppAccount | null> {
-    const existingInstants = await this.waAccountRepository.findOne({ where: { id } });
-    if (!existingInstants) {
-      throw new NotFoundException(`Instant with ID ${id} not found`);
+  async searchReadAccounts(
+    page: number = 1,
+    pageSize: number = 10,
+    search: string = '',
+  ) {
+    const skip = (page - 1) * pageSize;
+
+    const where: any = {};
+
+    // Search (by name)
+    if (search) {
+      where.name = ILike(`%${search}%`);
     }
-    Object.assign(existingInstants, updatedInstants);
-    await this.waAccountRepository.save(existingInstants);
-    const existingContact = await this.contactsService.findOneContact(Number(existingInstants.phoneNumberId))
-    if(!existingContact) throw Error("contact not found")
-      await this.contactsService.UpdateContact({
-        id: existingContact?.id,
-        contactName: existingContact?.contactName,
-        phoneNo: Number(updatedInstants?.phoneNumberId)
-      })
-    return existingInstants
+
+    const [accounts, total] = await this.waAccountRepository.findAndCount({
+      where,
+      skip,
+      take: pageSize,
+      order: { createdAt: 'DESC' },
+    })
+
+    return {
+      accounts,
+      total,
+      totalPages: Math.ceil(total / pageSize),
+      currentPage: page,
+    }
   }
 
   async DeleteInstants(id: string): Promise<WhatsAppAccount | null> {
@@ -156,11 +136,11 @@ export class WaAccountService {
     await this.waAccountRepository.update(
       { id: findSelectedInstants?.id },
       { defaultSelected: false }
-      )
+    )
     await this.waAccountRepository.update(
       { id: instantsId },
       { defaultSelected: true }
-      )
+    )
     return await this.findAllAccounts()
   }
 
@@ -178,75 +158,107 @@ export class WaAccountService {
   }
 
   async findInstantsByInstantsId(instantsId: string): Promise<WhatsAppAccount | null> {
+    if (!instantsId){
+      return null
+    }
     return await this.waAccountRepository.findOne({
       where: { id: instantsId },
     });
   }
-
-
-
-
-  async sendTemplateMessage() {
-        // const response = await this.whatsappApiPost({
-        //         "messaging_product": "whatsapp",
-        //         "to": "917202031718",
-        //         "type": "template",
-        //         "template": {
-        //             "name": "hello_world",
-        //             "language": {
-        //                 "code": "en_US"
-        //             }
-        //         }
-        //     })
-        //     console.log(response.data);
-    const url = `https://graph.facebook.com/v23.0/420599511140821/messages`;
-
-        // const payload = {
-        //     messaging_product: 'whatsapp',
-        //     to: 917202031718,
-        //     type: 'template',
-        //     template: {
-        //         name: 'order_template',
-        //         language: { code: 'en_US' },
-        //         components: [
-        //             {
-        //                 type: 'body',
-        //                 parameters: [
-        //                     {
-        //                         type: 'text',
-        //                         text: 'Chintan Patel' //replaces {{1}} in the body and URL
-        //                     }
-        //                 ]
-        //             }
-        //         ]
-        //     }
-        // };
-
-    const payload = {
-      "messaging_product": "whatsapp",
-      "recipient_type": "individual",
-      "to": "+917202031718",
-      "type": "text",
-      "text": {
-        "preview_url": true,
-        "body": "As requested, here'\''s the link to our latest product: https://www.meta.com/quest/quest-3/"
-      },
-    }
-
-    try {
-      const response = await axios.post(url, payload, {
-        headers: {
-          Authorization: `Bearer EAAL391PN5tABPKLO53Q8q9Dw5IPnnXos13G4Ao2lkf1vIp0YiuVFP2NwtAJltD8V7cnba8AdOTZBCMLuzN3Eu9D77R5eC0tqWVxKyFexDOOcNlwfDSIbLB1lZCnJaKz6jYRFrzT8JZAdvZAOzoc3icFva7C2p03XQVpexknoqxwmzJAIYaZBK76cRk7I0VrQg1asREuU78JxN5cByxber77ZCFYohbzu3aajO6jv0X`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      console.log('Message sent:', response.data);
-    } catch (error) {
-      console.error('Send message failed:', error.response?.data || error.message);
-    }
-    return "response"
-
+  async getWaAccountPhoneAndAccountId(phoneNumberId: string, businessAccountId: string): Promise<WhatsAppAccount | null> {
+    return await this.waAccountRepository.findOne({
+      where: { phoneNumberId: phoneNumberId, businessAccountId: businessAccountId },
+    });
   }
 
+  async findInstantsByAccounID(businessAccountId: string): Promise<WhatsAppAccount | null> {
+    return await this.waAccountRepository.findOne({
+      where: { businessAccountId: businessAccountId },
+    });
+  }
+
+  encodeWaWebhookToken(payloadToEncode: Record<string, any>) {
+    const secret = this.jwtWrapperService.generateAppSecret(
+      'API_KEY',
+      payloadToEncode.workspaceId
+    );
+
+    const signedPayload = this.jwtWrapperService.sign(
+      {
+        ...payloadToEncode,
+      },
+      {
+        secret,
+        expiresIn: '100y'
+      },
+    );
+
+    return signedPayload;
+  }
+
+  async getWhatsAppApi(waAccountId?: string) {
+    if (!waAccountId) {
+      throw new WhatsAppException(
+        "WhatsApp Account Id not Provided",
+        WhatsAppExceptionCode.WA_ACCOUNT_INVALID,
+      );
+    }
+    const waAccountRes = await this.getWaAccount(waAccountId)
+    if (!waAccountRes.status){
+      throw new WhatsAppException(
+        "WhatsApp account not found",
+        WhatsAppExceptionCode.WA_ACCOUNT_INVALID,
+      );
+    }
+    return this.whatsAppApiService.getWhatsApp(waAccountRes.waAccount)
+  }
+
+  async getWaAccount(
+    waAccountId: string,
+  ) {
+    const waAccountFind = await this.waAccountRepository.findOne({
+      where: { id: waAccountId },
+    });
+    if (!waAccountFind){
+      throw new Error('Account not found');
+    }
+    return {'waAccount': waAccountFind, 'message': 'Account found', 'status': true}
+  }
+
+  async prepareAttachmentVals(attachment, waAccount){
+    // """ Upload the attachment to WhatsApp and return prepared values to attach to the message. """
+    let whatsappMediaType = ''
+
+    for (const [key, value] of Object.entries(SUPPORTED_ATTACHMENT_TYPE)) {
+      if (value.includes(attachment.mimetype)){
+        whatsappMediaType = key
+        break
+      }
+    }
+
+    if (!whatsappMediaType)
+      throw new Error(`Attachment mimetype is not supported by WhatsApp: ${attachment.mimetype}.`)
+    const waApi = await this.getWhatsAppApi(waAccount.id)
+    let whatsappMediaUid = await waApi.uploadWhatsappDocument(attachment)
+
+    let vals = {
+      'type': whatsappMediaType,
+      [whatsappMediaType]: {'id': whatsappMediaUid}
+    }
+    if (whatsappMediaType == 'document')
+      vals[whatsappMediaType]['filename'] = attachment.name
+    return vals
+  }
+
+  async readWaAccount(
+    search?: string,
+    limit?: number,
+  ) {
+    const waAccounts = await this.waAccountRepository.find({
+      where: { name: ILike(`%${search}%`) },
+      order: { createdAt: 'ASC' },
+      take: limit,
+    });
+    return waAccounts;
+  }
 }

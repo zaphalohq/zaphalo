@@ -68,14 +68,14 @@ export class UserResolver {
       where: {
         id: userId,
       },
-      relations: ['workspaces', 'workspaces.workspace'],
+      relations: ['workspaceMembers', 'workspaceMembers.workspace'],
     });
 
     if (!user) {
       throw new Error('Current user not found');
     }
 
-    const currentUserWorkspace = user.workspaces.find(
+    const currentUserWorkspace = user.workspaceMembers.find(
       (userWorkspace) => userWorkspace.workspace.id === workspace.id,
     );
 

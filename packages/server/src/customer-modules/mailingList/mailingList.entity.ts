@@ -4,14 +4,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   Relation
 } from 'typeorm';
 import { MailingContacts } from './mailingContacts.entity';
 import { UUIDScalarType } from 'src/modules/api/scalars/uuid.scalar';
-import { Broadcast } from '../broadcast/broadcast.entity';
+import { Broadcast } from 'src/customer-modules/broadcast/entities/broadcast.entity';
 
 @Entity({ name: 'MailingList' })
 @ObjectType()
@@ -24,9 +23,20 @@ export class MailingList {
   @Column({ nullable: true })
   mailingListName: string;
 
+  @Field(() => Number, { nullable: true })
+  @Column({ nullable: true })
+  totalContacts: number;
+
+
   @Field(() => [MailingContacts])
-  @OneToMany(() => MailingContacts, MailingContacts => MailingContacts.mailingList)
+  @OneToMany(() => MailingContacts, MailingContacts => MailingContacts.mailingList,{
+    cascade:true,
+  })
   mailingContacts: Relation<MailingContacts[]>
+
+  @Field(()=>[Broadcast])
+  @OneToMany(()=>Broadcast,broadcast => broadcast.contactList)
+  broadcast: Relation<Broadcast[]>
 
   @Field(() => String)
   @CreateDateColumn()
