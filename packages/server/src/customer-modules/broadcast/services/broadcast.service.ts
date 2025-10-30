@@ -361,4 +361,8 @@ export class BroadcastService {
       }
     }
   }
+
+  async getAllBroadCast(){
+    return await this.broadcastRepository.find();
+  }
 }

@@ -1,5 +1,18 @@
 
-const RecentCampaigns = ({campaigns}) => {
+const RecentCampaigns = ({ campaigns }) => {
+
+    const formatDate = (dateString: string) => {
+        try {
+            return new Date(dateString).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        } catch (error) {
+            return 'Invalid date';
+        }
+    };
+
     return (
         <>
             <div className="bg-white p-4 rounded-md border">
@@ -13,10 +26,10 @@ const RecentCampaigns = ({campaigns}) => {
                         <div key={c.id} className="py-3 flex items-center justify-between">
                             <div>
                                 <div className="font-medium">{c.name}</div>
-                                <div className="text-xs text-gray-500">{c.segment} — {c.sentAt}</div>
+                                <div className="text-xs text-gray-500">{c.status} — {formatDate(c.updatedAt)}</div>
                             </div>
                             <div className="text-right">
-                                <div className="text-sm font-semibold">{c.messagesSent}</div>
+                                <div className="text-sm font-semibold">{c.sentCount}</div>
                                 <div className="text-xs text-gray-500">sent</div>
                             </div>
                         </div>

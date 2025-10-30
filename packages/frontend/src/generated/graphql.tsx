@@ -328,13 +328,11 @@ export const InstantsSelection = gql`mutation InstantsSelection($instantsId: Str
 
 export const DeleteContact = gql`
 mutation DeleteContact(
-  $contactId : String!,
+  $ContactIds : [String!]!,
   ){
-    DeleteContact(contactId: $contactId) {
-    contactName
-    createdAt
-    phoneNo
-    profileImg
+    DeleteContact(ContactIds: $ContactIds) {
+    message
+    status
     }
   }
 `
@@ -600,9 +598,11 @@ mutation saveMailingContact($saveMailingContact: MailingContact!){
 `
 
 export const DeleteMailingContact = gql`
-mutation deleteMailingContact($mailingContactId : String!){
-  deleteMailingContact(mailingContactId: $mailingContactId){
+mutation deleteMailingContact($mailingContactIds : [String!]!){
+  deleteMailingContact(mailingContactIds: $mailingContactIds){
+    message
     success
+    error
  }
 }
 `
@@ -1214,8 +1214,8 @@ export const FindMalingContactByContactId = gql`
 `
 
 export const deleteMailingListWithAllContacts = gql`
-  mutation DeleteMailingList($mailingId: String!) {
-    deleteMailingListWithAllContacts(mailingId: $mailingId) {
+  mutation DeleteMailingList($mailingIds: [String!]!) {
+    deleteMailingListWithAllContacts(mailingIds: $mailingIds) {
       success
       message
     }
@@ -1284,6 +1284,47 @@ export const GetBroadcastsOfTemplate= gql`
       sentCount
       status
       createdAt
+    }
+  }
+`
+export const GetContactByChannelId=gql`
+  query findContactByChannleId($channelId: String!){
+    findContactByChannleId(channelId: $channelId){
+      id
+      contactName
+      phoneNo
+    }
+}`
+
+export const GetDashboardStats = gql`
+  query getDashboardStats{
+    getDashboardStats{
+      deliveredCount
+      failedCount
+      sentCount
+      contacts {
+        phoneNo
+        contactName
+        profileImg
+      }
+      broadcasts {
+        name
+        totalContacts
+        failedCount
+        sentCount
+        status
+        updatedAt
+    }
+    }
+  }
+`
+
+export const GetEngegmentGraphData = gql`
+  query getEngagementGraphData($startDate: String!, $endDate: String!){
+    getEngagementGraphData(startDate: $startDate, endDate: $endDate){
+      date
+      deliveredCount
+      sentCount
     }
   }
 `

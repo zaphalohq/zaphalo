@@ -13,8 +13,8 @@ const Performance = ({campaigns}) => {
                             <XAxis dataKey="name" />
                             <YAxis />
                             <Tooltip />
-                            <Bar dataKey="messagesDelivered" fill="#10B981" />
-                            <Bar dataKey="clicks" fill="#3B82F6" />
+                            <Bar dataKey="sentCount" fill="#10B981" />
+                            <Bar dataKey="failedCount" fill="#3B82F6" />
                         </BarChart>
                     </ResponsiveContainer>
                 </div>

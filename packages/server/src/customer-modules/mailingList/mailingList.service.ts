@@ -3,7 +3,7 @@ import { MailingList } from "./mailingList.entity";
 import { MailingContact, MailingListInputDto } from "./DTO/MailingListReqDto";
 import { MailingContacts } from "./mailingContacts.entity";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
-import { Connection, ILike, Repository } from 'typeorm';
+import { Connection, ILike, In, Repository } from 'typeorm';
 import { FindAllMailingListRes } from "./DTO/FindAllMailingListDto";
 
 @Injectable()
@@ -78,16 +78,20 @@ export class MailingListService {
     };
   }
 
-  async deleteMailingWithContacts(mailingListId: string) {
-    const mailingList = await this.mailingListRepository.findOne({ where: { id: mailingListId }, relations: ['mailingContacts'], });
+  async deleteMailingWithContacts(mailingListIds: string[]) {
+    const mailingList = await this.mailingListRepository.find(
+      {
+        where: { id: In(mailingListIds) },
+        relations: ['mailingContacts'],
+      });
 
-    if (!mailingList) {
-      return { success: false, error: `Mailing list with id ${mailingListId} not found` };
+    if (mailingList.length === 0) {
+      return { success: false, error: `No mailing list are found` };
     }
 
     try {
       await this.mailingListRepository.remove(mailingList); // cascade deletes contacts
-      return { success: true, message: `Mailing list ${mailingListId} deleted successfully` };
+      return { success: true, message: `Mailing list deleted successfully` };
     } catch (err) {
       return { success: false, error: 'Failed to delete mailing list' };
     }
@@ -187,30 +191,48 @@ export class MailingListService {
     }
   }
 
-  async deleteMailingContact(mailingContactId: string) {
-
-    const contact = await this.mailingContactsRepository.findOne({
-      where: { id: mailingContactId },
+  async deleteMailingContact(mailingContactIds: string[]) {
+    
+    const contacts = await this.mailingContactsRepository.find({
+      where: { id: In(mailingContactIds) },
       relations: ['mailingList'],
     });
 
-    if (!contact) {
-      throw new Error('Mailing contact not found');
+    if (contacts.length === 0) {
+      return {
+        success: false,
+        error: 'No Mailing Contacts found for the provided IDs'
+      };
     }
 
-    const mailingList = contact.mailingList
+    //for re count total contacts in mailing list after deleting mailing contacts
+    try {
+      const mailingList = contacts[0].mailingList;
+      if (!mailingList) {
+        return { success: false, error: 'Associated mailing list not found' };
+      }
 
-    await this.mailingContactsRepository.delete({ id: mailingContactId })
+      await this.mailingContactsRepository.remove(contacts);
 
-    const remainingCount = await this.mailingContactsRepository.count({
-      where: { mailingList: { id: mailingList.id } },
-    });
+      const remainingCount = await this.mailingContactsRepository.count({
+        where: { mailingList: { id: mailingList.id } },
+      });
 
-    await this.mailingListRepository.update(mailingList.id, {
-      totalContacts: remainingCount,
-    });
+      await this.mailingListRepository.update(mailingList.id, {
+        totalContacts: remainingCount,
+      });
 
-    return;
+      return {
+        success: true,
+        message: 'Mailing Contact Deleted successfully'
+      };
+    } catch (err) {
+      console.error('deleteMailingContact error', err);
+      return {
+        success: false,
+        error: err instanceof Error ? err.message : 'Failed to delete mailing contacts'
+      };
+    }
 
   }
 

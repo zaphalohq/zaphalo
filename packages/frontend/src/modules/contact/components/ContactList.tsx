@@ -79,15 +79,17 @@ const ContactsList = ({
     // {Delete contact}
     const [deleteContact, { error: deleteError }] = useMutation(DeleteContact);
     const HandleDeleteContacts = async () => {
-        try {
-            for (const id of selected) {
-                await deleteContact({ variables: { contactId: id } });
-                toast.success('Contact deleted successfully');
-            }
-            await refetch();
-        } catch (err) {
-            console.error("error deleting multiple contacts", err)
+        if (!selected.length) return;
+        const response = await deleteContact({ variables: { ContactIds: selected } });
+
+        if (response.data.DeleteContact.status === false) {
+            toast.error(response.data.DeleteContact.message);
         }
+        else {
+            toast.success(response.data.DeleteContact.message);
+        }
+        setSelected([]); // clear selection
+        await refetch();
     }
 
     return (

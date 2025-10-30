@@ -2,7 +2,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import { Contacts } from "./contacts.entity";
 import { createContactsDto } from "./dto/createContactsDto";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
-import { Connection, Like, Repository } from 'typeorm';
+import { Connection, In, Like, Repository } from 'typeorm';
 import { updateContactsDto } from "./dto/updateContactsDto";
 import { throwError } from "rxjs";
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -70,6 +70,37 @@ export class ContactsService {
         return createdContacts
     }
 
+    async createContactss(contact): Promise<Contacts[]> {
+        const result: Contacts[] = [];
+
+        const existing = await this.findOneContact(contact.phoneNo);
+
+        if (existing) {
+            result.push(existing);
+        } else {
+            const newContact = this.contactsRepository.create({
+                contactName: contact.contactName,
+                phoneNo: contact.phoneNo,
+                profileImg: contact.profileImg,
+                street: contact.street,
+                city: contact.city,
+                country: contact.country,
+                state: contact.state,
+                zipcode: contact.zipcode,
+            });
+
+            const saved = await this.contactsRepository.save(newContact);
+            result.push(saved);
+        }
+
+
+        // 🔥 After processing all contacts, fetch and return all contacts from DB
+        const allContacts = await this.contactsRepository.find();
+        return allContacts;
+    }
+
+
+
     async findAllContacts(): Promise<Contacts[]> {
 
         return await this.contactsRepository.find({
@@ -106,7 +137,7 @@ export class ContactsService {
 
             this.eventEmitter.emit('contact.updated', {
                 workspaceId: workspace.id,
-                    phoneNo: savedContact.phoneNo,
+                phoneNo: savedContact.phoneNo,
                 contactName: savedContact.contactName,
             })
             return savedContact
@@ -116,12 +147,25 @@ export class ContactsService {
 
     }
 
-    async DeleteContact(contactId: string) {
-        const deleteContact = await this.contactsRepository.findOne({ where: { id: contactId } });
-        if (deleteContact)
-            return await this.contactsRepository.remove(deleteContact)
-        else
-            return null
+    async DeleteContact(contactIds: string[]) {
+        const contacts = await this.contactsRepository.find({
+            where: {
+                id: In(contactIds)
+            }
+        });
+        if (contacts.length === 0) {
+            return {
+                'message': 'No contacts found to delete',
+                'status': false
+            }
+        }
+
+        await this.contactsRepository.remove(contacts);
+
+        return {
+            'message': 'Contacts deleted',
+            'status': true
+        }
 
     }
 
@@ -139,6 +183,14 @@ export class ContactsService {
             return createdContacts
         }
         return existingContact
+    }
+
+    async findContactByChannleId(channelId: string) {
+        return await this.contactsRepository
+            .createQueryBuilder('contact')
+            .leftJoin('contact.channel', 'channel')
+            .where('channel.id = :channelId', { channelId })
+            .getOne();
     }
 
 

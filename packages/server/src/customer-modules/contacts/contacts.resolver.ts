@@ -8,6 +8,7 @@ import { updateContactsDto } from "./dto/updateContactsDto";
 import { ManyContactResponse } from "./dto/many-contact-response.dto";
 import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
 import { Workspace } from "src/modules/workspace/workspace.entity";
+import { ContactResponse } from "./dto/contact-response.dto";
 
 @Resolver(() => Contacts)
 export class ContactsResolver {
@@ -19,6 +20,14 @@ export class ContactsResolver {
     @Mutation(() => Contacts)
     async CreateContacts(@Args('CreateContacts') CreateContacts: createContactsDto): Promise<Contacts | undefined> {
         return await this.contactsservice.createContacts(CreateContacts)
+    }
+
+    // @UseGuards(GqlAuthGuard)
+    @Mutation(() => [Contacts])
+    async CreateContactss(
+        @Args('CreateContacts') CreateContacts: createContactsDto,
+    ): Promise<Contacts[]> {
+        return await this.contactsservice.createContactss(CreateContacts);
     }
 
     @UseGuards(GqlAuthGuard)
@@ -58,8 +67,14 @@ export class ContactsResolver {
     }
 
     @UseGuards(GqlAuthGuard)
-    @Mutation(() => Contacts)
-    async DeleteContact(@Args('contactId') contactId: string) {
-        return this.contactsservice.DeleteContact(contactId)
+    @Mutation(() => ContactResponse)
+    async DeleteContact(@Args('ContactIds', { type: () => [String] }) ContactIds: string[]) {
+        return this.contactsservice.DeleteContact(ContactIds)
+    }
+
+    @UseGuards(GqlAuthGuard)
+    @Query(() => Contacts)
+    async findContactByChannleId(@Args('channelId') channelId: string) {
+        return await this.contactsservice.findContactByChannleId(channelId)
     }
 }

@@ -13,28 +13,28 @@ function KpiCard({ title, value, icon }) {
     );
 }
 
-const Engagement = ({kpis}) => {
+const Engagement = ({kpisData,engagementGraphData}) => {
 
     return (
         <>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <KpiCard title="Messages Sent" value={kpis.totalSent} icon={<MessageCircle size={20} />} />
-                <KpiCard title="Delivered" value={kpis.totalDelivered} icon={<Users size={20} />} />
-                <KpiCard title="Clicks" value={kpis.totalClicks} icon={<ChartBar size={20} />} />
-                <KpiCard title="Open Rate" value={`${kpis.openRate}%`} icon={<Send size={20} />} />
+                <KpiCard title="Messages Sent" value={kpisData?.sentCount} icon={<MessageCircle size={20} />} />
+                <KpiCard title="Delivered" value={kpisData?.deliveredCount} icon={<Users size={20} />} />
+                <KpiCard title="Failed" value={kpisData?.failedCount} icon={<ChartBar size={20} />} />
+                <KpiCard title="Open Rate" value={`60%`} icon={<Send size={20} />} />
             </div>
 
             <div className="bg-white p-4 rounded-md border">
                 <h3 className="font-semibold mb-3">Engagement (last 7 days)</h3>
                 <div style={{ height: 220 }}>
                     <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={engagementData}>
+                        <LineChart data={engagementGraphData}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="date" />
                             <YAxis />
                             <Tooltip />
-                            <Line type="monotone" dataKey="sent" stroke="#10B981" strokeWidth={2} dot={false} />
-                            <Line type="monotone" dataKey="delivered" stroke="#3B82F6" strokeWidth={2} dot={false} />
+                            <Line type="monotone" dataKey="sentCount" stroke="#10B981" strokeWidth={2} dot={false} />
+                            <Line type="monotone" dataKey="deliveredCount" stroke="#3B82F6" strokeWidth={2} dot={false} />
                         </LineChart>
                     </ResponsiveContainer>
                 </div>
