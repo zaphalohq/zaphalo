@@ -70,37 +70,6 @@ export class ContactsService {
         return createdContacts
     }
 
-    async createContactss(contact): Promise<Contacts[]> {
-        const result: Contacts[] = [];
-
-        const existing = await this.findOneContact(contact.phoneNo);
-
-        if (existing) {
-            result.push(existing);
-        } else {
-            const newContact = this.contactsRepository.create({
-                contactName: contact.contactName,
-                phoneNo: contact.phoneNo,
-                profileImg: contact.profileImg,
-                street: contact.street,
-                city: contact.city,
-                country: contact.country,
-                state: contact.state,
-                zipcode: contact.zipcode,
-            });
-
-            const saved = await this.contactsRepository.save(newContact);
-            result.push(saved);
-        }
-
-
-        // 🔥 After processing all contacts, fetch and return all contacts from DB
-        const allContacts = await this.contactsRepository.find();
-        return allContacts;
-    }
-
-
-
     async findAllContacts(): Promise<Contacts[]> {
 
         return await this.contactsRepository.find({
@@ -192,6 +161,5 @@ export class ContactsService {
             .where('channel.id = :channelId', { channelId })
             .getOne();
     }
-
 
 }

@@ -22,14 +22,6 @@ export class ContactsResolver {
         return await this.contactsservice.createContacts(CreateContacts)
     }
 
-    // @UseGuards(GqlAuthGuard)
-    @Mutation(() => [Contacts])
-    async CreateContactss(
-        @Args('CreateContacts') CreateContacts: createContactsDto,
-    ): Promise<Contacts[]> {
-        return await this.contactsservice.createContactss(CreateContacts);
-    }
-
     @UseGuards(GqlAuthGuard)
     @Query(() => [Contacts])
     async findAllContacts() {
