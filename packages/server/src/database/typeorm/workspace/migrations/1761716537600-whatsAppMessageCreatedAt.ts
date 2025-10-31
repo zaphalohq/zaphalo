@@ -2,7 +2,7 @@ import { MigrationInterface, QueryRunner } from "typeorm";
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
 
-export class New1761716537600 implements MigrationInterface {
+export class WhatsAppMessageCreatedAt1761716537600 implements MigrationInterface {
     name = 'WhatsAppMessageCreatedAt1761716537600'
 
     public async up(queryRunner: QueryRunner): Promise<void> {

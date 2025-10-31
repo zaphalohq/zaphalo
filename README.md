@@ -15,7 +15,10 @@
 Place the image file at one of these recommended locations in the repo:
 - packages/frontend/public/assets/hero.png
 - docs/assets/hero.png
-
+{
+  "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdE5hbWUiOiJLcnVwYWwiLCJsYXN0TmFtZSI6IlBhdGVsIiwic3ViIjoiN2Y5NjhmZTktOTU5Yy00MTNjLTg2N2YtMjA5NzUxNDlkOWQ2IiwiZW1haWwiOiJrcnVwYWxAZ21haWwuY29tIiwid29ya3NwYWNlSWQiOiI2Y2U4NjU0NS05OTBhLTQ2MDUtOGQ0MC03YWM5OTNiNWEwNzAiLCJ3b3Jrc3BhY2VJZHMiOiI2Y2U4NjU0NS05OTBhLTQ2MDUtOGQ0MC03YWM5OTNiNWEwNzAiLCJpYXQiOjE3NjE3Mzc4NTksImV4cCI6MTc2MjM0MjY1OX0.Td662SWKXHzJIgVf-x5pyO3JL5RFWpTL2_sp7AMWpvo",
+  "x-workspace-id": "6ce86545-990a-4605-8d40-7ac993b5a070"
+}
 Or use a remote URL:
 <img src="https://example.com/path/to/hero.png" alt="ZapHalo — WhatsApp API Integration" />
 -->
