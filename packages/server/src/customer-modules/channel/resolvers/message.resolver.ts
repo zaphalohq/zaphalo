@@ -14,7 +14,7 @@ import { message } from "aws-sdk/clients/sns";
 import { WaAccountService } from "src/customer-modules/whatsapp/services/whatsapp-account.service";
 import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
 import { ContactsService } from "src/customer-modules/contacts/contacts.service";
-import { FileService } from "src/modules/file-storage/services/file.service";
+import { FileService } from "src/modules/file/services/file.service";
 import { ChannelService } from "src/customer-modules/channel/services/channel.service";
 import { Message } from "src/customer-modules/channel/entities/message.entity";
 import { SuccessResponse } from "src/customer-modules/whatsapp/dtos/success.dto";
@@ -154,19 +154,16 @@ export class MessageResolver {
     const workspaceId = context.req.headers['x-workspace-id']
     if (message.attachmentUrl) {
       try {
-        const workspaceLogoToken = this.fileService.encodeFileToken({
+        return this.fileService.signFileUrl({
+          url: message.attachmentUrl,
           workspaceId: workspaceId,
         });
-
-        return `${message.attachmentUrl}?token=${workspaceLogoToken}`;
-
       } catch (e) {
         return message.attachmentUrl;
       }
     }
     return message.attachmentUrl ?? '';
   }
-
 
   @UseGuards(GqlAuthGuard)
   @Query(() => ManyChannelMessageResponse)

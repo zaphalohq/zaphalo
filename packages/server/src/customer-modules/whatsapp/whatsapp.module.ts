@@ -17,7 +17,7 @@ import { WorkspaceModule } from 'src/modules/workspace/workspace.module';
 import { WaAccountResolver } from './resolvers/account.resolver';
 import { AttachmentModule } from '../attachment/attachment.module';
 import { WhatsAppTemplateResolver } from './resolvers/template.resolver';
-import { FileStorageModule } from 'src/modules/file-storage/file-storage.module';
+import { FileModule } from 'src/modules/file/file.module';
 import { JwtModule } from 'src/modules/jwt/jwt.module';
 import { Workspace } from 'src/modules/workspace/workspace.entity';
 import { MessageQueueModule } from 'src/modules/message-queue/message-queue.module';
@@ -34,13 +34,12 @@ import { WhatsAppMessageCreatedListener } from './listeners/whatsapp-message-cre
         ContactsModule,
         WorkspaceModule,
         AttachmentModule,
-        FileStorageModule,
         JwtModule,
       ],
     }),
     HttpModule,
     MessageQueueModule,
-    FileStorageModule,
+    FileModule,
   ],
   providers: [
     WhatsAppSDKService,

@@ -4,13 +4,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 
-import { Workspace } from "./workspace.entity";
-import { WorkspaceService } from "./workspace.service";
-import { WorkspaceResponceDTO } from "./dto/WorkspaceResponceDTO";
-import { WorkspaceUpdateInputDto } from "./dto/WorkspaceUpdateInputDto";
-import { WorkspaceDashboardOutput } from "./dto/WorkspaceDashboardOutput";
+import { Workspace } from "src/modules/workspace/workspace.entity";
+import { WorkspaceService } from "src/modules/workspace/workspace.service";
+import { WorkspaceResponceDTO } from "src/modules/workspace/dto/WorkspaceResponceDTO";
+import { WorkspaceUpdateInputDto } from "src/modules/workspace/dto/WorkspaceUpdateInputDto";
+import { WorkspaceDashboardOutput } from "src/modules/workspace/dto/WorkspaceDashboardOutput";
 import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
-import { FileService } from "src/modules/file-storage/services/file.service";
+import { FileService } from "src/modules/file/services/file.service";
+import { FileStorageService } from "src/modules/file-storage/file-storage.service";
 import { Roles } from 'src/modules/auth/decorators/roles.decorator';
 import { Role } from 'src/enums/role.enum';
 import { AuthUser } from 'src/decorators/auth-user.decorator';
@@ -27,6 +28,7 @@ export class workspaceResolver {
     private readonly workspaceRepository: Repository<Workspace>,
     private workspaceService: WorkspaceService,
     private fileService: FileService,
+    private fileStorageService: FileStorageService,
     private readonly domainManagerService: DomainManagerService,
   ) { }
 
@@ -58,15 +60,14 @@ export class workspaceResolver {
   async profileImg(@Parent() workspace: Workspace): Promise<string> {
     if (workspace.profileImg) {
       try {
-        const workspaceLogoToken = this.fileService.encodeFileToken({
+        return this.fileService.signFileUrl({
+          url: workspace.profileImg,
           workspaceId: workspace.id,
         });
-        return `${workspace.profileImg}?token=${workspaceLogoToken}`;
       } catch (e) {
         return workspace.profileImg;
       }
     }
-
     return workspace.profileImg ?? '';
   }
 

@@ -23,6 +23,9 @@ import TemplateVariables from "@src/modules/whatsapp/components/templates/Templa
 import { TemplateContext } from '@src/modules/whatsapp/Context/TemplateContext';
 import { Post } from "@src/modules/domain-manager/hooks/axios";
 import TemplatePreviewDialog from '@src/modules/whatsapp/components/templates/TemplatePreview';
+import { getImageAbsoluteURI } from "@src/utils/getImageAbsoluteURI"
+import { isNonEmptyString } from '@sniptt/guards';
+import { VITE_BACKEND_URL } from '@src/config';
 
 import {
   Tabs,
@@ -362,7 +365,11 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
                 {attachment.originalname ?
                   <p className='p-2 mb-2 text-blue-700 rounded bg-blue-500/10 font-semibold'>
                     <span className='text-gray-600 font-normal'>Current Uploaded Image : </span>
-                    {attachment.originalname}
+                    <a href={getImageAbsoluteURI({
+          imageUrl: isNonEmptyString(templateData.templateImg)
+            ? templateData.templateImg : '',
+          baseUrl: VITE_BACKEND_URL,
+        }) ?? ''} target="_blank">{attachment.originalname}</a>
                   </p> : <></>}
                 <Input
                   type="file"

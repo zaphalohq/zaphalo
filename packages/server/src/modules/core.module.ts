@@ -5,6 +5,7 @@ import { WorkspaceModule } from './workspace/workspace.module';
 import { WorkspaceManagerModule } from 'src/modules/workspace-manager/workspace.manager.module';
 import { SystemConfigModule } from 'src/modules/system-config/system-config.module';
 import { FileStorageModule } from 'src/modules/file-storage/file-storage.module';
+import { FileModule } from 'src/modules/file/file.module';
 import { JwtModule } from 'src/modules/jwt/jwt.module';
 import { AppTokenModule } from './app-token/app-token.module';
 import { ConfigService } from '@nestjs/config';
@@ -20,7 +21,8 @@ import { WorkspaceInvitationModule } from 'src/modules/workspace-invitation/work
     AppTokenModule,
     WorkspaceManagerModule,
     SystemConfigModule,
-    FileStorageModule,
+    FileModule,
+    FileStorageModule.forRoot(),
     JwtModule,
     WorkspaceInvitationModule,
     MessageQueueModule.registerAsync({

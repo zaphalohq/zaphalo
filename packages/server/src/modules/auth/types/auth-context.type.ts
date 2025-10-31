@@ -16,6 +16,16 @@ type CommonPropertiesJwtPayload = {
   sub: string;
 };
 
+export type FileTokenJwtPayload = CommonPropertiesJwtPayload & {
+  type: JwtTokenTypeEnum.FILE;
+  workspaceId: string;
+  filename: string;
+  workspaceMemberId?: string;
+  noteBlockId?: string;
+  attachmentId?: string;
+  personId?: string;
+};
+
 export type AccessTokenJwtPayload = CommonPropertiesJwtPayload & {
   type: JwtTokenTypeEnum.ACCESS;
   workspaceId: string;
