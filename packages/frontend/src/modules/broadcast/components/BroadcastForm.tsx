@@ -40,6 +40,7 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
     whatsappAccountId: '',
     templateId: '',
     contactListId: '',
+    limit: null,
     status: '',
     scheduledAt: '',
   })
@@ -59,6 +60,7 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
         whatsappAccountId: broadcastView.whatsappAccount.id,
         templateId: broadcastView.template.id,
         contactListId: broadcastView.contactList.id,
+        limit: broadcastView.limit,
         scheduledAt: broadcastView.scheduledAt ? formatUTCDate(broadcastView.scheduledAt) : '',
         status: broadcastView.status,
       })
@@ -116,6 +118,10 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
       toSubmiteData.scheduledAt = broadcastData.scheduledAt
     }
 
+    if (broadcastData.limit !== null && broadcastData.limit !== undefined) {
+      toSubmiteData.limit = broadcastData.limit;
+    }
+
     if (broadcastData.broadcastId) {
       toSubmiteData.broadcastId = broadcastData.broadcastId
     }
@@ -133,12 +139,13 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
         whatsappAccountId: broadcast.whatsappAccount.id,
         templateId: broadcast.template.id,
         contactListId: broadcast.contactList.id,
+        limit: broadcast?.limit,
         scheduledAt: broadcast.scheduledAt ? formatUTCDate(broadcast.scheduledAt) : '',
         status: broadcast.status,
       })
       toast.success(`${response.data?.saveBroadcast?.message}`);
     }
-    return  broadcast.id
+    return broadcast.id
   }
 
   const handleSaveAndCancel = async () => {
@@ -225,15 +232,15 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <Card className="w-full max-w-2xl shadow-lg">
         <CardContent className="p-8 space-y-6">
-           {!broadcastId ? (
+          {!broadcastId ? (
             <h2 className="text-2xl font-bold text-center">Create Broadcast</h2>
-            ) :
-           (
-            <h2 className="text-2xl font-bold text-center">Edit Broadcast</h2>
+          ) :
+            (
+              <h2 className="text-2xl font-bold text-center">Edit Broadcast</h2>
             )
-         }
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-4">
+          }
+          <form onSubmit={handleSubmit}>
+            <div className="space-y-4">
               <Input
                 placeholder="Broadcast ID"
                 value={broadcastData.broadcastId}
@@ -254,7 +261,7 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
 
               <Label>Whatsapp Account</Label>
               <SelectField
-                className={errors.broadcastName ? "border-red-500 focus-visible:ring-red-500 focus-visible:border-gray-300" : ""}
+                className={errors.whatsappAccountId ? "border-red-500 focus-visible:ring-red-500 focus-visible:border-gray-300" : ""}
                 selectedVal={broadcastData.whatsappAccountId}
                 query={ReadWaAccount}
                 queryValueName="readWaAccount"
@@ -266,7 +273,7 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
 
               <Label>Template</Label>
               <SelectField
-                className={errors.broadcastName ? "border-red-500 focus-visible:ring-red-500 focus-visible:border-gray-300" : ""}
+                className={errors.templateId ? "border-red-500 focus-visible:ring-red-500 focus-visible:border-gray-300" : ""}
                 selectedVal={broadcastData.templateId}
                 query={ReadWaTemplate}
                 queryValueName="readWaTemplate"
@@ -276,7 +283,7 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
                 onSelect={(val) => setBroadcastData({ ...broadcastData, templateId: val })}
                 disabled={readOnly}
               />
-              
+
               <Label>Contact List</Label>
               <SelectField
                 className={errors.contactListId ? "border-red-500 focus-visible:ring-red-500 focus-visible:border-gray-300" : ""}
@@ -289,6 +296,22 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
                 disabled={readOnly}
                 required
               />
+
+              <Label>Daily Limit</Label>
+              <Input
+                type="number"
+                placeholder="Set Daily Limit"
+                value={broadcastData.limit ?? ''}
+                min={1}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setBroadcastData({
+                    ...broadcastData,
+                    limit: value ? Number(value) : null,
+                  });
+                }}
+              />
+
 
               <Label className="w-full">Schedule Date</Label>
               <div className="flex w-full">

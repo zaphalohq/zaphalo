@@ -62,6 +62,10 @@ export class Broadcast {
   @Column({ default: 0 })
   failedCount: number;
 
+  @Field(()=>Int,{nullable:true})
+  @Column({nullable:true})
+  limit?: number;
+
   @CreateDateColumn({
     type: 'timestamp without time zone',
     name: 'created_at',

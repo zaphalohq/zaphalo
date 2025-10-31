@@ -50,7 +50,7 @@ export class BroadcastService {
 
   async createBroadcast(workspaceId, broadcastData) {
     if (broadcastData.broadcastId) throw new Error('Broadcast already created');
-    const mailingList = await this.mailingListService.findMailingListById(broadcastData.mailingListId)
+    const mailingList = await this.mailingListService.findMailingListById(broadcastData.contactListId)
     if (!mailingList) throw new Error('mailingList not found');
     const templateRes = await this.waTemplateService.getTemplate(broadcastData.templateId)
     const template = templateRes?.template
@@ -64,11 +64,16 @@ export class BroadcastService {
       );
     }
 
+    if (broadcastData.limit != null && broadcastData.limit <= 0) {
+      throw new Error('limit must be greater than zero');
+    }
+
     const broadcast = this.broadcastRepository.create({
       whatsappAccount: account,
       name: broadcastData.broadcastName,
       template: template,
       contactList: mailingList,
+      limit: broadcastData.limit,
       scheduledAt: broadcastData.scheduledAt ? broadcastData.scheduledAt : null,
     })
     await this.broadcastRepository.save(broadcast)
@@ -100,12 +105,13 @@ export class BroadcastService {
       name: broadcastData.broadcastName,
       template: template,
       contactList: contactList,
+      limit: broadcastData.limit,
       scheduledAt: broadcastData.scheduledAt ? broadcastData.scheduledAt : null,
     })
 
     await this.broadcastRepository.save(broadcastFind.broadcast)
     if (!broadcastFind) throw new Error('Broadcast ID invalid!');
-    
+
     return {'broadcast': broadcastFind.broadcast, 'message': 'Broadcast saved', 'status': true}
   }
 
@@ -335,20 +341,36 @@ export class BroadcastService {
   async sendWhatsappMessage(workspaceId: string, broadcast: Broadcast){
     Object.assign(broadcast, {status: broadcastStates['in_progress']})
     await this.broadcastRepository.save(broadcast)
-    const contacts = await this.getRemainingContacts(broadcast)
-    if (!contacts.length){
+
+    const remainingContacts = await this.getRemainingContacts(broadcast)
+
+    if (!remainingContacts.length){
       Object.assign(broadcast, {status: broadcastStates['done']})
       await this.broadcastRepository.save(broadcast)
       return
     }
-    for (const receiver of contacts) {
+
+    const hasBroadcastLimit = typeof broadcast.limit === "number" && broadcast.limit > 0;
+    if (hasBroadcastLimit) {
+      console.log(`Broadcast ${broadcast.id} has limit of ${broadcast.limit}`)
+    }
+
+    const contactsToSendNow = hasBroadcastLimit
+      ? remainingContacts.slice(0, broadcast.limit)
+      : remainingContacts;
+
+    const contactsToScheduleNext = hasBroadcastLimit
+      ? remainingContacts.slice(broadcast.limit)
+      : [];
+
+    for (const receiver of contactsToSendNow) {
       const msgVal = {
         mobileNumber: receiver.contactNo,
         messageType: messageTypes.OUTBOUND,
         waAccountId: broadcast.whatsappAccount,
         waTemplateId: broadcast.template,
       }
-      try{
+      try {
         const waMessage = await this.waMessageService.createWaMessage(workspaceId, msgVal, true)
         const trace = this.broadcastTraceRepository.create({
           broadcast: broadcast,
@@ -356,13 +378,29 @@ export class BroadcastService {
           mobile: receiver.contactNo,
         })
         this.broadcastTraceRepository.save(trace)
-      }catch(err){
+      } catch (err) {
         this.logger.error(`Whatsapp message send issue. ${err}`)
       }
     }
+
+    if (contactsToScheduleNext.length > 0) {
+      const nextSchedule = new Date();
+      nextSchedule.setDate(nextSchedule.getDate() + 1);
+
+      broadcast.scheduledAt = nextSchedule;
+      broadcast.status = broadcastStates.scheduled;
+      console.log(`Next batch scheduled for ${nextSchedule.toISOString()}`);
+    } else {
+      broadcast.completedAt = new Date();
+      broadcast.status = broadcastStates.done;
+      console.log("Broadcast completed for all contacts.");
+    }
+
+    await this.broadcastRepository.save(broadcast)
+
   }
 
-  async getAllBroadCast(){
+  async getAllBroadCast() {
     return await this.broadcastRepository.find();
   }
 }
