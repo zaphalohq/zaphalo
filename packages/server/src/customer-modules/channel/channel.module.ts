@@ -1,8 +1,6 @@
 import { Module } from "@nestjs/common";
 import { NestjsQueryGraphQLModule } from "@ptc-org/nestjs-query-graphql";
 import { NestjsQueryTypeOrmModule } from "@ptc-org/nestjs-query-typeorm";
-
-
 import { WebSocketService } from "./chat-socket";
 import { User } from "src/modules/user/user.entity";
 import { UserService } from "src/modules/user/user.service";
@@ -21,7 +19,7 @@ import { Channel } from "src/customer-modules/channel/entities/channel.entity";
 import { Message } from "src/customer-modules/channel/entities/message.entity";
 import { MessageReaction } from "src/customer-modules/channel/entities/message-reaction.entity";
 import { ChannelService } from "src/customer-modules/channel/services/channel.service";
-
+import { ContactUpdatedListener } from "./listner/contact.updated-listner";
 
 @Module({
   imports: [
@@ -40,7 +38,14 @@ import { ChannelService } from "src/customer-modules/channel/services/channel.se
     }),
     WhatsAppModule,
   ],
-  providers: [ ChannelService, WebSocketService, ChannelResolver, MessageResolver , UserService],
+  providers: [
+    ChannelService,
+    WebSocketService,
+    ChannelResolver,
+    MessageResolver,
+    UserService,
+    ContactUpdatedListener
+  ],
   exports: [ChannelService]
 })
 

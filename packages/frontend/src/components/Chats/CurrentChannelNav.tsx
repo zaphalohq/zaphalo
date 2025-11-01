@@ -32,34 +32,37 @@ const CurrentChannelNav = () => {
           <FiArrowLeft />
         </div>
         {chatsDetails.profileImg ?
-        <img className="w-8 h-8 p-0.5 object-cover rounded-full" src={chatsDetails.profileImg} alt="cdsdcsd" />
-        : <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-semibold">{chatsDetails?.channelName?.slice(0, 1).toUpperCase()}</div>
-      }
-      <div className="font-semibold">{chatsDetails.contactName ? chatsDetails.contactName : chatsDetails.channelName}</div>
-    </div>) : (
-    <div className="text-gray-500">No contact selected</div>
-    )}
-    {isChannelDetails ? <div ref={menuref} className='absolute top-15 left-90 z-11 w-[30vh] bg-white py-4 p-2 rounded'>
-      <div className='text-lg font-semibold text-center rounded  p-2'>Channel Details</div>
-      <ul >
-        <li className='w-full bg-gray-200 px-4 p-2 border-b border-gray-300'>
-          Name :
-          <span className='font-semibold text-violet-700'>{`  ${chatsDetails.channelName}`}</span></li>
+          <img className="w-8 h-8 p-0.5 object-cover rounded-full" src={chatsDetails.profileImg} alt="cdsdcsd" />
+          : <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-semibold">{chatsDetails?.channelName?.slice(0, 1).toUpperCase()}</div>
+        }
+        <div className="font-semibold">{chatsDetails.contactName ? chatsDetails.contactName : chatsDetails.channelName}</div>
+      </div>) : (
+        <div className="text-gray-500">No contact selected</div>
+      )}
+      {isChannelDetails ? <div ref={menuref} className='absolute top-15 left-90 z-11 w-[30vh] bg-white py-4 p-2 rounded'>
+        <div className='text-lg font-semibold text-center rounded  p-2'>Channel Details</div>
+        <ul >
+          <li className='w-full bg-gray-200 px-4 p-2 border-b border-gray-300'>
+            Name :
+            <span className='font-semibold text-violet-700'>{`  ${chatsDetails.channelName}`}</span></li>
           <li className='w-full bg-gray-200 px-4 p-2'>
             phone no :
-            <span className='font-semibold text-violet-700'>{`  ${JSON.stringify(chatsDetails.receiverId.find((number : number) => number !== selectedPhoneNo))}`} </span>
+            <span className='font-semibold text-violet-700'>{`  ${JSON.stringify(chatsDetails.receiverId.find((number: number) => number !== selectedPhoneNo))}`} </span>
           </li>
         </ul>
       </div> : <></>}
-      <div className="flex gap-4 text-[1.3rem] ">
-        <button onClick={() => setIsUpdateChannelName(true)}
-          className="p-2 cursor-pointer rounded hover:bg-gray-300 text-base font-normal text-green-500 hover:text-green-600
+
+      {chatsDetails.channelId ?
+        <div className="flex gap-4 text-[1.3rem] ">
+          <button onClick={() => setIsUpdateChannelName(true)}
+            className="p-2 cursor-pointer rounded hover:bg-gray-300 text-base font-normal text-green-500 hover:text-green-600
  transition-colors duration-200">
-          <FiEdit2 />
-        </button>
-      </div>
-    </div>  
-    )
+            <FiEdit2 />
+          </button>
+        </div>
+        : <></>}
+    </div>
+  )
 }
 
 export default CurrentChannelNav

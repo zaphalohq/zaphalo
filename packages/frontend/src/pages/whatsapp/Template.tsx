@@ -9,7 +9,7 @@ import TemplateList from "@src/modules/whatsapp/components/templates/TemplateLis
 import TemplateForm from "@src/modules/whatsapp/components/templates/TemplateForm";
 import { TemplateProvider } from '@src/modules/whatsapp/Context/TemplateContext';
 import TemplatePreviewDialog from '@src/modules/whatsapp/components/templates/TemplatePreview';
-import TemplateBroadcast from '@src/modules/whatsapp/components/TemplateBroadcast'
+import TemplateBroadcast from '@src/modules/whatsapp/components/templates/TemplateBroadcast'
 
 const WhatsappTemplate = () => {
   const [showForm, setShowForm] = useState(false);

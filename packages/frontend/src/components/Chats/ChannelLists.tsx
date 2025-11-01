@@ -82,6 +82,7 @@ const ChannelLists = ({ searchChannel }: any) => {
 
 
   const [filteredChannels, setFilteredChannels] = useState(allChannel);
+  
   useEffect(() => {
 
     if (!searchChannel) {
@@ -108,6 +109,7 @@ const ChannelLists = ({ searchChannel }: any) => {
             // isActive={channel.id === selectedContactId}
             chennelMembers={channel.channelMembers}
             unseen={channel.messages.length}
+            lastMsgOfChannle={channel.lastMsgOfChannle}
           />)}
     </div>
   )

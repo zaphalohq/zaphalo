@@ -6,6 +6,7 @@ import { BroadcastModule } from './broadcast/broadcast.module';
 import { WhatsAppModule } from './whatsapp/whatsapp.module';
 import { WhatsAppWebhookModule } from './whatsapp-webhook/whatsapp-webhook.module';
 import { AttachmentModule } from 'src/customer-modules/attachment/attachment.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { AttachmentModule } from 'src/customer-modules/attachment/attachment.mod
     WhatsAppModule,
     AttachmentModule,
     WhatsAppWebhookModule,
+    DashboardModule,
   ],
   exports: [
     ContactsModule,

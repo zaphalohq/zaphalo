@@ -1,4 +1,4 @@
-import React, { FormEvent, useContext, useState } from 'react';
+import React, { FormEvent, useContext, useEffect, useState } from 'react';
 import { FiPaperclip } from 'react-icons/fi';
 import { RiSendPlaneFill } from "react-icons/ri";
 import { useMutation } from '@apollo/client';
@@ -111,7 +111,6 @@ const MessageArea = () => {
 
   const SubmitMsg = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     const variablesAttachments = attachments.map((attachment) => {
       return {
         attachmentId: attachment.attachmentId,
@@ -132,7 +131,6 @@ const MessageArea = () => {
     setCurrentMsg('');
     setAttachments([]);
     setIsFileUploaded(false);
-
     try {
       const response = await sendMessage({ variables });
       setMyCurrentMessage(response.data.sendMessage)

@@ -13,6 +13,8 @@ import { Plus } from "lucide-react";
 import { formatLocalDate } from '@src/utils/formatLocalDate';
 import TemplatePreviewDialog from '@src/modules/whatsapp/components/templates/TemplatePreview';
 import { toast } from 'react-toastify';
+import MailingContactForm from '@src/modules/mailingList/components/MailingContactForm';
+import MailingContactsList from '@src/modules/mailingList/components/MailingContactsList';
 
 export default function BroadcastList({
   onCreate,
@@ -20,8 +22,6 @@ export default function BroadcastList({
   setReadOnly,
   setBroadcast,
   setPreview,
-  setIsContactListvis,
-  setContactListId
 }) {
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
@@ -31,6 +31,11 @@ export default function BroadcastList({
   const [selected, setSelected] = useState<number[]>([]);
   const searchRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
+
+  const [selectedListId, setSelectedListId] = useState<string | null>(null);
+  const [selectedListName, setSelectedListName] = useState<string | null>(null);
+  const [isMailingContactFormVis, setIsMailingContactFormVis] = useState(false)
+  const [selectedContactId, setSelectedContactId] = useState<string | null>(null)
 
   const { data, loading: loadingData, refetch } = useQuery(SearchReadBroadcast, {
     variables: { page, pageSize, search, filter },
@@ -79,6 +84,33 @@ export default function BroadcastList({
   const broadcasts = data?.searchReadBroadcast.broadcasts || [];
 
   const totalPages = data?.searchReadBroadcast.totalPages || 1;
+
+
+  if (selectedListId !== null) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        {isMailingContactFormVis ? (
+          <MailingContactForm
+            selectedListName={selectedListName}
+            selectedListId={selectedListId}
+            selectedContactId={selectedContactId}
+            onBack={() => {
+              setIsMailingContactFormVis(false);
+              setSelectedContactId(null)
+            }} />
+        ) : (
+          <MailingContactsList
+            selectedListId={selectedListId}
+            setSelectedListId={setSelectedListId}
+            setSelectedContactId={setSelectedContactId}
+            onCreateOrUpdate={() => {
+              setIsMailingContactFormVis(true);
+            }}
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -138,7 +170,7 @@ export default function BroadcastList({
       ) : (
         <Table className="w-full text-sm text-left rtl:text-right text-stone-500 rounded-2xl">
           <TableHeader className="text-black">
-            <TableRow className="bg-gray-100 uppercase text-sm font-semibold">
+            <TableRow className="bg-gray-100 text-sm font-semibold">
               <TableHead className="px-4 py-2"></TableHead>
               <TableHead className="px-4 py-3">Name</TableHead>
               <TableHead className="px-4 py-3">Account</TableHead>
@@ -193,8 +225,8 @@ export default function BroadcastList({
                     }}>Preview</span>
                   </TableCell>
                   <TableCell onClick={() => {
-                    setContactListId(broadcast.contactList.id)
-                    setIsContactListvis(true)
+                    setSelectedListId(broadcast.contactList.id)
+                    setSelectedListName(broadcast.contactList.mailingListName)
                   }}
                     className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
                     title="preview"

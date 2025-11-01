@@ -64,13 +64,20 @@ const MailingContactsList = ({ selectedListId, setSelectedListId, onCreateOrUpda
     const [deleteMailingContact, { error }] = useMutation(DeleteMailingContact)
     const deleteSelected = async () => {
         try {
-            for (const id of selected) {
-                await deleteMailingContact({ variables: { mailingContactId: id } });
-                toast.success('Mailing Contact deleted successfully');
+            const response=await deleteMailingContact({
+                variables: {
+                    mailingContactIds: selected
+                }
+            });
+            if(response.data.deleteMailingContact.success===false){
+                toast.error(response.data.deleteMailingContact.error || "Failed to delete selected mailing contacts");
+                return;
             }
             await mailingContactRefetch();
+            setSelected([]);
+            toast.success(response.data.deleteMailingContact.message || "Selected mailing contacts deleted successfully");
         } catch (err) {
-            console.error("error deleting multiple contacts", err)
+            console.error("error deleting mailing contacts", err)
         }
     }
 
@@ -112,7 +119,6 @@ const MailingContactsList = ({ selectedListId, setSelectedListId, onCreateOrUpda
                                 <button
                                     onClick={async () => {
                                         await deleteSelected();
-                                        setSelected([]);
                                     }}
                                     className="flex items-center gap-1 px-3 py-1 rounded bg-red-500 text-white hover:bg-red-600"
                                 >
@@ -141,7 +147,7 @@ const MailingContactsList = ({ selectedListId, setSelectedListId, onCreateOrUpda
                 ) : (
                     <Table className="w-full text-sm text-left rtl:text-right text-stone-500 rounded-2xl">
                         <TableHeader className="text-black">
-                            <TableRow className="bg-gray-100 uppercase text-sm font-semibold">
+                            <TableRow className="bg-gray-100 text-sm font-semibold">
                                 <TableHead className="px-4 py-2"></TableHead>
                                 <TableHead className="px-4 py-3">Contact Name</TableHead>
                                 <TableHead className="px-4 py-3">Contacts Number</TableHead>

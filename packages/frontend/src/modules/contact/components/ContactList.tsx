@@ -79,15 +79,17 @@ const ContactsList = ({
     // {Delete contact}
     const [deleteContact, { error: deleteError }] = useMutation(DeleteContact);
     const HandleDeleteContacts = async () => {
-        try {
-            for (const id of selected) {
-                await deleteContact({ variables: { contactId: id } });
-                toast.success('Contact deleted successfully');
-            }
-            await refetch();
-        } catch (err) {
-            console.error("error deleting multiple contacts", err)
+        if (!selected.length) return;
+        const response = await deleteContact({ variables: { ContactIds: selected } });
+
+        if (response.data.DeleteContact.status === false) {
+            toast.error(response.data.DeleteContact.message);
         }
+        else {
+            toast.success(response.data.DeleteContact.message);
+        }
+        setSelected([]); // clear selection
+        await refetch();
     }
 
     return (
@@ -154,7 +156,7 @@ const ContactsList = ({
             ) : (
                 <Table className="w-full text-sm text-left rtl:text-right text-stone-500 rounded-2xl">
                     <TableHeader className="text-black">
-                        <TableRow className="bg-gray-100 uppercase text-sm font-semibold">
+                        <TableRow className="bg-gray-100 text-sm font-semibold">
                             <TableHead className="px-4 py-3"></TableHead>
                             <TableHead className="px-4 py-3">Contact Name</TableHead>
                             <TableHead className="px-4 py-3">Contact Number</TableHead>

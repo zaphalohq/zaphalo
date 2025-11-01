@@ -27,7 +27,7 @@ export default function MailingListView({ onCreate, setIsMailingContactVis, isMa
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
   const [selectedListName, setSelectedListName] = useState<string | null>(null);
   const [isMailingContactFormVis, setIsMailingContactFormVis] = useState(false)
-  const [selectedContactId, setSelectedContactId]= useState<string | null>(null)
+  const [selectedContactId, setSelectedContactId] = useState<string | null>(null)
 
   const toggleSelect = (id: number) => {
     setSelected((prev) =>
@@ -47,13 +47,22 @@ export default function MailingListView({ onCreate, setIsMailingContactVis, isMa
   const [deleteMailingList, { error }] = useMutation(deleteMailingListWithAllContacts)
   const deleteSelected = async () => {
     try {
-      for (const id of selected) {
-        await deleteMailingList({ variables: { mailingId: id } });
-        toast.success('Mailing list deleted successfully');
+      const respones = await deleteMailingList({
+        variables: {
+          mailingIds: selected
+        },
+      });
+      if (respones.data.deleteMailingListWithAllContacts.success === false) {
+        toast.error(respones.data.deleteMailingListWithAllContacts.error)
+        return;
+      } else {
+        toast.success("Contacts deleted successfully")
+        setSelected([]);
+        await mailingListRefetch();
       }
-      await mailingListRefetch();
+
     } catch (err) {
-      console.error("error deleting multiple contacts", err)
+      toast.error("getting error while deleting contacts")
     }
   }
 
@@ -119,7 +128,6 @@ export default function MailingListView({ onCreate, setIsMailingContactVis, isMa
                 <button
                   onClick={async () => {
                     await deleteSelected();
-                    setSelected([]);
                   }}
                   className="flex items-center gap-1 px-3 py-1 rounded bg-red-500 text-white hover:bg-red-600"
                 >
@@ -148,7 +156,7 @@ export default function MailingListView({ onCreate, setIsMailingContactVis, isMa
         ) : (
           <Table className="w-full text-sm text-left rtl:text-right text-stone-500 rounded-2xl">
             <TableHeader className="text-black">
-              <TableRow className="bg-gray-100 uppercase text-sm font-semibold">
+              <TableRow className="bg-gray-100 text-sm font-semibold">
                 <TableHead className="px-4 py-2"></TableHead>
                 <TableHead className="px-4 py-3">Contact List Name</TableHead>
                 <TableHead className="px-4 py-3">Total Contacts</TableHead>

@@ -8,6 +8,8 @@ import {
   JoinColumn,
   ManyToOne,
   Relation,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from "typeorm";
 
 import { WhatsAppTemplate } from 'src/customer-modules/whatsapp/entities/whatsapp-template.entity';
@@ -106,4 +108,12 @@ export class WhatsAppMessage {
   @Column({ nullable: true })
   @Field()
   body: string;
+
+  @CreateDateColumn({ type: 'timestamptz' })
+  @Field()
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamptz' })
+  @Field()
+  updatedAt: Date;
 }

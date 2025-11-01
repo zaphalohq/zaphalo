@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
-import { Connection, ILike, In, Repository } from 'typeorm';
+import { Between, Connection, ILike, In, Repository } from 'typeorm';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { Cron } from '@nestjs/schedule';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -99,14 +99,14 @@ export class WaMessageService {
         messageType = 'template'
         if (waMessage.waTemplateId.status != TemplateStatus.approved){
           // || waMessage.waTemplateId.quality == 'red'):
-            throw new WhatsAppException(
-              'Template is not approved',
-              WhatsAppExceptionCode.TEMPLATE_NOT_APPROVED,
-            );
+          throw new WhatsAppException(
+            'Template is not approved',
+            WhatsAppExceptionCode.TEMPLATE_NOT_APPROVED,
+          );
         }
         // # generate sending values, components and attachments
         sendVals = await this.waTemplateService.getSendTemplateVals(
-            waMessage?.waTemplateId,
+          waMessage?.waTemplateId,
         )
       }
       else if (waMessage.channelMessageId.attachment){
@@ -150,18 +150,44 @@ export class WaMessageService {
     }
 
     if (!whatsappMediaType)
-        throw new Error(`Attachment mimetype is not supported by WhatsApp: ${attachment.mimetype}.`)
+      throw new Error(`Attachment mimetype is not supported by WhatsApp: ${attachment.mimetype}.`)
     const waApi = await this.waAccountService.getWhatsAppApi(waAccount.id)
     let whatsappMediaUid = await waApi.uploadWhatsappDocument(attachment)
 
     let vals = {
-        'type': whatsappMediaType,
-        [whatsappMediaType]: {'id': whatsappMediaUid}
+      'type': whatsappMediaType,
+      [whatsappMediaType]: {'id': whatsappMediaUid}
     }
 
     if (whatsappMediaType == 'document')
       vals[whatsappMediaType]['filename'] = attachment.name
 
     return vals
+  }
+
+  async TotalMsgCount(): Promise<{ sentCount: number; deliveredCount: number; failedCount: number }> {
+
+    const sentCount = await this.waMessageRepository.count({
+      where: { state: In([messageStates.sent]) },
+    });
+
+    const deliveredCount = await this.waMessageRepository.count({
+      where: { state: In([messageStates.delivered]) },
+    });
+
+    const failedCount = await this.waMessageRepository.count({
+      where: { state: In([messageStates.error, messageStates.bounced, messageStates.cancel]) },
+    });
+
+    return { sentCount, deliveredCount, failedCount };
+  }
+
+  async getMessageBetweenDateInterval(startDate:Date, endDate:Date): Promise<WhatsAppMessage[]> {
+    return await this.waMessageRepository.find({
+      where: {
+        createdAt: Between(startDate, endDate)
+      },
+      order: { createdAt: 'DESC' },
+    }); 
   }
 }
