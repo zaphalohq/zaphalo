@@ -21,6 +21,7 @@ import { Account } from "aws-sdk";
 import { WhatsAppAccount } from "../entities/whatsapp-account.entity";
 import { TestTemplateOutput, WaTestTemplateInput } from "src/customer-modules/whatsapp/dtos/test-input.template.dto";
 import { FileUploadService } from "src/modules/file/services/file-upload.service";
+import { FileFolder } from 'src/modules/file/interfaces/file-folder.interface';
 
 import { v4 as uuidv4 } from 'uuid';
 import { join } from 'path';
@@ -517,7 +518,7 @@ export class WaTemplateService {
         file: fileData,
         filename: filename,
         mimeType: mimeType,
-        fileFolder: "Attachment",
+        fileFolder: FileFolder.Template,
         workspaceId: workspaceId
       })
 

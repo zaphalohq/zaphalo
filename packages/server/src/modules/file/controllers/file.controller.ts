@@ -30,9 +30,9 @@ import { extractFileInfoFromRequest } from 'src/modules/file/utils/extract-file-
 export class FileController {
   constructor(private readonly fileService: FileService) {}
 
-  @Get('*/:filename')
+  @Get('/*path/:filename')
   async getFile(
-    @Param() params: string[],
+    @Param('path') path: string,
     @Res() res: Response,
     @Req() req: Request,
   ) {
@@ -47,7 +47,6 @@ export class FileController {
         filename,
         workspaceId,
       );
-
       fileStream.on('error', () => {
         throw new FileException(
           'Error streaming file from storage',

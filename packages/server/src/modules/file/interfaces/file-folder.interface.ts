@@ -6,9 +6,7 @@ export enum FileFolder {
   ProfilePicture = 'profile-picture',
   WorkspaceLogo = 'workspace-logo',
   Attachment = 'attachment',
-  PersonPicture = 'person-picture',
-  // ServerlessFunction = 'serverless-function',
-  // File = 'file',
+  Template = 'template',
 }
 
 registerEnumType(FileFolder, {
@@ -29,15 +27,16 @@ export const fileFolderConfigs: Record<FileFolder, FileFolderConfig> = {
   [FileFolder.Attachment]: {
     ignoreExpirationToken: false,
   },
-  [FileFolder.PersonPicture]: {
+  [FileFolder.Template]: {
     ignoreExpirationToken: false,
   },
-  // [FileFolder.ServerlessFunction]: {
-  //   ignoreExpirationToken: false,
-  // },
-  // [FileFolder.File]: {
-  //   ignoreExpirationToken: false,
-  // },
 };
+
+export function toFileFolderType(value: string): FileFolder {
+  if (Object.values(FileFolder).includes(value as FileFolder)) {
+    return value as FileFolder;
+  }
+  throw new Error("File folder not supported")
+}
 
 export type AllowedFolders = KebabCase<keyof typeof FileFolder>;

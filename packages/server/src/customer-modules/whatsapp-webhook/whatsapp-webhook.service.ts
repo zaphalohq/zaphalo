@@ -21,6 +21,7 @@ import { ContactsService } from 'src/customer-modules/contacts/contacts.service'
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 import { JwtWrapperService } from 'src/modules/jwt/jwt-wrapper.service';
 import { FileUploadService } from 'src/modules/file/services/file-upload.service';
+import { FileFolder } from 'src/modules/file/interfaces/file-folder.interface';
 
 @Injectable()
 export class WhatsAppWebhookService {
@@ -134,7 +135,7 @@ export class WhatsAppWebhookService {
         const file = await this.fileUploadService.uploadFile({
           file: fileResponse[1],
           filename: filename,
-          fileFolder: "Attachment",
+          fileFolder: FileFolder.Attachment,
           mimeType: mimeType,
           workspaceId: workspaceId
         })

@@ -8,10 +8,9 @@ import { checkFilename } from 'src/modules/file/utils/check-file-name.utils';
 export const extractFileInfoFromRequest = (request: Request) => {
   const filename = checkFilename(request.params.filename);
 
+  const rawFolder = request.params.path[0];
 
-  const fileSignature = request.params.path6[1];
-
-  const rawFolder = request.params.path6[0];
+  const fileSignature = request.params.path[1];
 
   const fileFolder = checkFileFolder(rawFolder);
 

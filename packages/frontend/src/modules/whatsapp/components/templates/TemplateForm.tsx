@@ -144,35 +144,40 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
   }, [templateData])
 
   const handleFileUpload = async () => {
-    if (file !== null) {
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-        const response = await Post(
-          `/upload`,
-          formData,
-          { headers: { 'Content-Type': 'multipart/form-data' } }
-        );
-        if (response.data) {
-          const attachment = await createOneAttachment({
-            variables: {
-              name: response.data.file.filename,
-              originalname: response.data.file.originalname,
-              mimetype: response.data.file.mimetype,
-              size: response.data.file.size,
-              path: response.data.file.path,
-              createdAt: "",
-              updatedAt: "",
-            }
-          })
+    if (!file)
+      return false
 
-          const attachmentRec = attachment.data.CreateOneAttachment;
-          return attachmentRec
-        }
-      } catch (error) {
-        console.error('Error uploading file:', error);
-        return false
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('fileFolder', 'template');
+
+      const response = await Post(
+        `/upload`,
+        formData,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+      );
+      if (response.data) {
+        const attachment = await createOneAttachment({
+          variables: {
+            name: response.data.file.filename,
+            originalname: response.data.file.originalname,
+            mimetype: response.data.file.mimetype,
+            size: response.data.file.size,
+            path: response.data.file.path,
+            createdAt: "",
+            updatedAt: "",
+          }
+        })
+
+        const attachmentRec = attachment.data.CreateOneAttachment;
+        return attachmentRec
+      }else{
+
       }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      return false
     }
   }
 
@@ -195,10 +200,14 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
     if (!formValid){
       return
     }
-    // if (status){
-    //   updatedTemplateData.status = status
-    // }
-    const attachmentRec = await handleFileUpload()
+    let attachmentRec;
+    if (file !== null) {
+      const attachmentRec = await handleFileUpload()
+      if(!attachmentRec){
+        toast.error('File have not uploaded sucessfully.');
+        return
+      }
+    }
     const templateDataToSubmit = { ...templateData };
     if (attachmentRec){
       templateDataToSubmit['attachmentId'] = attachmentRec.id

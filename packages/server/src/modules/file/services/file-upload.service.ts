@@ -14,6 +14,7 @@ import { FileStorageService } from 'src/modules/file-storage/file-storage.servic
 import { ConfigService } from '@nestjs/config';
 import { buildFileInfo } from 'src/modules/file/utils/build-file-info.utils';
 import { FileService } from 'src/modules/file/services/file.service';
+import { FileFolder } from 'src/modules/file/interfaces/file-folder.interface';
 
 @Injectable()
 export class FileUploadService {
@@ -73,7 +74,7 @@ export class FileUploadService {
     file: Buffer | Uint8Array | string;
     filename: string;
     mimeType: string | undefined;
-    fileFolder: string;
+    fileFolder: FileFolder;
     workspaceId: string;
   }) {
     const { ext, name } = buildFileInfo(filename);

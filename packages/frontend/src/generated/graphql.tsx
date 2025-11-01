@@ -543,7 +543,11 @@ export function useGetSystemStatus() {
   return Apollo.useQuery(getSystemStatus);
 }
 
-
+export enum FileFolder {
+  Attachment = 'Attachment',
+  ProfilePicture = 'ProfilePicture',
+  WorkspaceLogo = 'WorkspaceLogo'
+}
 
 export type CreateOneAttachmentVariables = Exact<{
   name: Scalars['String'];

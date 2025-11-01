@@ -4,14 +4,17 @@ import {
   UploadedFile,
   UseInterceptors,
   Req,
+  Body,
   UseGuards
 } from '@nestjs/common';
+import { diskStorage } from 'multer';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthWorkspace } from 'src/decorators/auth-workspace.decorator';
 import { Workspace } from 'src/modules/workspace/workspace.entity';
 import { GqlAuthGuard } from 'src/modules/auth/guards/gql-auth.guard';
 import { FileUploadService } from 'src/modules/file/services/file-upload.service';
-import { diskStorage } from 'multer';
+import { toFileFolderType } from 'src/modules/file/interfaces/file-folder.interface';
+
 
 @Controller('upload')
 export class UploadController {
@@ -23,14 +26,16 @@ export class UploadController {
   async uploadFile(
     @AuthWorkspace() workspace: Workspace,
     @Req() req,
-    @UploadedFile() file: Express.Multer.File) {
+    @UploadedFile() file: Express.Multer.File,
+    @Body('fileFolder') fileFolder: string) {
+
     const workspaceFolderPath = `workspace-${workspace.id}`;
 
     const url = await this.fileUploadService.uploadFile({
       file: file.buffer,
       filename: file.originalname,
       mimeType: file.mimetype,
-      fileFolder: 'attachment',
+      fileFolder: toFileFolderType(fileFolder),
       workspaceId: workspace.id,
     })
 
