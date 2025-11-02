@@ -42,7 +42,7 @@ export class JwtWrapperService {
     return this.jwtService.decode(payload, options);
   }
 
-  verifyWorkspaceToken(
+  verifyJwtToken(
     token: string,
     type: WorkspaceTokenType,
     options?: JwtVerifyOptions,
@@ -50,7 +50,6 @@ export class JwtWrapperService {
     const payload = this.decode(token, {
       json: true,
     });
-
     if (!isDefined(payload)) {
       throw new Error('No payload found.');
     }

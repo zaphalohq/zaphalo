@@ -8,8 +8,7 @@ export class UserAuthGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const ctx = GqlExecutionContext.create(context);
-    const request = ctx.getContext().req.user;
-
+    const request = ctx.getContext().req;
 
     return request.user !== undefined;
   }

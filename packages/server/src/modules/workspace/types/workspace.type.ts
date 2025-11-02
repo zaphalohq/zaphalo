@@ -1,1 +1,7 @@
 export type WorkspaceAuthProvider = 'google' | 'microsoft' | 'password' | 'sso';
+export enum AuthProviderEnum {
+  Google = 'google',
+  Microsoft = 'microsoft',
+  Password = 'password',
+  SSO = 'sso',
+}

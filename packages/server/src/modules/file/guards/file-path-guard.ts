@@ -21,7 +21,7 @@ export class FilePathGuard implements CanActivate {
       return false;
     }
     try {
-      const payload = await this.jwtWrapperService.verifyWorkspaceToken(
+      const payload = await this.jwtWrapperService.verifyJwtToken(
         fileSignature,
         JwtTokenTypeEnum.FILE,
         ignoreExpirationToken ? { ignoreExpiration: true } : {},

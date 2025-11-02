@@ -2,11 +2,13 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Resolver, Mutation, Args } from '@nestjs/graphql';
 import { AuthInput } from './dto/auth.input';
-import { AuthResponse } from './dto/auth.response';
 import { AuthService } from './services/auth.service';
 import { User } from 'src/modules/user/user.entity';
 import { CreateUserDTO } from 'src/modules/user/dto/create-user.dto';
+import { LoginToken } from 'src/modules/auth/dto/login-token.entity';
+import { ApiKeyToken, AuthTokens } from 'src/modules/auth/dto/token.entity';
 import { WorkspaceService } from 'src/modules/workspace/workspace.service';
+import { LoginTokenService } from 'src/modules/auth/token/services/login-token.service';
 
 
 @Resolver()
@@ -15,10 +17,12 @@ export class AuthResolver {
     @InjectRepository(User, 'core')
     private readonly userRepository: Repository<User>,
     private readonly authService: AuthService,
-    private readonly workspaceService: WorkspaceService) { }
+    private readonly workspaceService: WorkspaceService,
+    private loginTokenService: LoginTokenService,
+  ) { }
 
-  @Mutation(() => String)
-  async login(@Args('authInput') authInput: AuthInput) {
+  @Mutation(() => LoginToken)
+  async login(@Args('authInput') authInput: AuthInput): Promise<LoginToken> {
     const user = await this.authService.validateUser(authInput.email, authInput.password);
     if (!user) {
       throw new Error('Invalid credentials');
@@ -27,16 +31,15 @@ export class AuthResolver {
     if (!workspace){
       throw new Error("User workspace does not setup.");
     }
-    const loginToken = await this.authService.generateLoginToken(
+    const loginToken = await this.loginTokenService.generateLoginToken(
       user.email,
       workspace.id,
     );
-    return loginToken.token;
+    return {loginToken};
   }
 
   @Mutation(() => User)
   async Register(@Args('Register') UserInput: CreateUserDTO) {
-
     const {
       firstName,
       lastName,
@@ -87,7 +90,7 @@ export class AuthResolver {
         },
       });
 
-      const loginToken = await this.authService.generateLoginToken(
+      const loginToken = await this.loginTokenService.generateLoginToken(
         email,
         workspace.id,
       );
@@ -101,10 +104,17 @@ export class AuthResolver {
   }
 
 
-  @Mutation(() => AuthResponse)
+  @Mutation(() => AuthTokens)
   async getAuthTokensFromLoginToken(
     @Args('loginToken') loginToken: string,
   ) {
-    return this.authService.verifyToken(loginToken)
+    const {
+      sub: email,
+      workspaceId,
+      authProvider,
+    } = await this.loginTokenService.verifyLoginToken(
+      loginToken,
+    );
+    return await this.authService.verify(email, workspaceId, authProvider);
   }
 }

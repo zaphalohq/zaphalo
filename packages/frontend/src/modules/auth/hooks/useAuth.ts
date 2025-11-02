@@ -113,34 +113,33 @@ export const useAuth = () => {
     [buildRedirectUrl, redirect],
   );
 
+  const handleSetAuthTokens = useCallback(
+    (tokens: AuthTokenPair) => {
+      setTokenPair(tokens);
+      cookieStorage.setItem('tokenPair', JSON.stringify(tokens));
+    },
+    [setTokenPair],
+  );
+
   const handleGetAuthTokensFromLoginToken = useCallback(
      async (loginToken: string) => {
 
-      const response = await getAuthTokensFromLoginToken({
+      const getAuthTokensResult = await getAuthTokensFromLoginToken({
         variables: { loginToken },
       });
 
-      const accessToken = response.data?.getAuthTokensFromLoginToken?.accessToken;
-      const token = accessToken?.token;
-      if(!token) throw Error("token doesn't exist");
-      const expiresAt = accessToken?.expiresAt;
-      if(!expiresAt) throw Error("expiresAt doesn't exist");
+      if (isDefined(getAuthTokensResult.errors)) {
+        throw getAuthTokensResult.errors;
+      }
 
-      setTokenPair({accessToken : {
-        token,
-        expiresAt
-      }});
+      if (!getAuthTokensResult.data?.getAuthTokensFromLoginToken) {
+        throw new Error('No getAuthTokensFromLoginToken result');
+      }
 
-      cookieStorage.setItem(
-        'accessToken',
-        JSON.stringify(
-          {accessToken : {
-            token,
-            expiresAt
-          }}
-        ),
+      handleSetAuthTokens(
+        getAuthTokensResult.data.getAuthTokensFromLoginToken.tokens,
       );
-      
+
       await loadCurrentUser();
       navigate('/login')
     }

@@ -14,7 +14,7 @@ export class WaWebhookGuard implements CanActivate {
         }
         
         try {
-            const payload = await this.jwtWrapperService.verifyWorkspaceToken(
+            const payload = await this.jwtWrapperService.verifyJwtToken(
                 query['hub.verify_token'],
                 'API_KEY',
             );

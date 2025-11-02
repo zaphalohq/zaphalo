@@ -8,7 +8,7 @@ import {
 import { ApolloProvider } from '@apollo/client';
 import Chats from '@src/pages/Chats';
 import Contacts from '@src/pages/Contacts';
-import Login from '@src/components/Auth/Login';
+import Login from '@src/pages/auth/Login';
 import Dashboard from '@src/pages/Dashboard';
 import MainLayout from '@src/pages/MainLayout';
 import Broadcast from '@src/pages/Broadcast';
@@ -20,7 +20,7 @@ import SignUpPage from '@src/modules/auth/pages/SignUpPage';
 import { PageTitle } from '@src/modules/ui/components/PageTitle';
 import client from '@src/components/AppolloClientConnection/apolloClient';
 import ProtectedRoute from '@src/components/ProtectedRoute/ProtectedRoute';
-import VerifyLoginTokenEffect from '@src/modules/auth/pages/VerifySignInPage';
+import VerifyLoginTokenEffect from '@src/pages/auth/VerifySignInPage';
 import WorkspaceAdmin from '@src/pages/settings/SettingsWorkspace';
 import { SystemConfigProviderEffect } from '@src/modules/system-config/components/SystemConfigProviderEffect';
 import { SystemConfigProvider } from '@src/modules/system-config/components/SystemConfigProvider';

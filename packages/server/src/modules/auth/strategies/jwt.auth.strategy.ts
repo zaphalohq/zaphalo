@@ -22,6 +22,7 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy, 'jwt') {
       secretOrKey: 'secretKey',
     });
   }
+
   async validate(payload: any) {
     let user: User | null = null;
     const workspace = await this.workspaceRepository.findOneBy({
@@ -47,6 +48,15 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy, 'jwt') {
     if (!user) {
       throw new Error('User not found');
     }
-    return { user, workspace, userId: payload.sub, userWorkspaceId: workspace.id, role: payload.role, workspaceIds: payload.workspaceIds};
+
+    return {
+      user,
+      workspace,
+      authProvider: payload.authProvider,
+      workspaceMembers: user.workspaceMembers,
+      // userWorkspace,
+      // userWorkspaceId: userWorkspace.id,
+      workspaceMemberId: payload.workspaceMemberId,
+    };
   }
 }

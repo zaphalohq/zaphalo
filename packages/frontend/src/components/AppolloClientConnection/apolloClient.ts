@@ -8,7 +8,7 @@ const httpLink = new HttpLink({
 });
 
 const authLink = new ApolloLink((operation, forward) => {
-  const accessToken = cookieStorage.getItem('accessToken')
+  const tokenPair = cookieStorage.getItem('tokenPair')
   let workspaceId = '';
   const path = window.location.pathname;
   const segments = path.split('/');
@@ -16,12 +16,11 @@ const authLink = new ApolloLink((operation, forward) => {
     workspaceId = segments[2];
   }
 
-  const authtoken = accessToken ? JSON.parse(accessToken).accessToken : false;
-
-  if (authtoken) {
+  const accessToken = tokenPair ? JSON.parse(tokenPair).accessToken : false;
+  if (accessToken) {
     operation.setContext({
       headers: {
-        Authorization: authtoken ? `Bearer ${authtoken.token}` : '',
+        Authorization: accessToken ? `Bearer ${accessToken.token}` : '',
         'x-workspace-id': workspaceId || '',
       },
     });

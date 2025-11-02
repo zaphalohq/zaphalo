@@ -35,7 +35,7 @@ export class WhatsAppWebhookController {
   async getWhatsappApi(@Query() query: any) {
     const challenge = query['hub.challenge']
     const verify_token = query['hub.verify_token']
-    const verified = this.jwtWrapperService.verifyWorkspaceToken(verify_token, 'API_KEY')
+    const verified = this.jwtWrapperService.verifyJwtToken(verify_token, 'API_KEY')
 
     if (verified) {
       return challenge

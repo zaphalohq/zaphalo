@@ -8,23 +8,26 @@ const connectionFactory = {
   provide: CONNECTION,
   scope: Scope.REQUEST,
   useFactory: (request: any) => {
-    let { workspaceId } = request;
+    let { workspace } = request;
     const isGraphQL = request?.hasOwnProperty('req') && request?.req?.body?.hasOwnProperty('operationName');
+    console.log(".........................", request?.req?.workspace)
+    if (isGraphQL) {
+      workspace = request?.req?.workspace
+    } 
+    // if (isGraphQL && workspace) {
+    //   workspaceId = request?.req?.headers['x-workspace-id'] || request?.req?.workspaceId;
+    // }
+    // else {
+    //     if (request?.headers && request?.headers['x-workspace-id']) {
+    //       workspaceId = request.headers['x-workspace-id'];
+    //     } else {
+    //       workspaceId = request?.params?.workspace || request?.req?.workspaceId;
+    //     }
+    //   }
+    // }
 
-    if (!workspaceId){
-      if (isGraphQL) {
-        workspaceId = request?.req?.headers['x-workspace-id'] || request?.req?.workspaceId;
-      } else {
-        if (request?.headers && request?.headers['x-workspace-id']) {
-          workspaceId = request.headers['x-workspace-id'];
-        } else {
-          workspaceId = request?.params?.workspace || request?.req?.workspaceId;
-        }
-      }
-    }
-
-    if (workspaceId) {
-      return getWorkspaceConnection(workspaceId);
+    if (workspace) {
+      return getWorkspaceConnection(workspace.id);
     }
     return null;
   },
