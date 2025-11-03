@@ -68,12 +68,17 @@ export class BroadcastService {
       throw new Error('limit must be greater than zero');
     }
 
+    if(broadcastData.limit && !broadcastData.intervalType){
+      throw new Error('Interval Type reqiuire when there is limit')
+    }
+
     const broadcast = this.broadcastRepository.create({
       whatsappAccount: account,
       name: broadcastData.broadcastName,
       template: template,
       contactList: mailingList,
       limit: broadcastData.limit,
+      intervalType:broadcastData.intervalType,
       scheduledAt: broadcastData.scheduledAt ? broadcastData.scheduledAt : null,
     })
     await this.broadcastRepository.save(broadcast)
@@ -100,6 +105,10 @@ export class BroadcastService {
       throw new Error('limit must be greater than zero');
     }
 
+    if(broadcastData.limit && !broadcastData.intervalType){
+      throw new Error('Interval Type reqiuire when there is limit')
+    }
+
     const broadcastFind = await this.getBroadcast(broadcastData.broadcastId)
 
     if (!broadcastFind.broadcast) throw new Error('Broadcast ID invalid!');
@@ -110,6 +119,7 @@ export class BroadcastService {
       template: template,
       contactList: contactList,
       limit: broadcastData.limit,
+      intervalType:broadcastData.intervalType,
       scheduledAt: broadcastData.scheduledAt ? broadcastData.scheduledAt : null,
     })
 
@@ -389,11 +399,26 @@ export class BroadcastService {
 
     if (contactsToScheduleNext.length > 0) {
       const nextSchedule = new Date();
-      nextSchedule.setDate(nextSchedule.getDate() + 1);
+
+      switch (broadcast.intervalType) {
+        case 'MINUTE':
+          nextSchedule.setMinutes(nextSchedule.getMinutes() + 1);
+          break;
+        case 'HOUR':
+          nextSchedule.setHours(nextSchedule.getHours() + 1);
+          break;
+        case 'DAY':
+          nextSchedule.setDate(nextSchedule.getDate() + 1);
+          break;
+        default:
+          nextSchedule.setDate(nextSchedule.getDate() + 1);
+          break;
+      }
+
 
       broadcast.scheduledAt = nextSchedule;
       broadcast.status = broadcastStates.scheduled;
-      console.log(`Next batch scheduled for ${nextSchedule.toISOString()}`);
+      console.log(`Next batch scheduled for ${nextSchedule.toISOString()} (${broadcast.intervalType || 'day'})`);
     } else {
       broadcast.completedAt = new Date();
       broadcast.status = broadcastStates.done;

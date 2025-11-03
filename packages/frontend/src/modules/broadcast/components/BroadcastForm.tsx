@@ -41,6 +41,7 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
     templateId: '',
     contactListId: '',
     limit: null,
+    intervalType: '',
     status: '',
     scheduledAt: '',
   })
@@ -61,6 +62,7 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
         templateId: broadcastView.template.id,
         contactListId: broadcastView.contactList.id,
         limit: broadcastView.limit,
+        intervalType: broadcastView.intervalType,
         scheduledAt: broadcastView.scheduledAt ? formatUTCDate(broadcastView.scheduledAt) : '',
         status: broadcastView.status,
       })
@@ -106,6 +108,11 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
       return;
     }
 
+    if (broadcastData.limit && !broadcastData.intervalType) {
+      toast.error('Please select an interval type when limit is set.');
+      return;
+    }
+
     type toSubmiteData = {
       [key: string]: any;
     };
@@ -114,7 +121,8 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
     toSubmiteData.whatsappAccountId = broadcastData.whatsappAccountId
     toSubmiteData.templateId = broadcastData.templateId
     toSubmiteData.contactListId = broadcastData.contactListId
-    if (broadcastData.scheduledAt){
+    toSubmiteData.intervalType = broadcastData.intervalType
+    if (broadcastData.scheduledAt) {
       toSubmiteData.scheduledAt = broadcastData.scheduledAt
     }
 
@@ -125,6 +133,7 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
     if (broadcastData.broadcastId) {
       toSubmiteData.broadcastId = broadcastData.broadcastId
     }
+
     const response = await saveBroadcast({
       variables: {
         broadcastData: toSubmiteData
@@ -140,9 +149,11 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
         templateId: broadcast.template.id,
         contactListId: broadcast.contactList.id,
         limit: broadcast?.limit,
+        intervalType:broadcast?.intervalType,
         scheduledAt: broadcast.scheduledAt ? formatUTCDate(broadcast.scheduledAt) : '',
         status: broadcast.status,
       })
+      console.log(response.data?.saveBroadcast)
       toast.success(`${response.data?.saveBroadcast?.message}`);
     }
     return broadcast.id
@@ -225,6 +236,13 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
     if (!broadcastData.whatsappAccountId.trim()) newErrors.whatsappAccountId = "Whatsapp Account is required";
     if (!broadcastData.templateId.trim()) newErrors.templateId = "Template is required";
     if (!broadcastData.contactListId.trim()) newErrors.contactListId = "Contact List is required";
+    if (broadcastData.limit && !broadcastData.intervalType) {
+      newErrors.intervalType = "Please select interval type when limit is set";
+    }
+    if (broadcastData.intervalType && !broadcastData.limit) {
+      newErrors.limit = "Please enter limit when interval type is selected";
+    }
+
     setErrors(newErrors);
   };
 
@@ -297,10 +315,10 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
                 required
               />
 
-              <Label>Daily Limit</Label>
+              <Label>Message Limit</Label>
               <Input
                 type="number"
-                placeholder="Set Daily Limit"
+                placeholder="Set Message Limit"
                 value={broadcastData.limit ?? ''}
                 min={1}
                 onChange={(e) => {
@@ -312,6 +330,21 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
                 }}
               />
 
+              <Label>Interval Type</Label>
+              <Select
+                value={broadcastData.intervalType}
+                onValueChange={(val) => setBroadcastData({ ...broadcastData, intervalType: val })}
+                disabled={!broadcastData.limit}
+              >
+                <SelectTrigger className={errors.intervalType ? "border-red-500 focus-visible:ring-red-500" : ""}>
+                  <SelectValue placeholder="Select Interval Type For Limit" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="DAY">Daily</SelectItem>
+                  <SelectItem value="MINUTE">Per Miniute</SelectItem>
+                  <SelectItem value="HOUR">Per Hour</SelectItem>
+                </SelectContent>
+              </Select>
 
               <Label className="w-full">Schedule Date</Label>
               <div className="flex w-full">
