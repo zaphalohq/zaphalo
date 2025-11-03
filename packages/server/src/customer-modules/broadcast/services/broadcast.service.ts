@@ -96,6 +96,10 @@ export class BroadcastService {
     const waAccountRes = await this.waAccountService.getWaAccount(broadcastData.whatsappAccountId);
     if (!waAccountRes.waAccount) throw new Error('Whatsapp account not found');
 
+    if (broadcastData.limit != null && broadcastData.limit <= 0) {
+      throw new Error('limit must be greater than zero');
+    }
+
     const broadcastFind = await this.getBroadcast(broadcastData.broadcastId)
 
     if (!broadcastFind.broadcast) throw new Error('Broadcast ID invalid!');
