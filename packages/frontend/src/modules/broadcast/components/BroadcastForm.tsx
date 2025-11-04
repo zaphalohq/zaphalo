@@ -45,6 +45,10 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
     status: '',
     scheduledAt: '',
   })
+
+  useEffect(() => {
+    console.log("innnnnnnn", broadcastData.intervalType)
+  }, [broadcastData.intervalType])
   const [errors, setErrors] = useState({});
   if (isDefined(broadcastId)) {
     const { data: broadcastViewData, loading: viewLoading, error: viewError } = useQuery(GetBroadcast, {
@@ -121,7 +125,6 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
     toSubmiteData.whatsappAccountId = broadcastData.whatsappAccountId
     toSubmiteData.templateId = broadcastData.templateId
     toSubmiteData.contactListId = broadcastData.contactListId
-    toSubmiteData.intervalType = broadcastData.intervalType
     if (broadcastData.scheduledAt) {
       toSubmiteData.scheduledAt = broadcastData.scheduledAt
     }
@@ -132,6 +135,10 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
 
     if (broadcastData.broadcastId) {
       toSubmiteData.broadcastId = broadcastData.broadcastId
+    }
+
+    if (broadcastData.intervalType) {
+      toSubmiteData.intervalType = broadcastData.intervalType;
     }
 
     const response = await saveBroadcast({
