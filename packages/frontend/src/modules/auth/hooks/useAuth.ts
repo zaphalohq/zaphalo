@@ -68,7 +68,6 @@ export const useAuth = () => {
       setCurrentUserWorkspace(user?.currentWorkspace);
       setCurrentWorkspaceId(user?.currentWorkspace?.id)
     }
-
     if (isDefined(user.workspaces)) {
       const validWorkspaces = user.workspaces
         .filter(

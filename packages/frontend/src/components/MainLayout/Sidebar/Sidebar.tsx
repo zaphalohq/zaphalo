@@ -1,7 +1,7 @@
 import { useRecoilState } from 'recoil'
 import SidebarElement from './SidebarElements'
 import { IoChatbubbleEllipsesOutline } from 'react-icons/io5'
-import Logout from '@components/Auth/Logout'
+import Logout from '@src/modules/auth/components/Logout'
 import AccountToggle from '@components/UI/AccountToggle'
 import UserBottomToggle from '@src/components/UI/UserBottomToggle'
 import { currentUserWorkspaceState } from '@src/modules/auth/states/currentUserWorkspaceState'

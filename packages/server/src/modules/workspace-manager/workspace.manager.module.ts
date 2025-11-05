@@ -10,7 +10,6 @@ const connectionFactory = {
   useFactory: (request: any) => {
     let { workspace } = request;
     const isGraphQL = request?.hasOwnProperty('req') && request?.req?.body?.hasOwnProperty('operationName');
-    console.log(".........................", request?.req?.workspace)
     if (isGraphQL) {
       workspace = request?.req?.workspace
     } 

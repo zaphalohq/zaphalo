@@ -10,10 +10,12 @@ export class JwtMiddleware implements NestMiddleware {
   ) {}
 
   async use(request: Request, res: Response, next: NextFunction) {
-    if (!this.middlewareService.isTokenPresent(request)) {
+    try {
+      await this.middlewareService.hydrateGraphqlRequest(request);
+    } catch (error) {
+      this.middlewareService.writeGraphqlResponseOnExceptionCaught(res, error);
       return;
     }
-    const data = await this.middlewareService.hydrateRestRequest(request);
     next();
   }
 }

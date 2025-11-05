@@ -181,6 +181,23 @@ export const LoginMutation = gql`
   }
 `
 
+export const RenewTokenMutation = gql`
+  mutation RenewToken($appToken: String!) {
+    renewToken(appToken: $appToken) {
+      tokens {
+        accessToken {
+          expiresAt
+          token
+        }
+        refreshToken {
+          expiresAt
+          token
+        }
+      }
+    }
+  }
+`
+
 export const RegisterMutation = gql`
 mutation Register($firstName: String!, $lastName: String!, $email: String!, $password: String!, $workspaceInviteToken: String) {
   Register(Register: {

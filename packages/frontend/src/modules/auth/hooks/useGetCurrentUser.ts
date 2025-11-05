@@ -24,7 +24,6 @@ export const useGetCurrentUser = () => {
     if (isDefined(user?.currentWorkspace)) {
       setCurrentUserWorkspace(user?.currentWorkspace);
     }
-
     if (isDefined(user.workspaces)) {
       const validWorkspaces = user.workspaces
         .filter(

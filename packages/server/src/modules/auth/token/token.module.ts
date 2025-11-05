@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccessTokenService } from 'src/modules/auth/token/services/access-token.service';
 import { LoginTokenService } from 'src/modules/auth/token/services/login-token.service';
 import { RefreshTokenService } from 'src/modules/auth/token/services/refresh-token.service';
+import { RenewTokenService } from 'src/modules/auth/token/services/renew-token.service';
 import { JwtModule } from 'src/modules/jwt/jwt.module';
 import { AppToken } from 'src/modules/app-token/app-token.entity';
 // import { JwtWrapperService } from 'src/modules/jwt/jwt-wrapper.service';
@@ -23,7 +24,7 @@ import { WorkspaceMember } from "src/modules/workspace/workspaceMember.entity";
     // DataSourceModule,
   ],
   providers: [
-    // RenewTokenService,
+    RenewTokenService,
     // JwtAuthStrategy,
     JwtAuthStrategy,
     AccessTokenService,
@@ -32,7 +33,7 @@ import { WorkspaceMember } from "src/modules/workspace/workspaceMember.entity";
     // WorkspaceAgnosticTokenService,
   ],
   exports: [
-    // RenewTokenService,
+    RenewTokenService,
     AccessTokenService,
     LoginTokenService,
     RefreshTokenService,

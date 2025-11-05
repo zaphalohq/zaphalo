@@ -19,7 +19,7 @@ import WhatsAppAccount from '@src/pages/WhatsAppAccount';
 import SignUpPage from '@src/modules/auth/pages/SignUpPage';
 import { PageTitle } from '@src/modules/ui/components/PageTitle';
 import client from '@src/components/AppolloClientConnection/apolloClient';
-import ProtectedRoute from '@src/components/ProtectedRoute/ProtectedRoute';
+import ProtectedRoute from '@src/modules/auth/hooks/ProtectedRoute';
 import VerifyLoginTokenEffect from '@src/pages/auth/VerifySignInPage';
 import WorkspaceAdmin from '@src/pages/settings/SettingsWorkspace';
 import { SystemConfigProviderEffect } from '@src/modules/system-config/components/SystemConfigProviderEffect';
@@ -41,7 +41,7 @@ export const AppRouterProviders = () => {
         <PageTitle title={pageTitle} />
         <Outlet />
       </SystemConfigProvider>
-      <AppOverlay/>
+      {/*<AppOverlay/>*/}
     </ApolloProvider>
   );
 };

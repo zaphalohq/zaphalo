@@ -9,6 +9,7 @@ import { LoginToken } from 'src/modules/auth/dto/login-token.entity';
 import { ApiKeyToken, AuthTokens } from 'src/modules/auth/dto/token.entity';
 import { WorkspaceService } from 'src/modules/workspace/workspace.service';
 import { LoginTokenService } from 'src/modules/auth/token/services/login-token.service';
+import { RenewTokenService } from 'src/modules/auth/token/services/renew-token.service';
 
 
 @Resolver()
@@ -19,6 +20,7 @@ export class AuthResolver {
     private readonly authService: AuthService,
     private readonly workspaceService: WorkspaceService,
     private loginTokenService: LoginTokenService,
+    private renewTokenService: RenewTokenService,
   ) { }
 
   @Mutation(() => LoginToken)
@@ -116,5 +118,14 @@ export class AuthResolver {
       loginToken,
     );
     return await this.authService.verify(email, workspaceId, authProvider);
+  }
+
+  @Mutation(() => AuthTokens)
+  // @UseGuards(PublicEndpointGuard)
+  async renewToken(@Args('appToken') appToken: string): Promise<AuthTokens> {
+    const tokens = await this.renewTokenService.generateTokensFromRefreshToken(
+      appToken,
+    );
+    return { tokens: tokens };
   }
 }
