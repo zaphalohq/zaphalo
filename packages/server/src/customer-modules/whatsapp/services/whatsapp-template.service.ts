@@ -20,7 +20,9 @@ import { Attachment } from "src/customer-modules/attachment/attachment.entity";
 import { Account } from "aws-sdk";
 import { WhatsAppAccount } from "../entities/whatsapp-account.entity";
 import { TestTemplateOutput, WaTestTemplateInput } from "src/customer-modules/whatsapp/dtos/test-input.template.dto";
-import { FileService } from "src/modules/file-storage/services/file.service";
+import { FileUploadService } from "src/modules/file/services/file-upload.service";
+import { FileFolder } from 'src/modules/file/interfaces/file-folder.interface';
+
 import { v4 as uuidv4 } from 'uuid';
 import { join } from 'path';
 const LATITUDE_LONGITUDE_REGEX = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/;
@@ -46,7 +48,7 @@ export class WaTemplateService {
     @Inject(CONNECTION) connection: Connection,
     private readonly waAccountService: WaAccountService,
     private readonly attachmentService: AttachmentService,
-    private fileService: FileService,
+    private fileUploadService: FileUploadService,
   ) {
     this.templateRepository = connection.getRepository(WhatsAppTemplate);
   }
@@ -78,7 +80,7 @@ export class WaTemplateService {
     });
 
     if (attachment) {
-      template.templateImg = attachment.name;
+      template.templateImg = attachment.path;
       template.attachment = attachment;
     }
 
@@ -114,7 +116,7 @@ export class WaTemplateService {
       const attachment = await this.attachmentService.findOneAttachmentById(templateData.attachmentId)
       if (!attachment) throw Error('attachment doesnt exist')
       templateFind.template.attachment = attachment;
-      templateFind.template.templateImg = attachment.name;
+      templateFind.template.templateImg = attachment.path;
     }
 
     await this.templateRepository.save(templateFind.template);
@@ -511,13 +513,13 @@ export class WaTemplateService {
       const fileData = fileResponse.data
       const file_size = fileResponse.file_size
       const now = new Date()
-      const workspaceFolderPath = `workspace-${workspaceId}`;
 
-      const filePath = await this.fileService.write({
+      const file = await this.fileUploadService.uploadFile({
         file: fileData,
-        name: filename,
-        folder: workspaceFolderPath,
-        mimeType: mimeType
+        filename: filename,
+        mimeType: mimeType,
+        fileFolder: FileFolder.Template,
+        workspaceId: workspaceId
       })
 
       const attachement = await this.attachmentService.createOneAttachment({
@@ -525,7 +527,7 @@ export class WaTemplateService {
         originalname: filename,
         size: Buffer.from(fileData).length,
         mimetype: mimeType,
-        path: filePath,
+        path: file.path,
         createdAt: now,
         updatedAt: now
       })

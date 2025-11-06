@@ -15,7 +15,6 @@ import crypto from "crypto";
 import { ContactsService } from 'src/customer-modules/contacts/contacts.service';
 import { WaWebhookGuard } from 'src/customer-modules/whatsapp-webhook/guards/whatsapp-webhook.guard';
 import { JwtWrapperService } from 'src/modules/jwt/jwt-wrapper.service';
-import { FileService } from 'src/modules/file-storage/services/file.service';
 import { WaTemplateService } from 'src/customer-modules/whatsapp/services/whatsapp-template.service';
 import { WaAccountService } from 'src/customer-modules/whatsapp/services/whatsapp-account.service';
 import { WhatsAppWebhookService } from 'src/customer-modules/whatsapp-webhook/whatsapp-webhook.service';
@@ -26,12 +25,9 @@ export class WhatsAppWebhookController {
   constructor(
     private readonly contactService: ContactsService,
     private readonly jwtWrapperService: JwtWrapperService,
-    // private readonly attachmentService: AttachmentService,
-    private fileService: FileService,
     private waTemplateService: WaTemplateService,
     private waAccountService: WaAccountService,
     private whatsAppWebhookService: WhatsAppWebhookService,
-
   ) { }
 
   @Get('/:workspace/webhook')
@@ -39,7 +35,7 @@ export class WhatsAppWebhookController {
   async getWhatsappApi(@Query() query: any) {
     const challenge = query['hub.challenge']
     const verify_token = query['hub.verify_token']
-    const verified = this.jwtWrapperService.verifyWorkspaceToken(verify_token, 'API_KEY')
+    const verified = this.jwtWrapperService.verifyJwtToken(verify_token, 'API_KEY')
 
     if (verified) {
       return challenge

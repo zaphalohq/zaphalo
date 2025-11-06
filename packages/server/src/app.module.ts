@@ -1,4 +1,4 @@
-import { Module, DynamicModule, MiddlewareConsumer } from '@nestjs/common';
+import { Module, DynamicModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { YogaDriver, YogaDriverConfig } from '@graphql-yoga/nestjs';
@@ -11,6 +11,8 @@ import { GraphQLConfigModule } from './modules/api/graphql-config/graphql-config
 import { GraphQLConfigService } from './modules/api/graphql-config/graphql-config.service';
 import { CustomerModule } from 'src/customer-modules/customer.module';
 import { CoreModule } from 'src/modules/core.module';
+import { JwtMiddleware } from 'src/middlewares/jwt.middleware';
+import { MiddlewareModule } from 'src/middlewares/middleware.module';
 
 @Module({
   imports: [
@@ -25,6 +27,7 @@ import { CoreModule } from 'src/modules/core.module';
     }),
     CoreModule,
     CustomerModule,
+    MiddlewareModule,
     ...AppModule.getConditionalModules(),
 ],
 })
@@ -40,30 +43,15 @@ export class AppModule {
         }),
       );
     }
-
-    // Messaque Queue explorer only for sync driver
-    // Maybe we don't need to conditionaly register the explorer, because we're creating a jobs module
-    // that will expose classes that are only used in the queue worker
-    /*
-    if (process.env.MESSAGE_QUEUE_TYPE === MessageQueueDriverType.Sync) {
-      modules.push(MessageQueueModule.registerExplorer());
-    }
-    */
-
     return modules;
   }
 
-  // configure(consumer: MiddlewareConsumer) {
-  //   consumer
-  //     .apply(GraphQLHydrateRequestFromTokenMiddleware)
-  //     .forRoutes({ path: 'graphql', method: RequestMethod.ALL });
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(JwtMiddleware)
+      .forRoutes(
+        { path: 'graphql', method: RequestMethod.ALL },
+      );
+  }
 
-  //   consumer
-  //     .apply(GraphQLHydrateRequestFromTokenMiddleware)
-  //     .forRoutes({ path: 'metadata', method: RequestMethod.ALL });
-
-  //   for (const method of MIGRATED_REST_METHODS) {
-  //     consumer.apply(RestCoreMiddleware).forRoutes({ path: 'rest/*', method });
-  //   }
-  // }
 }

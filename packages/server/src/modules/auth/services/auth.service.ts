@@ -22,10 +22,26 @@ import { CreateUserDTO } from "src/modules/user/dto/create-user.dto";
 import { WorkspaceService } from "src/modules/workspace/workspace.service";
 import { AuthSsoService } from 'src/modules/auth/services/auth-sso.service';
 import { SignInUpService } from 'src/modules/auth/services/sign-in-up.service';
-import { WorkspaceAuthProvider } from 'src/modules/workspace/types/workspace.type';
+import { WorkspaceAuthProvider, AuthProviderEnum } from 'src/modules/workspace/types/workspace.type';
 import { WorkspaceInvitation } from "src/modules/workspace/workspaceInvitation.entity";
 import { DomainManagerService } from 'src/modules/domain-manager/services/domain-manager.service';
-
+import { LoginTokenService } from 'src/modules/auth/token/services/login-token.service';
+import { AccessTokenService } from 'src/modules/auth/token/services/access-token.service';
+import { RefreshTokenService } from 'src/modules/auth/token/services/refresh-token.service';
+import {
+  PASSWORD_REGEX,
+  compareHash,
+  hashPassword,
+} from 'src/modules/auth/auth.util';
+import {
+  AuthException,
+  AuthExceptionCode,
+} from 'src/modules/auth/auth.exception';
+import { userValidator } from 'src/modules/user/user.validate';
+import {
+  RefreshTokenJwtPayload,
+  JwtTokenTypeEnum,
+} from 'src/modules/auth/types/auth-context.type';
 
 @Injectable()
 export class AuthService {
@@ -36,78 +52,23 @@ export class AuthService {
     private readonly workspaceService: WorkspaceService,
     private readonly authSsoService: AuthSsoService,
     private readonly signInUpService: SignInUpService,
+    @InjectRepository(User, 'core')
+    private readonly userRepository: Repository<User>,
     @InjectRepository(Workspace, 'core')
     private readonly workspaceRepository: Repository<Workspace>,
+    private readonly loginTokenService: LoginTokenService,
+    private readonly accessTokenService: AccessTokenService,
+    private readonly refreshTokenService: RefreshTokenService,
   ) { }
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.userservice.findOneByEmail(email);
-    if (user && await bcrypt.compare(password, user.password)) {
+    if (user && await compareHash(password, user.password)) {
       const { password, ...result } = user;
       return result;
     }
     return null;
   }
-
-  async checkUserForSigninUp(username: string) {
-    const user = this.userservice.findOneByEmail(username);
-    return user;
-  }
-
-  async login(user: any, inviteToken?: string) {
-    const workspaces = await this.workspaceService.getOrCreateWorkspaceForUser(user.id);
-    const WorkspaceIds = workspaces.map(workspace => workspace.id);
-    const payload = {
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      sub: user.id,
-      workspaceIds: WorkspaceIds,
-      role: user.role
-    };
-    const users = await this.userservice.findOneUserWithWorkspaces(user.id)
-    if (!users) throw error("users not found")
-    const loginToken = await this.generateLoginToken(
-      user.email,
-      workspaces[0].id
-    );
-
-    if (inviteToken) {
-      const userId = await user.id
-      const workspace = await this.workspaceService.getOrCreateWorkspaceForUser(userId, inviteToken)
-    }
-
-    return {
-      access_token: this.jwtService.sign(payload),
-      workspaceIds: JSON.stringify(WorkspaceIds),
-      id: users.id,
-      email: users.email,
-      accessToken: {
-        token: loginToken.token,
-        expiresAt: loginToken.expiresAt
-      },
-      userDetails: {
-        email: users.email,
-        firstName: users.firstName,
-        lastName: users.lastName
-      },
-      workspaces: users.workspaceMembers,
-    };
-  }
-
-  async Register(register: CreateUserDTO): Promise<any> {
-    const email_validation = await this.userservice.findOneByEmail(register.email);
-    if (email_validation) {
-      return "email already exists";
-    }
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(register.password, saltRounds);
-    const userData = { ...register, password: hashedPassword, username: register.email };
-    const user = await this.userservice.createUser(userData);
-    return user;
-  }
-
-
 
   computeRedirectURI({
     loginToken,
@@ -120,7 +81,6 @@ export class AuthService {
         loginToken,
       },
     });
-
     return url.toString();
   }
 
@@ -137,7 +97,6 @@ export class AuthService {
         },
     };
   }
-
 
   private async validatePassword(
     userData: ExistingUserOrNewUser['userData'],
@@ -265,97 +224,42 @@ export class AuthService {
   async findSignInUpInvitation(params: { currentWorkspace: Workspace, email: string }) {
   }
 
-  generateAppSecret(type: string, workspaceId?: string): string {
-    const appSecret = process.env.APP_SECRET;
-    if (!appSecret) {
-      throw new Error('APP_SECRET is not set');
+  async verify(email: string, workspaceId: string, authProvider: AuthProviderEnum) {
+    if (!email) {
+      throw new AuthException(
+        'Email is required',
+        AuthExceptionCode.INVALID_INPUT,
+      );
     }
 
-    return createHash('sha256')
-      .update(`${appSecret}${workspaceId}${type}`)
-      .digest('hex');
-  }
+    const user = await this.userRepository.findOne({
+      where: { email },
+    });
 
-
-  async generateLoginToken(
-    email: string,
-    workspaceId: string,
-  ) {
-
-    const secret = this.generateAppSecret(
-      'LOGIN',
-      workspaceId,
+    userValidator.assertIsDefinedOrThrow(
+      user,
+      new AuthException('User not found', AuthExceptionCode.USER_NOT_FOUND),
     );
 
-    const expiresIn = '7d';
-    const expiresAt = addMilliseconds(new Date().getTime(), ms(expiresIn));
-    const jwtPayload = {
-      sub: email,
+    user.password = '';
+
+    const accessToken = await this.accessTokenService.generateAccessToken({
+      userId: user.id,
       workspaceId,
-    };
-
-    const token = {
-      token: this.jwtService.sign(jwtPayload, {
-        secret,
-        expiresIn,
-      }),
-      expiresAt,
-    };
-
-    return token;
-  }
-  decode<T = any>(payload: string, options?: jwt.DecodeOptions): T {
-    return this.jwtService.decode(payload, options);
-  }
-
-  async verifyToken(loginToken: string) {
-    const decodeToken = this.decode(loginToken, {
-      json: true,
+      authProvider,
     });
-
-    const payload = this.jwtService.verify(loginToken, {
-      secret: this.generateAppSecret('LOGIN', decodeToken.workspaceId),
+    const refreshToken = await this.refreshTokenService.generateRefreshToken({
+      userId: user.id,
+      workspaceId,
+      authProvider,
+      targetedTokenType: JwtTokenTypeEnum.ACCESS,
     });
-
-    const user = await this.userservice.findOneByEmail(payload.sub)
-    if (!user) throw error("this is error of users")
-    const payloadfinal = {
-      firstName: user.firstName,
-      lastName: user.lastName,
-      sub: user.id,
-      email: user.email,
-      workspaceId: payload.workspaceId,
-      workspaceIds: payload.workspaceId
-    };
-
-    const expiresIn = '7d';
-    const expiresAt = addMilliseconds(new Date().getTime(), ms(expiresIn));
-
-    const res = {
-      accessToken: {
-        token: this.jwtService.sign(payloadfinal),
-        expiresAt
-      },
-      workspaceIds: JSON.stringify(payload.workspaceId),
-      userDetails: {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email
-      }
-    };
 
     return {
-      access_token: this.jwtService.sign(payloadfinal),
-      accessToken: {
-        token: this.jwtService.sign(payloadfinal),
-        expiresAt
+      tokens: {
+        accessToken,
+        refreshToken,
       },
-      workspaceIds: JSON.stringify(payload.workspaceId),
-      userDetails: {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email
-      }
     };
   }
 

@@ -18,7 +18,7 @@ function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const accessToken = cookieStorage.getItem('accessToken')
+    const accessToken = cookieStorage.getItem('tokenPair')
     if (accessToken && currentUserWorkspace) {
       navigate(`/w/${currentUserWorkspace.id}/dashboard`)
     }
@@ -45,10 +45,9 @@ function Login() {
           password: authForm.password,
         },
       });
-      const token: string = response.data.login;
+      const token: string = response.data.login.loginToken.token;
       navigate(`/verify?loginToken=${token}`);
     } catch (err) {
-      console.error('Error logging in:', err);
     }
   }
 

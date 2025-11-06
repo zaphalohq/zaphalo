@@ -38,6 +38,7 @@ const WorkspaceSetup = () => {
             const formData = new FormData();
             if (file !== null && currentUserWorkspace?.id) {
                 formData.append('file', file);
+                formData.append('fileFolder', 'workspace-logo');
                 const response = await Post(
                     `/upload`,
                     formData,
