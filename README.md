@@ -11,14 +11,6 @@
    <p><em>Screenshot: ZapHalo dashboard</em></p>
 </div>
 
-<!--
-Place the image file at one of these recommended locations in the repo:
-- packages/frontend/public/assets/hero.png
-- docs/assets/hero.png
-
-Or use a remote URL:
-<img src="https://example.com/path/to/hero.png" alt="ZapHalo — WhatsApp API Integration" />
--->
 ## Features
 - **Multi-Platform Integration**: Embed your WhatsApp number on websites, apps, or other platforms with a simple link or widget.
 - **Webhook Message Handling**: Capture incoming WhatsApp messages in real-time using webhooks and display them within the app.

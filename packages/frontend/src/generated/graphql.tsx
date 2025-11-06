@@ -772,6 +772,8 @@ export const SaveBroadcast = gql`
         createdAt
         scheduledAt
         status
+        limit
+        intervalType
         whatsappAccount {
           id
         }
@@ -798,6 +800,8 @@ query getBroadcast($broadcastId: String!) {
       createdAt
       scheduledAt
       status
+      limit
+      intervalType
       whatsappAccount {
         id
       }
