@@ -327,6 +327,7 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
                 type="number"
                 placeholder="Set Message Limit"
                 value={broadcastData.limit ?? ''}
+                disabled={readOnly}
                 min={1}
                 onChange={(e) => {
                   const value = e.target.value;
@@ -341,7 +342,7 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
               <Select
                 value={broadcastData.intervalType}
                 onValueChange={(val) => setBroadcastData({ ...broadcastData, intervalType: val })}
-                disabled={!broadcastData.limit}
+                disabled={!broadcastData.limit || readOnly}
               >
                 <SelectTrigger className={errors.intervalType ? "border-red-500 focus-visible:ring-red-500" : ""}>
                   <SelectValue placeholder="Select Interval Type For Limit" />

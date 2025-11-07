@@ -882,7 +882,7 @@ query getTemplate($templateId: String!) {
         originalname
         name
       }
-      button {
+      buttons {
         phone_number
         text
         type
@@ -891,6 +891,10 @@ query getTemplate($templateId: String!) {
       variables {
         name
         value
+        id
+        type
+        dynamicField
+        sampleValue
       }
     }
     message
@@ -936,7 +940,7 @@ query searchReadTemplate($page : Int!, $pageSize : Int!, $search: String, $filte
         originalname
         name
       }
-      button {
+      buttons {
         phone_number
         text
         type
@@ -976,7 +980,7 @@ mutation saveTemplate($templateData: WaTemplateRequestInput!) {
         originalname
         name
       }
-      button {
+      buttons {
         phone_number
         text
         type
@@ -1019,7 +1023,7 @@ mutation submitTemplate($templateId: String!) {
         originalname
         name
       }
-      button {
+      buttons {
         phone_number
         text
         type
@@ -1062,7 +1066,7 @@ mutation syncTemplate($templateId: String!) {
         originalname
         name
       }
-      button {
+      buttons {
         phone_number
         text
         type
@@ -1329,6 +1333,15 @@ export const GetEngegmentGraphData = gql`
       date
       deliveredCount
       sentCount
+    }
+  }
+`
+
+export const DeleteTemplate = gql`
+  mutation deleteTemplate($templateIds: [String!]!){
+    deleteTemplate(templateIds: $templateIds){
+      status
+      message
     }
   }
 `

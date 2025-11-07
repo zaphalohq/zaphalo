@@ -124,7 +124,7 @@ const WhatsAppAccountForm = ({ onBack, waAccountId }) => {
                 }
             })
             if (response.data) {
-                toast.success("Sync Successfull")
+                                toast.success("Sync Successfull")
             }
         } catch (err) {
             toast.error(`${err}`);

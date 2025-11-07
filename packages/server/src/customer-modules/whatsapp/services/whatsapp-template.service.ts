@@ -11,7 +11,8 @@ import {
   TemplateLanguage,
   TemplateCategory,
   TemplateStatus,
-  TemplateQuality } from "../entities/whatsapp-template.entity";
+  TemplateQuality
+} from "../entities/whatsapp-template.entity";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 import { WhatsAppSDKService } from './whatsapp-api.service'
 import { AttachmentService } from "src/customer-modules/attachment/attachment.service";
@@ -23,6 +24,11 @@ import { TestTemplateOutput, WaTestTemplateInput } from "src/customer-modules/wh
 import { FileService } from "src/modules/file-storage/services/file.service";
 import { v4 as uuidv4 } from 'uuid';
 import { join } from 'path';
+import { Button } from "../entities/whatsapp-template-button.entity";
+import { Variable } from "../entities/whatsapp-template-variable.entity";
+import { TemplateResponse } from "../dtos/templates/template-response.dto";
+import { Broadcast } from "src/customer-modules/broadcast/entities/broadcast.entity";
+import { broadcastStates } from "src/customer-modules/broadcast/enums/broadcast.state.enum";
 const LATITUDE_LONGITUDE_REGEX = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/;
 
 function slugify(text: string): string {
@@ -41,6 +47,9 @@ function slugify(text: string): string {
 @Injectable()
 export class WaTemplateService {
   private templateRepository: Repository<WhatsAppTemplate>
+  private templateButtonRepository: Repository<Button>
+  private templateVariablesRepository: Repository<Variable>
+  private broadcastRepository: Repository<Broadcast>
 
   constructor(
     @Inject(CONNECTION) connection: Connection,
@@ -49,6 +58,9 @@ export class WaTemplateService {
     private fileService: FileService,
   ) {
     this.templateRepository = connection.getRepository(WhatsAppTemplate);
+    this.templateButtonRepository = connection.getRepository(Button)
+    this.templateVariablesRepository = connection.getRepository(Variable)
+    this.broadcastRepository = connection.getRepository(Broadcast)
   }
 
   async createTemplate(templateData) {
@@ -64,6 +76,41 @@ export class WaTemplateService {
       if (!attachment) throw new Error("Attachment doesn't found!");
     }
 
+    const buttons = templateData.buttons?.map((btn) => {
+      return this.templateButtonRepository.create({
+        type: btn.type,
+        text: btn.text,
+        url: btn.url || null,
+        phone_number: btn.phone_number || null
+      })
+    }) || []
+
+    const variables = templateData.variables?.map((v) => {
+
+      if (!v.name) throw new Error('Variable name is required.');
+
+      if (!v.type || !['STATIC', 'DYNAMIC'].includes(v.type)) {
+        throw new Error(`Invalid variable type for ${v.name}. Must be 'static' or 'dynamic'.`);
+      }
+
+      if (v.type === 'STATIC') {
+        if (!v.value)
+          throw new Error(`Static variable ${v.name} must have a value.`);
+      } else if (v.type === 'DYNAMIC') {
+        if (!v.dynamicField)
+          throw new Error(`Dynamic variable ${v.name} must have a dynamicField (e.g. name, number, etc).`);
+      }
+
+
+      return this.templateVariablesRepository.create({
+        name: v.name,
+        type: v.type,
+        value: v.value || null,
+        dynamicField: v.dynamicField || null,
+        sampleValue: v.sampleValue || null,
+      });
+    }) || [];
+
     const template = this.templateRepository.create({
       name: slugify(templateData.templateName),
       templateName: templateData.templateName,
@@ -72,8 +119,8 @@ export class WaTemplateService {
       headerType: templateData.headerType,
       bodyText: templateData.bodyText,
       footerText: templateData.footerText,
-      button: templateData.button,
-      variables: templateData.variables,
+      buttons,
+      variables,
       account: account,
     });
 
@@ -92,9 +139,46 @@ export class WaTemplateService {
 
     const templateFind = await this.getTemplate(templateData.templateId)
     if (!templateFind.template) throw Error("Template doesn't found!")
-    
+
     const account = await this.waAccountService.findInstantsByInstantsId(templateData.whatsappAccountId);
     if (!account) throw Error("Whatsapp account doesn't found!")
+
+    const buttons = templateData.buttons?.map((btn) => {
+      return this.templateButtonRepository.create({
+        type: btn.type,
+        text: btn.text,
+        url: btn.url || null,
+        phone_number: btn.phone_number || null
+      })
+    }) || []
+
+    const variables = templateData.variables?.map((v) => {
+
+      if (!v.name) throw new Error('Variable name is required.');
+
+      if (!v.type || !['STATIC', 'DYNAMIC'].includes(v.type)) {
+        throw new Error(`Invalid variable type for ${v.name}. Must be 'static' or 'dynamic'.`);
+      }
+
+      if (v.type === 'STATIC') {
+        if (!v.value)
+          throw new Error(`Static variable ${v.name} must have a value.`);
+      } else if (v.type === 'DYNAMIC') {
+        if (!v.dynamicField)
+          throw new Error(`Dynamic variable ${v.name} must have a dynamicField (e.g. name, number, etc).`);
+      }
+
+
+      return this.templateVariablesRepository.create({
+        name: v.name,
+        type: v.type,
+        value: v.value || null,
+        dynamicField: v.dynamicField || null,
+        sampleValue: v.sampleValue || null,
+      });
+    }) || [];
+
+
 
     Object.assign(templateFind.template, {
       name: slugify(templateData.templateName),
@@ -106,8 +190,8 @@ export class WaTemplateService {
       headerText: templateData.headerText,
       bodyText: templateData.bodyText,
       footerText: templateData.footerText,
-      button: templateData.button,
-      variables: templateData.variables,
+      buttons,
+      variables,
     })
 
     if (templateData.attachmentId) {
@@ -129,8 +213,8 @@ export class WaTemplateService {
     if (headerType == 'text' && templateVariablesValue['header-{{1}}']){
       var value = (freeTextJson || {})['header_text'] || templateVariablesValue['header-{{1}}'] || ' '
       header = {
-          'type': 'header',
-          'parameters': [{'type': 'text', 'text': value}]
+        'type': 'header',
+        'parameters': [{'type': 'text', 'text': value}]
       }
     }
     else if(['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerType)){
@@ -141,8 +225,8 @@ export class WaTemplateService {
     }
     else if(headerType == 'location'){
       header = {
-          "type": "header",
-          "parameters": [await this.prepareLocationVals(templateVariablesValue)]
+        "type": "header",
+        "parameters": [await this.prepareLocationVals(templateVariablesValue)]
       }
     }
     return header
@@ -152,33 +236,32 @@ export class WaTemplateService {
     // """ Prepare location values for sending WhatsApp template message having header type location"""
     this.checkLocationLatitudeLongitude(templateVariablesValue['location-latitude'], templateVariablesValue['location-longitude'])
     return {
-        'type': 'location',
-        'location': {
-            'name': templateVariablesValue['location-name'],
-            'address': templateVariablesValue['location-address'],
-            'latitude': templateVariablesValue['location-latitude'],
-            'longitude': templateVariablesValue['location-longitude'],
-        }
+      'type': 'location',
+      'location': {
+        'name': templateVariablesValue['location-name'],
+        'address': templateVariablesValue['location-address'],
+        'latitude': templateVariablesValue['location-latitude'],
+        'longitude': templateVariablesValue['location-longitude'],
+      }
     }
   }
 
   checkLocationLatitudeLongitude(latitude, longitude){
-    if (! LATITUDE_LONGITUDE_REGEX.test(`${latitude}, ${longitude}`)){
+    if (!LATITUDE_LONGITUDE_REGEX.test(`${latitude}, ${longitude}`)){
       new Error(`Location Latitude and Longitude ${latitude} / ${longitude} is not in proper format.`)
     }
   }
 
   getBodyComponent(waTemplateId, freeTextJson, templateVariablesValue){
     if (waTemplateId.variables.length == 0){
-        return undefined
+      return undefined
     }
     let parameters: any[] = []
     let free_text_count = 1
-    for (const bodyVal of waTemplateId.variables)
-    {
+    for (const bodyVal of waTemplateId.variables){
       parameters.push({
-          'type': 'text',
-          'text': bodyVal.value
+        'type': 'text',
+        'text': bodyVal.value
       })
     }
     return {'type': 'body', 'parameters': parameters}
@@ -193,7 +276,7 @@ export class WaTemplateService {
   async getSendTemplateVals(waTemplateId){
     const freeTextJson = {}
     let attachment
-      
+
     attachment = waTemplateId?.attachment
 
     let components: any[] = []
@@ -212,8 +295,8 @@ export class WaTemplateService {
     // components = components & buttons
 
     let templateVals = {
-        'name': slugify(waTemplateId.templateName),
-        'language': {'code': waTemplateId.language},
+      'name': slugify(waTemplateId.templateName),
+      'language': {'code': waTemplateId.language},
     }
 
     if (components){
@@ -244,7 +327,7 @@ export class WaTemplateService {
   getTemplateBodyComponent(waTemplateId){
     // """Return body component for template registration to whatsapp"""
     if (!waTemplateId.bodyText){
-        return false
+      return false
     }
     const body_component = {'type': 'BODY', 'text': waTemplateId.bodyText}
 
@@ -287,7 +370,7 @@ export class WaTemplateService {
   }
 
   async submitTemplate(templateId){
-        // """Register template to WhatsApp Business Account """
+    // """Register template to WhatsApp Business Account """
     const waTemplate = await this.templateRepository.findOne({
       where: { id: templateId },
       relations: ['account', 'attachment'],
@@ -333,12 +416,12 @@ export class WaTemplateService {
     if (footer){
       components.push(footer)
     }
-    
+
     const jsonData = JSON.stringify({
-        'name': slugify(waTemplate.templateName),
-        'language': waTemplate.language,
-        'category': waTemplate.category,
-        'components': components,
+      'name': slugify(waTemplate.templateName),
+      'language': waTemplate.language,
+      'category': waTemplate.category,
+      'components': components,
     })
     try{
       if (waTemplate.waTemplateId){
@@ -387,7 +470,7 @@ export class WaTemplateService {
   ) {
     const templateFind = await this.templateRepository.findOne({
       where: { id: templateId },
-      relations: ["account", "attachment"],
+      relations: ["account", "attachment", "buttons", "variables"],
     });
     if (!templateFind){
       throw new Error('Template not found');
@@ -402,7 +485,7 @@ export class WaTemplateService {
   ) {
     let where = {}
     if (search){
-     where = {templateName: ILike(`%${search}%`)};
+      where = {templateName: ILike(`%${search}%`)};
     }
     if(filter){
       Object.assign(where, filter)
@@ -440,7 +523,7 @@ export class WaTemplateService {
       skip,
       take: pageSize,
       order: { createdAt: 'DESC' },
-      relations: ["account", "attachment"],
+      relations: ["account", "attachment", "buttons", "variables"],
     });
 
     return {
@@ -479,28 +562,28 @@ export class WaTemplateService {
 
 
   async updateTemplateFromResponse(workspaceId, waTemplate, remoteTemplateVals){
-      const templateVals = await this.getTemplateValsFromResponse(workspaceId, remoteTemplateVals, waTemplate.account)
+    const templateVals = await this.getTemplateValsFromResponse(workspaceId, remoteTemplateVals, waTemplate.account)
 
-      let updateVals = {
-        "body": templateVals["body"],
-        "headerType": templateVals["headerType"],
-        "headerText": templateVals["headerText"],
-        "footerText": templateVals["footerText"],
-        "language": templateVals["language"],
-        "category": templateVals["category"],
-        "status": templateVals['status'],
-        "quality": templateVals['quality'],
+    let updateVals = {
+      "body": templateVals["body"],
+      "headerType": templateVals["headerType"],
+      "headerText": templateVals["headerText"],
+      "footerText": templateVals["footerText"],
+      "language": templateVals["language"],
+      "category": templateVals["category"],
+      "status": templateVals['status'],
+      "quality": templateVals['quality'],
+    }
+    if (!waTemplate.attachment && templateVals['fileHandle']){
+      const newAttachment = await this.createTemplateAttachment(workspaceId, templateVals['fileHandle'])
+      if (newAttachment){
+        updateVals['attachment'] = newAttachment
+        updateVals['templateImg'] = newAttachment.name
       }
-      if (!waTemplate.attachment && templateVals['fileHandle']){
-        const newAttachment = await this.createTemplateAttachment(workspaceId, templateVals['fileHandle'])
-        if (newAttachment){
-          updateVals['attachment'] = newAttachment
-          updateVals['templateImg'] = newAttachment.name
-        }
-      }
-      Object.assign(waTemplate, updateVals)
+    }
+    Object.assign(waTemplate, updateVals)
       await this.templateRepository.save(waTemplate);
-      return true
+    return true
   }
 
   async createTemplateAttachment(workspaceId, fileResponse){
@@ -542,18 +625,18 @@ export class WaTemplateService {
     // """
     const qualityScore = remoteTemplateVals['quality_score']['score'].toLowerCase()
     let templateVals = {
-        'body': '',
-        'footerText': '',
-        'headerText': '',
-        'headerType': TemplateHeaderType['NONE'],
-        'language': TemplateLanguage[remoteTemplateVals['language']],
-        'name': remoteTemplateVals['name'].replace("_", " ").toLowerCase(),
-        'quality': TemplateQuality[qualityScore == 'unknown' ? 'none' : qualityScore],
-        'status': TemplateStatus[remoteTemplateVals['status'].toLowerCase()],
-        'templateName': remoteTemplateVals['name'],
-        'category': TemplateCategory[remoteTemplateVals['category']],
-        'account': waAccount.id,
-        'waTemplateId': remoteTemplateVals['id'],
+      'body': '',
+      'footerText': '',
+      'headerText': '',
+      'headerType': TemplateHeaderType['NONE'],
+      'language': TemplateLanguage[remoteTemplateVals['language']],
+      'name': remoteTemplateVals['name'].replace("_", " ").toLowerCase(),
+      'quality': TemplateQuality[qualityScore == 'unknown' ? 'none' : qualityScore],
+      'status': TemplateStatus[remoteTemplateVals['status'].toLowerCase()],
+      'templateName': remoteTemplateVals['name'],
+      'category': TemplateCategory[remoteTemplateVals['category']],
+      'account': waAccount.id,
+      'waTemplateId': remoteTemplateVals['id'],
     }
     interface button {
       type: string;
@@ -563,69 +646,69 @@ export class WaTemplateService {
     }
     let buttons: button[] = []
     for (const component of remoteTemplateVals['components']){
-        const componentType = component['type']
-        if (componentType == 'HEADER'){
-            templateVals['headerType'] = TemplateHeaderType[component['format']]
-            if (component['format'] == 'TEXT'){
-                templateVals['headerText'] = component['text']
-            }
-            else if (component['format'] == 'LOCATION'){
-                for (const locationVal of ['name', 'address', 'latitude', 'longitude']){
-                  templateVals['variables'].push({
-                      'name': locationVal,
-                      'line_type': 'location',
-                  })
-                }
-            }
-            else if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(component['format'])){
-              const documentUrl = component['example']?.header_handle ? component['example']?.header_handle[0] : false
-              let mimetype, extension, data;
-              if (documentUrl){
-                const waApi = await this.waAccountService.getWhatsAppApi(waAccount.id)
-                const response = await waApi.getHeaderDataFromHandle(documentUrl)
-                mimetype = response.headers['content-type']
-                data = response.data
-                extension = mime.extension(mimetype)
-                templateVals['fileHandle'] = {
-                  'name': `${templateVals["templateName"]}.${extension}`,
-                  'data': data,
-                  'mimeType': mimetype,
-                }
-              }
-              // else{
-              //   const encoder = new TextEncoder();
-              //   const data = encoder.encode('AAAA');
-              //   const {extension, mimetype } = {
-              //       'IMAGE': ['jpg', 'image/jpeg'],
-              //       'VIDEO': ['mp4', 'video/mp4'],
-              //       'DOCUMENT': ['pdf', 'application/pdf']
-              //   }[component['format']]
-              // }
-
-              
-            }
-        }else if (componentType == 'BODY'){
-          templateVals['body'] = component['text']
-          const variableValues = component.example?.body_text?.[0] || [];
-          templateVals['variables'] = variableValues.map((val: string, idx: number) => ({
-            name: `{{${idx + 1}}}`,
-            value: val
-          }));
-        }else if (componentType == 'FOOTER'){
-          templateVals['footer_text'] = component['text']
-        }else if (componentType == 'BUTTONS'){
-          for (const [index, button] of component['buttons'].entries()){
-            if (['URL', 'PHONE_NUMBER', 'QUICK_REPLY'].includes(button['type'])){
-              let buttonVals = {
-                  'type': button['type'].toLowerCase(),
-                  'text': button['text'],
-                  'phone_number': button['phone_number'],
-                  'url':button['url'] ? button['url'].replace('{{1}}', '') : false,
-              }
-              buttons.push(buttonVals)
-            }
+      const componentType = component['type']
+      if (componentType == 'HEADER'){
+        templateVals['headerType'] = TemplateHeaderType[component['format']]
+        if (component['format'] == 'TEXT'){
+          templateVals['headerText'] = component['text']
+        }
+        else if (component['format'] == 'LOCATION'){
+          for (const locationVal of ['name', 'address', 'latitude', 'longitude']){
+            templateVals['variables'].push({
+              'name': locationVal,
+              'line_type': 'location',
+            })
           }
         }
+        else if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(component['format'])){
+          const documentUrl = component['example']?.header_handle ? component['example']?.header_handle[0] : false
+          let mimetype, extension, data;
+          if (documentUrl){
+            const waApi = await this.waAccountService.getWhatsAppApi(waAccount.id)
+            const response = await waApi.getHeaderDataFromHandle(documentUrl)
+            mimetype = response.headers['content-type']
+            data = response.data
+            extension = mime.extension(mimetype)
+            templateVals['fileHandle'] = {
+              'name': `${templateVals["templateName"]}.${extension}`,
+              'data': data,
+              'mimeType': mimetype,
+            }
+          }
+          // else{
+          //   const encoder = new TextEncoder();
+          //   const data = encoder.encode('AAAA');
+          //   const {extension, mimetype } = {
+          //       'IMAGE': ['jpg', 'image/jpeg'],
+          //       'VIDEO': ['mp4', 'video/mp4'],
+          //       'DOCUMENT': ['pdf', 'application/pdf']
+          //   }[component['format']]
+          // }
+
+
+        }
+      }else if (componentType == 'BODY'){
+        templateVals['body'] = component['text']
+        const variableValues = component.example?.body_text?.[0] || [];
+        templateVals['variables'] = variableValues.map((val: string, idx: number) => ({
+          name: `{{${idx + 1}}}`,
+          value: val
+        }));
+      }else if (componentType == 'FOOTER'){
+        templateVals['footer_text'] = component['text']
+      }else if (componentType == 'BUTTONS'){
+        for (const [index, button] of component['buttons'].entries()){ 
+          if (['URL', 'PHONE_NUMBER', 'QUICK_REPLY'].includes(button['type'])){
+            let buttonVals = {
+              'type': button['type'].toLowerCase(),
+              'text': button['text'],
+              'phone_number': button['phone_number'],
+              'url':button['url'] ? button['url'].replace('{{1}}', '') : false,
+            }
+            buttons.push(buttonVals)
+          }
+        }
+      }
     }
     templateVals['button'] = buttons
     return templateVals
@@ -665,7 +748,7 @@ export class WaTemplateService {
       let templateUpdateCount = 0
       let templateCreateCount = 0
       if (response){
-        for (const template of response){
+        for (const template of response) {
           const existingTmpl = existingTmplId[template['id']]
           if (existingTmpl){
             templateUpdateCount += 1
@@ -685,5 +768,34 @@ export class WaTemplateService {
       return {'waAccount': waAccount.waAccount, 'message': 'WhatsApp account templates sync not done.', 'status': false}
     }
   }
+
+  async deleteTemplate(templateIds: String[]): Promise<TemplateResponse> {
+    const templates = await this.templateRepository.find({
+      where: {
+        id: In(templateIds)
+      }
+    })
+
+    if (!templates.length) {
+      return {
+        status: false,
+        message: 'No templates found with provided IDs.',
+      };
+    }
+
+    const hasWaTemplate = templates.some(t => t.waTemplateId !== null);
+
+    if (hasWaTemplate) {
+      throw new Error('Cannot delete templates that are linked with WhatsApp Account.');
+    }
+
+    await this.templateRepository.remove(templates);
+
+    return {
+      'status': true,
+      'message': 'Template deleted',
+    }
+  }
 }
+
 

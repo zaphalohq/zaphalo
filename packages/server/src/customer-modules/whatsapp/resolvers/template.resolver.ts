@@ -128,5 +128,13 @@ export class WhatsAppTemplateResolver {
     return await this.templateService.syncWhatsAppAccountTemplates(workspace.id, waAccountId)
   }
 
+  @UseGuards(GqlAuthGuard)
+  @Mutation(()=> TemplateResponse)
+  async deleteTemplate(
+    @Args('templateIds', { type: () => [String] }) templateIds: string[],
+  ): Promise<TemplateResponse>{
+    return this.templateService.deleteTemplate(templateIds)
+  }
+
 }
 
