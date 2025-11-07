@@ -7,6 +7,7 @@ import { GoogleOauthGuard } from 'src/modules/auth/guards/google-auth.guard';
 import { GoogleAuthEnabledGuard } from 'src/modules/auth/guards/google-auth-enabled.guard';
 import { AuthService } from 'src/modules/auth/services/auth.service';
 import { User } from "src/modules/user/user.entity";
+import { LoginTokenService } from 'src/modules/auth/token/services/login-token.service';
 
 @Controller('google/auth')
 export class GoogleAuthController {
@@ -14,6 +15,7 @@ export class GoogleAuthController {
     private authService: AuthService,
     @InjectRepository(User, 'core')
     private readonly userRepository: Repository<User>,
+    private loginTokenService: LoginTokenService,
   ) { }
 
   @Get()
@@ -72,7 +74,7 @@ export class GoogleAuthController {
         },
       });
 
-      const loginToken = await this.authService.generateLoginToken(
+      const loginToken = await this.loginTokenService.generateLoginToken(
         email,
         workspace.id,
       );

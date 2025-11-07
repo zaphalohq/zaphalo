@@ -51,12 +51,10 @@ const MessageArea = () => {
 
         return;
       }
-      const formData = new FormData();
-      formData.append('file', file);
-
       try {
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('fileFolder', 'attachment');
         const response = await Post(
           `/upload`,
           formData,

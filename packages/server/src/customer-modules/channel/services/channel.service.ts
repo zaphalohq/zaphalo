@@ -14,7 +14,7 @@ import { AttachmentService } from "src/customer-modules/attachment/attachment.se
 import { messageTypes } from "src/customer-modules/whatsapp/entities/whatsapp-message.entity";
 import { WaMessageService } from "src/customer-modules/whatsapp/services/whatsapp-message.service";
 import { WebSocketService } from 'src/customer-modules/channel/chat-socket';
-import { FileService } from "src/modules/file-storage/services/file.service";
+import { FileService } from "src/modules/file/services/file.service";
 import { MessageEdge } from "src/customer-modules/channel/dtos/message-response.dto";
 
 
@@ -106,12 +106,10 @@ export class ChannelService {
     let attachmentUrl;
     if (message.attachmentUrl) {
       try {
-        const workspaceLogoToken = this.fileService.encodeFileToken({
+        const attachmentUrl = this.fileService.signFileUrl({
+          url: message.attachmentUrl,
           workspaceId: workspaceId,
         });
-
-        attachmentUrl = `${message.attachmentUrl}?token=${workspaceLogoToken}`;
-
       } catch (e) {
         attachmentUrl = message.attachmentUrl;
       }

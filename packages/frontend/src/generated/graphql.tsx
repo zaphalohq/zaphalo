@@ -64,15 +64,15 @@ export type currentUserWorkspace = {
 export const GetAuthTokensFromLoginTokenDocument = gql`
   mutation GetAuthTokensFromLoginToken($loginToken: String!) {
     getAuthTokensFromLoginToken(loginToken: $loginToken) {
-      workspaceIds
-      userDetails {
-        email
-        firstName
-        lastName
-      }
-      accessToken {
-        expiresAt
-        token
+      tokens {
+        accessToken {
+          expiresAt
+          token
+        }
+        refreshToken {
+          expiresAt
+          token
+        }
       }
     }
 }`;
@@ -172,7 +172,29 @@ export function useGetCurrentUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
 
 export const LoginMutation = gql`
   mutation Login($email: String!, $password: String!, $workspaceInviteToken: String) {
-    login(authInput: { email: $email, password: $password, workspaceInviteToken: $workspaceInviteToken })
+    login(authInput: { email: $email, password: $password, workspaceInviteToken: $workspaceInviteToken }){
+      loginToken {
+        expiresAt
+        token
+      }
+    }
+  }
+`
+
+export const RenewTokenMutation = gql`
+  mutation RenewToken($appToken: String!) {
+    renewToken(appToken: $appToken) {
+      tokens {
+        accessToken {
+          expiresAt
+          token
+        }
+        refreshToken {
+          expiresAt
+          token
+        }
+      }
+    }
   }
 `
 
@@ -546,7 +568,11 @@ export function useGetSystemStatus() {
   return Apollo.useQuery(getSystemStatus);
 }
 
-
+export enum FileFolder {
+  Attachment = 'Attachment',
+  ProfilePicture = 'ProfilePicture',
+  WorkspaceLogo = 'WorkspaceLogo'
+}
 
 export type CreateOneAttachmentVariables = Exact<{
   name: Scalars['String'];
@@ -1311,11 +1337,13 @@ export const GetDashboardStats = gql`
       failedCount
       sentCount
       contacts {
+        id
         phoneNo
         contactName
         profileImg
       }
       broadcasts {
+        id
         name
         totalContacts
         failedCount

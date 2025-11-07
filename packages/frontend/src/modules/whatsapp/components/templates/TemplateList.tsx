@@ -221,7 +221,7 @@ export default function TemplateList({
                       onChange={() => toggleSelect(template.id)}
                     />
                   </TableCell>
-                  <TableCell className="px-4 py-5">{template.templateName}</TableCell>
+                  <TableCell className="px-4 py-5">{template.name}</TableCell>
                   <TableCell className="px-4 py-5">{template.category}</TableCell>
                   <TableCell className="px-4 py-5">{template?.account?.name}</TableCell>
                   <TableCell className="px-4 py-5">{

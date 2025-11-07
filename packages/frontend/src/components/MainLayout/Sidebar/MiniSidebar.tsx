@@ -1,6 +1,6 @@
 import { FiGrid, FiLink, FiSettings, FiUsers } from 'react-icons/fi'
 import { IoChatbubbleEllipsesOutline } from 'react-icons/io5'
-import Logout from '@components/Auth/Logout'
+import Logout from '@src/modules/auth/components/Logout'
 import SidebarElement from './SidebarElements'
 import AccountToggle from '@components/UI/AccountToggle'
 

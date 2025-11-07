@@ -14,7 +14,6 @@ import { ContactsService } from 'src/customer-modules/contacts/contacts.service'
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 import { WaAccountDto } from '../dtos/whatsapp-account-update.dto';
 import { JwtWrapperService } from 'src/modules/jwt/jwt-wrapper.service';
-import { FileService } from 'src/modules/file-storage/services/file.service';
 import { WhatsAppSDKService } from 'src/customer-modules/whatsapp/services/whatsapp-api.service';
 import {
   WhatsAppException,
@@ -43,7 +42,6 @@ export class WaAccountService {
     private readonly contactsService: ContactsService,
     private readonly jwtWrapperService: JwtWrapperService,
     private readonly whatsAppApiService: WhatsAppSDKService,
-    private readonly fileService: FileService,
     private readonly attachmentService: AttachmentService,
   ) {
     this.waAccountRepository = connection.getRepository(WhatsAppAccount);

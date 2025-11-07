@@ -18,6 +18,7 @@ import { RolesGuard } from 'src/modules/auth/guards/roles.guard';
 import { Roles } from 'src/modules/auth/decorators/roles.decorator';
 import { GqlAuthGuard } from 'src/modules/auth/guards/gql-auth.guard';
 import { AuthWorkspace } from 'src/decorators/auth-workspace.decorator';
+import { UserAuthGuard } from 'src/guards/user-auth.guard';
 
 const getHMACKey = (email?: string, key?: string | null) => {
   if (!email || !key) return null;
@@ -27,7 +28,7 @@ const getHMACKey = (email?: string, key?: string | null) => {
   return hmac.update(email).digest('hex');
 };
 
-@UseGuards(GqlAuthGuard)
+// @UseGuards(GqlAuthGuard)
 @Resolver(() => User)
 export class UserResolver {
   constructor(
@@ -36,30 +37,31 @@ export class UserResolver {
     private readonly userService: UserService,
   ) { }
 
-  @Roles(Role.ADMIN)
-  @UseGuards(RolesGuard)
-  @UseGuards(GqlAuthGuard)
-  @Query(() => [User])
-  async findAll(): Promise<User[]> {
-    return this.userService.findAll();
-  }
+  // @Roles(Role.ADMIN)
+  // @UseGuards(RolesGuard)
+  // @UseGuards(GqlAuthGuard)
+  // @Query(() => [User])
+  // async findAll(): Promise<User[]> {
+  //   return this.userService.findAll();
+  // }
+
+  // @Query(() => User)
+  // async findOneByUsername(@Args('username') username: string): Promise<User | null> {
+  //   return this.userService.findOneByUsername(username);
+  // }
+
+  // @Query(() => User)
+  // async findOneByEmail(email: string): Promise<User | null> {
+  //   return this.userService.findOneByEmail(email)
+  // }
+
+  // @Mutation(() => User)
+  // async createUser(@Args('CreateUserInput') CreateUserInput: CreateUserDTO): Promise<User> {
+  //   return this.userService.createUser(CreateUserInput);
+  // }
 
   @Query(() => User)
-  async findOneByUsername(@Args('username') username: string): Promise<User | null> {
-    return this.userService.findOneByUsername(username);
-  }
-
-  @Query(() => User)
-  async findOneByEmail(email: string): Promise<User | null> {
-    return this.userService.findOneByEmail(email)
-  }
-
-  @Mutation(() => User)
-  async createUser(@Args('CreateUserInput') CreateUserInput: CreateUserDTO): Promise<User> {
-    return this.userService.createUser(CreateUserInput);
-  }
-
-  @Query(() => User)
+  @UseGuards(UserAuthGuard)
   async currentUser(
     @AuthUser() { id: userId }: User,
     @AuthWorkspace() workspace: Workspace,

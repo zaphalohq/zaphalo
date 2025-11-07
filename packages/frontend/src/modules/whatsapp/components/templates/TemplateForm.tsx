@@ -24,6 +24,9 @@ import TemplateVariables from "@src/modules/whatsapp/components/templates/Templa
 import { TemplateContext } from '@src/modules/whatsapp/Context/TemplateContext';
 import { Post } from "@src/modules/domain-manager/hooks/axios";
 import TemplatePreviewDialog from '@src/modules/whatsapp/components/templates/TemplatePreview';
+import { getImageAbsoluteURI } from "@src/utils/getImageAbsoluteURI"
+import { isNonEmptyString } from '@sniptt/guards';
+import { VITE_BACKEND_URL } from '@src/config';
 
 import {
   Tabs,
@@ -142,35 +145,40 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
   }, [templateData])
 
   const handleFileUpload = async () => {
-    if (file !== null) {
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-        const response = await Post(
-          `/upload`,
-          formData,
-          { headers: { 'Content-Type': 'multipart/form-data' } }
-        );
-        if (response.data) {
-          const attachment = await createOneAttachment({
-            variables: {
-              name: response.data.file.filename,
-              originalname: response.data.file.originalname,
-              mimetype: response.data.file.mimetype,
-              size: response.data.file.size,
-              path: response.data.file.path,
-              createdAt: "",
-              updatedAt: "",
-            }
-          })
+    if (!file)
+      return false
 
-          const attachmentRec = attachment.data.CreateOneAttachment;
-          return attachmentRec
-        }
-      } catch (error) {
-        console.error('Error uploading file:', error);
-        return false
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('fileFolder', 'template');
+
+      const response = await Post(
+        `/upload`,
+        formData,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+      );
+      if (response.data) {
+        const attachment = await createOneAttachment({
+          variables: {
+            name: response.data.file.filename,
+            originalname: response.data.file.originalname,
+            mimetype: response.data.file.mimetype,
+            size: response.data.file.size,
+            path: response.data.file.path,
+            createdAt: "",
+            updatedAt: "",
+          }
+        })
+
+        const attachmentRec = attachment.data.CreateOneAttachment;
+        return attachmentRec
+      }else{
+
       }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      return false
     }
   }
 
@@ -193,10 +201,14 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
     if (!formValid){
       return
     }
-    // if (status){
-    //   updatedTemplateData.status = status
-    // }
-    const attachmentRec = await handleFileUpload()
+    let attachmentRec;
+    if (file !== null) {
+      const attachmentRec = await handleFileUpload()
+      if(!attachmentRec){
+        toast.error('File have not uploaded sucessfully.');
+        return
+      }
+    }
     const templateDataToSubmit = { ...templateData };
     if (attachmentRec){
       templateDataToSubmit['attachmentId'] = attachmentRec.id
@@ -351,58 +363,62 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
                 </SelectContent>
               </Select>
 
-              {templateData.headerType === 'TEXT' ?
-                <>
-                  <Label>Header Text</Label>
-                  <Input
-                    placeholder="Header Text"
-                    value={templateData.headerText}
-                    onChange={(e) => setTemplateData({ ...templateData, headerText: e.target.value })}
-                    readOnly={readOnly}
-                    disabled={readOnly}
-                  />
-                </>
-                :
-                <></>
-              }
-              {templateData.headerType === 'IMAGE' ?
-                <>
-                  <Label>Upload image</Label>
-                  {attachment.originalname ?
-                    <p className='p-2 mb-2 text-blue-700 rounded bg-blue-500/10 font-semibold'>
-                      <span className='text-gray-600 font-normal'>Current Uploaded Image : </span>
-                      {attachment.originalname}
-                    </p> : <></>}
-                  <Input
-                    type="file"
-                    accept="image/png,image/jpeg,image/jpg"
-                    placeholder="Header Text"
-                    onChange={handleFileChange}
-                    readOnly={readOnly}
-                    disabled={readOnly}
-                  />
-                </> : <></>
-              }
-              {templateData.headerType === 'VIDEO' ?
-                <>
-                  <Label>Upload Video</Label>
-                  {attachment.templateOriginaName ?
-                    <p className='p-2 mb-2 text-blue-700 rounded bg-blue-500/10 font-semibold'>
-                      <span className='text-gray-600 font-normal'>Current Uploaded Image : </span>
-                      {attachment.templateOriginaName}
-                    </p> : <></>}
-                  <Input
-                    type="file"
-                    accept=".mp4,.3gp"
-                    placeholder="Header Text"
-                    onChange={handleFileChange}
-                    readOnly={readOnly}
-                    disabled={readOnly}
-                  />
-                </>
-                :
-                <></>
-              }
+            {templateData.headerType === 'TEXT' ?
+              <>
+                <Label>Header Text</Label>
+                <Input
+                  placeholder="Header Text"
+                  value={templateData.headerText}
+                  onChange={(e) => setTemplateData({ ...templateData, headerText: e.target.value })}
+                  readOnly={readOnly}
+                  disabled={readOnly}
+                />
+              </>
+              :
+              <></>
+            }
+            {templateData.headerType === 'IMAGE' ?
+              <>
+                <Label>Upload image</Label>
+                {attachment.originalname ?
+                  <p className='p-2 mb-2 text-blue-700 rounded bg-blue-500/10 font-semibold'>
+                    <span className='text-gray-600 font-normal'>Current Uploaded Image : </span>
+                    <a href={getImageAbsoluteURI({
+          imageUrl: isNonEmptyString(templateData.templateImg)
+            ? templateData.templateImg : '',
+          baseUrl: VITE_BACKEND_URL,
+        }) ?? ''} target="_blank">{attachment.originalname}</a>
+                  </p> : <></>}
+                <Input
+                  type="file"
+                  accept="image/png,image/jpeg,image/jpg"
+                  placeholder="Header Text"
+                  onChange={handleFileChange}
+                  readOnly={readOnly}
+                  disabled={readOnly}
+                />
+              </> : <></>
+            }
+            {templateData.headerType === 'VIDEO' ?
+              <>
+              <Label>Upload Video</Label>
+                {attachment.templateOriginaName ?
+                  <p className='p-2 mb-2 text-blue-700 rounded bg-blue-500/10 font-semibold'>
+                    <span className='text-gray-600 font-normal'>Current Uploaded Image : </span>
+                    {attachment.templateOriginaName}
+                  </p> : <></>}
+                <Input
+                  type="file"
+                  accept=".mp4,.3gp"
+                  placeholder="Header Text"
+                  onChange={handleFileChange}
+                  readOnly={readOnly}
+                  disabled={readOnly}
+                />
+              </>
+              :
+              <></>
+            }
 
               <Label>Footer Text (Optional)</Label>
               <Input
