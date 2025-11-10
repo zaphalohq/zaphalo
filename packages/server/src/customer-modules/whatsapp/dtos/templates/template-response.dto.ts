@@ -4,7 +4,7 @@ import { WhatsAppTemplate } from "src/customer-modules/whatsapp/entities/whatsap
 @ObjectType()
 export class TemplateResponse {
   @Field(() => WhatsAppTemplate, { nullable: true })
-  template: WhatsAppTemplate;
+  template?: WhatsAppTemplate;
 
   @Field()
   status: boolean;

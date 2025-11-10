@@ -55,6 +55,31 @@ export const TemplatePreview = ({ templateDataPreview, attachmentDataPreview }: 
   templatePreview = templateDataPreview
   attachmentPreview = attachmentDataPreview
 
+  const getBodyWithValues = (templateData: any) => {
+    if (!templateData?.bodyText) return templateData?.bodyText || "";
+
+    const variableMatches = templateData.bodyText.match(/{{\d+}}/g) || [];
+
+    let newBodyText = templateData.bodyText;
+    variableMatches.forEach((variableName: string) => {
+      const matchedVariable = templateData.variables?.find(
+        (v: any) => v.name === variableName
+      );
+
+      if (matchedVariable) {
+        if (matchedVariable.type === "STATIC" && matchedVariable.value) {
+          newBodyText = newBodyText.replaceAll(variableName, matchedVariable.value);
+        }
+        else {
+          newBodyText = newBodyText.replaceAll(variableName, matchedVariable.sampleValue || "");
+        }
+      }
+    });
+
+    return newBodyText;
+  };
+
+
   return (
     <>
       {templatePreview.headerType !== 'NONE' || templatePreview.footerText || templatePreview.bodyText ?
@@ -92,15 +117,18 @@ export const TemplatePreview = ({ templateDataPreview, attachmentDataPreview }: 
                   />}
                 <div className="px-3 pb-1 text-sm text-gray-900">
                   <p className="mb-2 whitespace-pre-line">
-                    {templatePreview.bodyText}
+                    {Array.isArray(templatePreview?.variables) &&
+                      templatePreview.variables.some((v: any) => v.sampleValue)
+                      ? getBodyWithValues(templatePreview)
+                      : templatePreview.bodyText}
                   </p>
                 </div>
                 <div className="px-3 pb-2 flex justify-between items-end gap-4">
                   <p className="text-[13px] text-gray-600">{templatePreview.footerText}</p>
                   <p className="text-[11px] text-gray-500 flex-shrink-0">12:00</p>
                 </div>
-                {templatePreview?.button &&
-                  templatePreview?.button?.map((button: any, index: number) => (
+                {templatePreview?.buttons &&
+                  templatePreview?.buttons?.map((button: any, index: number) => (
                     <div key={index} className="flex gap-2 items-center justify-center py-2.5 px-3 text-[#00a884] border-t border-gray-300/50">
                       <FiExternalLink className="w-4 h-4" />
                       <button className="text-sm font-medium">

@@ -13,8 +13,8 @@ type ButtonType = 'URL' | 'QUICK_REPLY' | 'PHONE_NUMBER';
 const TemplateButton = () => {
   const { templateData, setTemplateData }: any = useContext(TemplateContext)
   const [addButtonData, setAddButtonData] = useState<ButtonData[]>(() => {
-    if(templateData.button?.length > 0){
-      return [...templateData.button]
+    if(templateData.buttons?.length > 0){
+      return [...templateData.buttons]
     }else{
       return []
     }
@@ -32,8 +32,8 @@ const TemplateButton = () => {
   }
 
   useEffect(() => {
-    setTemplateData((prev: any) => ({ ...prev, button: addButtonData }))
-    setTemplateData((prev: any) => ({ ...prev, button: addButtonData }))
+    setTemplateData((prev: any) => ({ ...prev, buttons: addButtonData }))
+    setTemplateData((prev: any) => ({ ...prev, buttons: addButtonData }))
   }, [addButtonData])
 
 
