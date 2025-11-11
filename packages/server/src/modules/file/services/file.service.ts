@@ -54,7 +54,7 @@ export class FileService {
   encodeFileToken(payloadToEncode: Omit<FileTokenJwtPayload, 'type' | 'sub'>) {
     const fileTokenExpiresIn = this.configService.get(
       'FILE_TOKEN_EXPIRES_IN',
-    );
+    ) || '1d';
 
     const payload: FileTokenJwtPayload = {
       ...payloadToEncode,

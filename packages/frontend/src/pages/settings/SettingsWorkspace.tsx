@@ -80,6 +80,8 @@ import CopyInviteLinkButton from "@src/modules/settings/invitations/components/C
 import WorkspaceSettings from "@src/modules/settings/workspace/components/WorkspaceSettings";
 import { currentUserWorkspaceState } from '@src/modules/auth/states/currentUserWorkspaceState';
 import { VITE_BACKEND_URL } from '@src/config';
+import { GetDashboardStats } from "@src/generated/graphql"
+import { useQuery } from "@apollo/client"
 
 
 // -----------------------------------------------------------------------------
@@ -116,14 +118,19 @@ export default function WorkspaceAdmin() {
     })
   }, [users, q, roleFilter])
 
+  const { data, refetch } = useQuery(GetDashboardStats, {})
+  const kpisData = useMemo(() => {
+    return data?.getDashboardStats || null;
+  }, [data?.getDashboardStats]);
+
   useEffect(() => {
     let mounted = true
-    ;(async () => {
+      ; (async () => {
 
-      if (!mounted) return
+        if (!mounted) return
 
-      setLoading(false)
-    })()
+        setLoading(false)
+      })()
     return () => {
       mounted = false
     }
@@ -154,8 +161,8 @@ export default function WorkspaceAdmin() {
           <p className="text-sm text-muted-foreground">Manage users, invites and settings for WhatsApp campaigns.</p>
         </div>
         <div className="flex items-center gap-2">
-          <InviteUserButton/>
-          <CopyInviteLinkButton link={currentWorkspace?.inviteToken}/>
+          <InviteUserButton />
+          <CopyInviteLinkButton link={currentWorkspace?.inviteToken} />
 
           <Button variant="destructive" onClick={() => setConfirmDeleteOpen(true)}>
             <Trash2 className="h-4 w-4 mr-2" /> Delete Workspace
@@ -165,25 +172,25 @@ export default function WorkspaceAdmin() {
       {/* Tabs */}
       <Tabs defaultValue="users" className="space-y-6">
         <TabsList>
-          <TabsTrigger value="users"><Users className="mr-2 h-4 w-4"/> Users</TabsTrigger>
-          <TabsTrigger value="invites"><Mail className="mr-2 h-4 w-4"/> Invitations</TabsTrigger>
-          <TabsTrigger value="settings"><Settings className="mr-2 h-4 w-4"/> Settings</TabsTrigger>
-          <TabsTrigger value="broadcasts"><MessageSquare className="mr-2 h-4 w-4"/> Broadcasts</TabsTrigger>
+          <TabsTrigger value="users"><Users className="mr-2 h-4 w-4" /> Users</TabsTrigger>
+          <TabsTrigger value="invites"><Mail className="mr-2 h-4 w-4" /> Invitations</TabsTrigger>
+          <TabsTrigger value="settings"><Settings className="mr-2 h-4 w-4" /> Settings</TabsTrigger>
+          <TabsTrigger value="broadcasts"><MessageSquare className="mr-2 h-4 w-4" /> Broadcasts</TabsTrigger>
         </TabsList>
 
         {/* Users */}
         <TabsContent value="users" className="space-y-4">
-          <UsersSettings/>
+          <UsersSettings />
         </TabsContent>
 
         {/* Invitations */}
         <TabsContent value="invites" className="space-y-4">
-          <Invitations/>
+          <Invitations />
         </TabsContent>
 
         {/* Settings */}
         <TabsContent value="settings">
-          <WorkspaceSettings/>
+          <WorkspaceSettings />
         </TabsContent>
 
         {/* Broadcasts (placeholder KPIs) */}
@@ -194,9 +201,9 @@ export default function WorkspaceAdmin() {
               <CardDescription>Quick snapshot of recent campaign performance.</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4 sm:grid-cols-3">
-              <KpiCard label="Messages Sent" value="12,430" className="bg-green-100"/>
-              <KpiCard label="Delivered" value="11,980" className="bg-blue-100"/>
-              <KpiCard label="Failed" value="450" className="bg-red-100"/>
+              <KpiCard label="Messages Sent" value={kpisData?.sentCount} className="bg-green-100" />
+              <KpiCard label="Delivered" value={kpisData?.deliveredCount} className="bg-blue-100" />
+              <KpiCard label="Failed" value={kpisData?.failedCount} className="bg-red-100" />
             </CardContent>
           </Card>
         </TabsContent>
