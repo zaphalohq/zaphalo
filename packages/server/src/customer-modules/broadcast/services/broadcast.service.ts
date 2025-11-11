@@ -410,6 +410,12 @@ export class BroadcastService {
         case 'DAY':
           nextSchedule.setDate(nextSchedule.getDate() + 1);
           break;
+        case 'WEEK':
+          nextSchedule.setDate(nextSchedule.getDate() + 7);
+          break;
+        case 'MONTH':
+          nextSchedule.setMonth(nextSchedule.getMonth() + 1);
+          break;
         default:
           nextSchedule.setDate(nextSchedule.getDate() + 1);
           break;

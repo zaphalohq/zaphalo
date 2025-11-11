@@ -29,8 +29,6 @@ export class UploadController {
     @UploadedFile() file: Express.Multer.File,
     @Body('fileFolder') fileFolder: string) {
 
-    const workspaceFolderPath = `workspace-${workspace.id}`;
-
     const url = await this.fileUploadService.uploadFile({
       file: file.buffer,
       filename: file.originalname,

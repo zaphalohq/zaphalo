@@ -80,7 +80,7 @@ export class FileUploadService {
     const { ext, name } = buildFileInfo(filename);
     const folder = this.getWorkspaceFolderName(workspaceId, fileFolder);
 
-    await this._uploadFile({
+    const res = await this._uploadFile({
       file: this._sanitizeFile({ file, ext, mimeType }),
       filename: name,
       mimeType,
