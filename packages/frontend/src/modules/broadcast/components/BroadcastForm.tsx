@@ -348,9 +348,11 @@ export default function BroadcastForm({ onBack, broadcastId, readOnly = false })
                   <SelectValue placeholder="Select Interval Type For Limit" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="DAY">Daily</SelectItem>
-                  <SelectItem value="MINUTE">Per Miniute</SelectItem>
+                  <SelectItem value="MINUTE">Per Minute</SelectItem>
                   <SelectItem value="HOUR">Per Hour</SelectItem>
+                  <SelectItem value="DAY">Daily</SelectItem>
+                  <SelectItem value="WEEK">Weekly</SelectItem>
+                  <SelectItem value="MONTH">Monthly</SelectItem>
                 </SelectContent>
               </Select>
 
