@@ -85,7 +85,7 @@ export class AccessTokenService {
 
     if (isWorkspaceActiveOrSuspended(workspace)) {
       // const workspaceMemberRepository =
-      //   await this.twentyORMGlobalManager.getRepositoryForWorkspace<WorkspaceMemberWorkspaceEntity>(
+      //   await this.oRMGlobalManager.getRepositoryForWorkspace<WorkspaceMemberWorkspaceEntity>(
       //     workspaceId,
       //     'workspaceMember',
       //   );

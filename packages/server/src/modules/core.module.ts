@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { HttpAdapterHost } from '@nestjs/core';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { WorkspaceModule } from './workspace/workspace.module';
@@ -12,6 +13,8 @@ import { ConfigService } from '@nestjs/config';
 import { MessageQueueModule } from 'src/modules/message-queue/message-queue.module';
 import { QueueManagerModuleFactory } from 'src/modules/message-queue/message-queue-module.factory';
 import { WorkspaceInvitationModule } from 'src/modules/workspace-invitation/workspace-invitation.module';
+import { ExceptionHandlerModule } from 'src/modules/exception-handler/exception-handler.module';
+import { exceptionHandlerModuleFactory } from 'src/modules/exception-handler/exception-handler.module-factory';
 
 @Module({
   imports: [
@@ -28,7 +31,11 @@ import { WorkspaceInvitationModule } from 'src/modules/workspace-invitation/work
     MessageQueueModule.registerAsync({
       useFactory: QueueManagerModuleFactory,
       inject: [ConfigService]
-    })
+    }),
+    ExceptionHandlerModule.forRootAsync({
+      useFactory: exceptionHandlerModuleFactory,
+      inject: [ConfigService, HttpAdapterHost],
+    }),
   ],
   exports: [
     UserModule,
