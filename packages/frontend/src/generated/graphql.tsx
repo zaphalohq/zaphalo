@@ -1373,3 +1373,13 @@ export const DeleteTemplate = gql`
     }
   }
 `
+
+export const UpdateUser=gql`
+  mutation updateUser($userData :UpdateUserDTO!){
+    updateUser(userData: $userData){
+      email
+      firstName
+      lastName
+    }
+  }
+`

@@ -10,12 +10,16 @@ const connectionFactory = {
   useFactory: (request: any) => {
     let { workspace } = request;
     const isGraphQL = request?.hasOwnProperty('req') && request?.req?.body?.hasOwnProperty('operationName');
-    if (isGraphQL) {
+    if(isGraphQL){
       workspace = request?.req?.workspace
-    } 
-    // if (isGraphQL && workspace) {
-    //   workspaceId = request?.req?.headers['x-workspace-id'] || request?.req?.workspaceId;
-    // }
+    }
+    let workspaceId;
+    if (!workspace) {
+      workspaceId = request?.req?.workspaceId;
+    }else{
+      workspaceId = workspace.id
+    }
+
     // else {
     //     if (request?.headers && request?.headers['x-workspace-id']) {
     //       workspaceId = request.headers['x-workspace-id'];
@@ -25,8 +29,8 @@ const connectionFactory = {
     //   }
     // }
 
-    if (workspace) {
-      return getWorkspaceConnection(workspace.id);
+    if (workspaceId) {
+      return getWorkspaceConnection(workspaceId);
     }
     return null;
   },

@@ -19,6 +19,7 @@ import { Roles } from 'src/modules/auth/decorators/roles.decorator';
 import { GqlAuthGuard } from 'src/modules/auth/guards/gql-auth.guard';
 import { AuthWorkspace } from 'src/decorators/auth-workspace.decorator';
 import { UserAuthGuard } from 'src/guards/user-auth.guard';
+import { UpdateUserDTO } from './dto/update-user.dto';
 
 const getHMACKey = (email?: string, key?: string | null) => {
   if (!email || !key) return null;
@@ -90,5 +91,24 @@ export class UserResolver {
       ...user,
       currentWorkspace: workspace,
     };
+  }
+
+  @Mutation(() => User)
+  @UseGuards(UserAuthGuard)
+  async updateUser(
+    @Args('userData') userData: UpdateUserDTO
+  ){
+    const user= await this.userService.findOneByEmail(userData.email)
+
+    if(!user){
+      throw new Error("User Not Found")
+    }
+
+    user.firstName = userData.firstName;
+    user.lastName= userData.lastName;
+
+    const updatedUser = await this.userRepository.save(user);
+
+    return updatedUser
   }
 }

@@ -71,7 +71,7 @@ export class BroadcastSendJob {
 
       this.eventEmitter.emit('broadcast.message.created', broadcastCreatedEvent)
       this.logger.log(
-        `Workspace ${workspace.id} braodcast ${broadcast.id} sent to contacts`,
+        `Workspace ${workspace.id} braodcast ${broadcast.id} sending`,
       );
     }
   }

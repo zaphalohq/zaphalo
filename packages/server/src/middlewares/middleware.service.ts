@@ -39,7 +39,6 @@ export class MiddlewareService {
 
   public async hydrateGraphqlRequest(request: Request) {
     if (!this.isTokenPresent(request)) {
-      console.log(".......................return")
       return;
     }
 
@@ -77,7 +76,7 @@ export class MiddlewareService {
 
     res.write(
       JSON.stringify({
-        errors,
+        error,
       }),
     );
 
