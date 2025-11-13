@@ -5,7 +5,6 @@ import {
   createRoutesFromElements,
   Outlet
 } from 'react-router-dom';
-import { ApolloProvider } from '@apollo/client';
 import Chats from '@src/pages/Chats';
 import Contacts from '@src/pages/Contacts';
 import Login from '@src/pages/auth/Login';
@@ -18,7 +17,6 @@ import LoadingPage from '@src/components/UI/Loadingpage';
 import WhatsAppAccount from '@src/pages/WhatsAppAccount';
 import SignUpPage from '@src/modules/auth/pages/SignUpPage';
 import { PageTitle } from '@src/modules/ui/components/PageTitle';
-import client from '@src/components/AppolloClientConnection/apolloClient';
 import ProtectedRoute from '@src/modules/auth/hooks/ProtectedRoute';
 import VerifyLoginTokenEffect from '@src/pages/auth/VerifySignInPage';
 import WorkspaceAdmin from '@src/pages/settings/SettingsWorkspace';
@@ -26,6 +24,7 @@ import { SystemConfigProviderEffect } from '@src/modules/system-config/component
 import { SystemConfigProvider } from '@src/modules/system-config/components/SystemConfigProvider';
 import AppOverlay from "@src/modules/loader/AppOverlay";
 import GetCurrentUserWrapper from '@src/modules/loader/GetCurrentUserWrapper';
+import { ApolloProvider } from '@src/modules/apollo/components/ApolloProvider';
 
 // Whatsapp
 import WhatsappTemplate from '@src/pages/whatsapp/Template';
@@ -34,7 +33,7 @@ import WhatsappTemplate from '@src/pages/whatsapp/Template';
 export const AppRouterProviders = () => {
   const pageTitle = "ZapHalo";
   return (
-    <ApolloProvider client={client}>
+    <ApolloProvider>
       <SystemConfigProviderEffect/>
       <SystemConfigProvider>
         <GetCurrentUserWrapper />
