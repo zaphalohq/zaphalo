@@ -86,7 +86,6 @@ export class WorkspaceInvitationService {
     );
 
     for (const invitation of invitationsPr) {
-      console.log(".......................invitation...................", invitation);
       if (invitation.status === 'fulfilled') {
         const link = this.domainManagerService.buildWorkspaceURL({
           // workspace,
@@ -99,7 +98,6 @@ export class WorkspaceInvitationService {
             : {},
         });
 
-        console.log("......................link..................", link);
 
         // const emailData = {
         //   link: link.toString(),
@@ -109,7 +107,7 @@ export class WorkspaceInvitationService {
         //     firstName: sender.name.firstName,
         //     lastName: sender.name.lastName,
         //   },
-        //   serverUrl: this.twentyConfigService.get('SERVER_URL'),
+        //   serverUrl: this.configService.get('SERVER_URL'),
         //   locale: sender.locale,
         // };
 
@@ -122,9 +120,9 @@ export class WorkspaceInvitationService {
         // i18n.activate(sender.locale);
 
         // await this.emailService.send({
-        //   from: `${sender.name.firstName} ${sender.name.lastName} (via Twenty) <${this.twentyConfigService.get('EMAIL_FROM_ADDRESS')}>`,
+        //   from: `${sender.name.firstName} ${sender.name.lastName} (via Zaphalo) <${this.configService.get('EMAIL_FROM_ADDRESS')}>`,
         //   to: invitation.value.email,
-        //   subject: t`Join your team on Twenty`,
+        //   subject: t`Join your team on Zaphalo`,
         //   text,
         //   html,
         // });

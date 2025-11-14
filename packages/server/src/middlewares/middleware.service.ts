@@ -3,18 +3,24 @@ import { Injectable } from '@nestjs/common';
 import { Request, Response } from 'express';
 
 import { AccessTokenService } from 'src/modules/auth/token/services/access-token.service';
+import { ExceptionHandlerService } from 'src/modules/exception-handler/exception-handler.service';
 import { JwtWrapperService } from 'src/modules/jwt/jwt-wrapper.service';
 import {
   AuthContext,
 } from 'src/modules/auth/types/auth-context.type';
 import { AuthException } from 'src/modules/auth/auth.exception';
-
+import { AuthGraphqlApiExceptionFilter } from 'src/modules/auth/filters/auth-graphql-api-exception.filter';
+import {
+  handleException,
+  handleExceptionAndConvertToGraphQLError,
+} from 'src/utils/global-exception-handler.util';
 
 @Injectable()
 export class MiddlewareService {
   constructor(
     private readonly accessTokenService: AccessTokenService,
     private readonly jwtWrapperService: JwtWrapperService,
+    private readonly exceptionHandlerService: ExceptionHandlerService,
   ) {}
 
   public isTokenPresent(request: Request): boolean {
@@ -49,24 +55,22 @@ export class MiddlewareService {
 
   public writeGraphqlResponseOnExceptionCaught(res: Response, error: any) {
     let errors;
-    console.log("...............error.........AuthException 1........", error, error instanceof AuthException)
-    // if (error instanceof AuthException) {
-    //   console.log("............AuthException............")
-    //   try {
-    //     const authFilter = new AuthGraphqlApiExceptionFilter();
+    if (error instanceof AuthException) {
+      try {
+        const authFilter = new AuthGraphqlApiExceptionFilter();
 
-    //     authFilter.catch(error);
-    //   } catch (transformedError) {
-    //     errors = [transformedError];
-    //   }
-    // } else {
-    //   errors = [
-    //     handleExceptionAndConvertToGraphQLError(
-    //       error as Error,
-    //       this.exceptionHandlerService,
-    //     ),
-    //   ];
-    // }
+        authFilter.catch(error);
+      } catch (transformedError) {
+        errors = [transformedError];
+      }
+    } else {
+      errors = [
+        handleExceptionAndConvertToGraphQLError(
+          error as Error,
+          this.exceptionHandlerService,
+        ),
+      ];
+    }
 
     const statusCode = 200;
 
