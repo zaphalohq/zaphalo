@@ -148,6 +148,9 @@ export class ApolloFactory<TCacheShape> implements ApolloManager<TCacheShape> {
       };
 
       const errorLink = onError(({ graphQLErrors, networkError, forward, operation }) => {
+        console.log("..........graphQLErrors...........", graphQLErrors);
+        console.log("..........networkError...........", networkError);
+
           if (isDefined(graphQLErrors)) {
             onErrorCb?.(graphQLErrors);
             for (const graphQLError of graphQLErrors) {
@@ -222,7 +225,7 @@ export class ApolloFactory<TCacheShape> implements ApolloManager<TCacheShape> {
               }
             }
           }
-          console.log(".............this.isRestOperation(operation)........operation....", operation);
+          console.log(".............this.isRestOperation(operation)........operation....", operation, this.isRestOperation(operation));
           console.log(".............this.isAuthenticationError(networkError as ServerError)............", this.isAuthenticationError(networkError as ServerError))
           if (isDefined(networkError)) {
             if (
@@ -267,17 +270,19 @@ export class ApolloFactory<TCacheShape> implements ApolloManager<TCacheShape> {
         def.kind === 'OperationDefinition' &&
         def.selectionSet?.selections.some(
           (selection: SelectionNode) =>
-            selection.kind === 'Field' &&
-            selection.directives?.some(
-              (directive: DirectiveNode) =>
-                directive.name.value === 'rest' ||
-                directive.name.value === 'stream',
-            ),
+            selection.kind === 'Field'
+          // &&
+          //   selection.directives?.some(
+          //     (directive: DirectiveNode) =>
+          //       directive.name.value === 'rest' ||
+          //       directive.name.value === 'stream',
+          //   ),
         ),
     );
   }
 
   private isAuthenticationError(error: ServerError): boolean {
+    console.log("...............error.............", error);
     return error.statusCode === 401;
   }
 
