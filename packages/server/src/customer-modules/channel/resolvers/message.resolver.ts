@@ -151,7 +151,7 @@ export class MessageResolver {
   @UseGuards(GqlAuthGuard)
   @ResolveField(() => String)
   async attachmentUrl(@Parent() message: Message, @Context() context): Promise<string> {
-    const workspaceId = context.req.headers['x-workspace-id']
+    const workspaceId = context.req?.workspace.id;
     if (message.attachmentUrl) {
       try {
         return this.fileService.signFileUrl({
