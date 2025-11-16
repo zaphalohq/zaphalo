@@ -15,7 +15,7 @@ import { FileUploadService } from './services/file-upload.service';
   imports: [
     JwtModule,
     // TypeOrmModule.forFeature([FileEntity, Workspace], 'core'),
-    // HttpModule,
+    HttpModule,
   ],
   providers: [
     FileService,

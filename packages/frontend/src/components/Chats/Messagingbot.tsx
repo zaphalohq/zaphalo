@@ -2,7 +2,13 @@ import React, { FormEvent, useContext, useEffect, useState } from 'react';
 import { FiPaperclip } from 'react-icons/fi';
 import { RiSendPlaneFill } from "react-icons/ri";
 import { useMutation } from '@apollo/client';
-import { CreateOneAttachmentDoc, DeleteOneAttachment, SEND_MESSAGE } from '@src/generated/graphql';
+import {
+  CreateOneAttachmentDoc,
+  DeleteOneAttachment,
+  SEND_MESSAGE,
+  UPLOAD_FILE,
+  FileFolder
+} from '@src/generated/graphql';
 import { ChatsContext } from '@components/Context/ChatsContext';
 import { Post, Delete } from '@src/modules/domain-manager/hooks/axios';
 import { getWhatsappMessageType } from './functions/getWhatsappMessageType';
@@ -12,6 +18,7 @@ const MessageArea = () => {
   const { chatsDetails, setMyCurrentMessage }: any = useContext(ChatsContext);
   const [createOneAttachment] = useMutation(CreateOneAttachmentDoc);
   const [deleteOneAttachment] = useMutation(DeleteOneAttachment);
+  const [uploadFile] = useMutation(UPLOAD_FILE);
 
   const [sendMessage] = useMutation(SEND_MESSAGE);
   const [currentMsg, setCurrentMsg] = useState('');
@@ -60,6 +67,16 @@ const MessageArea = () => {
           formData,
           { headers: { 'Content-Type': 'multipart/form-data' } }
         );
+
+        const result = await uploadFile({
+          variables: {
+            file,
+            fileFolder: FileFolder.Attachment,
+          },
+        });
+
+        console.log("..............result................", result)
+
 
         if (response.data) {
           const attachment: any = await createOneAttachment({
