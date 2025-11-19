@@ -71,8 +71,8 @@ export class MiddlewareService {
         ),
       ];
     }
-    console.log(".............errors.............", errors);
-    const statusCode = 401;
+    
+    const statusCode = 200;
 
     res.writeHead(statusCode, {
       'Content-Type': 'application/json',
@@ -80,7 +80,7 @@ export class MiddlewareService {
 
     res.write(
       JSON.stringify({
-        error,
+        errors,
       }),
     );
 
