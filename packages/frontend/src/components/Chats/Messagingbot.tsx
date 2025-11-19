@@ -1,17 +1,31 @@
-import React, { FormEvent, useContext, useEffect, useState } from 'react';
+import React, {
+  FormEvent,
+  useContext,
+  useEffect,
+  useState,
+  ChangeEvent} from 'react';
 import { FiPaperclip } from 'react-icons/fi';
 import { RiSendPlaneFill } from "react-icons/ri";
 import { useMutation } from '@apollo/client';
-import { CreateOneAttachmentDoc, DeleteOneAttachment, SEND_MESSAGE } from '@src/generated/graphql';
+import {
+  CreateOneAttachmentDoc,
+  DeleteOneAttachment,
+  SEND_MESSAGE,
+  FileFolder
+} from '@src/generated/graphql';
 import { ChatsContext } from '@components/Context/ChatsContext';
 import { Post, Delete } from '@src/modules/domain-manager/hooks/axios';
 import { getWhatsappMessageType } from './functions/getWhatsappMessageType';
 import { toast } from 'react-toastify';
+import { isDefined } from '@src/utils/validation/isDefined';
+import { useUploadAttachmentFile } from '@src/modules/chat/hooks/useUploadAttachmentFile';
+import { cookieStorage } from '@src/utils/cookie-storage';
 
 const MessageArea = () => {
   const { chatsDetails, setMyCurrentMessage }: any = useContext(ChatsContext);
   const [createOneAttachment] = useMutation(CreateOneAttachmentDoc);
   const [deleteOneAttachment] = useMutation(DeleteOneAttachment);
+  const { uploadAttachmentFile } = useUploadAttachmentFile();
 
   const [sendMessage] = useMutation(SEND_MESSAGE);
   const [currentMsg, setCurrentMsg] = useState('');
@@ -24,70 +38,41 @@ const MessageArea = () => {
   }
   const [attachments, setAttachments] = useState<attachmentProp[]>([]);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+    if (isDefined(e.target.files)) onUploadFile?.(e.target.files[0]);
+  };
 
+  const onUploadFile = async (file: File) => {
+    const mimeType = file.type;
+    const messageType = getWhatsappMessageType(mimeType);
+    if (!messageType) {
+      toast.error(`❌ Unsupported file type: ${mimeType}`);
+      toast.info(
+        <div>
+          📄 <strong>Supported types:</strong>
+          <ul style={{ margin: '8px 0' }}>
+            <li>🖼️ <strong>Images:</strong> JPEG, PNG, WEBP</li>
+            <li>🎞️ <strong>Videos:</strong> MP4, 3GPP</li>
+            <li>🎧 <strong>Audio:</strong> MP3, OGG, AAC</li>
+            <li>📄 <strong>Docs:</strong> PDF, DOCX, XLSX</li>
+          </ul>
+        </div>);
+      return;
+    }
+    const attachment = await uploadAttachmentFile(file);
+    const attachmentVal = {
+      attachmentId: attachment?.data?.CreateOneAttachment?.id,
+      attachmentName: attachment?.data?.CreateOneAttachment?.name,
+      originalname: attachment?.data?.CreateOneAttachment?.originalname,
+      messageType
+    }
     setIsFileUploaded(true);
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const mimeType = file.type;
-      const messageType = getWhatsappMessageType(mimeType);
-      if (!messageType) {
-        toast.error(`❌ Unsupported file type: ${mimeType}`);
-
-        toast.info(
-          <div>
-            📄 <strong>Supported types:</strong>
-            <ul style={{ margin: '8px 0' }}>
-              <li>🖼️ <strong>Images:</strong> JPEG, PNG, WEBP</li>
-              <li>🎞️ <strong>Videos:</strong> MP4, 3GPP</li>
-              <li>🎧 <strong>Audio:</strong> MP3, OGG, AAC</li>
-              <li>📄 <strong>Docs:</strong> PDF, DOCX, XLSX</li>
-            </ul>
-          </div>);
-
-        return;
-      }
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('fileFolder', 'attachment');
-        const response = await Post(
-          `/upload`,
-          formData,
-          { headers: { 'Content-Type': 'multipart/form-data' } }
-        );
-
-        if (response.data) {
-          const attachment: any = await createOneAttachment({
-            variables: {
-              name: response.data.file.filename,
-              originalname: response.data.file.originalname,
-              mimetype: response.data.file.mimetype,
-              size: response.data.file.size,
-              path: response.data.file.path,
-              createdAt: "",
-              updatedAt: "",
-            }
-          })
-
-          setAttachments((prev) => [
-            ...(prev ?? []),
-            {
-              attachmentId: attachment?.data?.CreateOneAttachment?.id,
-              attachmentName: attachment?.data?.CreateOneAttachment?.name,
-              originalname: attachment?.data?.CreateOneAttachment?.originalname,
-              messageType
-            }
-          ]);
-        }
-      } catch (error) {
-        console.error(`Error uploading file ${file.name}:`, error);
-      }
-    }
+    await setAttachments((prev) => [
+      ...(prev ?? []),
+      attachmentVal,
+    ]);
   };
 
   const HandleDeleteFile = async (attachmentId: string, index: number) => {
@@ -120,6 +105,7 @@ const MessageArea = () => {
 
     const variables = {
       sendMessageInput: {
+        whatsappAccountId: cookieStorage.getItem('waid'),
         receiverId: chatsDetails.receiverId,
         textMessage: currentMsg,
         channelName: chatsDetails.channelName,

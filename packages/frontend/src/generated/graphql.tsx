@@ -1374,12 +1374,30 @@ export const DeleteTemplate = gql`
   }
 `
 
-export const UpdateUser=gql`
-  mutation updateUser($userData :UpdateUserDTO!){
-    updateUser(userData: $userData){
-      email
-      firstName
-      lastName
-    }
+export const UploadFileDocument = gql`
+    mutation uploadFile($file: Upload!, $fileFolder: FileFolder) {
+  uploadFile(file: $file, fileFolder: $fileFolder) {
+    path
+    token
   }
-`
+}
+    `;
+export type UploadFileMutationFn = Apollo.MutationFunction<UploadFileMutation, UploadFileMutationVariables>;
+
+
+export function useUploadFileMutation(baseOptions?: Apollo.MutationHookOptions<UploadFileMutation, UploadFileMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UploadFileMutation, UploadFileMutationVariables>(UploadFileDocument, options);
+      }
+export type UploadFileMutationHookResult = ReturnType<typeof useUploadFileMutation>;
+export type UploadFileMutationResult = Apollo.MutationResult<UploadFileMutation>;
+export type UploadFileMutationOptions = Apollo.BaseMutationOptions<UploadFileMutation, UploadFileMutationVariables>;
+export const UploadImageDocument = gql`
+    mutation uploadImage($file: Upload!, $fileFolder: FileFolder) {
+  uploadImage(file: $file, fileFolder: $fileFolder) {
+    path
+    token
+  }
+}
+    `;
+export type UploadImageMutationFn = Apollo.MutationFunction<UploadImageMutation, UploadImageMutationVariables>;

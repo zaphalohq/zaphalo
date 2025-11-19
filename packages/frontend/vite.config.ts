@@ -19,10 +19,10 @@ export default defineConfig(({ mode }) => {
     host: 'localhost',
   },
   plugins: [react(), svgrPlugin(), tailwindcss()],
-    define: {
-         'process.env.VITE_BACKEND_URL': JSON.stringify(env.VITE_BACKEND_URL),
-      'process.env.VITE_WEBSOCKET_URL': JSON.stringify(env.VITE_WEBSOCKET_URL),
-    },
+  define: {
+    'process.env.VITE_BACKEND_URL': JSON.stringify(env.VITE_BACKEND_URL),
+    'process.env.VITE_WEBSOCKET_URL': JSON.stringify(env.VITE_WEBSOCKET_URL),
+  },
   resolve: {
     alias: {
       '@src': path.resolve(__dirname, './src'),

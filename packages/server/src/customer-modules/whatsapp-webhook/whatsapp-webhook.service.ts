@@ -188,6 +188,7 @@ export class WhatsAppWebhookService {
         kwargs.body,
         channel.id,
         message_type,
+        '',
         true,
         kwargs['attachment'],
         messages['id'],

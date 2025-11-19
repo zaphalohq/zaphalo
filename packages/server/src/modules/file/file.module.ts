@@ -10,17 +10,20 @@ import { FileController } from './controllers/file.controller';
 import { UploadController } from './controllers/file-upload.controller';
 import { FileService } from './services/file.service';
 import { FileUploadService } from './services/file-upload.service';
+import { FileUploadResolver } from './resolvers/file-upload.resolver';
+
 
 @Module({
   imports: [
     JwtModule,
     // TypeOrmModule.forFeature([FileEntity, Workspace], 'core'),
-    // HttpModule,
+    HttpModule,
   ],
   providers: [
     FileService,
     FileUploadService,
     FilePathGuard,
+    FileUploadResolver,
   ],
   exports: [
     FileService,

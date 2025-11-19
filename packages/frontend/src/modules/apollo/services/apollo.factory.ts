@@ -25,7 +25,6 @@ import { CurrentWorkspace } from '@/auth/states/currentWorkspaceState';
 import { AuthTokenPair } from '~/generated/graphql';
 import { logDebug } from '@src/utils/logDebug';
 
-// import { REST_API_BASE_URL } from '@/apollo/constant/rest-api-base-url';
 import { i18n } from '@lingui/core';
 import {
   DefinitionNode,
@@ -35,14 +34,14 @@ import {
 } from 'graphql';
 import isEmpty from 'lodash.isempty';
 import { isDefined } from '@src/utils/validation/isDefined';
+import { getGenericOperationName } from '@src/utils/getGenericOperationName';
 import { cookieStorage } from "@src/utils/cookie-storage";
 import { isUndefinedOrNull } from '@src/utils/isUndefinedOrNull';
 import { ApolloManager } from '../types/apolloManager.interface';
 import { getTokenPair } from '../utils/getTokenPair';
-// import { loggerLink } from '../utils/loggerLink';
-// import { StreamingRestLink } from '../utils/streamingRestLink';
+import { loggerLink } from '../utils/loggerLink';
 
-// const logger = loggerLink(() => 'Zaphalo');
+const logger = loggerLink(() => 'Zaphalo');
 
 export interface Options<TCacheShape> extends ApolloClientOptions<TCacheShape> {
   onError?: (err: readonly GraphQLFormattedError[] | undefined) => void;
@@ -54,6 +53,7 @@ export interface Options<TCacheShape> extends ApolloClientOptions<TCacheShape> {
   extraLinks?: ApolloLink[];
   isDebugMode?: boolean;
 }
+
 
 export class ApolloFactory<TCacheShape> implements ApolloManager<TCacheShape> {
   private client: ApolloClient<TCacheShape>;
@@ -78,17 +78,9 @@ export class ApolloFactory<TCacheShape> implements ApolloManager<TCacheShape> {
     this.currentWorkspace = currentWorkspace;
 
     const buildApolloLink = (): ApolloLink => {
-      // const uploadLink = createUploadLink({
-      //   uri,
-      // });
-
-      // const streamingRestLink = new StreamingRestLink({
-      //   uri: REST_API_BASE_URL,
-      // });
-
-      // const restLink = new RestLink({
-      //   uri: REST_API_BASE_URL,
-      // });
+      const uploadLink = createUploadLink({
+        uri,
+      });
 
       const httpLink = new HttpLink({ uri: uri });
 
@@ -199,13 +191,13 @@ export class ApolloFactory<TCacheShape> implements ApolloManager<TCacheShape> {
 
                         if (isDefined(operation.operationName)) {
                           scope.setExtra('operation', operation.operationName);
-                          // const genericOperationName = getGenericOperationName(
-                          //   operation.operationName,
-                          // );
+                          const genericOperationName = getGenericOperationName(
+                            operation.operationName,
+                          );
 
-                          // if (isDefined(genericOperationName)) {
-                          //   fingerPrint.push(genericOperationName);
-                          // }
+                          if (isDefined(genericOperationName)) {
+                            fingerPrint.push(genericOperationName);
+                          }
                         }
 
                         if (!isEmpty(fingerPrint)) {
@@ -225,8 +217,6 @@ export class ApolloFactory<TCacheShape> implements ApolloManager<TCacheShape> {
               }
             }
           }
-          console.log(".............this.isRestOperation(operation)........operation....", operation, this.isRestOperation(operation));
-          console.log(".............this.isAuthenticationError(networkError as ServerError)............", this.isAuthenticationError(networkError as ServerError))
           if (isDefined(networkError)) {
             if (
               this.isRestOperation(operation) &&
@@ -246,14 +236,10 @@ export class ApolloFactory<TCacheShape> implements ApolloManager<TCacheShape> {
         [
           errorLink,
           authLink,
-          httpLink,
           ...(extraLinks || []),
-          // isDebugMode ? logger : null,
-          null,
+          isDebugMode ? logger : null,
           retryLink,
-          // streamingRestLink,
-          // restLink,
-          // uploadLink,
+          uploadLink,
         ].filter(isDefined),
       );
     };
