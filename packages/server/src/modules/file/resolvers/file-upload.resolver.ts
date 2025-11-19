@@ -23,7 +23,7 @@ export class FileUploadResolver {
 
   @Mutation(() => SignedFileDTO)
   async uploadFile(
-    @AuthWorkspace() { id: workspaceId }: Workspace,
+    @AuthWorkspace('id') workspaceId: string,
     @Args({ name: 'file', type: () => GraphQLUpload })
     { createReadStream, filename, mimetype }: FileUpload,
     @Args('fileFolder', { type: () => FileFolder, nullable: true })
@@ -37,7 +37,7 @@ export class FileUploadResolver {
       filename,
       mimeType: mimetype,
       fileFolder,
-      workspaceId,
+      workspaceId: workspaceId
     });
 
     if (!files.length) {

@@ -39,8 +39,9 @@ export class SendMessageInput {
   @Field(() => [Attachments], { nullable: true })
   attachments?: Attachments[];
 
-  // @Field(() => [UploadedFileInput], { nullable: true })
-  // uploadedFiles?: UploadedFileInput[];
+  @Field(() => String)
+  whatsappAccountId: string;
+
 }
 
 @ObjectType()
