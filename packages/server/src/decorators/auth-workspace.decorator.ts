@@ -1,16 +1,20 @@
-import { ExecutionContext, createParamDecorator } from '@nestjs/common';
+import {
+  ExecutionContext,
+  createParamDecorator,
+  InternalServerErrorException
+} from '@nestjs/common';
 
 import { getRequest } from 'src/utils/extract-request';
+import { Workspace } from 'src/modules/workspace/workspace.entity';
 
 export const AuthWorkspace = createParamDecorator(
-  (data: unknown, ctx: ExecutionContext) => {
+  (options:  string | undefined, ctx: ExecutionContext) => {
     const request = getRequest(ctx);
-    const user = request.user
-    const workspaceId = request.workspace.id;
-    const currentUserWorkspace = user.workspaceMembers.find(
-      (userWorkspace) => userWorkspace.workspace.id === workspaceId,
-    );
-    const workspace = currentUserWorkspace ? currentUserWorkspace.workspace : user.workspaceMembers[0].workspace;
-    return workspace;
+    if (!request.workspace) {
+      throw new InternalServerErrorException(
+        "You're not authorized to do this. This should not ever happen.",
+      );
+    }
+    return options === 'id' ? request.workspace.id : request.workspace;
   },
 );

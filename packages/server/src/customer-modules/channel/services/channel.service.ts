@@ -67,6 +67,7 @@ export class ChannelService {
     textMessage: string,
     channelId: string,
     messageType: string,
+    waAccountId: string,
     unseen?: boolean,
     attachemntId?: string,
     waMessageId?: string,
@@ -84,7 +85,6 @@ export class ChannelService {
     if (!channel) throw new Error('Channel not found');
 
     const messagesRepo: Message[] = []
-        // for (const waMessageId of waMessageIds) {
     const chennelMessage = await this.messageRepository.create({
       textMessage,
       sender: sender,
@@ -97,9 +97,11 @@ export class ChannelService {
     const message = await this.messageRepository.save(chennelMessage)
     messagesRepo.push(chennelMessage)
 
-    const findTrueInstants = await this.waAccountService.FindSelectedInstants()
-    if (!findTrueInstants)
-      throw new Error("Not found whatsappaccount")
+    const waAccount = await this.waAccountService.findInstantsByInstantsId(waAccountId)
+    if (!waAccount){
+      throw new Error('Whatsapp account not found');
+    }
+    const senderId = Number(waAccount?.phoneNumberId)
 
     const receivers = channel?.channelMembers
 
@@ -131,7 +133,7 @@ export class ChannelService {
           channelMessageId: chennelMessage,
           messageType: messageTypes.OUTBOUND,
           mobileNumber: receiver.phoneNo.toString(),
-          waAccountId: findTrueInstants,
+          waAccountId: waAccount,
           freeTextJson: JSON.stringify("{}"),
           msgUid: waMessageId,
       }
