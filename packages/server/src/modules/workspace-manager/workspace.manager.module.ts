@@ -14,8 +14,8 @@ const connectionFactory = {
       workspace = request?.req?.workspace
     } 
 
-    if (workspaceId) {
-      return getWorkspaceConnection(workspaceId);
+    if (workspace) {
+      return getWorkspaceConnection(workspace.id);
     }
     return null;
   },
