@@ -1373,6 +1373,16 @@ export const DeleteTemplate = gql`
     }
   }
 `
+export const UpdateUser=gql`
+  mutation updateUser($userData: UpdateUserDTO!){
+    updateUser(userData: $userData){
+      lastName
+      id
+      firstName
+      email
+    }
+  }
+`
 
 export const UploadFileDocument = gql`
     mutation uploadFile($file: Upload!, $fileFolder: FileFolder) {
