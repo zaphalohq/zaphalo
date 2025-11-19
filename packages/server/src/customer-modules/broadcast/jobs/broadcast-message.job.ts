@@ -31,7 +31,11 @@ export class BroadcastMessageJob {
         where: {id: data.broadcastId},
         relations: {
           whatsappAccount: true,
-          template: true,
+          template: {
+            buttons:true,
+            variables:true,
+            attachment:true
+          },
           contactList: {
             mailingContacts: true
           }
