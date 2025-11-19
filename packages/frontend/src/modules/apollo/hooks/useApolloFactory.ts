@@ -11,8 +11,6 @@ import { VITE_BACKEND_URL } from '@src/config';
 import { useUpdateEffect } from '@src/hooks/useUpdateEffect';
 import { isMatchingLocation } from '@src/utils/isMatchingLocation';
 
-// import { currentUserWorkspaceState } from '@/auth/states/currentUserWorkspaceState';
-// import { AppPath } from '@/types/AppPath';
 import { isDefined } from '@src/utils/validation/isDefined';
 import { ApolloFactory, Options } from '../services/apollo.factory';
 
@@ -31,7 +29,6 @@ export const useApolloFactory = (options: Partial<Options<any>> = {}) => {
   const setCurrentUser = useSetRecoilState(currentUserState);
   const setCurrentUserWorkspace = useSetRecoilState(currentUserWorkspaceState);
 
-  // const setPreviousUrl = useSetRecoilState(previousUrlState);
   const location = useLocation();
 
   const apolloClient = useMemo(() => {
@@ -85,7 +82,6 @@ export const useApolloFactory = (options: Partial<Options<any>> = {}) => {
     setCurrentUser,
     setCurrentWorkspaceMember,
     setCurrentWorkspace,
-    // setPreviousUrl,
   ]);
 
   useUpdateEffect(() => {

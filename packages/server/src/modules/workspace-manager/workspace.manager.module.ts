@@ -8,22 +8,11 @@ const connectionFactory = {
   provide: CONNECTION,
   scope: Scope.REQUEST,
   useFactory: (request: any) => {
-    let { workspace } = request;
+    let { workspace } = request.req;
     const isGraphQL = request?.hasOwnProperty('req') && request?.req?.body?.hasOwnProperty('operationName');
-    if (isGraphQL) {
+    if (isGraphQL && !workspace) {
       workspace = request?.req?.workspace
     } 
-    // if (isGraphQL && workspace) {
-    //   workspaceId = request?.req?.headers['x-workspace-id'] || request?.req?.workspaceId;
-    // }
-    // else {
-    //     if (request?.headers && request?.headers['x-workspace-id']) {
-    //       workspaceId = request.headers['x-workspace-id'];
-    //     } else {
-    //       workspaceId = request?.params?.workspace || request?.req?.workspaceId;
-    //     }
-    //   }
-    // }
 
     if (workspace) {
       return getWorkspaceConnection(workspace.id);

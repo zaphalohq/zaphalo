@@ -155,12 +155,12 @@ export class WaAccountService {
     });
   }
 
-  async findInstantsByInstantsId(instantsId: string): Promise<WhatsAppAccount | null> {
-    if (!instantsId){
+  async findInstantsByInstantsId(accountId: string): Promise<WhatsAppAccount | null> {
+    if (!accountId){
       return null
     }
     return await this.waAccountRepository.findOne({
-      where: { id: instantsId },
+      where: { id: accountId },
     });
   }
   async getWaAccountPhoneAndAccountId(phoneNumberId: string, businessAccountId: string): Promise<WhatsAppAccount | null> {
