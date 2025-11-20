@@ -257,12 +257,12 @@ export class ApolloFactory<TCacheShape> implements ApolloManager<TCacheShape> {
         def.selectionSet?.selections.some(
           (selection: SelectionNode) =>
             selection.kind === 'Field'
-          // &&
-          //   selection.directives?.some(
-          //     (directive: DirectiveNode) =>
-          //       directive.name.value === 'rest' ||
-          //       directive.name.value === 'stream',
-          //   ),
+          &&
+            selection.directives?.some(
+              (directive: DirectiveNode) =>
+                directive.name.value === 'rest' ||
+                directive.name.value === 'stream',
+            ),
         ),
     );
   }
