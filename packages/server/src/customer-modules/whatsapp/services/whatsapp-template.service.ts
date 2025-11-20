@@ -282,10 +282,7 @@ export class WaTemplateService {
     // """ Prepare header component for sending WhatsApp template message"""
     let header = {}
     const headerType = waTemplateId.headerType
-
-          console.log('.......template.....',waTemplateId)
-
-
+    
     // if (headerType == 'text' && templateVariablesValue['header-{{1}}']){
     //   var value = (freeTextJson || {})['header_text'] || templateVariablesValue['header-{{1}}'] || ' '
     //   header = {
