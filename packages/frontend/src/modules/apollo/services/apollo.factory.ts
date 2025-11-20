@@ -140,8 +140,6 @@ export class ApolloFactory<TCacheShape> implements ApolloManager<TCacheShape> {
       };
 
       const errorLink = onError(({ graphQLErrors, networkError, forward, operation }) => {
-        console.log("..........graphQLErrors...........", graphQLErrors);
-        console.log("..........networkError...........", networkError);
 
           if (isDefined(graphQLErrors)) {
             onErrorCb?.(graphQLErrors);
@@ -256,8 +254,7 @@ export class ApolloFactory<TCacheShape> implements ApolloManager<TCacheShape> {
         def.kind === 'OperationDefinition' &&
         def.selectionSet?.selections.some(
           (selection: SelectionNode) =>
-            selection.kind === 'Field'
-          &&
+            selection.kind === 'Field' &&
             selection.directives?.some(
               (directive: DirectiveNode) =>
                 directive.name.value === 'rest' ||
@@ -268,7 +265,6 @@ export class ApolloFactory<TCacheShape> implements ApolloManager<TCacheShape> {
   }
 
   private isAuthenticationError(error: ServerError): boolean {
-    console.log("...............error.............", error);
     return error.statusCode === 401;
   }
 
