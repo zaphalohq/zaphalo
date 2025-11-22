@@ -31,7 +31,7 @@ export class UserService implements OnModuleInit  {
     })
   }
 
-  async findOneByEmail(email: string): Promise<User | null> {
+  async findUserByEmail(email: string): Promise<User | null> {
     const user = await this.userRepository.findOne({
       where: { email },
       relations: ['workspaceMembers', 'workspaceMembers.workspace'],

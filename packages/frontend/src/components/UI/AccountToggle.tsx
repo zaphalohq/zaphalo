@@ -7,13 +7,20 @@ import {
 import { workspacesState } from '@src/modules/auth/states/workspaces';
 import { currentUserWorkspaceState } from "@src/modules/auth/states/currentUserWorkspaceState";
 import { VITE_BACKEND_URL } from '@src/config';
+import { switchWorkspace } from '@src/modules/auth/services/AuthService';
 
 const AccountToggle = () => {
   const [workspaces] = useRecoilState(workspacesState);
   const [currentUserWorkspace] = useRecoilState(currentUserWorkspaceState);
   const navigate = useNavigate()
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false)
+
+
   
+  const handleWorkspaceChange = async (workspaceId: string) => {
+    await switchWorkspace(workspaceId)
+  }
+
   return (
     <div className="border-b mt-2 mb-4 pb-4 border-gray-700 relative">
       <div className="flex p-0.5 w-full items-start gap-2 relative hover:bg-gray-800/50 rounded-xl">
@@ -52,7 +59,8 @@ const AccountToggle = () => {
             {workspaces.map((workspace: any, index: number) => (
               <div
                 key={workspace.id}
-                onClick={() => {
+                onClick={async () => {
+                  await handleWorkspaceChange(workspace.id)
                   const path = window.location.pathname;
                   const segments = path.split('/');
                   if (segments.length > 2 && segments[1] === 'w') {

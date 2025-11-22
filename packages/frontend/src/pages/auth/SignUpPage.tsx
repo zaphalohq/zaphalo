@@ -16,7 +16,6 @@ function Invite() {
   const [login, { data, loading, error }] = useMutation(LoginMutation);
   const navigate = useNavigate();
   const workspaceId = useRecoilValue(currentWorkspaceIdState);
-
   useEffect(() => {
     const accessToken = cookieStorage.getItem('accessToken')
     if (accessToken && workspaceId) {
@@ -43,19 +42,14 @@ function Invite() {
         variables: {
           email: authForm.email,
           password: authForm.password,
-          inviteToken: workspaceInviteToken || null
+          workspaceInviteToken: workspaceInviteToken || null
         },
       });
-      cookieStorage.setItem(
-        'accessToken',
-        JSON.stringify(
-          response.data.login.accessToken
-        ),
-      );
-      setWorkspaces(response.data.login.workspaces)
 
-      const token: string = response.data.login.accessToken.token;
-      navigate(`/verify/${token}`);
+      // setWorkspaces(response.data.login.workspaces)
+
+      const token: string = response.data.login.loginToken.token;
+      navigate(`/verify?loginToken=${token}`);
     } catch (err) {
       console.error('Error logging in:', err);
     }
