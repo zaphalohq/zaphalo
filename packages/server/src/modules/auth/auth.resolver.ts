@@ -161,6 +161,15 @@ export class AuthResolver {
 
   @Mutation(() => AuthTokens)
   // @UseGuards(PublicEndpointGuard)
+  async renewToken(@Args('appToken') appToken: string): Promise<AuthTokens> {
+    const tokens = await this.renewTokenService.generateTokensFromRefreshToken(
+      appToken,
+    );
+    return { tokens: tokens };
+  }
+
+  @Mutation(() => AuthTokens)
+  // @UseGuards(PublicEndpointGuard)
   async workspaceToken(
     @Args('appToken') appToken: string,
     @Args('workspaceId') workspaceId: string): Promise<AuthTokens> {
