@@ -12,6 +12,7 @@ import {
 import {
   useGetAuthTokensFromLoginTokenMutation,
   useGetCurrentUserLazyQuery,
+  useCheckUserExistsLazyQuery,
 } from '@src/generated/graphql';
 import { VITE_BACKEND_URL } from '@src/config';
 import { cookieStorage } from '@src/utils/cookie-storage';
@@ -40,6 +41,8 @@ export const useAuth = () => {
 
   const setCurrentWorkspaceId = useSetRecoilState(currentWorkspaceIdState)
     const workspaceId = useRecoilValue(currentWorkspaceIdState);
+  const [checkUserExistsQuery, { data: checkUserExistsData }] =
+    useCheckUserExistsLazyQuery();
 
   const buildRedirectUrl = useCallback(
     (
@@ -69,7 +72,7 @@ export const useAuth = () => {
       setCurrentWorkspaceId(user?.currentWorkspace?.id)
     }
     if (isDefined(user.workspaces)) {
-      const validWorkspaces = user.workspaces
+      const validWorkspaces = user.workspaceMembers
         .filter(
           ({ workspace }) => workspace !== null && workspace !== undefined,
         )
@@ -149,6 +152,7 @@ export const useAuth = () => {
     logOut: handleSignOut,
     signInWithGoogle: handleGoogleLogin,
     getAuthTokensFromLoginToken: handleGetAuthTokensFromLoginToken,
-    loadCurrentUser: loadCurrentUser
+    loadCurrentUser: loadCurrentUser,
+    checkUserExists: { checkUserExistsData, checkUserExistsQuery },
   };
 }

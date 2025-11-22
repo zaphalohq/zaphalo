@@ -15,7 +15,7 @@ import MailingList from '@src/pages/MailingList';
 import Register from '@src/components/Auth/Register';
 import LoadingPage from '@src/components/UI/Loadingpage';
 import WhatsAppAccount from '@src/pages/WhatsAppAccount';
-import SignUpPage from '@src/modules/auth/pages/SignUpPage';
+import SignUpPage from '@src/pages/auth/SignUpPage';
 import { PageTitle } from '@src/modules/ui/components/PageTitle';
 import ProtectedRoute from '@src/modules/auth/hooks/ProtectedRoute';
 import VerifyLoginTokenEffect from '@src/pages/auth/VerifySignInPage';
