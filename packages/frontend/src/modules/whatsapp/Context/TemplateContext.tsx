@@ -21,7 +21,7 @@ Your order *{{2}}* from *{{3}}* has been shipped.
 To track the shipping: {{4}}
 Thank you.`,
     footerText: '',
-    button: [],
+    buttons: [],
     variables: [],
     attachmentId: null,
     templateImg: "",

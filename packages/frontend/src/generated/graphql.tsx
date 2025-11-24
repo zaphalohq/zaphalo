@@ -64,15 +64,15 @@ export type currentUserWorkspace = {
 export const GetAuthTokensFromLoginTokenDocument = gql`
   mutation GetAuthTokensFromLoginToken($loginToken: String!) {
     getAuthTokensFromLoginToken(loginToken: $loginToken) {
-      workspaceIds
-      userDetails {
-        email
-        firstName
-        lastName
-      }
-      accessToken {
-        expiresAt
-        token
+      tokens {
+        accessToken {
+          expiresAt
+          token
+        }
+        refreshToken {
+          expiresAt
+          token
+        }
       }
     }
 }`;
@@ -170,9 +170,68 @@ export function useGetCurrentUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
   return Apollo.useLazyQuery<GetCurrentUserQuery, GetCurrentUserQueryVariables>(GetCurrentUserDocument, options);
 }
 
+export const CheckUserExistsDocument = gql`
+    query CheckUserExists($email: String!, $captchaToken: String) {
+  checkUserExists(email: $email) {
+    exists
+  }
+}
+    `;
+
+export function useCheckUserExistsQuery(baseOptions: Apollo.QueryHookOptions<CheckUserExistsQuery, CheckUserExistsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CheckUserExistsQuery, CheckUserExistsQueryVariables>(CheckUserExistsDocument, options);
+      }
+export function useCheckUserExistsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CheckUserExistsQuery, CheckUserExistsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CheckUserExistsQuery, CheckUserExistsQueryVariables>(CheckUserExistsDocument, options);
+        }
+export type CheckUserExistsQueryHookResult = ReturnType<typeof useCheckUserExistsQuery>;
+export type CheckUserExistsLazyQueryHookResult = ReturnType<typeof useCheckUserExistsLazyQuery>;
+export type CheckUserExistsQueryResult = Apollo.QueryResult<CheckUserExistsQuery, CheckUserExistsQueryVariables>;
+
 export const LoginMutation = gql`
   mutation Login($email: String!, $password: String!, $workspaceInviteToken: String) {
-    login(authInput: { email: $email, password: $password, workspaceInviteToken: $workspaceInviteToken })
+    login(authInput: { email: $email, password: $password, workspaceInviteToken: $workspaceInviteToken }){
+      loginToken {
+        expiresAt
+        token
+      }
+    }
+  }
+`
+
+export const RenewTokenMutation = gql`
+  mutation RenewToken($appToken: String!) {
+    renewToken(appToken: $appToken) {
+      tokens {
+        accessToken {
+          expiresAt
+          token
+        }
+        refreshToken {
+          expiresAt
+          token
+        }
+      }
+    }
+  }
+`
+
+export const WorkspaceTokenMutation = gql`
+  mutation workspaceToken($appToken: String!, $workspaceId: String!) {
+    workspaceToken(appToken: $appToken, workspaceId: $workspaceId) {
+      tokens {
+        accessToken {
+          expiresAt
+          token
+        }
+        refreshToken {
+          expiresAt
+          token
+        }
+      }
+    }
   }
 `
 
@@ -546,7 +605,11 @@ export function useGetSystemStatus() {
   return Apollo.useQuery(getSystemStatus);
 }
 
-
+export enum FileFolder {
+  Attachment = 'Attachment',
+  ProfilePicture = 'ProfilePicture',
+  WorkspaceLogo = 'WorkspaceLogo'
+}
 
 export type CreateOneAttachmentVariables = Exact<{
   name: Scalars['String'];
@@ -772,6 +835,8 @@ export const SaveBroadcast = gql`
         createdAt
         scheduledAt
         status
+        limit
+        intervalType
         whatsappAccount {
           id
         }
@@ -798,6 +863,8 @@ query getBroadcast($broadcastId: String!) {
       createdAt
       scheduledAt
       status
+      limit
+      intervalType
       whatsappAccount {
         id
       }
@@ -878,7 +945,7 @@ query getTemplate($templateId: String!) {
         originalname
         name
       }
-      button {
+      buttons {
         phone_number
         text
         type
@@ -887,6 +954,10 @@ query getTemplate($templateId: String!) {
       variables {
         name
         value
+        id
+        type
+        dynamicField
+        sampleValue
       }
     }
     message
@@ -932,7 +1003,7 @@ query searchReadTemplate($page : Int!, $pageSize : Int!, $search: String, $filte
         originalname
         name
       }
-      button {
+      buttons {
         phone_number
         text
         type
@@ -972,7 +1043,7 @@ mutation saveTemplate($templateData: WaTemplateRequestInput!) {
         originalname
         name
       }
-      button {
+      buttons {
         phone_number
         text
         type
@@ -1015,7 +1086,7 @@ mutation submitTemplate($templateId: String!) {
         originalname
         name
       }
-      button {
+      buttons {
         phone_number
         text
         type
@@ -1058,7 +1129,7 @@ mutation syncTemplate($templateId: String!) {
         originalname
         name
       }
-      button {
+      buttons {
         phone_number
         text
         type
@@ -1303,11 +1374,13 @@ export const GetDashboardStats = gql`
       failedCount
       sentCount
       contacts {
+        id
         phoneNo
         contactName
         profileImg
       }
       broadcasts {
+        id
         name
         totalContacts
         failedCount
@@ -1328,3 +1401,40 @@ export const GetEngegmentGraphData = gql`
     }
   }
 `
+
+export const DeleteTemplate = gql`
+  mutation deleteTemplate($templateIds: [String!]!){
+    deleteTemplate(templateIds: $templateIds){
+      status
+      message
+    }
+  }
+`
+
+export const UploadFileDocument = gql`
+    mutation uploadFile($file: Upload!, $fileFolder: FileFolder) {
+  uploadFile(file: $file, fileFolder: $fileFolder) {
+    path
+    token
+  }
+}
+    `;
+export type UploadFileMutationFn = Apollo.MutationFunction<UploadFileMutation, UploadFileMutationVariables>;
+
+
+export function useUploadFileMutation(baseOptions?: Apollo.MutationHookOptions<UploadFileMutation, UploadFileMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UploadFileMutation, UploadFileMutationVariables>(UploadFileDocument, options);
+      }
+export type UploadFileMutationHookResult = ReturnType<typeof useUploadFileMutation>;
+export type UploadFileMutationResult = Apollo.MutationResult<UploadFileMutation>;
+export type UploadFileMutationOptions = Apollo.BaseMutationOptions<UploadFileMutation, UploadFileMutationVariables>;
+export const UploadImageDocument = gql`
+    mutation uploadImage($file: Upload!, $fileFolder: FileFolder) {
+  uploadImage(file: $file, fileFolder: $fileFolder) {
+    path
+    token
+  }
+}
+    `;
+export type UploadImageMutationFn = Apollo.MutationFunction<UploadImageMutation, UploadImageMutationVariables>;

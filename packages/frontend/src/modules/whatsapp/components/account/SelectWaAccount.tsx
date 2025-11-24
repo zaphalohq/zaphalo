@@ -14,6 +14,12 @@ const ShowWaAccounts = () => {
         fetchPolicy: 'cache-and-network',
     });
     const waAccounts = accountData?.searchReadAccount.accounts || []
+    if (waAccounts.length>0 && cookieStorage.getItem('waid')){
+        const account = waAccounts.find(acc => acc.id === cookieStorage.getItem('waid'));
+        if (!account){
+            cookieStorage.removeItem('waid');
+        }
+    }
     if (cookieStorage.getItem('waid') != selectedWaAccount)
         setSelectedWaAccount(cookieStorage.getItem('waid'))
 

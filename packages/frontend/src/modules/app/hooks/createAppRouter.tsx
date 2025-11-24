@@ -5,10 +5,9 @@ import {
   createRoutesFromElements,
   Outlet
 } from 'react-router-dom';
-import { ApolloProvider } from '@apollo/client';
 import Chats from '@src/pages/Chats';
 import Contacts from '@src/pages/Contacts';
-import Login from '@src/components/Auth/Login';
+import Login from '@src/pages/auth/Login';
 import Dashboard from '@src/pages/Dashboard';
 import MainLayout from '@src/pages/MainLayout';
 import Broadcast from '@src/pages/Broadcast';
@@ -16,16 +15,17 @@ import MailingList from '@src/pages/MailingList';
 import Register from '@src/components/Auth/Register';
 import LoadingPage from '@src/components/UI/Loadingpage';
 import WhatsAppAccount from '@src/pages/WhatsAppAccount';
-import SignUpPage from '@src/modules/auth/pages/SignUpPage';
+import SignUpPage from '@src/pages/auth/SignUpPage';
 import { PageTitle } from '@src/modules/ui/components/PageTitle';
-import client from '@src/components/AppolloClientConnection/apolloClient';
-import ProtectedRoute from '@src/components/ProtectedRoute/ProtectedRoute';
-import VerifyLoginTokenEffect from '@src/modules/auth/pages/VerifySignInPage';
+import ProtectedRoute from '@src/modules/auth/hooks/ProtectedRoute';
+import VerifyLoginTokenEffect from '@src/pages/auth/VerifySignInPage';
 import WorkspaceAdmin from '@src/pages/settings/SettingsWorkspace';
 import { SystemConfigProviderEffect } from '@src/modules/system-config/components/SystemConfigProviderEffect';
 import { SystemConfigProvider } from '@src/modules/system-config/components/SystemConfigProvider';
 import AppOverlay from "@src/modules/loader/AppOverlay";
 import GetCurrentUserWrapper from '@src/modules/loader/GetCurrentUserWrapper';
+import { ApolloProvider } from '@src/modules/apollo/components/ApolloProvider';
+import { ApolloCoreProvider } from '@src/modules/apollo/components/ApolloCoreProvider';
 
 // Whatsapp
 import WhatsappTemplate from '@src/pages/whatsapp/Template';
@@ -34,14 +34,16 @@ import WhatsappTemplate from '@src/pages/whatsapp/Template';
 export const AppRouterProviders = () => {
   const pageTitle = "ZapHalo";
   return (
-    <ApolloProvider client={client}>
+    <ApolloProvider>
       <SystemConfigProviderEffect/>
       <SystemConfigProvider>
-        <GetCurrentUserWrapper />
-        <PageTitle title={pageTitle} />
-        <Outlet />
+        <ApolloCoreProvider>
+          <GetCurrentUserWrapper />
+          <PageTitle title={pageTitle} />
+          <Outlet />
+        </ApolloCoreProvider>
       </SystemConfigProvider>
-      <AppOverlay/>
+      {/*<AppOverlay/>*/}
     </ApolloProvider>
   );
 };

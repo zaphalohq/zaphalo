@@ -12,6 +12,7 @@ import {
 import {
   useGetAuthTokensFromLoginTokenMutation,
   useGetCurrentUserLazyQuery,
+  useCheckUserExistsLazyQuery,
 } from '@src/generated/graphql';
 import { VITE_BACKEND_URL } from '@src/config';
 import { cookieStorage } from '@src/utils/cookie-storage';
@@ -40,6 +41,8 @@ export const useAuth = () => {
 
   const setCurrentWorkspaceId = useSetRecoilState(currentWorkspaceIdState)
     const workspaceId = useRecoilValue(currentWorkspaceIdState);
+  const [checkUserExistsQuery, { data: checkUserExistsData }] =
+    useCheckUserExistsLazyQuery();
 
   const buildRedirectUrl = useCallback(
     (
@@ -68,9 +71,8 @@ export const useAuth = () => {
       setCurrentUserWorkspace(user?.currentWorkspace);
       setCurrentWorkspaceId(user?.currentWorkspace?.id)
     }
-
-    if (isDefined(user.workspaces)) {
-      const validWorkspaces = user.workspaces
+    if (isDefined(user.workspaceMembers)) {
+      const validWorkspaces = user.workspaceMembers
         .filter(
           ({ workspace }) => workspace !== null && workspace !== undefined,
         )
@@ -113,34 +115,33 @@ export const useAuth = () => {
     [buildRedirectUrl, redirect],
   );
 
+  const handleSetAuthTokens = useCallback(
+    (tokens: AuthTokenPair) => {
+      setTokenPair(tokens);
+      cookieStorage.setItem('tokenPair', JSON.stringify(tokens));
+    },
+    [setTokenPair],
+  );
+
   const handleGetAuthTokensFromLoginToken = useCallback(
      async (loginToken: string) => {
 
-      const response = await getAuthTokensFromLoginToken({
+      const getAuthTokensResult = await getAuthTokensFromLoginToken({
         variables: { loginToken },
       });
 
-      const accessToken = response.data?.getAuthTokensFromLoginToken?.accessToken;
-      const token = accessToken?.token;
-      if(!token) throw Error("token doesn't exist");
-      const expiresAt = accessToken?.expiresAt;
-      if(!expiresAt) throw Error("expiresAt doesn't exist");
+      if (isDefined(getAuthTokensResult.errors)) {
+        throw getAuthTokensResult.errors;
+      }
 
-      setTokenPair({accessToken : {
-        token,
-        expiresAt
-      }});
+      if (!getAuthTokensResult.data?.getAuthTokensFromLoginToken) {
+        throw new Error('No getAuthTokensFromLoginToken result');
+      }
 
-      cookieStorage.setItem(
-        'accessToken',
-        JSON.stringify(
-          {accessToken : {
-            token,
-            expiresAt
-          }}
-        ),
+      handleSetAuthTokens(
+        getAuthTokensResult.data.getAuthTokensFromLoginToken.tokens,
       );
-      
+
       await loadCurrentUser();
       navigate('/login')
     }
@@ -151,6 +152,7 @@ export const useAuth = () => {
     logOut: handleSignOut,
     signInWithGoogle: handleGoogleLogin,
     getAuthTokensFromLoginToken: handleGetAuthTokensFromLoginToken,
-    loadCurrentUser: loadCurrentUser
+    loadCurrentUser: loadCurrentUser,
+    checkUserExists: { checkUserExistsData, checkUserExistsQuery },
   };
 }

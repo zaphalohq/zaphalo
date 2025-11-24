@@ -18,6 +18,12 @@ export class BroadcastRequest {
   @Field()
   contactListId: string;
 
+  @Field(() => Number, { nullable: true })
+  limit?: number;
+
+  @Field(() => String, { nullable: true })
+  intervalType?: string;
+
   @Field({ nullable: true })
   scheduledAt?: Date
 }

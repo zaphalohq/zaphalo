@@ -12,12 +12,14 @@ import {
   SearchReadWhatsappTemplate,
   WaTestTemplate,
   SyncTemplate,
+  DeleteTemplate,
 } from '@src/generated/graphql';
 import { PageHeader } from '@src/modules/ui/layout/page/components/PageHeader';
 import { Plus } from "lucide-react";
 import { formatLocalDate } from '@src/utils/formatLocalDate';
 import { TemplateContext, initTemplateData } from '@src/modules/whatsapp/Context/TemplateContext';
 import { loaderRef } from "@src/modules/loading/loaderRef";
+import { toast } from 'react-toastify';
 
 const statusColors: Record<string, string> = {
   Scheduled: "bg-blue-100 text-blue-800",
@@ -50,7 +52,7 @@ export default function TemplateList({
     templateName: ''
   });
   const [showSendPopup, setShowSendPopup] = useState(false);
-  const { data, loading: loadingData, error,  refetch } = useQuery(SearchReadWhatsappTemplate, {
+  const { data, loading: loadingData, error, refetch } = useQuery(SearchReadWhatsappTemplate, {
     variables: { page, pageSize, search, filter },
     fetchPolicy: "cache-and-network",
   });
@@ -71,10 +73,21 @@ export default function TemplateList({
     );
   };
 
-  const deleteSelected = () => {
-    setItems((prev) => prev.filter((item) => !selected.includes(item.id)));
-    setSelected([]);
-  };
+  const [deleteTemplate, { error: deleteError }] = useMutation(DeleteTemplate);
+  const deleteSelected = async () => {
+    if (!selected.length) return;
+    const response = await deleteTemplate({ variables: { templateIds: selected } });
+
+    if (response.data.deleteTemplate.status === false) {
+      toast.error(response.data.deleteTemplate.message);
+    }
+    else {
+      toast.success(response.data.deleteTemplate.message);
+    }
+    setSelected([]); // clear selection
+    await refetch();
+  }
+
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -99,21 +112,21 @@ export default function TemplateList({
   };
 
   const handleSendTemplateToPhone = async (templateId: string) => {
-      if (!testTemplateData.testPhoneNo.trim()) {
-          alert("Please enter a phone number.");
-          return;
+    if (!testTemplateData.testPhoneNo.trim()) {
+      alert("Please enter a phone number.");
+      return;
+    }
+    const response = await testTemplate({
+      variables: {
+        testTemplateData
       }
-      const response = await testTemplate({
-          variables: {
-              testTemplateData
-          }
-      })
-      setShowSendPopup(false);
-      setTestTemplateData({
-          dbTemplateId: '',
-          testPhoneNo: '',
-          templateName: ''
-      });
+    })
+    setShowSendPopup(false);
+    setTestTemplateData({
+      dbTemplateId: '',
+      testPhoneNo: '',
+      templateName: ''
+    });
   };
 
   const handleSync = async (templateId: string) => {
@@ -130,15 +143,16 @@ export default function TemplateList({
       <div className="flex justify-between items-center">
         {/*<h1 className="text-2xl font-bold"></h1>*/}
         <PageHeader title="WhatsApp Templates" className="w-full"
-        actions={
-          <>
-            <Button onClick={() => {
-                    resetContext();
-                    onCreate(true)}}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Template
-            </Button>
-             {selected.length > 0 && (
+          actions={
+            <>
+              <Button onClick={() => {
+                resetContext();
+                onCreate(true)
+              }}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Template
+              </Button>
+              {selected.length > 0 && (
                 <button
                   onClick={deleteSelected}
                   className="flex items-center gap-1 px-3 py-1 rounded bg-red-500 text-white hover:bg-red-600"
@@ -147,8 +161,8 @@ export default function TemplateList({
                   Delete ({selected.length})
                 </button>
               )}
-          </>
-        }/>
+            </>
+          }/>
       </div>
 
       <div className="flex gap-4 items-center">
@@ -207,7 +221,7 @@ export default function TemplateList({
                       onChange={() => toggleSelect(template.id)}
                     />
                   </TableCell>
-                  <TableCell className="px-4 py-5">{template.templateName}</TableCell>
+                  <TableCell className="px-4 py-5">{template.name}</TableCell>
                   <TableCell className="px-4 py-5">{template.category}</TableCell>
                   <TableCell className="px-4 py-5">{template?.account?.name}</TableCell>
                   <TableCell className="px-4 py-5">{
@@ -215,9 +229,8 @@ export default function TemplateList({
                   }</TableCell>
                   <TableCell className="px-4 py-5">
                     <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${
-                        statusColors[template.status] || "bg-gray-100 text-gray-800"
-                      }`}
+                      className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${statusColors[template.status] || "bg-gray-100 text-gray-800"
+                        }`}
                     >
                       {template.status}
                     </span>
@@ -232,7 +245,7 @@ export default function TemplateList({
                     className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
                     title="preview"
                   >
-                      Sync
+                    Sync
                   </TableCell>
                   <TableCell onClick={() => {
                     resetContext();
@@ -243,7 +256,7 @@ export default function TemplateList({
                     className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
                     title="preview"
                   >
-                      Edit
+                    Edit
                   </TableCell>
                   <TableCell
                     className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
@@ -288,43 +301,43 @@ export default function TemplateList({
         </Table>
       )}
 
-{showSendPopup && (
-                <div className="fixed inset-0 bg-gray-800/30 bg-opacity-40 flex items-center justify-center z-50">
-                    <div className="bg-white p-6 rounded-lg shadow-xl w-80">
-                        <h2 className="text-lg text-gray-800 font-semibold mb-2">Test Template</h2>
-                        <p className="text-sm text-gray-600 mb-4">Template: <strong>{testTemplateData.templateName}</strong></p>
+      {showSendPopup && (
+        <div className="fixed inset-0 bg-gray-800/30 bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl w-80">
+            <h2 className="text-lg text-gray-800 font-semibold mb-2">Test Template</h2>
+            <p className="text-sm text-gray-600 mb-4">Template: <strong>{testTemplateData.templateName}</strong></p>
 
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Test Phone No</label>
-                        <input
-                            name='testPhoneNo'
-                            type="text"
-                            value={testTemplateData.testPhoneNo}
-                            onChange={(e) => setTestTemplateData((prev) => ({
-                                ...prev,
-                                [e.target.name]: e.target.value
-                            }))}
-                            placeholder="Enter phone number"
-                            className="w-full p-2 border rounded-md mb-4 text-sm"
-                        />
+            <label className="block text-sm font-medium text-gray-700 mb-1">Test Phone No</label>
+            <input
+              name='testPhoneNo'
+              type="text"
+              value={testTemplateData.testPhoneNo}
+              onChange={(e) => setTestTemplateData((prev) => ({
+                ...prev,
+                [e.target.name]: e.target.value
+              }))}
+              placeholder="Enter phone number"
+              className="w-full p-2 border rounded-md mb-4 text-sm"
+            />
 
-                        <div className="flex justify-between">
-                            <button
-                                onClick={() => setShowSendPopup(false)}
-                                className="bg-gray-300 text-gray-700 px-4 py-1 rounded hover:bg-gray-400"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={() => handleSendTemplateToPhone("showSendPopup.id")}
-                                className="bg-indigo-600 text-white px-4 py-1 rounded hover:bg-indigo-700"
-                            >
-                                Send
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-       {/* Pagination */}
+            <div className="flex justify-between">
+              <button
+                onClick={() => setShowSendPopup(false)}
+                className="bg-gray-300 text-gray-700 px-4 py-1 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleSendTemplateToPhone("showSendPopup.id")}
+                className="bg-indigo-600 text-white px-4 py-1 rounded hover:bg-indigo-700"
+              >
+                Send
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Pagination */}
       <div className="flex justify-between items-center p-3 border-t bg-gray-50">
         <button
           disabled={page === 1}

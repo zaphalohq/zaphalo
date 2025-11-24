@@ -4,6 +4,8 @@ import { Contacts } from "./contacts.entity";
 import { ContactsService } from "./contacts.service";
 import { createContactsDto } from "./dto/createContactsDto";
 import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
+import { UserAuthGuard } from 'src/guards/user-auth.guard';
+import { WorkspaceAuthGuard } from 'src/guards/workspace-auth.guard';
 import { updateContactsDto } from "./dto/updateContactsDto";
 import { ManyContactResponse } from "./dto/many-contact-response.dto";
 import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
@@ -28,7 +30,7 @@ export class ContactsResolver {
         return await this.contactsservice.findAllContacts()
     }
 
-    @UseGuards(GqlAuthGuard)
+    @UseGuards(WorkspaceAuthGuard)
     @Query(() => ManyContactResponse)
     async searchReadContacts(
         @Args('page', { type: () => Int, defaultValue: 1 }) page: number,

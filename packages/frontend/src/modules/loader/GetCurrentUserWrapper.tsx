@@ -7,7 +7,7 @@ type MyWrapperProps = {
 };
 
 const GetCurrentUserWrapper: React.FC<MyWrapperProps> = ({ children }) => {
-  const accessToken = cookieStorage.getItem('accessToken')
+  const accessToken = cookieStorage.getItem('tokenPair')
   const { getCurrentUser } = useGetCurrentUser()
   useEffect(() => {
     const loadCurrentUserNow = async () => {

@@ -1,13 +1,24 @@
 import { InputType, Field } from '@nestjs/graphql';
 import { TemplateHeaderType, TemplateCategory, TemplateLanguage } from '../entities/whatsapp-template.entity';
+import { IsNotEmpty, ValidateIf } from 'class-validator';
+import { VariableType } from '../entities/whatsapp-template-variable.entity';
 
 @InputType()
 export class WaVariableInput {
   @Field()
   name: string;
 
-  @Field()
-  value: string;
+  @Field({ nullable: true })
+  value?: string;
+
+  @Field({nullable:true})
+  type?: string;
+
+  @Field({nullable:true})
+  dynamicField?: string;
+
+  @Field({nullable:true})
+  sampleValue?: string;
 }
 
 @InputType()
@@ -55,7 +66,7 @@ export class WaTemplateRequestInput {
   footerText?: string;
 
   @Field(() => [WaButtonInput], { nullable: true })
-  button?: WaButtonInput[];
+  buttons?: WaButtonInput[];
 
   @Field(() => [WaVariableInput], { nullable: true })
   variables?: WaVariableInput[];

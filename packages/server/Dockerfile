@@ -39,7 +39,7 @@ ARG VITE_BACKEND_URL
 
 
 COPY ./packages/frontend /app/packages/frontend
-RUN npx nx build frontend
+RUN NX_DAEMON=false npx nx build frontend
 
 
 # Final stage: Run the application

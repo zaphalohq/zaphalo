@@ -14,7 +14,7 @@ import { AttachmentService } from "src/customer-modules/attachment/attachment.se
 import { messageTypes } from "src/customer-modules/whatsapp/entities/whatsapp-message.entity";
 import { WaMessageService } from "src/customer-modules/whatsapp/services/whatsapp-message.service";
 import { WebSocketService } from 'src/customer-modules/channel/chat-socket';
-import { FileService } from "src/modules/file-storage/services/file.service";
+import { FileService } from "src/modules/file/services/file.service";
 import { MessageEdge } from "src/customer-modules/channel/dtos/message-response.dto";
 
 
@@ -67,6 +67,7 @@ export class ChannelService {
     textMessage: string,
     channelId: string,
     messageType: string,
+    waAccountId: string,
     unseen?: boolean,
     attachemntId?: string,
     waMessageId?: string,
@@ -84,7 +85,6 @@ export class ChannelService {
     if (!channel) throw new Error('Channel not found');
 
     const messagesRepo: Message[] = []
-        // for (const waMessageId of waMessageIds) {
     const chennelMessage = await this.messageRepository.create({
       textMessage,
       sender: sender,
@@ -97,21 +97,21 @@ export class ChannelService {
     const message = await this.messageRepository.save(chennelMessage)
     messagesRepo.push(chennelMessage)
 
-    const findTrueInstants = await this.waAccountService.FindSelectedInstants()
-    if (!findTrueInstants)
-      throw new Error("Not found whatsappaccount")
+    const waAccount = await this.waAccountService.findInstantsByInstantsId(waAccountId)
+    if (!waAccount){
+      throw new Error('Whatsapp account not found');
+    }
+    const senderId = Number(waAccount?.phoneNumberId)
 
     const receivers = channel?.channelMembers
 
     let attachmentUrl;
     if (message.attachmentUrl) {
       try {
-        const workspaceLogoToken = this.fileService.encodeFileToken({
+        const attachmentUrl = this.fileService.signFileUrl({
+          url: message.attachmentUrl,
           workspaceId: workspaceId,
         });
-
-        attachmentUrl = `${message.attachmentUrl}?token=${workspaceLogoToken}`;
-
       } catch (e) {
         attachmentUrl = message.attachmentUrl;
       }
@@ -133,7 +133,7 @@ export class ChannelService {
           channelMessageId: chennelMessage,
           messageType: messageTypes.OUTBOUND,
           mobileNumber: receiver.phoneNo.toString(),
-          waAccountId: findTrueInstants,
+          waAccountId: waAccount,
           freeTextJson: JSON.stringify("{}"),
           msgUid: waMessageId,
       }

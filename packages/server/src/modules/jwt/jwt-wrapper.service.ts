@@ -8,7 +8,10 @@ import * as jwt from 'jsonwebtoken';
 import { ExtractJwt, JwtFromRequestFunction } from 'passport-jwt';
 import { isDefined } from 'src/utils/isDefined';
 import { ConfigService } from '@nestjs/config';
-
+import {
+  AuthException,
+  AuthExceptionCode,
+} from 'src/modules/auth/auth.exception';
 
 export type WorkspaceTokenType =
   | 'ACCESS'
@@ -42,7 +45,7 @@ export class JwtWrapperService {
     return this.jwtService.decode(payload, options);
   }
 
-  verifyWorkspaceToken(
+  verifyJwtToken(
     token: string,
     type: WorkspaceTokenType,
     options?: JwtVerifyOptions,
@@ -50,14 +53,14 @@ export class JwtWrapperService {
     const payload = this.decode(token, {
       json: true,
     });
-
     if (!isDefined(payload)) {
-      throw new Error('No payload found.');
+      throw new AuthException('No payload', AuthExceptionCode.UNAUTHENTICATED);
     }
 
     if (type !== 'FILE' && !payload.sub) {
-      throw new Error(
-        'No payload sub found.',
+      throw new AuthException(
+        'No payload sub',
+        AuthExceptionCode.UNAUTHENTICATED,
       );
     }
 
@@ -75,16 +78,19 @@ export class JwtWrapperService {
       });
     } catch (error) {
       if (error instanceof jwt.TokenExpiredError) {
-        throw new Error(
+        throw new AuthException(
           'Token has expired.',
+          AuthExceptionCode.UNAUTHENTICATED,
         );
       } else if (error instanceof jwt.JsonWebTokenError) {
-        throw new Error(
+        throw new AuthException(
           'Token invalid.',
+          AuthExceptionCode.UNAUTHENTICATED,
         );
       } else {
-        throw new Error(
+        throw new AuthException(
           'Unknown token error.',
+          AuthExceptionCode.INVALID_INPUT,
         );
       }
     }

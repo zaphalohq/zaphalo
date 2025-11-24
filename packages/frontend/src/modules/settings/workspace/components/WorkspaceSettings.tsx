@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 
 import {
@@ -59,6 +59,9 @@ import { Switch } from "@components/UI/switch"
 import { currentUserWorkspaceState } from '@src/modules/auth/states/currentUserWorkspaceState';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { UPDATE_WORKSPACE_DETAIL } from '@src/modules/settings/workspace/graphql/mutations/workspaceMutation'
+import { toast } from "react-toastify";
+import { Post } from "@src/modules/domain-manager/hooks/axios";
+import { VITE_BACKEND_URL } from "@src/config";
 
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
@@ -69,8 +72,8 @@ function initials(name: string) {
   return parts.slice(0, 2).map((p) => p[0]?.toUpperCase()).join("") || "U"
 }
 
-function onChangeUserRole(){
-    const {data: workspaceData, loading: userLoading} = useQuery(GET_WORKSPACE_USER_INFO);
+function onChangeUserRole() {
+  const { data: workspaceData, loading: userLoading } = useQuery(GET_WORKSPACE_USER_INFO);
   alert("hello");
 }
 
@@ -95,39 +98,122 @@ const WorkspaceSettings = () => {
   const [confirmName, setConfirmName] = useState("")
   const canDelete = workspace && confirmName === workspace.name
 
-  const {data: workspaceData, loading: userLoading} = useQuery(GET_WORKSPACE_USER_INFO);
-  
-  const [updateWorkspaceDetail, { data, loading, error }] = useMutation(UPDATE_WORKSPACE_DETAIL)
-  const currentWorkspace = useRecoilValue(currentUserWorkspaceState);
+  const { data: workspaceData, loading: userLoading } = useQuery(GET_WORKSPACE_USER_INFO);
 
+  const [updateWorkspaceDetail, { data, loading, error }] = useMutation(UPDATE_WORKSPACE_DETAIL)
+  const [currentWorkspace, setCurrentWorkspace] = useRecoilState(currentUserWorkspaceState);
+
+  //edit workspace profile
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   async function onSaveWorkspace(e: React.FormEvent) {
     e.preventDefault()
     if (!workspace) return
     setSaving(true)
     const response = await updateWorkspaceDetail({
-      variables: {workspaceName: workspace.name},
+      variables: { workspaceName: workspace.name },
     });
     setSaving(false)
     alert("Workspace settings saved")
   }
 
-
   useEffect(() => {
     let mounted = true;
-    setWorkspace({name: currentWorkspace.name})
+    setWorkspace({ name: currentWorkspace.name })
 
     return () => {
       mounted = false
     }
   }, [workspaceData]);
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const fileSizeInMb = file.size / (1024 * 1024);
+      if (fileSizeInMb > 2) {
+        toast.error("Upload file size of 2mb")
+        return;
+      }
+      const formData = new FormData();
+
+      formData.append('file', file);
+      formData.append('fileFolder', 'workspace-logo');
+
+      const response = await Post(`/upload`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      console.log(response)
+      if (response.status === 201) {
+
+        const newProfileImg = response.data.file.path
+
+        if (!workspace) return
+        console.log(workspace)
+
+        const updateResponse = await updateWorkspaceDetail({
+          variables: {
+            workspaceName: workspace.name,
+            profileImg: newProfileImg
+          }
+        });
+
+        if (updateResponse.data) {
+          setCurrentWorkspace({
+            ...currentWorkspace,
+            profileImg: newProfileImg
+          });
+        }
+
+
+
+      }
+      else {
+        toast.error('failed to update Profile')
+      }
+
+
+    }
+
+  }
+
+
   return (
     <form onSubmit={onSaveWorkspace}>
       <Card>
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-3 relative">
           <CardTitle>Workspace Settings</CardTitle>
           <CardDescription>General configuration and WhatsApp options.</CardDescription>
+          <div className="absolute top-3 right-8 flex flex-col items-center space-y-1.5">
+            <div className="h-17 w-17 flex rounded-full border shadow-sm bg-gradient-to-r from-green-400 via-green-500 to-green-600 items-center justify-center shadow-lg">
+              {
+                currentWorkspace?.profileImg ? (
+                  <img
+                    src={`${VITE_BACKEND_URL}/files/${currentWorkspace.profileImg}`}
+                    className="h-17 w-17 rounded-full object-cover border shadow-sm"
+                  ></img>
+                ) : (
+                  <span className="text-white font-bold text-2xl">
+                    {currentWorkspace?.name ? (
+                      initials(currentWorkspace.name)
+                    )
+                      : ''
+                    }
+                  </span>
+                )
+              }
+            </div>
+            <span onClick={() => fileInputRef.current?.click()} className="text-sm text-green-600 cursor-pointer hover:underline">Edit</span>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/jpg"
+              className="hidden"
+              onChange={(e) => {
+                handleFileUpload(e)
+              }}
+            />
+          </div>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid gap-4 sm:grid-cols-2">
@@ -178,13 +264,13 @@ const WorkspaceSettings = () => {
             </div>
           </div>
           <div className="rounded-lg border p-3 bg-amber-50 text-amber-900 flex gap-2">
-            <AlertTriangle className="h-4 w-4 mt-1"/>
+            <AlertTriangle className="h-4 w-4 mt-1" />
             <p className="text-sm">Ensure your WhatsApp Business Account is verified and your message templates are compliant with Meta policies to avoid delivery issues.</p>
           </div>
         </CardContent>
         <CardFooter>
           <Button type="submit" disabled={saving}>
-            {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin"/>}
+            {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             Save Changes
           </Button>
         </CardFooter>

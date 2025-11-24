@@ -14,7 +14,7 @@ import { message } from "aws-sdk/clients/sns";
 import { WaAccountService } from "src/customer-modules/whatsapp/services/whatsapp-account.service";
 import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
 import { ContactsService } from "src/customer-modules/contacts/contacts.service";
-import { FileService } from "src/modules/file-storage/services/file.service";
+import { FileService } from "src/modules/file/services/file.service";
 import { ChannelService } from "src/customer-modules/channel/services/channel.service";
 import { Message } from "src/customer-modules/channel/entities/message.entity";
 import { SuccessResponse } from "src/customer-modules/whatsapp/dtos/success.dto";
@@ -24,7 +24,6 @@ import { MessageEdge } from "src/customer-modules/channel/dtos/message-response.
 import { AttachmentService } from "src/customer-modules/attachment/attachment.service";
 import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
 import { Workspace } from "src/modules/workspace/workspace.entity";
-
 
 @Resolver(() => Message)
 export class MessageResolver {
@@ -67,11 +66,12 @@ export class MessageResolver {
     @AuthWorkspace() workspace: Workspace,
     @Args('sendMessageInput') sendMessageInput: SendMessageInput,
   ): Promise<Message[] | []> {
-
     const { textMessage, channelName, channelId, attachments } = sendMessageInput;
-    const findTrueInstants = await this.waAccountService.FindSelectedInstants()
-    if (!findTrueInstants) throw new Error('findTrueInstants not found');
-    const senderId = Number(findTrueInstants?.phoneNumberId)
+    const waAccount = await this.waAccountService.findInstantsByInstantsId(sendMessageInput.whatsappAccountId)
+    if (!waAccount){
+      throw new Error('Whatsapp account not found');
+    }
+    const senderId = Number(waAccount?.phoneNumberId)
 
     const returnMessage : Message[] = [];
     const receiverId = sendMessageInput?.receiverId.filter((number: any) => number != senderId)
@@ -90,8 +90,8 @@ export class MessageResolver {
           textMessage,
           channel.channel.id,
           messageType,
-          // waMessageIds,
-          true
+          sendMessageInput.whatsappAccountId,
+          true,
         );
         returnMessage.push(message[0])
       } else {
@@ -100,18 +100,14 @@ export class MessageResolver {
           textMessage,
           channelId,
           messageType,
-          // waMessageIds,
-          true
+          sendMessageInput.whatsappAccountId,
+          true,
         );
         returnMessage.push(message[0])
       }
     }
     if (attachments && attachments.length > 0) {
       for (const attachment of attachments) {
-        // const wa_api = await this.waAccountService.getWhatsAppApi();
-        // const dbAttachment = await this.attachmentService.findOneAttachmentById(attachment.attachmentId);
-        // const attachmentUploadtoWaApiId = await wa_api._upload_whatsapp_document(dbAttachment);
-        // if (!waMessageIds) throw Error('message not send to whatsapp')
         if (!channelId || channelId === '') {
           const memberIds = [...receiverId, senderId];
           const channel: any = await this.channelService.findOrCreateChannel(
@@ -125,9 +121,9 @@ export class MessageResolver {
             textMessage,
             channel.channel.id,
             attachment.messageType,
-            // waMessageIds,
+            sendMessageInput.whatsappAccountId,
             true,
-            attachment.attachmentId
+            attachment.attachmentId,
           );
           returnMessage.push(message[0])
         } else {
@@ -136,9 +132,9 @@ export class MessageResolver {
             textMessage,
             channelId,
             attachment.messageType,
-            // waMessageIds,
+            sendMessageInput.whatsappAccountId,
             true,
-            attachment.attachmentId
+            attachment.attachmentId,
           );
           returnMessage.push(message[0])
         }
@@ -150,23 +146,23 @@ export class MessageResolver {
 
   @UseGuards(GqlAuthGuard)
   @ResolveField(() => String)
-  async attachmentUrl(@Parent() message: Message, @Context() context): Promise<string> {
-    const workspaceId = context.req.headers['x-workspace-id']
-    if (message.attachmentUrl) {
+  async attachmentUrl(
+    @AuthWorkspace() workspace: Workspace,
+    @Parent() message: Message,
+    @Context() context): Promise<string> {
+    if (message.attachment) {
       try {
-        const workspaceLogoToken = this.fileService.encodeFileToken({
-          workspaceId: workspaceId,
+        const signPath = this.fileService.signFileUrl({
+          url: message.attachment.path,
+          workspaceId: workspace.id,
         });
-
-        return `${message.attachmentUrl}?token=${workspaceLogoToken}`;
-
+        return signPath
       } catch (e) {
-        return message.attachmentUrl;
+        return '';
       }
     }
-    return message.attachmentUrl ?? '';
+    return '';
   }
-
 
   @UseGuards(GqlAuthGuard)
   @Query(() => ManyChannelMessageResponse)

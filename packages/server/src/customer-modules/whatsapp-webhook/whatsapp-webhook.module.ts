@@ -9,7 +9,7 @@ import { ChannelModule } from 'src/customer-modules/channel/channel.module';
 import { WhatsAppModule } from 'src/customer-modules/whatsapp/whatsapp.module';
 import { WorkspaceModule } from 'src/modules/workspace/workspace.module';
 import { AttachmentModule } from 'src/customer-modules/attachment/attachment.module';
-import { FileStorageModule } from 'src/modules/file-storage/file-storage.module';
+import { FileModule } from 'src/modules/file/file.module';
 import { JwtModule } from 'src/modules/jwt/jwt.module';
 
 @Module({
@@ -24,7 +24,7 @@ import { JwtModule } from 'src/modules/jwt/jwt.module';
     WhatsAppModule,
     WorkspaceModule,
     AttachmentModule,
-    FileStorageModule,
+    FileModule,
     JwtModule,
   ],
   providers: [WhatsAppWebhookService],

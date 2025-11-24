@@ -8,11 +8,14 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  Relation
+  Relation,
+  OneToMany
 } from "typeorm";
 import { UUIDScalarType } from "src/modules/api/scalars/uuid.scalar";
 import { Attachment } from "src/customer-modules/attachment/attachment.entity";
 import { WhatsAppAccount } from "./whatsapp-account.entity";
+import { Button } from "./whatsapp-template-button.entity";
+import { Variable } from "./whatsapp-template-variable.entity";
 
 export enum TemplateHeaderType {
   NONE = 'NONE',
@@ -210,21 +213,13 @@ export class WhatsAppTemplate {
   @Field({ nullable: true })
   footerText: string;
 
-  @Column('json', { nullable: true })
+  @OneToMany(() => Button,(button) => button.template, { cascade: true })
   @Field(() => [Button], { nullable: true })
-  button: {
-    type: string;
-    text: string;
-    url?: string;
-    phone_number?: string;
-  }[];
+  buttons: Relation<Button[]>;
 
-  @Column('json', { nullable: true })
+  @OneToMany(() => Variable, (variable) => variable.template, { cascade: true })
   @Field(() => [Variable], { nullable: true })
-  variables: {
-    name: string;
-    value: string;
-  }[];
+  variables: Relation<Variable[]>;
 
   @Column({ nullable: true })
   @Field({ nullable: true })
@@ -251,30 +246,6 @@ export class WhatsAppTemplate {
 }
 
 
-@ObjectType()
-class Button {
-  @Field()
-  type: string;
-
-  @Field()
-  text: string;
-
-  @Field({ nullable: true })
-  url?: string;
-
-  @Field({ nullable: true })
-  phone_number?: string;
-}
-
-
-@ObjectType()
-class Variable {
-  @Field()
-  name: string;
-
-  @Field()
-  value: string;
-}
 
 
 

@@ -7,12 +7,13 @@ import { Button } from "@src/components/UI/button";
 import { Card, CardContent } from "@src/components/UI/card";
 import SelectField from "@src/components/UI/ApiDropdown";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@src/components/UI/select";
-import { 
+import {
   ReadWaAccount,
   SaveWhatsappTemplate,
   GetTemplate,
   CreateOneAttachmentDoc,
-  SubmitWhatsappTemplate } from "@src/generated/graphql";
+  SubmitWhatsappTemplate
+} from "@src/generated/graphql";
 import { toast } from 'react-toastify';
 import { isDefined } from '@src/utils/validation/isDefined';
 import { PageHeader } from '@src/modules/ui/layout/page/components/PageHeader';
@@ -23,6 +24,9 @@ import TemplateVariables from "@src/modules/whatsapp/components/templates/Templa
 import { TemplateContext } from '@src/modules/whatsapp/Context/TemplateContext';
 import { Post } from "@src/modules/domain-manager/hooks/axios";
 import TemplatePreviewDialog from '@src/modules/whatsapp/components/templates/TemplatePreview';
+import { getImageAbsoluteURI } from "@src/utils/getImageAbsoluteURI"
+import { isNonEmptyString } from '@sniptt/guards';
+import { VITE_BACKEND_URL } from '@src/config';
 
 import {
   Tabs,
@@ -53,9 +57,9 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
   const [file, setFile] = useState<File | null>(null);
 
   if (isDefined(recordId)){
-    const { data : templateViewData, loading: viewLoading, error: viewError } = useQuery(GetTemplate, {
+    const { data: templateViewData, loading: viewLoading, error: viewError } = useQuery(GetTemplate, {
       variables: {
-          templateId: recordId
+        templateId: recordId
       },
       fetchPolicy: "cache-and-network",
     })
@@ -72,8 +76,8 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
         language: templateView.language,
         bodyText: templateView.bodyText,
         footerText: templateView.footerText,
-        button: templateView.button ? templateView.button.map(({ type, phone_number, text, url }) => ({ type, phone_number, text, url })) : [],
-        variables: templateView.variables ? templateView.variables.map(({ name, value }) => ({ name, value })) : [],
+        buttons: templateView.buttons ? templateView.buttons.map(({ type, phone_number, text, url }) => ({ type, phone_number, text, url })) : [],
+        variables: templateView.variables ? templateView.variables.map(({ name, type, value, dynamicField, sampleValue }) => ({ name, type, value, dynamicField, sampleValue })) : [],
         attachmentId: templateView?.attachment?.id || null,
         templateImg: templateView.templateImg,
       })
@@ -111,7 +115,7 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
   useEffect(() => {
     const validateTemplate = () => {
       const { headerType, headerText, variables } = templateData;
-      const variableMatches = templateData.bodyText.match(/{{\d+}}/g) || [];
+      const variableMatches = templateData?.bodyText?.match(/{{\d+}}/g) || [];
 
       if (headerType === "TEXT" && !headerText?.trim()) {
         return false;
@@ -120,7 +124,7 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
       if (
         ["IMAGE", "VIDEO", "DOCUMENT"].includes(headerType) &&
         (!file && !attachment.originalname?.trim())
-      ) {        
+      ) {
         return false;
       }
       if (variableMatches.length !== variables.length) {
@@ -141,35 +145,40 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
   }, [templateData])
 
   const handleFileUpload = async () => {
-    if (file !== null) {
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-        const response = await Post(
-          `/upload`,
-          formData,
-          { headers: { 'Content-Type': 'multipart/form-data' } }
-        );
-        if (response.data) {
-          const attachment = await createOneAttachment({
-            variables: {
-              name: response.data.file.filename,
-              originalname: response.data.file.originalname,
-              mimetype: response.data.file.mimetype,
-              size: response.data.file.size,
-              path: response.data.file.path,
-              createdAt: "",
-              updatedAt: "",
-            }
-          })
+    if (!file)
+      return false
 
-          const attachmentRec = attachment.data.CreateOneAttachment;
-          return attachmentRec
-        }
-      } catch (error) {
-        console.error('Error uploading file:', error);
-        return false
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('fileFolder', 'template');
+
+      const response = await Post(
+        `/upload`,
+        formData,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+      );
+      if (response.data) {
+        const attachment = await createOneAttachment({
+          variables: {
+            name: response.data.file.filename,
+            originalname: response.data.file.originalname,
+            mimetype: response.data.file.mimetype,
+            size: response.data.file.size,
+            path: response.data.file.path,
+            createdAt: "",
+            updatedAt: "",
+          }
+        })
+
+        const attachmentRec = attachment.data.CreateOneAttachment;
+        return attachmentRec
+      }else{
+
       }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      return false
     }
   }
 
@@ -192,18 +201,22 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
     if (!formValid){
       return
     }
-    // if (status){
-    //   updatedTemplateData.status = status
-    // }
-    const attachmentRec = await handleFileUpload()
+    let attachmentRec;
+    if (file !== null) {
+      const attachmentRec = await handleFileUpload()
+      if(!attachmentRec){
+        toast.error('File have not uploaded sucessfully.');
+        return
+      }
+    }
     const templateDataToSubmit = { ...templateData };
     if (attachmentRec){
       templateDataToSubmit['attachmentId'] = attachmentRec.id
     }
 
     delete templateDataToSubmit.templateImg;
-    const response = await saveTemplate({ 
-      variables: { 
+    const response = await saveTemplate({
+      variables: {
         templateData: templateDataToSubmit,
       }
     });
@@ -238,13 +251,21 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
     }
   }
 
-  const insertVariable = (variable) => {
+  const insertVariable = () => {
     const textarea = document.getElementById("bodyText");
+    const variableMatches = textarea.value.match(/{{\d+}}/g) || [];
+
+    var nextVariableNum=1;
+    while(variableMatches.includes(`{{${nextVariableNum}}}`)){
+      nextVariableNum++;
+    }
+    const newVariable=`{{${nextVariableNum}}}`
+
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const text = templateData.bodyText
     const newText =
-      text.substring(0, start) + variable + text.substring(end);
+      text.substring(0, start) + newVariable + text.substring(end);
 
     setTemplateData({...templateData, bodyText: newText})
   };
@@ -255,92 +276,92 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
       <div className="flex justify-start items-start">
         <PageHeader title="Create WhatsApp Template" className="w-full"
           actions={
-          <>
-            {preview ? (
-            <TemplatePreviewDialog open={preview} setOpen={setPreview}/> ) : (<></>)}
-            <Button onClick={() => setPreview(true)}>Preview</Button>
-              
-            <Button onClick={handleSave}>
-              Save
-            </Button>
-            <Button onClick={handleSaveAndSubmit}>Submit</Button>
+            <>
+              {preview ? (
+                <TemplatePreviewDialog open={preview} setOpen={setPreview} />) : (<></>)}
+              <Button onClick={() => setPreview(true)}>Preview</Button>
 
-            <Button variant="outline" onClick={onBack}>Cancel</Button>
-          </>
-        }/>
+              <Button onClick={handleSave}>
+                Save
+              </Button>
+              <Button onClick={handleSaveAndSubmit}>Submit</Button>
+
+              <Button variant="outline" onClick={onBack}>Cancel</Button>
+            </>
+          }/>
       </div>
       <div className="flex items-center justify-center bg-gray-50 px-4">
-      <Card className="w-full max-w-5xl shadow-lg">
-        <CardContent className="p-8 space-y-6">
-          <div className="space-y-4">
-            <Input
-              placeholder="Template ID"
-              value={templateData.templateId}
-              readOnly
-              disabled
-              hidden
-            />
-            <Input
-              placeholder="Status"
-              value={templateData.status}
-              readOnly
-              disabled
-              hidden
-            />
-            <Label>Template Name</Label>
-            <Input
-              placeholder="Template Name"
-              value={templateData.templateName}
-              onChange={(e) => setTemplateData({ ...templateData, templateName: e.target.value })}
-              readOnly={readOnly}
-              disabled={readOnly}
-            />
+        <Card className="w-full max-w-5xl shadow-lg">
+          <CardContent className="p-8 space-y-6">
+            <div className="space-y-4">
+              <Input
+                placeholder="Template ID"
+                value={templateData.templateId}
+                readOnly
+                disabled
+                hidden
+              />
+              <Input
+                placeholder="Status"
+                value={templateData.status}
+                readOnly
+                disabled
+                hidden
+              />
+              <Label>Template Name</Label>
+              <Input
+                placeholder="Template Name"
+                value={templateData.templateName}
+                onChange={(e) => setTemplateData({ ...templateData, templateName: e.target.value })}
+                readOnly={readOnly}
+                disabled={readOnly}
+              />
 
-            <Label>Whatsapp Account</Label>
-            <SelectField
-              selectedVal={templateData.whatsappAccountId}
-              query={ReadWaAccount}
-              queryValueName="readWaAccount"
-              dispalyName="name"
-              placeholder="Select Account"
-              onSelect={(val) => setTemplateData({ ...templateData, whatsappAccountId: val })}
-              disabled={readOnly}
-            />
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <Label>Category</Label>
-                <Select value={templateData.category} onValueChange={(val) => setTemplateData({ ...templateData, category: val })} disabled={readOnly}>
-                  <SelectTrigger><SelectValue placeholder="Select category"/></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="UTILITY">Utility</SelectItem>
-                    <SelectItem value="MARKETING">Marketing</SelectItem>
-                    <SelectItem value="AUTHENTICATION">Authentication</SelectItem>
-                  </SelectContent>
-                </Select>
+              <Label>Whatsapp Account</Label>
+              <SelectField
+                selectedVal={templateData.whatsappAccountId}
+                query={ReadWaAccount}
+                queryValueName="readWaAccount"
+                dispalyName="name"
+                placeholder="Select Account"
+                onSelect={(val) => setTemplateData({ ...templateData, whatsappAccountId: val })}
+                disabled={readOnly}
+              />
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <Label>Category</Label>
+                  <Select value={templateData.category} onValueChange={(val) => setTemplateData({ ...templateData, category: val })} disabled={readOnly}>
+                    <SelectTrigger><SelectValue placeholder="Select category"/></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="UTILITY">Utility</SelectItem>
+                      <SelectItem value="MARKETING">Marketing</SelectItem>
+                      <SelectItem value="AUTHENTICATION">Authentication</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex-1">
+                  <Label>Language</Label>
+                  <Select value={templateData.language} onValueChange={(val) => setTemplateData({ ...templateData, language: val })} disabled={readOnly}>
+                    <SelectTrigger><SelectValue placeholder="Select category"/></SelectTrigger>
+                    <SelectContent>
+                      {Languages.map((language) =>
+                        <SelectItem value={language.value}>{language.label}</SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div className="flex-1">
-                <Label>Language</Label>
-                <Select value={templateData.language} onValueChange={(val) => setTemplateData({ ...templateData, language: val })} disabled={readOnly}>
-                  <SelectTrigger><SelectValue placeholder="Select category"/></SelectTrigger>
-                  <SelectContent>
-                    {Languages.map((language) =>
-                      <SelectItem value={language.value}>{language.label}</SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <Label>Header Type</Label>
-            <Select value={templateData.headerType} onValueChange={(val) => setTemplateData({ ...templateData, headerType: val })} disabled={readOnly}>
-              <SelectTrigger><SelectValue placeholder="Select Header Type"/></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="NONE">None</SelectItem>
-                <SelectItem value="TEXT">Text</SelectItem>
-                <SelectItem value="IMAGE">Image</SelectItem>
-                <SelectItem value="VIDEO">Video</SelectItem>
-                <SelectItem value="DOCUMENT">Document</SelectItem>
-              </SelectContent>
-            </Select>
+              <Label>Header Type</Label>
+              <Select value={templateData.headerType} onValueChange={(val) => setTemplateData({ ...templateData, headerType: val })} disabled={readOnly}>
+                <SelectTrigger><SelectValue placeholder="Select Header Type"/></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="NONE">None</SelectItem>
+                  <SelectItem value="TEXT">Text</SelectItem>
+                  <SelectItem value="IMAGE">Image</SelectItem>
+                  <SelectItem value="VIDEO">Video</SelectItem>
+                  <SelectItem value="DOCUMENT">Document</SelectItem>
+                </SelectContent>
+              </Select>
 
             {templateData.headerType === 'TEXT' ?
               <>
@@ -362,7 +383,11 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
                 {attachment.originalname ?
                   <p className='p-2 mb-2 text-blue-700 rounded bg-blue-500/10 font-semibold'>
                     <span className='text-gray-600 font-normal'>Current Uploaded Image : </span>
-                    {attachment.originalname}
+                    <a href={getImageAbsoluteURI({
+          imageUrl: isNonEmptyString(templateData.templateImg)
+            ? templateData.templateImg : '',
+          baseUrl: VITE_BACKEND_URL,
+        }) ?? ''} target="_blank">{attachment.originalname}</a>
                   </p> : <></>}
                 <Input
                   type="file"
@@ -395,15 +420,15 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
               <></>
             }
 
-            <Label>Footer Text (Optional)</Label>
-            <Input
-              placeholder="Footer Text"
-              value={templateData.footerText}
-              onChange={(e) => setTemplateData({ ...templateData, footerText: e.target.value })}
-              readOnly={readOnly}
-              disabled={readOnly}
-            />
-          </div>
+              <Label>Footer Text (Optional)</Label>
+              <Input
+                placeholder="Footer Text"
+                value={templateData.footerText}
+                onChange={(e) => setTemplateData({ ...templateData, footerText: e.target.value })}
+                readOnly={readOnly}
+                disabled={readOnly}
+              />
+            </div>
 
             <Tabs defaultValue="users" className="space-y-6">
               <div className="w-full border-b">
@@ -431,13 +456,13 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
                       data-[state=active]:text-blue-600
                       hover:text-blue-500
                       transition-colors"
-                      value="variables"><Users className="mr-2 h-4 w-4"/> Variables</TabsTrigger>
+                    value="variables"><Users className="mr-2 h-4 w-4"/> Variables</TabsTrigger>
                 </TabsList>
               </div>
 
               {/* Users */}
               <TabsContent value="users" className="space-y-4">
-                <Button className="" onClick={() => insertVariable("{{1}}")}>
+                <Button className="" onClick={() => insertVariable()}>
                   Insert {`{{1}}`}
                 </Button>
                 <Textarea
@@ -458,11 +483,12 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
                 <TemplateVariables/>
               </TabsContent>
             </Tabs>
-          <div className="flex justify-between">
-            
-          </div>
-        </CardContent>
-      </Card>
+            <div className="flex justify-between">
+
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
-)}
+  )
+}

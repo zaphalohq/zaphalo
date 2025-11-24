@@ -17,28 +17,23 @@ export const useGetCurrentUser = () => {
     const currentUserResult = await getCurrentUser({
       fetchPolicy: 'network-only',
     });
-
     const user = currentUserResult.data?.currentUser;
     if (!user) throw Error("user not found")
     setCurrentUser(user);
     if (isDefined(user?.currentWorkspace)) {
       setCurrentUserWorkspace(user?.currentWorkspace);
     }
-
-    if (isDefined(user.workspaces)) {
-      const validWorkspaces = user.workspaces
+    if (isDefined(user.workspaceMembers)) {
+      const validWorkspaces = user.workspaceMembers
         .filter(
           ({ workspace }) => workspace !== null && workspace !== undefined,
         )
         .map((validWorkspace) => validWorkspace.workspace)
         .filter(isDefined);
-
       setWorkspaces(validWorkspaces);
     }
 
   }, []);
-
-
 
   return {
     getCurrentUser: loadCurrentUser

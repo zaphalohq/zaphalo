@@ -12,7 +12,6 @@ import { UseGuards } from "@nestjs/common";
 import { WaAccountService } from "src/customer-modules/whatsapp/services/whatsapp-account.service";
 import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
 import { ContactsService } from "src/customer-modules/contacts/contacts.service";
-import { FileService } from "src/modules/file-storage/services/file.service";
 import { Channel } from "src/customer-modules/channel/entities/channel.entity";
 import { ChannelService } from "src/customer-modules/channel/services/channel.service";
 import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
@@ -25,7 +24,6 @@ export class ChannelResolver {
     private readonly channelService: ChannelService,
     private readonly contactService: ContactsService,
     private readonly waAccountService: WaAccountService,
-    private fileService: FileService
   ) { }
 
   @Query(() => [Channel])

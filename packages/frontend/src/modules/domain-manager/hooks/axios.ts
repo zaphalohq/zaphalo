@@ -4,7 +4,7 @@ import { VITE_BACKEND_URL } from '@src/config';
 
 export const Post = async (url, formData, headers) => {
 
-	const accessToken = cookieStorage.getItem('accessToken')
+	const tokens = cookieStorage.getItem('tokenPair')
   let workspaceId = '';
   const path = window.location.pathname;
   const segments = path.split('/');
@@ -12,7 +12,7 @@ export const Post = async (url, formData, headers) => {
     workspaceId = segments[2];
   }
 
-  const authtoken = accessToken ? JSON.parse(accessToken).accessToken : false;
+  const authtoken = tokens ? JSON.parse(tokens).accessToken : false;
 	return await axios.post(
 		`${VITE_BACKEND_URL}${url}`,
 		formData,
@@ -20,7 +20,6 @@ export const Post = async (url, formData, headers) => {
 			headers: {
 				...headers,
 				Authorization: authtoken ? `Bearer ${authtoken.token}` : '',
-				'x-workspace-id': workspaceId || '',
 			} 
 		}
 	);
@@ -43,7 +42,6 @@ export const Delete = async (url) => {
 		{
 			headers: {
 				Authorization: authtoken ? `Bearer ${authtoken.token}` : '',
-				'x-workspace-id': workspaceId || '',
 			} 
 		}
 	);

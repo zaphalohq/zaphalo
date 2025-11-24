@@ -6,7 +6,7 @@ import { WhatsAppTemplate } from "../entities/whatsapp-template.entity";
 import { WaTemplateService } from "../services/whatsapp-template.service";
 import { WaTemplateRequestInput } from "../dtos/whatsapp.template.dto";
 import { WaTemplateResponseDto } from "../dtos/whatsapp.response.dto";
-import { FileService } from "src/modules/file-storage/services/file.service";
+import { FileService } from "src/modules/file/services/file.service";
 import { SearchedRes } from "../dtos/searched.dto";
 import { SuccessResponse } from "../dtos/success.dto";
 import { WaAccountService } from '../services/whatsapp-account.service';
@@ -48,20 +48,18 @@ export class WhatsAppTemplateResolver {
   @ResolveField(() => String)
   async templateImg(@Parent() template: WhatsAppTemplate, @Context() context): Promise<string> {
     const workspaceId = context.req.headers['x-workspace-id']
-
-    if (template.templateImg) {
+    if (template.attachment) {
       try {
-        const workspaceLogoToken = this.fileService.encodeFileToken({
+        const signPath = this.fileService.signFileUrl({
+          url: template.attachment.path,
           workspaceId: workspaceId,
         });
-
-        return `${template.templateImg}?token=${workspaceLogoToken}`;
-
+        return signPath
       } catch (e) {
-        return template.templateImg;
+        return ''
       }
     }
-    return template.templateImg ?? '';
+    return '';
   }
 
   @UseGuards(GqlAuthGuard)
@@ -126,6 +124,14 @@ export class WhatsAppTemplateResolver {
       throw Error("WhatsApp account id not provided")
     }
     return await this.templateService.syncWhatsAppAccountTemplates(workspace.id, waAccountId)
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(()=> TemplateResponse)
+  async deleteTemplate(
+    @Args('templateIds', { type: () => [String] }) templateIds: string[],
+  ): Promise<TemplateResponse>{
+    return this.templateService.deleteTemplate(templateIds)
   }
 
 }

@@ -41,7 +41,6 @@ export class WorkspceInvitationResolver{
     @Args('appTokenId') appTokenId: string,
     @AuthWorkspace() { id: workspaceId }: Workspace,
   ){
-    console.log("...............appTokenId...............", appTokenId);
     return this.workspaceInvitationService.deleteWorkspaceInvitation(
       appTokenId,
       workspaceId

@@ -7,7 +7,7 @@ export const tokenPairState = createState<AuthTokenPair | null>({
   defaultValue: null,
   effects: [
     cookieStorageEffect(
-      'accessToken',
+      'tokenPair',
       {},
       {
         validateInitFn: (payload: AuthTokenPair) =>

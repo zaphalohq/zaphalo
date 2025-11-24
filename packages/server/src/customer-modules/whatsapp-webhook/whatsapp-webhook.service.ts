@@ -20,7 +20,8 @@ import { MessageReaction } from 'src/customer-modules/channel/entities/message-r
 import { ContactsService } from 'src/customer-modules/contacts/contacts.service';
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
 import { JwtWrapperService } from 'src/modules/jwt/jwt-wrapper.service';
-import { FileService } from 'src/modules/file-storage/services/file.service';
+import { FileUploadService } from 'src/modules/file/services/file-upload.service';
+import { FileFolder } from 'src/modules/file/interfaces/file-folder.interface';
 
 @Injectable()
 export class WhatsAppWebhookService {
@@ -35,7 +36,7 @@ export class WhatsAppWebhookService {
     @Inject(CONNECTION) connection: Connection,
     private readonly contactsService: ContactsService,
     private readonly jwtWrapperService: JwtWrapperService,
-    private readonly fileService: FileService,
+    private readonly fileUploadService: FileUploadService,
     private readonly attachmentService: AttachmentService,
     private readonly waAccountService: WaAccountService,
     private readonly channelService: ChannelService,
@@ -131,19 +132,19 @@ export class WhatsAppWebhookService {
         }
 
         const now = new Date()
-        const workspaceFolderPath = `workspace-${workspaceId}`;
-        const attachment = await this.fileService.write({file: fileResponse[1], name: filename, folder: workspaceFolderPath, mimeType: mimeType})
-        const filePath = join(
-          `.local-storage/`,
-          workspaceFolderPath,
-          filename,
-        );
+        const file = await this.fileUploadService.uploadFile({
+          file: fileResponse[1],
+          filename: filename,
+          fileFolder: FileFolder.Attachment,
+          mimeType: mimeType,
+          workspaceId: workspaceId
+        })
         const attachement = await this.attachmentService.createOneAttachment({
           name: filename,
           originalname: filename,
           size: fileResponse[0].file_size,
           mimetype: mimeType,
-          path: filePath,
+          path: file.path,
           createdAt: now,
           updatedAt: now
         })
@@ -187,6 +188,7 @@ export class WhatsAppWebhookService {
         kwargs.body,
         channel.id,
         message_type,
+        '',
         true,
         kwargs['attachment'],
         messages['id'],
