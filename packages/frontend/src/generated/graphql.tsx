@@ -171,6 +171,26 @@ export function useGetCurrentUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
   return Apollo.useLazyQuery<GetCurrentUserQuery, GetCurrentUserQueryVariables>(GetCurrentUserDocument, options);
 }
 
+export const CheckUserExistsDocument = gql`
+    query CheckUserExists($email: String!, $captchaToken: String) {
+  checkUserExists(email: $email) {
+    exists
+  }
+}
+    `;
+
+export function useCheckUserExistsQuery(baseOptions: Apollo.QueryHookOptions<CheckUserExistsQuery, CheckUserExistsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CheckUserExistsQuery, CheckUserExistsQueryVariables>(CheckUserExistsDocument, options);
+      }
+export function useCheckUserExistsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CheckUserExistsQuery, CheckUserExistsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CheckUserExistsQuery, CheckUserExistsQueryVariables>(CheckUserExistsDocument, options);
+        }
+export type CheckUserExistsQueryHookResult = ReturnType<typeof useCheckUserExistsQuery>;
+export type CheckUserExistsLazyQueryHookResult = ReturnType<typeof useCheckUserExistsLazyQuery>;
+export type CheckUserExistsQueryResult = Apollo.QueryResult<CheckUserExistsQuery, CheckUserExistsQueryVariables>;
+
 export const LoginMutation = gql`
   mutation Login($email: String!, $password: String!, $workspaceInviteToken: String) {
     login(authInput: { email: $email, password: $password, workspaceInviteToken: $workspaceInviteToken }){
@@ -185,6 +205,23 @@ export const LoginMutation = gql`
 export const RenewTokenMutation = gql`
   mutation RenewToken($appToken: String!) {
     renewToken(appToken: $appToken) {
+      tokens {
+        accessToken {
+          expiresAt
+          token
+        }
+        refreshToken {
+          expiresAt
+          token
+        }
+      }
+    }
+  }
+`
+
+export const WorkspaceTokenMutation = gql`
+  mutation workspaceToken($appToken: String!, $workspaceId: String!) {
+    workspaceToken(appToken: $appToken, workspaceId: $workspaceId) {
       tokens {
         accessToken {
           expiresAt
