@@ -14,8 +14,6 @@ const AccountToggle = () => {
   const [currentUserWorkspace] = useRecoilState(currentUserWorkspaceState);
   const navigate = useNavigate()
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false)
-
-
   
   const handleWorkspaceChange = async (workspaceId: string) => {
     await switchWorkspace(workspaceId)
