@@ -38,6 +38,10 @@ export class User {
   @Column({ nullable: true })
   password: string;
 
+  @Field(() => String)
+  @Column({nullable: true})
+  profileImg: string;
+
   @Field({ nullable: true })
   @IsString()
   @IsOptional()

@@ -6,13 +6,15 @@ import { UserService } from './user.service';
 import { UserResolver } from './user.resolver';
 import { userAutoResolverOpts } from './user.auto-resolver-opts';
 import { TypeORMModule } from 'src/database/typeorm/typeorm.module';
+import { FileModule } from '../file/file.module';
 
 @Module({
   imports: [
     NestjsQueryGraphQLModule.forFeature({
       imports: [
         NestjsQueryTypeOrmModule.forFeature([User], 'core'),
-        TypeORMModule
+        TypeORMModule,
+        FileModule
       ],
       services: [UserService],
       resolvers: userAutoResolverOpts,

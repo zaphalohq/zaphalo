@@ -1,5 +1,5 @@
 import { Args, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
-import { UseGuards } from "@nestjs/common";
+import { HttpException, HttpStatus, UseGuards } from "@nestjs/common";
 import { MailingList } from "./mailingList.entity";
 import { MailingListService } from "./mailingList.service";
 import { MailingContact } from "./DTO/MailingListReqDto";
@@ -10,6 +10,13 @@ import { SelectedMailingContactResDto } from "./DTO/SelectedMailingContactResDto
 import { FindAllMailingListRes } from "./DTO/FindAllMailingListDto";
 import { SearchedRes } from "../whatsapp/dtos/searched.dto";
 import { MailingContactResDto } from "./DTO/MailingContactResDto";
+import { UploadExcelResponse } from "./DTO/UploadExcelResponse.dto";
+import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
+import { Workspace } from "src/modules/workspace/workspace.entity";
+import { FileUpload, GraphQLUpload } from "graphql-upload-ts";
+import { streamToBuffer } from "src/utils/stream-to-buffer";
+import * as XLSX from 'xlsx';
+
 
 @Resolver(() => MailingList)
 export class MailingListResolver {
@@ -92,6 +99,66 @@ export class MailingListResolver {
   ): Promise<MailingList[] | undefined> {
     const mailigList = await this.mailingListService.readMailingList(search, limit);
     return mailigList
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => UploadExcelResponse)
+  async uploadExcel(
+    @AuthWorkspace() { id: workspaceId }: Workspace,
+    @Args({ name: 'file', type: () => GraphQLUpload })
+    { createReadStream }: FileUpload,
+    @Args('mailingListName') mailingListName: string,
+  ) {
+
+    const stream = createReadStream();
+    const buffer = await streamToBuffer(stream);
+
+    const existingMailingList = await this.mailingListService.findMailingListByName(mailingListName);
+    if (existingMailingList) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          message: "Contact List with the same name already exists. Please try a different name.",
+          errorCode: "DUPLICATE_MAILING_LIST"
+        },
+        HttpStatus.BAD_REQUEST
+      );
+    }
+
+    const workbook = XLSX.read(buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName]
+    const mailingListData: any = XLSX.utils.sheet_to_json(worksheet);
+
+    const rawData: string[][] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+    const headers = rawData[0] || [];
+    const totalColumns = headers.length;
+    const firstColumnName = headers[0];
+    const secondColumnName = headers[1];
+
+    // Validate format
+    if (
+      totalColumns !== 2 ||
+      firstColumnName !== 'contactName' ||
+      secondColumnName !== 'contactNo'
+    ) {
+      throw new Error(
+        'Please provide a valid excel sheet in correct format (contactName, contactNo)',
+      );
+    }
+    else {
+      const mailingList = await this.mailingListService.CreateMailingList(mailingListName, { mailingContacts: mailingListData });
+      if (mailingList) {
+        return {
+          success: true,
+          message: 'Contact List is created'
+        }
+      }
+      else {
+        throw new Error("Failed to create Contact List")
+      }
+
+    }
   }
 
 }

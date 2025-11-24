@@ -49,7 +49,7 @@ import {
   Users,
 } from "lucide-react"
 
-export default function TemplateForm({ onBack, recordId, readOnly=false }) {
+export default function TemplateForm({ onBack, recordId, readOnly = false }) {
   const [active, setActive] = useState("overview");
   const [preview, setPreview] = useState(false);
   const [isValidated, setIsValidated] = useState(false);
@@ -183,17 +183,68 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
   }
 
   const checkValidation = (templateData: any) => {
-    let formValid;
-    formValid = true;
+    // let formValid;
+    // formValid = true;
     if (!templateData.category) {
       toast.error('Please select Whatsapp Template category.');
-      formValid = false;
+      return false;
     }
     if (!templateData.headerType) {
       toast.error('Please select Whatsapp Template header type.');
-      formValid = false;
+      return false;
     }
-    return formValid;
+
+    if (templateData.headerType === 'TEXT' && !templateData.headerText) {
+      toast.error('Please enter Header Text.');
+      return false;
+    }
+
+    if (templateData.headerType === 'TEXT' && templateData.headerText.length>60) {
+      toast.error('Header length shoulde be max 60.');
+      return false;
+    }
+
+    if (templateData.footerText && templateData.footerText.length>60) {
+      toast.error('Footer length shoulde be max 60.');
+      return false;
+    }
+
+    if (templateData.buttons.length > 0) {
+      const buttons = templateData.buttons
+
+      const qrCount = buttons.filter(b => b.type === "QUICK_REPLY").length;
+      const urlCount = buttons.filter(b => b.type === "URL").length;
+      const phoneCount = buttons.filter(b => b.type === "PHONE_NUMBER").length;
+
+      if (qrCount > 3) {
+        toast.error("Maximum 3 Quick Reply buttons allowed.");
+        return false;
+      }
+
+      if (urlCount > 1) {
+        toast.error("Only 1 URL button allowed.");
+        return false;
+      }
+
+      if (phoneCount > 1) {
+        toast.error("Only 1 Phone button allowed.");
+        return false;
+      }
+
+      const typesUsed = [qrCount > 0, urlCount > 0, phoneCount > 0].filter(x => x).length;
+      if (typesUsed > 1) {
+        toast.error("Mixing button types is not allowed. Use only one type.");
+        return false;
+      }
+
+      for (let button of buttons) {
+        if (!button.text) {
+          toast.error('Please enter Button Text.');
+          return false;
+        }
+      }
+    }
+    return true
   }
 
   const handleSave = async (e, submit: boolean) => {
@@ -255,11 +306,11 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
     const textarea = document.getElementById("bodyText");
     const variableMatches = textarea.value.match(/{{\d+}}/g) || [];
 
-    var nextVariableNum=1;
-    while(variableMatches.includes(`{{${nextVariableNum}}}`)){
+    var nextVariableNum = 1;
+    while (variableMatches.includes(`{{${nextVariableNum}}}`)) {
       nextVariableNum++;
     }
-    const newVariable=`{{${nextVariableNum}}}`
+    const newVariable = `{{${nextVariableNum}}}`
 
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
@@ -269,6 +320,20 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
 
     setTemplateData({...templateData, bodyText: newText})
   };
+
+  const handleCategoryChange = (value) => {
+    if (value === "AUTHENTICATION" && templateData.buttons.length > 0) {
+      setTemplateData({
+        ...templateData,
+        category: value,
+        buttons: []
+      })
+      toast.info('All buttons are removed')
+    }
+    else {
+      setTemplateData({ ...templateData, category: value })
+    }
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -330,7 +395,7 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
               <div className="flex gap-4">
                 <div className="flex-1">
                   <Label>Category</Label>
-                  <Select value={templateData.category} onValueChange={(val) => setTemplateData({ ...templateData, category: val })} disabled={readOnly}>
+                  <Select value={templateData.category} onValueChange={(val) => handleCategoryChange(val)} disabled={readOnly}>
                     <SelectTrigger><SelectValue placeholder="Select category"/></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="UTILITY">Utility</SelectItem>
@@ -363,62 +428,62 @@ export default function TemplateForm({ onBack, recordId, readOnly=false }) {
                 </SelectContent>
               </Select>
 
-            {templateData.headerType === 'TEXT' ?
-              <>
-                <Label>Header Text</Label>
-                <Input
-                  placeholder="Header Text"
-                  value={templateData.headerText}
-                  onChange={(e) => setTemplateData({ ...templateData, headerText: e.target.value })}
-                  readOnly={readOnly}
-                  disabled={readOnly}
-                />
-              </>
-              :
-              <></>
-            }
-            {templateData.headerType === 'IMAGE' ?
-              <>
-                <Label>Upload image</Label>
-                {attachment.originalname ?
-                  <p className='p-2 mb-2 text-blue-700 rounded bg-blue-500/10 font-semibold'>
-                    <span className='text-gray-600 font-normal'>Current Uploaded Image : </span>
-                    <a href={getImageAbsoluteURI({
-          imageUrl: isNonEmptyString(templateData.templateImg)
-            ? templateData.templateImg : '',
-          baseUrl: VITE_BACKEND_URL,
-        }) ?? ''} target="_blank">{attachment.originalname}</a>
-                  </p> : <></>}
-                <Input
-                  type="file"
-                  accept="image/png,image/jpeg,image/jpg"
-                  placeholder="Header Text"
-                  onChange={handleFileChange}
-                  readOnly={readOnly}
-                  disabled={readOnly}
-                />
-              </> : <></>
-            }
-            {templateData.headerType === 'VIDEO' ?
-              <>
-              <Label>Upload Video</Label>
-                {attachment.templateOriginaName ?
-                  <p className='p-2 mb-2 text-blue-700 rounded bg-blue-500/10 font-semibold'>
-                    <span className='text-gray-600 font-normal'>Current Uploaded Image : </span>
-                    {attachment.templateOriginaName}
-                  </p> : <></>}
-                <Input
-                  type="file"
-                  accept=".mp4,.3gp"
-                  placeholder="Header Text"
-                  onChange={handleFileChange}
-                  readOnly={readOnly}
-                  disabled={readOnly}
-                />
-              </>
-              :
-              <></>
-            }
+              {templateData.headerType === 'TEXT' ?
+                <>
+                  <Label>Header Text</Label>
+                  <Input
+                    placeholder="Header Text"
+                    value={templateData.headerText}
+                    onChange={(e) => setTemplateData({ ...templateData, headerText: e.target.value })}
+                    readOnly={readOnly}
+                    disabled={readOnly}
+                  />
+                </>
+                :
+                <></>
+              }
+              {templateData.headerType === 'IMAGE' ?
+                <>
+                  <Label>Upload image</Label>
+                  {attachment.originalname ?
+                    <p className='p-2 mb-2 text-blue-700 rounded bg-blue-500/10 font-semibold'>
+                      <span className='text-gray-600 font-normal'>Current Uploaded Image : </span>
+                      <a href={getImageAbsoluteURI({
+                        imageUrl: isNonEmptyString(templateData.templateImg)
+                          ? templateData.templateImg : '',
+                        baseUrl: VITE_BACKEND_URL,
+                      }) ?? ''} target="_blank">{attachment.originalname}</a>
+                    </p> : <></>}
+                  <Input
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg"
+                    placeholder="Header Text"
+                    onChange={handleFileChange}
+                    readOnly={readOnly}
+                    disabled={readOnly}
+                  />
+                </> : <></>
+              }
+              {templateData.headerType === 'VIDEO' ?
+                <>
+                  <Label>Upload Video</Label>
+                  {attachment.templateOriginaName ?
+                    <p className='p-2 mb-2 text-blue-700 rounded bg-blue-500/10 font-semibold'>
+                      <span className='text-gray-600 font-normal'>Current Uploaded Image : </span>
+                      {attachment.templateOriginaName}
+                    </p> : <></>}
+                  <Input
+                    type="file"
+                    accept=".mp4,.3gp"
+                    placeholder="Header Text"
+                    onChange={handleFileChange}
+                    readOnly={readOnly}
+                    disabled={readOnly}
+                  />
+                </>
+                :
+                <></>
+              }
 
               <Label>Footer Text (Optional)</Label>
               <Input

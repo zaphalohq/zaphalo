@@ -73,6 +73,8 @@ export class WaMessageService {
         'channelMessageId.attachment',
         'waTemplateId',
         'waTemplateId.account',
+        'waTemplateId.buttons',
+        'waTemplateId.variables',
         'waTemplateId.attachment',
       ]
     })
@@ -106,7 +108,7 @@ export class WaMessageService {
         }
         // # generate sending values, components and attachments
         sendVals = await this.waTemplateService.getSendTemplateVals(
-          waMessage?.waTemplateId,
+          waMessage?.waTemplateId,waMessage.mobileNumber
         )
       }
       else if (waMessage.channelMessageId.attachment){

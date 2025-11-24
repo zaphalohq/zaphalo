@@ -71,7 +71,7 @@ export class MiddlewareService {
         ),
       ];
     }
-
+    
     const statusCode = 200;
 
     res.writeHead(statusCode, {

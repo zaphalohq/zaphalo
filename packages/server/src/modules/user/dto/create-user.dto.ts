@@ -24,4 +24,7 @@ export class CreateUserDTO {
   @IsString()
   @IsOptional()
   workspaceInviteToken?: string;
+
+  @Field({ nullable : true })
+  profileImg?: string;
 }
