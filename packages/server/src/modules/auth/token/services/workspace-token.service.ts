@@ -41,6 +41,14 @@ export class WorkspaceTokenService {
       targetedTokenType: targetedTokenTypeFromPayload,
     } = await this.refreshTokenService.verifyRefreshToken(token);
 
+    const workspaceIds = user.workspaceMembers.map(u => u.workspaceId);
+
+    if (!workspaceIds.includes(newWorkspaceId)){
+      throw new AuthException(
+        'Workspace not found',
+        AuthExceptionCode.INVALID_INPUT,
+      );
+    }
     // Revoke old refresh token
     await this.appTokenRepository.update(
       {
