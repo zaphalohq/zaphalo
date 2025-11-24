@@ -20,7 +20,6 @@ export const Post = async (url, formData, headers) => {
 			headers: {
 				...headers,
 				Authorization: authtoken ? `Bearer ${authtoken.token}` : '',
-				// 'x-workspace-id': workspaceId || '',
 			} 
 		}
 	);
@@ -43,7 +42,6 @@ export const Delete = async (url) => {
 		{
 			headers: {
 				Authorization: authtoken ? `Bearer ${authtoken.token}` : '',
-				'x-workspace-id': workspaceId || '',
 			} 
 		}
 	);

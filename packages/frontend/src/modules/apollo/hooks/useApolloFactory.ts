@@ -13,6 +13,7 @@ import { isMatchingLocation } from '@src/utils/isMatchingLocation';
 
 import { isDefined } from '@src/utils/validation/isDefined';
 import { ApolloFactory, Options } from '../services/apollo.factory';
+import { AppPath } from '@src/types/AppPath';
 
 export const useApolloFactory = (options: Partial<Options<any>> = {}) => {
   // eslint-disable-next-line @nx/workspace-no-state-useref

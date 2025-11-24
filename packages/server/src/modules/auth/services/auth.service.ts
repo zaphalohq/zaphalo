@@ -42,11 +42,12 @@ import {
   RefreshTokenJwtPayload,
   JwtTokenTypeEnum,
 } from 'src/modules/auth/types/auth-context.type';
+import { CheckUserExistOutput } from '../dto/user-exists.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private userservice: UserService,
+    private userService: UserService,
     private jwtService: JwtService,
     private readonly domainManagerService: DomainManagerService,
     private readonly workspaceService: WorkspaceService,
@@ -62,7 +63,7 @@ export class AuthService {
   ) { }
 
   async validateUser(email: string, password: string): Promise<any> {
-    const user = await this.userservice.findOneByEmail(email);
+    const user = await this.userService.findUserByEmail(email);
     if (user && await compareHash(password, user.password)) {
       const { password, ...result } = user;
       return result;
@@ -260,6 +261,18 @@ export class AuthService {
         accessToken,
         refreshToken,
       },
+    };
+  }
+
+  async checkUserExists(email: string): Promise<CheckUserExistOutput> {
+    const user = await this.userService.findUserByEmail(email);
+
+    // const isUserExist = isDefined(user);
+
+    return {
+      exists: user ? true : false,
+      availableWorkspacesCount: 1,
+      isEmailVerified: false,
     };
   }
 

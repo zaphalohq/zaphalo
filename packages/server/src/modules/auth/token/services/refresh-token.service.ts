@@ -63,7 +63,7 @@ export class RefreshTokenService {
 
     const user = await this.userRepository.findOne({
       where: { id: jwtPayload.sub },
-      relations: ['appTokens'],
+      relations: ['appTokens', 'workspaceMembers'],
     });
 
     if (!user) {
