@@ -113,6 +113,7 @@ export const UserQueryFragmentFragmentDoc = gql`
     firstName
     inviteToken
     lastName
+    profileImg 
     currentWorkspace {
       id
       name
@@ -1391,7 +1392,18 @@ export const UploadFileDocument = gql`
     token
   }
 }
-    `;
+`;
+
+export const UploadExcel=gql`
+mutation uploadExcel($file: Upload!, $mailingListName: String!) {
+  uploadExcel(file: $file, mailingListName: $mailingListName) {
+    success
+    message
+  }
+}
+`
+
+
 export type UploadFileMutationFn = Apollo.MutationFunction<UploadFileMutation, UploadFileMutationVariables>;
 
 

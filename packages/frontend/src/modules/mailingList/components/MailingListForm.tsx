@@ -6,6 +6,8 @@ import { cookieStorage } from "@src/utils/cookie-storage";
 import { Post } from "@src/modules/domain-manager/hooks/axios";
 import { currentUserWorkspaceState } from "@src/modules/auth/states/currentUserWorkspaceState";
 import { toast } from "react-toastify";
+import { useMutation } from "@apollo/client";
+import { UploadExcel } from "@src/generated/graphql";
 
 const MailingListForm = ({setIsSaveMailingListVis}: any) => {
   const [error, setError] = useState<string>(null)
@@ -21,28 +23,34 @@ const MailingListForm = ({setIsSaveMailingListVis}: any) => {
     }
   };
 
+  const [uploadExcel]=useMutation(UploadExcel)
+
   const handleUpload = async () => {
     if (!file) return;
       setError('')
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("mailingListName", mailingListName);
+   
     try {
-      const response = await Post(`/uploadExcel`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-            
-      if(response.data.success){
+      const response = await uploadExcel(
+        {
+          variables:{
+            file,
+            mailingListName:mailingListName
+          }
+        }
+      )
+
+      if(response.data.uploadExcel.success===true){
+        toast.success("Excel Upload Successfull")
         setIsSaveMailingListVis(false);
-        toast.success(response.data.message);
       }
+      else{
+        toast.error(response.data.uploadExcel.message || "Error in Excel Upload")
+      }
+     
 
     } catch (error) {
-      const message =
-        error?.response?.data?.message || "Unexpected error";
+      const message = error?.message || "Unexpected error";
       setError(message)
     }
   };

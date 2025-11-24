@@ -12,4 +12,7 @@ export class UpdateUserDTO {
 
     @Field()
     email: string;
+
+    @Field({ nullable : true })
+    profileImg?: string;
 }

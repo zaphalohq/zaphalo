@@ -4,18 +4,39 @@ import { FiEdit2 } from 'react-icons/fi';
 import { Input } from './input';
 import { Label } from './label';
 import { first } from 'rxjs';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useMutation } from '@apollo/client';
-import { UpdateUser } from '@src/generated/graphql';
+import { FileFolder, UpdateUser, useUploadFileMutation } from '@src/generated/graphql';
+import { useRecoilState } from 'recoil';
+import { currentUserState } from '@src/modules/auth/states/currentUserState';
+import { useApolloCoreClient } from '@src/modules/apollo/hooks/useApolloCoreClient';
+import { isDefined } from '@src/utils/validation/isDefined';
+import { VITE_BACKEND_URL } from '@src/config';
 
-const UserUpdateDialog = ({ isProfileEdit, setIsProfileEdit, currentUser }) => {
+const UserUpdateDialog = ({ isProfileEdit, setIsProfileEdit }) => {
+
+    const [currentUser] = useRecoilState(currentUserState);
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const coreClient = useApolloCoreClient();
+    const [uploadFile] = useUploadFileMutation({ client: coreClient });
+
+    const [previewImg, setPreviewImg] = useState<string | null>(null);
+    const [uploadedImgPath, setUploadedImgPath] = useState<string | null>(null);
 
     const [userFormData, setUserFormData] = useState({
         firstName: '',
         lastName: '',
         email: ''
     });
+
+    const getInitials = (firstName: string, lastName: string) => {
+        if (!firstName || !lastName) return 'Y';
+        return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+    };
+
+
+
 
     const [updateUser, { loading }] = useMutation(UpdateUser, {
         onCompleted: () => {
@@ -43,6 +64,34 @@ const UserUpdateDialog = ({ isProfileEdit, setIsProfileEdit, currentUser }) => {
         }
     }, [currentUser, isProfileEdit]);
 
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const fileSizeInMb = file.size / (1024 * 1024);
+            if (fileSizeInMb > 2) {
+                toast.error("Upload file size of 2mb")
+                return;
+            }
+
+            const result = await uploadFile({
+                variables: {
+                    file,
+                    fileFolder: FileFolder.ProfilePicture,
+                },
+            });
+
+            const signedFile = result?.data?.uploadFile;
+            console.log(signedFile)
+            if (!isDefined(signedFile)) {
+                toast.error('failed to upload Workspace-logo')
+            }
+            else {
+                setPreviewImg(URL.createObjectURL(file));
+                setUploadedImgPath(signedFile.path);
+            }
+        }
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -57,7 +106,8 @@ const UserUpdateDialog = ({ isProfileEdit, setIsProfileEdit, currentUser }) => {
                     userData: {
                         firstName: userFormData.firstName,
                         lastName: userFormData.lastName,
-                        email: userFormData.email
+                        email: userFormData.email,
+                        profileImg: uploadedImgPath || currentUser?.profileImg || ''
                     }
                 }
             });
@@ -77,6 +127,33 @@ const UserUpdateDialog = ({ isProfileEdit, setIsProfileEdit, currentUser }) => {
 
                     <form onSubmit={handleSubmit}>
                         <div className="flex flex-col items-center space-y-6 py-6">
+                            <div className='flex flex-col space-y-3'>
+                                <div className="w-24 h-24 flex justify-center bg-gradient-to-r from-green-400 via-green-500 to-green-600 rounded-full shadow-lg">
+                                    {previewImg ? (
+                                        <img src={previewImg} className="w-full h-full object-cover rounded-full" />
+                                    ) : currentUser?.profileImg ? (
+                                        <img src={`${VITE_BACKEND_URL}/files/${currentUser.profileImg}`} className="w-full h-full object-cover rounded-full" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-2xl font-semibold text-white">
+                                            {getInitials(currentUser?.firstName, currentUser?.lastName)}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className='flex justify-center items-center'>
+                                    <span onClick={() => fileInputRef.current?.click()} className="text-sm text-green-600 cursor-pointer hover:underline">Edit</span>
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        accept="image/jpeg,image/png,image/jpg"
+                                        className="hidden"
+                                        onChange={(e) => {
+                                            handleFileUpload(e)
+                                        }}
+                                    />
+                                </div>
+
+                            </div>
+
                             <div className="w-full max-w-md grid grid-cols-2 gap-4">
                                 {/* First Name */}
                                 <div className="space-y-2">

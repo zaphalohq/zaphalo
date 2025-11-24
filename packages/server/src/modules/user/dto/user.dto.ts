@@ -16,4 +16,7 @@ export class userDTO {
   @Field()
   @IsStrongPassword()
   password: string
+
+  @Field({ nullable : true })
+  profileImg?: string;
 }
