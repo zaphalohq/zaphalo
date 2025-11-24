@@ -14,7 +14,6 @@ const AccountToggle = () => {
   const [currentUserWorkspace] = useRecoilState(currentUserWorkspaceState);
   const navigate = useNavigate()
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false)
-  
   const handleWorkspaceChange = async (workspaceId: string) => {
     await switchWorkspace(workspaceId)
   }
@@ -23,7 +22,7 @@ const AccountToggle = () => {
     <div className="border-b mt-2 mb-4 pb-4 border-gray-700 relative">
       <div className="flex p-0.5 w-full items-start gap-2 relative hover:bg-gray-800/50 rounded-xl">
         <div className="relative">
-          {currentUserWorkspace?.profileImg && (
+          {currentUserWorkspace?.name && (
             <div className="px-4 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {currentUserWorkspace?.profileImg ?
