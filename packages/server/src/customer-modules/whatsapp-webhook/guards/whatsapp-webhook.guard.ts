@@ -7,6 +7,7 @@ export class WaWebhookGuard implements CanActivate {
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
+
         const query = request.query;
 
         if (!query || !query['hub.verify_token']) {
@@ -30,7 +31,6 @@ export class WaWebhookGuard implements CanActivate {
         const decodedPayload = await this.jwtWrapperService.decode(query['hub.verify_token'], {
             json: true,
         });
-
         const workspaceId = decodedPayload?.['workspaceId'];
         const WaAccount = decodedPayload?.['WaAccount'];
 

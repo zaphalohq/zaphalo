@@ -283,21 +283,14 @@ export class WaTemplateService {
     let header = {}
     const headerType = waTemplateId.headerType
     
-    // if (headerType == 'text' && templateVariablesValue['header-{{1}}']){
-    //   var value = (freeTextJson || {})['header_text'] || templateVariablesValue['header-{{1}}'] || ' '
-    //   header = {
+    // if(headerType == 'TEXT'){
+    //   var value= waTemplateId.headerText
+    //    header = {
     //     'type': 'header',
     //     'parameters': [{'type': 'text', 'text': value}]
     //   }
     // }
-    if(headerType == 'TEXT'){
-      var value= waTemplateId.headerText
-       header = {
-        'type': 'header',
-        'parameters': [{'type': 'text', 'text': value}]
-      }
-    }
-    else if(['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerType)){
+    if(['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerType)){
       header = {
         "type": 'header',
         "parameters": [await this.waAccountService.prepareAttachmentVals(attachment, waTemplateId.account)]
@@ -421,7 +414,6 @@ export class WaTemplateService {
 
     // # generate content
     const header = await this.getHeaderComponent(waTemplateId, freeTextJson, templateVariablesValue, attachment)
-    console.log("header",header)
 
     let body = await this.getBodyComponent(waTemplateId, mobileNumber)
 
@@ -570,7 +562,6 @@ export class WaTemplateService {
       'category': waTemplate.category,
       'components': components,
     })
-    console.log("..........jsondat..........",jsonData)
     try{
       if (waTemplate.waTemplateId){
         waApi.submitTemplateUpdate(jsonData, waTemplate.waTemplateId)
@@ -602,11 +593,9 @@ export class WaTemplateService {
     }
     const messageType = 'template'
 
-    const wa_api = await this.waAccountService.getWhatsAppApi(template.template.account.id)
+    const waApi = await this.waAccountService.getWhatsAppApi(template.template.account.id)
 
     const sendVals = await this.getSendTemplateVals(template.template, testTemplateData.testPhoneNo)
-
-    const waApi = await this.waAccountService.getWhatsAppApi(template.template.account.id)
 
     const msgUid = await waApi.sendWhatsApp(testTemplateData.testPhoneNo, messageType, sendVals)
 
@@ -698,6 +687,7 @@ export class WaTemplateService {
     let data;
     try{
       data = await waAPI.getTemplateData(templateFind.template.waTemplateId)
+      console.log("....................data...........", data)
     }
     catch (error){
       console.log(error)
@@ -713,7 +703,7 @@ export class WaTemplateService {
     const templateVals = await this.getTemplateValsFromResponse(workspaceId, remoteTemplateVals, waTemplate.account)
 
     let updateVals = {
-      "body": templateVals["body"],
+      "bodyText": templateVals["body"],
       "headerType": templateVals["headerType"],
       "headerText": templateVals["headerText"],
       "footerText": templateVals["footerText"],
@@ -843,7 +833,7 @@ export class WaTemplateService {
           value: val
         }));
       }else if (componentType == 'FOOTER'){
-        templateVals['footer_text'] = component['text']
+        templateVals['footerText'] = component['text']
       }else if (componentType == 'BUTTONS'){
         for (const [index, button] of component['buttons'].entries()){ 
           if (['URL', 'PHONE_NUMBER', 'QUICK_REPLY'].includes(button['type'])){
