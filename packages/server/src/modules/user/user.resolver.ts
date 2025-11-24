@@ -102,7 +102,7 @@ export class UserResolver {
   async updateUser(
     @Args('userData') userData: UpdateUserDTO
   ){
-    const user= await this.userService.findOneByEmail(userData.email)
+    const user= await this.userService.findUserByEmail(userData.email)
 
     if(!user){
       throw new Error("User Not Found")
