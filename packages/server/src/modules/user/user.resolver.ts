@@ -3,6 +3,8 @@ import {
   Query,
   Args,
   Mutation,
+  ResolveField,
+  Parent,
 } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -19,6 +21,8 @@ import { Roles } from 'src/modules/auth/decorators/roles.decorator';
 import { GqlAuthGuard } from 'src/modules/auth/guards/gql-auth.guard';
 import { AuthWorkspace } from 'src/decorators/auth-workspace.decorator';
 import { UserAuthGuard } from 'src/guards/user-auth.guard';
+import { UpdateUserDTO } from './dto/update-user.dto';
+import { FileService } from '../file/services/file.service';
 
 const getHMACKey = (email?: string, key?: string | null) => {
   if (!email || !key) return null;
@@ -35,6 +39,7 @@ export class UserResolver {
     @InjectRepository(User, 'core')
     private readonly userRepository: Repository<User>,
     private readonly userService: UserService,
+    private fileService: FileService,
   ) { }
 
   // @Roles(Role.ADMIN)
@@ -91,4 +96,41 @@ export class UserResolver {
       currentWorkspace: workspace,
     };
   }
+
+  @Mutation(() => User)
+  @UseGuards(UserAuthGuard)
+  async updateUser(
+    @Args('userData') userData: UpdateUserDTO
+  ){
+    const user= await this.userService.findOneByEmail(userData.email)
+
+    if(!user){
+      throw new Error("User Not Found")
+    }
+
+    user.firstName = userData.firstName;
+    user.lastName= userData.lastName;
+    user.profileImg=userData?.profileImg || ''
+
+    const updatedUser = await this.userRepository.save(user);
+
+    return updatedUser
+  }
+
+  @ResolveField(() => String)
+  async profileImg(@Parent() user: User): Promise<string> {
+    if (user.profileImg) {
+      try {
+        return this.fileService.signFileUrl({
+          url: user.profileImg,
+          workspaceId: user.currentWorkspace?.id,
+        });
+      } catch (e) {
+        return user.profileImg;
+      }
+    }
+
+    return user.profileImg ?? '';
+  }
+
 }

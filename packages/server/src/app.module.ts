@@ -58,6 +58,12 @@ export class AppModule {
       .forRoutes(
         { path: '/upload', method: RequestMethod.ALL },
       );
+
+    consumer
+      .apply(JwtMiddleware)
+      .forRoutes(
+        { path: '/uploadExcel', method: RequestMethod.ALL },
+      );  
   }
 
 }

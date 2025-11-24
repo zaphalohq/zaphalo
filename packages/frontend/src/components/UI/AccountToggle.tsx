@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { ChevronDown, Briefcase } from "lucide-react"
 import {
@@ -14,8 +14,6 @@ const AccountToggle = () => {
   const [currentUserWorkspace] = useRecoilState(currentUserWorkspaceState);
   const navigate = useNavigate()
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false)
-
-
   
   const handleWorkspaceChange = async (workspaceId: string) => {
     await switchWorkspace(workspaceId)
@@ -25,11 +23,14 @@ const AccountToggle = () => {
     <div className="border-b mt-2 mb-4 pb-4 border-gray-700 relative">
       <div className="flex p-0.5 w-full items-start gap-2 relative hover:bg-gray-800/50 rounded-xl">
         <div className="relative">
-          {!currentUserWorkspace?.profileImg && (
+          {currentUserWorkspace?.profileImg && (
             <div className="px-4 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {currentUserWorkspace?.profileImg ?
-                ( <img src={`${VITE_BACKEND_URL}/files/${currentUserWorkspace?.profileImg}`}/>) :
+                  (<img
+                    src={`${VITE_BACKEND_URL}/files/${currentUserWorkspace?.profileImg}`}
+                    className="h-10 w-10 rounded-full bg-cover"
+                  />) :
                   (<div className="h-10 w-10 rounded-full bg-gradient-to-br from-green-400 to-teal-400 flex items-center justify-center text-white font-bold">Y</div>)
                 }
                 <div>
@@ -70,17 +71,17 @@ const AccountToggle = () => {
                   window.location.reload()
                 }}
                 className={`p-3 hover:bg-gray-700 cursor-pointer flex gap-3 items-center transition-colors duration-150 ${currentUserWorkspace?.id === workspace.id
-                    ? 'bg-blue-900/30 text-blue-300 border-r-2 border-blue-500'
-                    : 'text-gray-300'
+                  ? 'bg-blue-900/30 text-blue-300 border-r-2 border-blue-500'
+                  : 'text-gray-300'
                   }`}
               >
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${currentUserWorkspace?.id === workspace.id
-                    ? 'bg-blue-900/50'
-                    : 'bg-gray-700'
+                  ? 'bg-blue-900/50'
+                  : 'bg-gray-700'
                   }`}>
                   <Briefcase className={`w-4 h-4 ${currentUserWorkspace?.id === workspace.id
-                      ? 'text-blue-400'
-                      : 'text-violet-500'
+                    ? 'text-blue-400'
+                    : 'text-violet-500'
                     }`} />
                 </div>
                 <div className="flex-1">

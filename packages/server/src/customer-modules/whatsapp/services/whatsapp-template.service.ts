@@ -31,6 +31,7 @@ import { Variable } from "../entities/whatsapp-template-variable.entity";
 import { TemplateResponse } from "../dtos/templates/template-response.dto";
 import { Broadcast } from "src/customer-modules/broadcast/entities/broadcast.entity";
 import { broadcastStates } from "src/customer-modules/broadcast/enums/broadcast.state.enum";
+import { MailingContacts } from "src/customer-modules/mailingList/mailingContacts.entity";
 const LATITUDE_LONGITUDE_REGEX = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/;
 
 function slugify(text: string): string {
@@ -52,6 +53,7 @@ export class WaTemplateService {
   private templateButtonRepository: Repository<Button>
   private templateVariablesRepository: Repository<Variable>
   private broadcastRepository: Repository<Broadcast>
+  private mailingContactRepository: Repository<MailingContacts>
 
   constructor(
     @Inject(CONNECTION) connection: Connection,
@@ -63,6 +65,7 @@ export class WaTemplateService {
     this.templateButtonRepository = connection.getRepository(Button)
     this.templateVariablesRepository = connection.getRepository(Variable)
     this.broadcastRepository = connection.getRepository(Broadcast)
+    this.mailingContactRepository = connection.getRepository(MailingContacts)
   }
 
   async createTemplate(templateData) {
@@ -70,6 +73,22 @@ export class WaTemplateService {
 
     const account = await this.waAccountService.findInstantsByInstantsId(templateData.whatsappAccountId);
     if (!account) throw Error("Whatsapp account doesn't found!")
+
+    if(templateData.category==="AUTHENTICATION" && templateData.buttons.length>0){
+      throw new Error("Authentication template doesn't have buttons")
+    }
+
+    if (templateData.headerType === 'TEXT' && !templateData.headerText){
+      throw new Error('Header text is required')
+    }
+
+    if (templateData.headerType === 'TEXT' && templateData.headerText.length>60){
+      throw new Error('Header text should be minimum 60 charatacter')
+    }
+
+    if(templateData.footerText.length>60){
+      throw new Error('Footer text should be minimum 60 charatacter')
+    }
 
     let attachment: Attachment | null = null;
 
@@ -87,7 +106,29 @@ export class WaTemplateService {
       })
     }) || []
 
-    const variables = templateData.variables?.map((v) => {
+    //sort variable by name for facebook variable maping
+    const sortedVariables = (templateData.variables || []).sort((a, b) => {
+        const reg = /^\{\{(\d+)\}\}$/;
+
+        const matchA = a.name.match(reg);
+        const matchB = b.name.match(reg);
+
+        // If both match pure {{number}}
+        if (matchA && matchB) {
+            return Number(matchA[1]) - Number(matchB[1]);
+        }
+
+        // If only A is numeric → A comes first
+        if (matchA) return -1;
+
+        // If only B is numeric → B comes first
+        if (matchB) return 1;
+
+        // Neither numeric → keep original order (no sorting)
+        return 0;
+    });
+
+    const variables = sortedVariables?.map((v) => {
 
       if (!v.name) throw new Error('Variable name is required.');
 
@@ -145,6 +186,14 @@ export class WaTemplateService {
     const account = await this.waAccountService.findInstantsByInstantsId(templateData.whatsappAccountId);
     if (!account) throw Error("Whatsapp account doesn't found!")
 
+    if(templateData.category==="AUTHENTICATION" && templateData.buttons.length>0){
+      throw new Error("Authentication template doesn't have buttons")
+    }
+
+    if (templateData.headerType === 'TEXT' && !templateData.headerText){
+      throw new Error('Header text is required')
+    }
+
     const buttons = templateData.buttons?.map((btn) => {
       return this.templateButtonRepository.create({
         type: btn.type,
@@ -154,7 +203,29 @@ export class WaTemplateService {
       })
     }) || []
 
-    const variables = templateData.variables?.map((v) => {
+      //sort variable by name for facebook template's variable maping
+    const sortedVariables = (templateData.variables || []).sort((a, b) => {
+        const reg = /^\{\{(\d+)\}\}$/;
+
+        const matchA = a.name.match(reg);
+        const matchB = b.name.match(reg);
+
+        // If both match pure {{number}}
+        if (matchA && matchB) {
+            return Number(matchA[1]) - Number(matchB[1]);
+        }
+
+        // If only A is numeric → A comes first
+        if (matchA) return -1;
+
+        // If only B is numeric → B comes first
+        if (matchB) return 1;
+
+        // Neither numeric → keep original order (no sorting)
+        return 0;
+    });
+
+    const variables = sortedVariables?.map((v) => {
 
       if (!v.name) throw new Error('Variable name is required.');
 
@@ -211,10 +282,17 @@ export class WaTemplateService {
     // """ Prepare header component for sending WhatsApp template message"""
     let header = {}
     const headerType = waTemplateId.headerType
-
-    if (headerType == 'text' && templateVariablesValue['header-{{1}}']){
-      var value = (freeTextJson || {})['header_text'] || templateVariablesValue['header-{{1}}'] || ' '
-      header = {
+    
+    // if (headerType == 'text' && templateVariablesValue['header-{{1}}']){
+    //   var value = (freeTextJson || {})['header_text'] || templateVariablesValue['header-{{1}}'] || ' '
+    //   header = {
+    //     'type': 'header',
+    //     'parameters': [{'type': 'text', 'text': value}]
+    //   }
+    // }
+    if(headerType == 'TEXT'){
+      var value= waTemplateId.headerText
+       header = {
         'type': 'header',
         'parameters': [{'type': 'text', 'text': value}]
       }
@@ -254,19 +332,66 @@ export class WaTemplateService {
     }
   }
 
-  getBodyComponent(waTemplateId, freeTextJson, templateVariablesValue){
-    if (waTemplateId.variables.length == 0){
-      return undefined
+  async getBodyComponent(waTemplateId, mobileNumber) {
+    if (!waTemplateId.variables || waTemplateId.variables.length === 0){
+      return undefined;
     }
     let parameters: any[] = []
-    let free_text_count = 1
-    for (const bodyVal of waTemplateId.variables){
-      parameters.push({
-        'type': 'text',
-        'text': bodyVal.value
-      })
+
+    const mailingContact = await this.mailingContactRepository.findOne(
+      {
+        where: {
+          contactNo: mobileNumber
+        }
+      }
+    )
+
+    for (const v of waTemplateId.variables) {
+
+      // ---------- STATIC VARIABLE ----------
+      if (v.type === "STATIC") {
+        parameters.push({
+          type: "text",
+          text: v.value || ""
+        });
+      }
+
+      // ---------- DYNAMIC VARIABLE ----------
+      else if (v.type === "DYNAMIC") {
+        let dynamicValue = null;
+
+        if (v.dynamicField) {
+          switch (v.dynamicField.toLowerCase()) {
+
+            case "name":
+              dynamicValue = mailingContact?.contactName || v.sampleValue || "";
+              break;
+
+            case "number":
+              dynamicValue = mailingContact?.contactNo || mobileNumber || "";
+              break;
+
+            default:
+              dynamicValue = v.sampleValue || "";
+              break;
+          }
+        }
+        else {
+          dynamicValue = v.sampleValue || "";
+
+        }
+
+        parameters.push({
+          type: "text",
+          text: dynamicValue
+        });
+      }
     }
-    return {'type': 'body', 'parameters': parameters}
+
+    return {
+      type: "body",
+      parameters: parameters
+    };
   }
 
   getButtonComponents(waTemplateId, freeTextJson, templateVariablesValue){
@@ -275,18 +400,31 @@ export class WaTemplateService {
     return components
   }
 
-  async getSendTemplateVals(waTemplateId){
+  async getSendTemplateVals(waTemplateId, mobileNumber){
     const freeTextJson = {}
     let attachment
 
     attachment = waTemplateId?.attachment
 
     let components: any[] = []
-    const templateVariablesValue = waTemplateId?.variables?.map((v: any) => v.value) || [];
+    let templateVariablesValue: any[] = [];
+
+    const variables = waTemplateId?.variables || [];
+
+    for (const variable of variables) {
+      templateVariablesValue[variable.name] =
+        variable.type === "STATIC"
+          ? variable.value || " "
+          : variable.sampleValue || " ";
+    }
+
 
     // # generate content
     const header = await this.getHeaderComponent(waTemplateId, freeTextJson, templateVariablesValue, attachment)
-    let body = await this.getBodyComponent(waTemplateId, freeTextJson, templateVariablesValue)
+    console.log("header",header)
+
+    let body = await this.getBodyComponent(waTemplateId, mobileNumber)
+
     let buttons = this.getButtonComponents(waTemplateId, freeTextJson, templateVariablesValue)
     if (Object.keys(header).length !== 0){
       components.push(header)
@@ -315,7 +453,7 @@ export class WaTemplateService {
     let headComponent;
     headComponent = {'type': 'HEADER', 'format': waTemplateId.headerType}
     if (waTemplateId.headerType == 'TEXT' && waTemplateId.headerText){
-      headComponent['text'] = waTemplateId.header_text
+      headComponent['text'] = waTemplateId.headerText
     }
 
     else if(['IMAGE', 'VIDEO', 'DOCUMENT'].includes(waTemplateId.headerType)){
@@ -334,8 +472,14 @@ export class WaTemplateService {
     const body_component = {'type': 'BODY', 'text': waTemplateId.bodyText}
 
     let body_params: any[] = []
-    for (const bodyVal of waTemplateId.variables){
-      body_params.push(bodyVal.value)
+    for (const variable of waTemplateId.variables) {
+      let bodyVal;
+      if(variable.type==='STATIC'){
+        bodyVal=variable.value || ''
+      }else{
+        bodyVal=variable.sampleValue || ''
+      }
+      body_params.push(bodyVal)
     }
     if (body_params.length > 0){
       body_component['example'] = {'body_text': [body_params]}
@@ -371,11 +515,12 @@ export class WaTemplateService {
     return {'type': 'FOOTER', 'text': waTemplateId.footerText}
   }
 
-  async submitTemplate(templateId){
+  async submitTemplate(templateId) {
+
     // """Register template to WhatsApp Business Account """
     const waTemplate = await this.templateRepository.findOne({
       where: { id: templateId },
-      relations: ['account', 'attachment'],
+      relations: ['account', 'attachment','variables','buttons'],
     })
     if (!waTemplate) throw Error("template doesn't exist")
 
@@ -425,6 +570,7 @@ export class WaTemplateService {
       'category': waTemplate.category,
       'components': components,
     })
+    console.log("..........jsondat..........",jsonData)
     try{
       if (waTemplate.waTemplateId){
         waApi.submitTemplateUpdate(jsonData, waTemplate.waTemplateId)
@@ -458,7 +604,7 @@ export class WaTemplateService {
 
     const wa_api = await this.waAccountService.getWhatsAppApi(template.template.account.id)
 
-    const sendVals = await this.getSendTemplateVals(template.template)
+    const sendVals = await this.getSendTemplateVals(template.template, testTemplateData.testPhoneNo)
 
     const waApi = await this.waAccountService.getWhatsAppApi(template.template.account.id)
 

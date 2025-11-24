@@ -360,6 +360,7 @@ export class WhatsAppApiService {
       data[messageType] = sendVals;
     }
     const json_data = JSON.stringify(data)
+    console.log('...........json_data.......',json_data)
     console.info("Send %s message from account %s [%s]", messageType, this.waAccount.name, this.waAccount.id)
     const response = await this.apiRequests({
       "requestType": "post",

@@ -62,6 +62,9 @@ import { UPDATE_WORKSPACE_DETAIL } from '@src/modules/settings/workspace/graphql
 import { toast } from "react-toastify";
 import { Post } from "@src/modules/domain-manager/hooks/axios";
 import { VITE_BACKEND_URL } from "@src/config";
+import { useApolloCoreClient } from "@src/modules/apollo/hooks/useApolloCoreClient";
+import { FileFolder, useUploadFileMutation } from "@src/generated/graphql";
+import { isDefined } from "@src/utils/validation/isDefined";
 
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
@@ -105,6 +108,8 @@ const WorkspaceSettings = () => {
 
   //edit workspace profile
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const coreClient = useApolloCoreClient();
+  const [uploadFile] = useUploadFileMutation({ client: coreClient });
 
   async function onSaveWorkspace(e: React.FormEvent) {
     e.preventDefault()
@@ -134,22 +139,23 @@ const WorkspaceSettings = () => {
         toast.error("Upload file size of 2mb")
         return;
       }
-      const formData = new FormData();
 
-      formData.append('file', file);
-      formData.append('fileFolder', 'workspace-logo');
-
-      const response = await Post(`/upload`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+    const result = await uploadFile({
+      variables: {
+        file,
+        fileFolder: FileFolder.WorkspaceLogo,
+        },
       });
 
-      console.log(response)
-      if (response.status === 201) {
-
-        const newProfileImg = response.data.file.path
+      const signedFile = result?.data?.uploadFile;
+     
+      if (!isDefined(signedFile)) {
+        toast.error('failed to upload Workspace-logo')
+      }
+      else{
+        const newProfileImg=signedFile.path;
 
         if (!workspace) return
-        console.log(workspace)
 
         const updateResponse = await updateWorkspaceDetail({
           variables: {
@@ -164,17 +170,8 @@ const WorkspaceSettings = () => {
             profileImg: newProfileImg
           });
         }
-
-
-
       }
-      else {
-        toast.error('failed to update Profile')
-      }
-
-
     }
-
   }
 
 

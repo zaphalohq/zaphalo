@@ -91,7 +91,7 @@ export class ChannelService {
       channel: channel,
       unseen: unseen,
       messageType,
-      attachmentUrl: attachment ? attachment.name : null,
+      attachmentUrl: attachment ? attachment.path : null,
       attachment: attachment ? attachment : null
     })
     const message = await this.messageRepository.save(chennelMessage)

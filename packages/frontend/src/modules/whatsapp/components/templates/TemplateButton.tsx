@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { FiPlus, FiTrash2 } from "react-icons/fi";
 import { TemplateContext } from "@src/modules/whatsapp/Context/TemplateContext";
+import { toast } from "react-toastify";
 
 type ButtonData = {
   type: string;
@@ -20,9 +21,16 @@ const TemplateButton = () => {
     }
   });
 
-  console.log("...................templateData...............", templateData);
-
   const HandelAddButton = () => {
+    if (!templateData.category) {
+      toast.error("Please select template category")
+      return
+    }
+    if (templateData && templateData.category === "AUTHENTICATION") {
+      toast.error("Buttons can't be add in authetication template ")
+      return
+    }
+
     setAddButtonData([...addButtonData, { text: "", type: "QUICK_REPLY" }])
   }
 
@@ -36,6 +44,14 @@ const TemplateButton = () => {
     setTemplateData((prev: any) => ({ ...prev, buttons: addButtonData }))
   }, [addButtonData])
 
+  useEffect(() => {
+    if (templateData.buttons) {
+      setAddButtonData(templateData.buttons);
+    } else {
+      setAddButtonData([]);
+    }
+  }, [templateData.buttons]);
+
 
   const HandleButtonChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const updatedButtons = [...addButtonData];
@@ -45,6 +61,12 @@ const TemplateButton = () => {
 
     if (field === 'type') {
       const newType = value as ButtonType;
+
+      if(currentButton.text.length>20){
+        toast.error("Button text can't be more than 20 characters")
+        return
+      }
+
       if (newType === 'URL') {
         updatedButtons[index] = { type: 'URL', text: currentButton.text, url: '' };
       } else if (newType === 'PHONE_NUMBER') {
@@ -52,6 +74,7 @@ const TemplateButton = () => {
       } else if (newType === 'QUICK_REPLY') {
         updatedButtons[index] = { type: 'QUICK_REPLY', text: currentButton.text };
       }
+
     } else {
       updatedButtons[index] = { ...currentButton, [field]: value };
     }
@@ -59,7 +82,7 @@ const TemplateButton = () => {
     setAddButtonData(updatedButtons);
   };
 
-    return (
+  return (
     <div>
       <div onClick={HandelAddButton} className="flex text-lg font-semibold  items-center justify-end" >
         <div className="p-2 px-4 rounded hover:bg-green-600 cursor-pointer bg-green-500 text-white flex items-center justify-center gap-2">

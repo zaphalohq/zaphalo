@@ -140,6 +140,7 @@ export class ApolloFactory<TCacheShape> implements ApolloManager<TCacheShape> {
       };
 
       const errorLink = onError(({ graphQLErrors, networkError, forward, operation }) => {
+
           if (isDefined(graphQLErrors)) {
             onErrorCb?.(graphQLErrors);
             for (const graphQLError of graphQLErrors) {

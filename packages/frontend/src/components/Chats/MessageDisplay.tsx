@@ -5,6 +5,7 @@ import { ChatsContext } from "@components/Context/ChatsContext"
 import { VITE_BACKEND_URL } from '@src/config';
 import { useWebSocket } from "./Websocket_hooks/WebSocket";
 import { FiDownload } from 'react-icons/fi';
+import { FaCheckDouble, FaCircle } from "react-icons/fa";
 
 interface Message {
   id: string;
@@ -12,6 +13,14 @@ interface Message {
   sender: any;
   createdAt: string;
 }
+
+export const TickMark = ({ unseen }: { unseen: boolean }) => {
+  return (
+    <span className={`ml-1 px-2 ${unseen ? 'text-blue-700' : 'text-gray-500'}`}>
+      {unseen ? <FaCircle size={12} /> : <FaCheckDouble size={14} />}
+    </span>
+  );
+};
 
 export default function MessageDisplay() {
   const LIMIT = 20;
@@ -22,12 +31,60 @@ export default function MessageDisplay() {
 
 
   const { data, loading, error, fetchMore } = useQuery(ChannelMessage, {
-    variables: { channelId:  chatsDetails?.channelId, cursor: null, limit: LIMIT },
+    variables: { channelId: chatsDetails?.channelId, cursor: null, limit: LIMIT },
     fetchPolicy: "cache-and-network",
   });
   const [makeUnseenMsgSeen, { data: makeSeenMsgUnseenData }] = useMutation(MakeUnseenMsgSeen);
 
   const { socketMessages }: any = useWebSocket()
+
+  const HandleCurrentDate = (createdAt: any) => {
+    const currentDate = new Date(createdAt ? createdAt : Date.now()).toLocaleString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    })
+    return currentDate
+  }
+
+  const formatChatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    const isToday = date.toDateString() === today.toDateString();
+    const isYesterday = date.toDateString() === yesterday.toDateString();
+
+    if (isToday) return "Today";
+    if (isYesterday) return "Yesterday";
+
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const groupMessagesByDate = (msgs: any[]) => {
+    // Group messages by date
+    const grouped = msgs.reduce((groups: any, message: any) => {
+      const dateKey = new Date(message.createdAt).toDateString();
+      if (!groups[dateKey]) groups[dateKey] = [];
+      groups[dateKey].push(message);
+      return groups;
+    }, {});
+
+    // Sort messages *inside each date group* by createdAt ascending
+    Object.keys(grouped).forEach((date) => {
+      grouped[date].sort(
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      );
+    });
+
+    return grouped;
+
+  };
 
   // On first load
   useEffect(() => {
@@ -86,14 +143,6 @@ export default function MessageDisplay() {
     }
   };
 
-  const HandleCurrentDate = (createdAt: any) => {
-    const currentDate = new Date(createdAt ? createdAt : Date.now()).toLocaleString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    })
-    return currentDate
-  }
 
   useEffect(() => {
     if (chatsDetails.channelId == '')
@@ -116,7 +165,7 @@ export default function MessageDisplay() {
 
   useEffect(() => {
     if (newMessage.length == 0) return
-    
+
     if (newMessage.length > 0) {
       const currentChannel = newMessage.find((message: any) => message.channelId === chatsDetails.channelId) || null;
       const currentChannelIndex = newMessage.findIndex((message: any) => message.channelId === chatsDetails.channelId);
@@ -133,8 +182,8 @@ export default function MessageDisplay() {
         }));
 
         setMessages(prev => {
-        // Combine new and old messages
-          const combined = [...newMessages.slice().reverse(), ...prev, ];
+          // Combine new and old messages
+          const combined = [...newMessages.slice().reverse, ...prev,];
 
           // Remove duplicates by ID
           const unique = Array.from(new Map(combined.map(m => [m.id, m])).values());
@@ -154,6 +203,8 @@ export default function MessageDisplay() {
     }
   }, [newMessage]);
 
+  const groupedMessages = groupMessagesByDate(messages);
+
   return (
     <div className="flex h-[calc(100vh-20%)] p-6 bg-[#efeae2]">
       {/* Messages */}
@@ -167,77 +218,96 @@ export default function MessageDisplay() {
             Loading messages…
           </div>
         )}
-        {messages.map((message) => (
-          <div key={message.id} className="relative z-10 p-4">
-            <div className={`flex mb-4 ${message.sender ? 'justify-start': 'justify-end'}`}>
-              {message.messageType === 'text' &&
-                <div className={`border rounded-br-2xl rounded-tl-xl rounded-tr-2xl p-3 max-w-md shadow-sm ${message.sender ? 'bg-white ': 'bg-green-600 text-white'}`}>
-                  <div className="whitespace-pre-wrap">{message.textMessage}</div>
-                  {message.textMessage && (
-                    <div className={`text-xs mt-1 text-right ${message.sender ? 'text-gray-400': 'text-green-100'}`}>
-                      {HandleCurrentDate(message.createdAt)}
+
+        {Object.keys(groupedMessages).map((date) => (
+          <div key={date}>
+            <div className="text-center my-4">
+              <span className="bg-[#d9fdd3] text-gray-700 text-sm px-3 py-1 rounded-full shadow-sm">
+                {formatChatDate(date)}
+              </span>
+            </div>
+
+            {groupedMessages[date].map((message: any) => (
+              <div key={message.id} className="relative z-10 p-4">
+                <div className={`flex mb-4 ${message.sender ? 'justify-start' : 'justify-end'}`}>
+
+                  {message.messageType === 'text' && (
+                    <div className={`border rounded-br-2xl rounded-tl-xl rounded-tr-2xl p-3 max-w-md shadow-sm ${message.sender ? 'bg-white ' : 'bg-green-600 text-white'}`}>
+                      <div className="whitespace-pre-wrap">{message.textMessage}</div>
+                      {message.textMessage && (
+                        <div className={`flex justify-between items-center text-xs mt-1 text-right ${message.sender ? 'text-gray-400' : 'text-green-100'}`}>
+                          {HandleCurrentDate(message.createdAt)}
+                          <TickMark unseen={message.unseen} />
+                        </div>
+                      )}
+
+                    </div>
+                  )}
+
+                  {message.messageType === 'document' && message.attachment && (
+                    <div className="bg-blue-500/30 rounded p-4 max-w-[70%] md:max-w-[40%]">
+                      <div className="flex items-center gap-4">
+                        <div>{`${message.attachment.originalname}`}</div>
+                        <a
+                          href={`${VITE_BACKEND_URL}/files/${message.attachmentUrl}`}
+                          download={message.attachment.originalname}
+                          className="p-2 bg-blue-300 hover:bg-blue-400 cursor-pointer rounded"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <FiDownload />
+                        </a>
+                      </div>
+                      <div className={`text-xs mt-2 flex justify-between items-center ${message.sender ? 'text-gray-500' : 'text-green-100'}`}>
+                        {HandleCurrentDate(message.createdAt)}
+                        <TickMark unseen={message.unseen} />
+                      </div>
+                    </div>
+                  )}
+
+                  {message.messageType === 'image' && message.attachment && (
+                    <div className={`p-2 rounded-lg flex flex-col gap-1 max-w-[70%] md:max-w-[40%] ${message.sender ? 'bg-white ' : 'bg-green-600 text-white'}`}>
+                      <img
+                        src={`${VITE_BACKEND_URL}/files/${message.attachmentUrl}`}
+                        alt="Media content"
+                        className="object-contain border-none rounded-lg"
+                      />
+                      <div className="break-words">{message.textMessage}</div>
+                      <div className={`text-xs mt-1 flex justify-between items-center ${message.sender ? 'text-gray-500' : 'text-green-100'}`}>
+                        {HandleCurrentDate(message.createdAt)}
+                        <TickMark unseen={message.unseen} />
+                      </div>
+                    </div>
+                  )}
+
+                  {message.messageType === 'video' && message.attachment && (
+                    <div className={`flex flex-col p-2 rounded-lg gap-1 max-w-[70%] md:max-w-[40%] ${message.sender ? 'bg-white ' : 'bg-green-600 text-white'}`}>
+                      <video
+                        controls
+                        className="max-h-[300px] object-contain rounded"
+                        src={`${VITE_BACKEND_URL}/files/${message.attachmentUrl}`}
+                      ></video>
+                      <div className="break-words">{message.textMessage}</div>
+                      <div className={`text-xs mt-1 flex justify-between items-center ${message.sender ? 'text-gray-500' : 'text-green-100'}`}>
+                        {HandleCurrentDate(message.createdAt)}
+                        <TickMark unseen={message.unseen} />
+                      </div>
+                    </div>
+                  )}
+
+                  {message.messageType === 'audio' && message.attachment && (
+                    <div className={`flex flex-col p-2 rounded-lg gap-1 max-w-[70%] md:max-w-[40%] ${message.sender ? 'bg-white ' : 'bg-green-600 text-white'}`}>
+                      <audio controls src={`${VITE_BACKEND_URL}/files/${message.attachmentUrl}`}></audio>
+                      <div className="break-words">{message.textMessage}</div>
+                      <div className={`text-xs mt-1 flex justify-between items-center ${message.sender ? 'text-gray-500' : 'text-green-100'}`}>
+                        {HandleCurrentDate(message.createdAt)}
+                        <TickMark unseen={message.unseen} />
+                      </div>
                     </div>
                   )}
                 </div>
-              }
-              {message.messageType === 'document' && message.attachment &&
-                <div className="bg-blue-500/30 rounded p-4 max-w-[70%] md:max-w-[40%]">
-                  <div className="flex items-center gap-4">
-                    <div>{`${message.attachment.originalname}`}</div>
-                    <a
-                      href={`${VITE_BACKEND_URL}/files/${message.attachmentUrl}`}
-                      download={message.attachment.originalname}
-                      className="p-2 bg-blue-300 hover:bg-blue-400 cursor-pointer rounded"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <FiDownload />
-                    </a>
-                  </div>
-                  <div className={`text-xs flex ${message.sender ? 'text-gray-500': 'text-green-100'}`}>
-                    {HandleCurrentDate(message.createdAt)}
-                  </div>
-                </div>
-              }
-              {message.messageType === 'image' && message.attachment &&
-                <div className={`p-2 rounded-lg flex flex-col gap-1 max-w-[70%] md:max-w-[40%] ${message.sender ? 'bg-white ': 'bg-green-600 text-white'}`} >
-                  <img
-                    src={`${VITE_BACKEND_URL}/files/${message.attachmentUrl}`}
-                    alt="Media content"
-                    className="object-contain border-none"
-                  />
-                  <div className="break-words">{message.textMessage}</div>
-                  <div className={`text-xs flex ${message.sender ? 'text-gray-500': 'text-green-100'}`}>
-                    {HandleCurrentDate(message.createdAt)}
-                  </div>
-                </div>
-              }
-              {message.messageType === 'video' && message.attachment &&
-                <div className={`flex flex-col p-2 rounded-lg gap-1 max-w-[70%] md:max-w-[40%] ${message.sender ? 'bg-white ': 'bg-green-600 text-white'}`}>
-                  <video
-                    controls
-                    className="max-h-[300px] object-contain rounded"
-                    src={`${VITE_BACKEND_URL}/files/${message.attachmentUrl}`}
-                  ></video>
-                  <div className="break-words">{message.textMessage}</div>
-                  <div className={`text-xs flex ${message.sender ? 'text-gray-500': 'text-green-100'}`}>
-                    {HandleCurrentDate(message.createdAt)}
-                  </div>
-                </div>
-              }
-              {message.messageType === 'audio' && message.attachment &&
-                <div className={`flex flex-col p-2 rounded-lg gap-1 max-w-[70%] md:max-w-[40%] ${message.sender ? 'bg-white ': 'bg-green-600 text-white'}`}>
-                  <audio 
-                    controls
-                    src={`${VITE_BACKEND_URL}/files/${message.attachmentUrl}`}
-                    ></audio>
-                  <div className="break-words">{message.textMessage}</div>
-                  <div className={`text-xs flex ${message.sender ? 'text-gray-500': 'text-green-100'}`}>
-                    {HandleCurrentDate(message.createdAt)}
-                  </div>
-                </div>
-              }
-            </div>
+              </div>
+            ))}
           </div>
         ))}
       </div>
