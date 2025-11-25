@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { ChatsContext } from "@components/Context/ChatsContext";
 import { VITE_WEBSOCKET_URL } from '@src/config';
-
+import { useSocket } from "@src/modules/socket/contexts/SocketContext";
 
 interface Message {
   sender: string,
@@ -14,7 +14,8 @@ interface Message {
 }
 
 export async function useWebSocket() {
-  const [socket, setSocket] = useState<Socket | null>(null);
+  // const [socketVal, setSocketVal] = useState<Socket | null>(null);
+  const { socket } = useSocket();
   const { newMessage, setNewMessage, setIsNewChannelCreated }: any = useContext(ChatsContext)
 
   const [newUnseenMessage, setNewUnseenMessage] = useState<Message[]>(
@@ -25,18 +26,7 @@ export async function useWebSocket() {
   }, [newUnseenMessage])
 
   useEffect(() => {
-    const socketIo = io(VITE_WEBSOCKET_URL, {
-      transports: ["websocket"],
-      reconnection: true,
-    });
-
-    socketIo.on("connect", () => {
-    });
-
-    socketIo.on("joined", (data) => {
-    });
-
-    socketIo.on("message", (messageData) => {
+    socket.on("message", (messageData) => {
       try {
         const newMsg = JSON.parse(messageData);
         setIsNewChannelCreated(newMsg.newChannelCreated)
@@ -91,16 +81,8 @@ export async function useWebSocket() {
 
     });
 
-    socketIo.on("error", (data) => {
-      console.error("Error:", data);
-    });
-
-    socketIo.on("disconnect", () => {
-    });
-
-    setSocket(socketIo);
     return () => {
-      socketIo.disconnect();
+      socket.off("message");
     };
   }, []);
 

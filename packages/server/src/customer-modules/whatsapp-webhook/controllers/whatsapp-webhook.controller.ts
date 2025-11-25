@@ -49,7 +49,6 @@ export class WhatsAppWebhookController {
     for(const entry of data['entry']) {
       var businessAccountId = entry['id']
       var waAccount = await this.waAccountService.findInstantsByAccounID(businessAccountId)
-
       if (!this.whatsAppWebhookService.checkSignature(req, waAccount)){
         throw new ForbiddenException('Access to this resource is denied.');
       }
@@ -65,7 +64,7 @@ export class WhatsAppWebhookController {
           if (waAccount){
             // # Process Messages and Status webhooks
             if (changes['field'] == 'messages'){
-              this.whatsAppWebhookService.processMessages(req, waAccount, value)
+              await this.whatsAppWebhookService.processMessages(req, waAccount, value)
             }
           }
           else{
