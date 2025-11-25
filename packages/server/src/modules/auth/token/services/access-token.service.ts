@@ -51,7 +51,7 @@ export class AccessTokenService {
     'type' | 'workspaceMemberId' | 'userWorkspaceId' | 'sub'
   >): Promise<AuthToken> {
     const ACCESS_TOKEN_EXPIRES_IN = this.configService.get('ACCESS_TOKEN_EXPIRES_IN')
-    const expiresIn = ACCESS_TOKEN_EXPIRES_IN !== undefined ? ACCESS_TOKEN_EXPIRES_IN : '1m';
+    const expiresIn = ACCESS_TOKEN_EXPIRES_IN !== undefined ? ACCESS_TOKEN_EXPIRES_IN : '30m';
 
     const expiresInMs = ms(expiresIn);
 

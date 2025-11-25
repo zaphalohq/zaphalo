@@ -41,7 +41,6 @@ export class SendMessageInput {
 
   @Field(() => String)
   whatsappAccountId: string;
-
 }
 
 @ObjectType()

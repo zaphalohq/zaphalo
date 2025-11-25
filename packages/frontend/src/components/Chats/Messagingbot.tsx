@@ -96,6 +96,9 @@ const MessageArea = () => {
 
   const SubmitMsg = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if(!cookieStorage.getItem('waid')){
+      toast.warning("Please select whatsapp account!")
+    }
     const variablesAttachments = attachments.map((attachment) => {
       return {
         attachmentId: attachment.attachmentId,
@@ -105,12 +108,12 @@ const MessageArea = () => {
 
     const variables = {
       sendMessageInput: {
-        whatsappAccountId: cookieStorage.getItem('waid'),
         receiverId: chatsDetails.receiverId,
         textMessage: currentMsg,
         channelName: chatsDetails.channelName,
         channelId: chatsDetails.channelId || '',
-        attachments: variablesAttachments
+        attachments: variablesAttachments,
+        whatsappAccountId: cookieStorage.getItem('waid'),
       },
     };
 
