@@ -15,7 +15,7 @@ import {
 } from '@src/generated/graphql';
 import { ChatsContext } from '@components/Context/ChatsContext';
 import { Post, Delete } from '@src/modules/domain-manager/hooks/axios';
-import { getWhatsappMessageType } from './functions/getWhatsappMessageType';
+import { getWhatsappMessageType } from '@src/modules/chat/utils/getWhatsappMessageType';
 import { toast } from 'react-toastify';
 import { isDefined } from '@src/utils/validation/isDefined';
 import { useUploadAttachmentFile } from '@src/modules/chat/hooks/useUploadAttachmentFile';
