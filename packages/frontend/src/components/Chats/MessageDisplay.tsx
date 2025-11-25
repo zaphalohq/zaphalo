@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, useContext } from "react";
 import { ChannelMessage, MakeUnseenMsgSeen } from "@src/generated/graphql";
 import { ChatsContext } from "@components/Context/ChatsContext"
 import { VITE_BACKEND_URL } from '@src/config';
-import { useWebSocket } from "./Websocket_hooks/WebSocket";
+import { useWebSocket } from "@src/modules/chat/hooks/useWebSocket";
 import { FiDownload } from 'react-icons/fi';
 import { FaCheckDouble, FaCircle } from "react-icons/fa";
 
