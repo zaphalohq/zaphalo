@@ -57,7 +57,7 @@ export class WhatsAppWebhookService {
       console.log(`Invalid signature header ${signature}`)
       return false
     }
-    if (!businessAccount.appSecret){
+    if (!businessAccount.waWebhookToken){
       console.log('App-secret is missing, can not check signature')
       return false
     }
@@ -65,7 +65,7 @@ export class WhatsAppWebhookService {
     const expectedHash =
     "sha256=" +
     crypto
-      .createHmac("sha256", businessAccount.appSecret)
+      .createHmac("sha256", businessAccount.waWebhookToken)
       .update(JSON.stringify(req.body))
       .digest("hex");
 
@@ -106,7 +106,6 @@ export class WhatsAppWebhookService {
       if (!channel){
         channel = await this.channelService.findActiveChannelOrCreate(sender_mobile, sender_name, true)
       }
-
       let kwargs = {
           'message_type': 'whatsapp_message',
           'parent_msg_id': parentMsgId,
@@ -188,7 +187,7 @@ export class WhatsAppWebhookService {
         kwargs.body,
         channel.id,
         message_type,
-        '',
+        waAccount.id,
         true,
         kwargs['attachment'],
         messages['id'],

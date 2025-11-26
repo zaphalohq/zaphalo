@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ChatsSide from "@components/Chats/Sidebar";
 import ChatsMain from "@components/Chats/ChatLayout";
-import UpdateChannelName from "@components/Chats/UpdateChannelName";
+import UpdateChannelName from "@src/modules/chat/components/UpdateChannelName";
 import { ChatsContext, ChatsProvider } from "@components/Context/ChatsContext";
 
 

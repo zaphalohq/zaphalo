@@ -17,7 +17,7 @@ const connectionFactory = {
 
     if (isGraphQL && !workspace) {
       workspace = request?.req?.workspace.id
-    }else if(request.params?.workspace !== undefined){
+    }else if(request?.params?.workspace !== undefined){
       workspace = request.params.workspace
     }
     if (workspace) {

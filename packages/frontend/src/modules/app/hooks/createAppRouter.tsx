@@ -26,6 +26,7 @@ import AppOverlay from "@src/modules/loader/AppOverlay";
 import GetCurrentUserWrapper from '@src/modules/loader/GetCurrentUserWrapper';
 import { ApolloProvider } from '@src/modules/apollo/components/ApolloProvider';
 import { ApolloCoreProvider } from '@src/modules/apollo/components/ApolloCoreProvider';
+import { SocketProvider } from '@src/modules/socket/components/SocketProvider';
 
 // Whatsapp
 import WhatsappTemplate from '@src/pages/whatsapp/Template';
@@ -39,9 +40,11 @@ export const AppRouterProviders = () => {
       <SystemConfigProviderEffect/>
       <SystemConfigProvider>
         <ApolloCoreProvider>
-          <GetCurrentUserWrapper />
-          <PageTitle title={pageTitle} />
-          <Outlet />
+          <SocketProvider>
+            <GetCurrentUserWrapper />
+            <PageTitle title={pageTitle} />
+            <Outlet />
+          </SocketProvider>
         </ApolloCoreProvider>
       </SystemConfigProvider>
       {/*<AppOverlay/>*/}

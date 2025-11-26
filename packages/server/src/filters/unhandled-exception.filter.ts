@@ -13,7 +13,6 @@ export class UnhandledExceptionFilter implements ExceptionFilter {
   catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-
     if (!response.header || response.headersSent) {
       return;
     }
