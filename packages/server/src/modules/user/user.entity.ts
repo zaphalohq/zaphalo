@@ -52,9 +52,6 @@ export class User {
   })
   appTokens: Relation<AppToken[]>;
 
-  @Column({ type: 'enum', enum: Role, default: Role.USER })
-  role: Role;
-
   @Field(() => [WorkspaceMember], { nullable: true })
   @OneToMany(() => WorkspaceMember, (userWorkspace) => userWorkspace.user, { nullable: true })
   workspaceMembers: Relation<WorkspaceMember[]>;
