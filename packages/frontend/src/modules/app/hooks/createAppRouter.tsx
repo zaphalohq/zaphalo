@@ -29,6 +29,7 @@ import { ApolloCoreProvider } from '@src/modules/apollo/components/ApolloCorePro
 
 // Whatsapp
 import WhatsappTemplate from '@src/pages/whatsapp/Template';
+import AdminProtectedRoute from '@src/modules/auth/hooks/AdminProtectedRoute';
 
 
 export const AppRouterProviders = () => {
@@ -62,13 +63,15 @@ const routes = createRoutesFromElements(
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="chats" element={<Chats />} />
-        <Route path="whatsapp-account" element={<WhatsAppAccount />} />
         <Route path="contacts" element={<Contacts />} />    
         <Route path="template" element={<WhatsappTemplate />} />
         <Route path="mailinglist" element={<MailingList />} />
         <Route path="broadcast" element={<Broadcast />} />
         <Route path="loading" element={<LoadingPage />} />
-        <Route path="settings" element={<WorkspaceAdmin />} />
+        <Route element={<AdminProtectedRoute/>}>
+          <Route path="settings" element={<WorkspaceAdmin />} />
+          <Route path="whatsapp-account" element={<WhatsAppAccount />} />
+        </Route>
       </Route>
     </Route >
   </Route>
