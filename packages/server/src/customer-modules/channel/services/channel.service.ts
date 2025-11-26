@@ -16,7 +16,10 @@ import { WaMessageService } from "src/customer-modules/whatsapp/services/whatsap
 import { WebSocketService } from 'src/customer-modules/channel/chat-socket';
 import { FileService } from "src/modules/file/services/file.service";
 import { MessageEdge } from "src/customer-modules/channel/dtos/message-response.dto";
-
+import {
+  WhatsAppException,
+  WhatsAppExceptionCode,
+} from 'src/customer-modules/whatsapp/whatsapp.exception';
 
 @Injectable()
 export class ChannelService {
@@ -99,7 +102,10 @@ export class ChannelService {
 
     const waAccount = await this.waAccountService.findInstantsByInstantsId(waAccountId)
     if (!waAccount){
-      throw new Error('Whatsapp account not found');
+      throw new WhatsAppException(
+        'Whatsapp account not found',
+        WhatsAppExceptionCode.WA_ACCOUNT_INVALID,
+      );
     }
     const senderId = Number(waAccount?.phoneNumberId)
 
@@ -126,7 +132,6 @@ export class ChannelService {
     if (sender){
       this.webSocketService.sendMessageToChannel(channel, sender?.phoneNo, messageBody, false);
     }
-
     for (const receiver of receivers) {
       const whatsappMessageVal = {
           body: textMessage,

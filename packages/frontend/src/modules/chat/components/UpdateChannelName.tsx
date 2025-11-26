@@ -7,7 +7,7 @@ import SubmitButton from '@components/UI/SubmitButton'
 import { GetContactByChannelId, updateChannelNameById } from '@src/generated/graphql'
 import { ChatsContext } from '@components/Context/ChatsContext'
 import ContactForm from '@src/modules/contact/components/ContactForm'
-import CreateUpdateContactDialog from './CreateUpdateContactDialog'
+import CreateUpdateContactDialog from '@components/Chats/CreateUpdateContactDialog'
 
 const UpdateChannelName = () => {
   const { isUpdateChannelName, setIsUpdateChannelName }: any = useContext(ChatsContext)
@@ -48,5 +48,4 @@ const UpdateChannelName = () => {
   )
 
 }
-
 export default UpdateChannelName

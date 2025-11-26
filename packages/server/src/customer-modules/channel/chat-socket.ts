@@ -3,15 +3,21 @@ import {
   OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
-  WebSocketServer
+  WebSocketServer,
+  MessageBody
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
 export const WEBSOCKET_PORT =
   process.env.WEBSOCKET_PORT || 4000
 
-
-@WebSocketGateway(Number(WEBSOCKET_PORT) || undefined, { namespace: '/chat', cors: { origin: '*' } })
+@WebSocketGateway(Number(WEBSOCKET_PORT) || undefined, {
+  namespace: '/chat',
+  cors: {
+    origin: '*'
+  },
+  transports: ['websocket', 'polling'],
+})
 export class WebSocketService implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server : Server
@@ -20,6 +26,11 @@ export class WebSocketService implements OnGatewayConnection, OnGatewayDisconnec
 
   handleConnection(client: Socket, ...args: any[]) {
     this.userCount += 1;
+  }
+
+  @SubscribeMessage('ping')
+  ping(@MessageBody() data: any) {
+    return { ok: true };
   }
 
   @SubscribeMessage("message")

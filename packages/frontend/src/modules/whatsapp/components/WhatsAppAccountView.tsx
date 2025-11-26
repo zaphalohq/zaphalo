@@ -215,7 +215,7 @@ const WhatsAppAccountView = ({ onCreate, setwaAccount, setisFormVisible }) => {
               Webhook
             </h2>
             <p className="text-sm text-gray-600 mb-2">
-              Webhook: <strong>Url</strong>
+              <strong>URL</strong>
             </p>
             <div className="w-full flex rounded-2xl mb-2">
               <input
@@ -233,7 +233,7 @@ const WhatsAppAccountView = ({ onCreate, setwaAccount, setisFormVisible }) => {
               </button>
             </div>
             <p className="text-sm text-gray-600 mb-2">
-              Webhook: <strong>Token</strong>
+              <strong>Token</strong>
             </p>
             <div className="w-full flex rounded-2xl mb-2">
               <input

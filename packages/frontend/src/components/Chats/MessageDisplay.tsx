@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, useContext } from "react";
 import { ChannelMessage, MakeUnseenMsgSeen } from "@src/generated/graphql";
 import { ChatsContext } from "@components/Context/ChatsContext"
 import { VITE_BACKEND_URL } from '@src/config';
-import { useWebSocket } from "./Websocket_hooks/WebSocket";
+import { useWebSocket } from "@src/modules/chat/hooks/useWebSocket";
 import { FiDownload } from 'react-icons/fi';
 import { FaCheckDouble, FaCircle } from "react-icons/fa";
 
@@ -183,17 +183,13 @@ export default function MessageDisplay() {
 
         setMessages(prev => {
           // Combine new and old messages
-          const combined = [...newMessages.slice().reverse, ...prev,];
+          const combined = [...newMessages.slice().reverse(), ...prev,];
 
           // Remove duplicates by ID
           const unique = Array.from(new Map(combined.map(m => [m.id, m])).values());
 
           return unique;
         });
-        // setMessages((prev) => [...newMessages, ...prev]);
-        // newMessage.splice(currentChannelIndex, 1);
-        // setMessages(newMessage)
-
         if (currentChannel.messagesId) {
           makeUnseenMsgSeen({
             variables: { messageId: currentChannel?.messagesId || '' },

@@ -8,14 +8,19 @@ const connectionFactory = {
   provide: CONNECTION,
   scope: Scope.REQUEST,
   useFactory: (request: any) => {
-    let { workspace } = request.req;
-    const isGraphQL = request?.hasOwnProperty('req') && request?.req?.body?.hasOwnProperty('operationName');
-    if (isGraphQL && !workspace) {
-      workspace = request?.req?.workspace
-    } 
+    let workspace;
+    if(request?.hasOwnProperty('req')){
+       workspace = request.req.workspace.id;
+    }
+    const isGraphQL = request?.hasOwnProperty('req') && request?.req?.body?.hasOwnProperty('operationName')
 
+    if (isGraphQL && !workspace) {
+      workspace = request?.req?.workspace.id
+    }else if(request?.params?.workspace !== undefined){
+      workspace = request.params.workspace
+    }
     if (workspace) {
-      return getWorkspaceConnection(workspace.id);
+      return getWorkspaceConnection(workspace);
     }
     return null;
   },

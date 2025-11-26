@@ -58,7 +58,7 @@ export class WaMessageService {
       whatsAppMessageCreatedEvent.messageId = newWaMessage.id
 
       this.eventEmitter.emit('whatsapp.message.created', whatsAppMessageCreatedEvent)
-    }else{
+    }else if (!whatsappMessageVal.msgUid){
       await this.sendWhatsappMessage(waMessage.id)
     }
     return waMessage
