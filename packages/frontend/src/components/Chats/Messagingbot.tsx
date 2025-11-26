@@ -40,7 +40,11 @@ const MessageArea = () => {
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
-    if (isDefined(e.target.files)) onUploadFile?.(e.target.files[0]);
+    if (isDefined(e.target.files)) {
+      for(let i=0; i<=e.target.files.length;i++){
+        onUploadFile(e.target.files[i])
+      }
+    }
   };
 
   const onUploadFile = async (file: File) => {
