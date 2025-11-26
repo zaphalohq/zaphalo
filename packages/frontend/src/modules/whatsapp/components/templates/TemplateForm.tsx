@@ -527,9 +527,11 @@ export default function TemplateForm({ onBack, recordId, readOnly = false }) {
 
               {/* Users */}
               <TabsContent value="users" className="space-y-4">
-                <Button className="" onClick={() => insertVariable()}>
-                  Insert {`{{1}}`}
-                </Button>
+                <div class="flex justify-end">
+                  <Button className="" onClick={() => insertVariable()}>
+                    Add Variable
+                  </Button>
+                </div>
                 <Textarea
                   id="bodyText"
                   placeholder="Hello {{1}}, thank you for joining!"

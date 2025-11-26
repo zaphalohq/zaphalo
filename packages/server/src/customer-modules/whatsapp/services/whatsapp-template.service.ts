@@ -497,7 +497,10 @@ export class WaTemplateService {
       }
       buttons.push(buttonData)
     }
-    return {'type': 'BUTTONS', 'buttons': buttons}
+    if(buttons.length>0)
+      return {'type': 'BUTTONS', 'buttons': buttons}
+    return false
+
   }
 
   getTemplateFooterComponent(waTemplateId){
@@ -555,7 +558,6 @@ export class WaTemplateService {
     if (footer){
       components.push(footer)
     }
-
     const jsonData = JSON.stringify({
       'name': slugify(waTemplate.templateName),
       'language': waTemplate.language,
@@ -687,7 +689,6 @@ export class WaTemplateService {
     let data;
     try{
       data = await waAPI.getTemplateData(templateFind.template.waTemplateId)
-      console.log("....................data...........", data)
     }
     catch (error){
       console.log(error)
