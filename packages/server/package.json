@@ -20,12 +20,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "command:prod": "node dist/src/command/command",
     "database:init:prod": "yarn ts-node ./scripts/setup-db.ts && yarn database:migrate:run",
-    "database:migrate:workspace:generate": "nx run server:typeorm migration:generate src/database/typeorm/workspace/migrations/new -d src/database/typeorm/workspace/workspace.datasource.ts",
-    "database:migrate:workspace:run": "nx run server:typeorm migration:run -d src/database/typeorm/workspace/workspace.datasource.ts",
-    "database:migrate:generate": "nx run server:typeorm migration:generate src/database/typeorm/core/migrations/new -d src/database/typeorm/core/core.datasource.ts",
-    "database:migrate:run": "nx run server:typeorm migration:run -d src/database/typeorm/core/core.datasource.ts",
-    "typeorm": "../../node_modules/typeorm/cli.js",
-    "database:migrate:revert": "nx run server:typeorm migration:revert -d src/database/typeorm/core/core.datasource.ts"
+    "database:migrate:prod": "yarn -y typeorm migration:run -d dist/database/typeorm/core/core.datasource",
+    "typeorm": "../../node_modules/typeorm/.bin/typeorm"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
