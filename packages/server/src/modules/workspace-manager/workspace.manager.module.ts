@@ -9,7 +9,6 @@ const connectionFactory = {
   scope: Scope.REQUEST,
   useFactory: (request: any) => {
     let workspace;
-    // console.log('..........request......', request)
     if(request?.hasOwnProperty('req')){
        workspace = request.req?.workspace?.id || request.req?.workspaceId;
     }
