@@ -154,6 +154,4 @@ export default TemplateVariables
 const DYNAMIC_OPTIONS = [
   { label: "Name", value: "name" },
   { label: "Phone Number", value: "number" },
-  { label: "Email", value: "email" },
-  { label: "City", value: "city" },
 ];

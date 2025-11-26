@@ -123,8 +123,12 @@ const WhatsAppAccountForm = ({ onBack, waAccountId }) => {
                     waAccountId: id,
                 }
             })
-            if (response.data) {
-                                toast.success("Sync Successfull")
+            console.log(response.data.syncWhatsAppAccountTemplates)
+            if (response.data.syncWhatsAppAccountTemplates.status===true) {
+                toast.success("Sync Successfull")
+            }
+            else{
+                toast.error(response.data.syncWhatsAppAccountTemplates.message)
             }
         } catch (err) {
             toast.error(`${err}`);
@@ -163,7 +167,7 @@ const WhatsAppAccountForm = ({ onBack, waAccountId }) => {
                             required={true}
                             type="text"
                             value={formData.name}
-                            placeholder="enter account name"
+                            placeholder="Enter Account Name"
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         />
 
@@ -172,7 +176,7 @@ const WhatsAppAccountForm = ({ onBack, waAccountId }) => {
                             required={true}
                             type="text"
                             value={formData.appId}
-                            placeholder="enter app id"
+                            placeholder="Enter App Id"
                             onChange={(e) => setFormData({ ...formData, appId: e.target.value })}
                         />
 
@@ -181,7 +185,7 @@ const WhatsAppAccountForm = ({ onBack, waAccountId }) => {
                             required={true}
                             type="password"
                             value={formData.appSecret}
-                            placeholder="enter app secret"
+                            placeholder="Enter App Secret"
                             onChange={(e) => setFormData({ ...formData, appSecret: e.target.value })}
                         />
 
@@ -190,7 +194,7 @@ const WhatsAppAccountForm = ({ onBack, waAccountId }) => {
                             required={true}
                             type="text"
                             value={formData.phoneNumberId}
-                            placeholder="enter phone id"
+                            placeholder="Enter Phone Id"
                             onChange={(e) => setFormData({ ...formData, phoneNumberId: e.target.value })}
                         />
 
@@ -199,7 +203,7 @@ const WhatsAppAccountForm = ({ onBack, waAccountId }) => {
                             required={true}
                             type="text"
                             value={formData.businessAccountId}
-                            placeholder="enter bussiness account id"
+                            placeholder="Enter Bussiness Account Id"
                             onChange={(e) => setFormData({ ...formData, businessAccountId: e.target.value })}
                         />
 
@@ -208,7 +212,7 @@ const WhatsAppAccountForm = ({ onBack, waAccountId }) => {
                             required={true}
                             type="password"
                             value={formData.accessToken}
-                            placeholder="enter access token"
+                            placeholder="Enter Access Token"
                             onChange={(e) => setFormData({ ...formData, accessToken: e.target.value })}
                         />
                         <div className="flex justify-between">
