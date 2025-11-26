@@ -8,6 +8,7 @@ import { WorkspaceManagerModule } from 'src/modules/workspace-manager/workspace.
 import { Workspace } from 'src/modules/workspace/workspace.entity';
 import { WhatsAppTemplateSyncCronCommand } from 'src/customer-modules/whatsapp/crons/commands/whatsapp-template-sync.command';
 import { BroadcastSendCronCommand } from 'src/customer-modules/broadcast/crons/commands/broadcast-send-cron.command';
+import { CronRegisterAllCommand } from 'src/database/commands/cron-register-all.command';
 
 
 @Module({
@@ -20,6 +21,7 @@ import { BroadcastSendCronCommand } from 'src/customer-modules/broadcast/crons/c
     UpgradeCommand,
     WhatsAppTemplateSyncCronCommand,
     BroadcastSendCronCommand,
+    CronRegisterAllCommand,
   ],
 })
 
