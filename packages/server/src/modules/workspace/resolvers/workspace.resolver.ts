@@ -19,6 +19,7 @@ import { AuthWorkspace } from 'src/decorators/auth-workspace.decorator';
 import { WorkspaceMember } from 'src/modules/workspace/workspaceMember.entity';
 import { User } from 'src/modules/user/user.entity';
 import { DomainManagerService } from 'src/modules/domain-manager/services/domain-manager.service';
+import { RolesGuard } from "src/modules/auth/guards/roles.guard";
 
 
 @Resolver(() => Workspace)
@@ -84,7 +85,7 @@ export class workspaceResolver {
 
   @Roles(Role.ADMIN)
   @Query(() => Workspace)
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard,RolesGuard)
   async getWorkspaceMember(
     @AuthUser() { id: userId }: User,
     @AuthWorkspace() workspace: Workspace,

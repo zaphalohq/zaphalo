@@ -6,6 +6,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { User } from 'src/modules/user/user.entity';
 import { UserService } from 'src/modules/user/user.service';
 import { Workspace } from 'src/modules/workspace/workspace.entity';
+import { WorkspaceMember } from 'src/modules/workspace/workspaceMember.entity';
 
 
 @Injectable()
@@ -15,6 +16,8 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy, 'jwt') {
       private readonly workspaceRepository: Repository<Workspace>,
       @InjectRepository(User, 'core')
       private readonly userRepository: Repository<User>,
+      @InjectRepository(WorkspaceMember,'core')
+      private readonly workspaceMemberRepository: Repository<WorkspaceMember>,
     ){
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -49,12 +52,21 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy, 'jwt') {
       throw new Error('User not found');
     }
 
+    let userWorkspace;
+    userWorkspace= await this.workspaceMemberRepository.findOneBy({
+      id:payload['workspaceMemberId']
+    })
+
+    if(!userWorkspace){
+      throw new Error("User don't have Workspace")
+    }
+
     return {
       user,
       workspace,
       authProvider: payload.authProvider,
       workspaceMembers: user.workspaceMembers,
-      // userWorkspace,
+      userWorkspace: userWorkspace,
       // userWorkspaceId: userWorkspace.id,
       workspaceMemberId: payload.workspaceMemberId,
     };

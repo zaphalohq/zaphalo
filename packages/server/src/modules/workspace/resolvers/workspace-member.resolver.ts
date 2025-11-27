@@ -40,6 +40,7 @@ export class workspaceMemberResolver {
     const workspaceMember = await this.workspaceMemberRepository.findOne({
       where: {
         userId,
+        workspaceId:workspace.id
       },
       relations: ['user'],
     });
