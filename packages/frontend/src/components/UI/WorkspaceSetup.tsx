@@ -3,10 +3,12 @@ import { useRecoilState } from 'recoil';
 import { Upload, Settings, Briefcase } from 'lucide-react';
 import SubmitButton from './SubmitButton';
 import { useMutation } from '@apollo/client';
-import { UpdateWorkspaceDetails, CreateOneAttachmentDoc } from '@src/generated/graphql';
+import { UpdateWorkspaceDetails, CreateOneAttachmentDoc, useUploadFileMutation, FileFolder } from '@src/generated/graphql';
 import { currentUserWorkspaceState } from '@src/modules/auth/states/currentUserWorkspaceState';
 import { Post } from '@src/modules/domain-manager/hooks/axios';
 import { toast } from 'react-toastify';
+import { useApolloCoreClient } from '@src/modules/apollo/hooks/useApolloCoreClient';
+import { isDefined } from '@src/utils/validation/isDefined';
 
 const WorkspaceSetup = () => {
     const [currentUserWorkspace] = useRecoilState(currentUserWorkspaceState);
@@ -15,6 +17,10 @@ const WorkspaceSetup = () => {
     const [createOneAttachment] = useMutation(CreateOneAttachmentDoc);
     const [fileError, setFileError] = useState("")
     const [file, setFile] = useState<File | null>(null);
+
+    const coreClient = useApolloCoreClient();
+    const [uploadFile] = useUploadFileMutation({ client: coreClient });
+    const [uploadedImgPath, setUploadedImgPath] = useState<string | null>(null);
 
     const HandleUploadImg = async (event: any) => {
         const file = event.target.files[0]
@@ -26,6 +32,21 @@ const WorkspaceSetup = () => {
             }
             setFileError('');
             setFile(file)
+
+            const result = await uploadFile({
+                variables: {
+                    file,
+                    fileFolder: FileFolder.WorkspaceLogo,
+                },
+            });
+            const signedFile = result?.data?.uploadFile;
+                 
+            if (!isDefined(signedFile)) {
+                setFileError('failed to upload Workspace-logo');
+            }
+            else{
+                setUploadedImgPath(signedFile.path)
+            }
         }
     }
 
@@ -37,30 +58,12 @@ const WorkspaceSetup = () => {
         try {
             const formData = new FormData();
             if (file !== null && currentUserWorkspace?.id) {
-                formData.append('file', file);
-                formData.append('fileFolder', 'workspace-logo');
-                const response = await Post(
-                    `/upload`,
-                    formData,
-                    { headers: { 'Content-Type': 'multipart/form-data' } }
-                );
-                if (response.data && response.data.file && currentUserWorkspace?.id) {
-                    const attachment = await createOneAttachment({
-                        variables: {
-                            name: response.data.file.filename,
-                            originalname: response.data.file.originalname,
-                            mimetype: response.data.file.mimetype,
-                            size: response.data.file.size,
-                            path: response.data.file.path,
-                            createdAt: "",
-                            updatedAt: "",
-                        }
-                    })
+                if(uploadedImgPath){
                     const workspace = await WorkspaceDetails({
                         variables: {
                             workspaceId: currentUserWorkspace?.id,
                             workspaceName,
-                            profileImg: response.data.file.filename,
+                            profileImg:uploadedImgPath
                         }
                     })
                 }

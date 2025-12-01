@@ -21,6 +21,9 @@ export class RolesGuard implements CanActivate {
     const userRole=ctx.getContext().req.userWorkspace.role
     
     const hasRequiredRoles = requiredRoles.some((role) => userRole === role);
+    if(!hasRequiredRoles){
+      throw new Error("You don't have permison to access this")
+    }
     return hasRequiredRoles;
   }
 }

@@ -83,7 +83,7 @@ const InviteUserButton = ({
           </div>
           <div>
             <Label>Role</Label>
-            <Select value={inviteRole} onValueChange={(v) => setRole(v as Role)}>
+            <Select value={inviteRole} onValueChange={(v) => setInviteRole(v as Role)}>
               <SelectTrigger><SelectValue placeholder="Select role"/></SelectTrigger>
               <SelectContent>
                 <SelectItem value="admin">Admin</SelectItem>
@@ -93,7 +93,7 @@ const InviteUserButton = ({
           </div>
           <div>
             <Label>Message (optional)</Label>
-            <Textarea placeholder="Add a note…" value={inviteNote} onChange={(e) => setNote(e.target.value)} />
+            <Textarea placeholder="Add a note…" value={inviteNote} onChange={(e) => setInviteNote(e.target.value)} />
           </div>
         </div>
         <DialogFooter>

@@ -5,6 +5,7 @@ import { Workspace } from "./workspace.entity";
 import { WorkspaceMember } from "./workspaceMember.entity";
 import { WorkspaceService } from "./workspace.service";
 import { User } from "src/modules/user/user.entity";
+import { Role } from "src/enums/role.enum";
 
 @Injectable()
 export class WorkspaceMemberService {
@@ -25,13 +26,20 @@ export class WorkspaceMemberService {
     });
   }
 
-  async create(userId: string, workspaceId: string): Promise<WorkspaceMember> {
+  async create(userId: string, workspaceId: string, role?: Role): Promise<WorkspaceMember> {
     const user = userId;
     const workspace = this.workspaceService.findWorkspaceById(workspaceId);
-    const userWorkspace = this.workspaceMemberRepository.create({
+
+    const createData: Partial<WorkspaceMember> = {
       userId,
       workspaceId,
-    });
+    };
+  
+    if (role !== undefined) {
+      createData.role = role;
+    }
+
+    const userWorkspace = this.workspaceMemberRepository.create(createData);
     return this.workspaceMemberRepository.save(userWorkspace);
   }
 
@@ -45,9 +53,8 @@ export class WorkspaceMemberService {
     );
 
     if (!userWorkspace) {
-      userWorkspace = await this.create(user.id, workspace.id);
+      userWorkspace = await this.create(user.id, workspace.id, Role.USER);
     }
   }
-
 
 }

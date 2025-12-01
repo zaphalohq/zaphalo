@@ -10,6 +10,7 @@ import { Role } from 'src/enums/role.enum';
 import { AuthUser } from 'src/decorators/auth-user.decorator';
 import { AuthWorkspace } from 'src/decorators/auth-workspace.decorator';
 import { WorkspaceMember } from 'src/modules/workspace/workspaceMember.entity';
+import { RolesGuard } from "src/modules/auth/guards/roles.guard";
 
 
 @UseGuards(GqlAuthGuard)
@@ -20,8 +21,8 @@ export class workspaceMemberResolver {
     private workspaceMemberRepository: Repository<WorkspaceMember>,
   ) { }
 
-  // @Roles(Role.USER)
-  // @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  @UseGuards(RolesGuard)
   @Mutation(() => WorkspaceMember)
   async updateUserRole(
     @AuthWorkspace() workspace: WorkspaceMember,
