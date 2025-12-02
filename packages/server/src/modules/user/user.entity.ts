@@ -13,6 +13,7 @@ import { Role } from 'src/enums/role.enum';
 import { WorkspaceMember } from 'src/modules/workspace/workspaceMember.entity';
 import { Workspace } from 'src/modules/workspace/workspace.entity';
 import { AppToken } from 'src/modules/app-token/app-token.entity';
+import { FcmToken } from '../fcm-token/entity/fcm-token.entity';
 
 
 @Entity({ name: 'user', schema: 'core' })
@@ -51,6 +52,9 @@ export class User {
     cascade: true
   })
   appTokens: Relation<AppToken[]>;
+
+  @OneToMany(() => FcmToken, (fcmToken) => fcmToken.user)
+  fcmTokens: FcmToken[];
 
   @Field(() => [WorkspaceMember], { nullable: true })
   @OneToMany(() => WorkspaceMember, (userWorkspace) => userWorkspace.user, { nullable: true })

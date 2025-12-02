@@ -23,6 +23,7 @@ import { WorkspaceInvitation } from "src/modules/workspace/workspaceInvitation.e
 import { GoogleAuthController } from 'src/modules/auth/controllers/google.auth.controller';
 import { TokenModule } from 'src/modules/auth/token/token.module';
 import { JwtModule } from 'src/modules/jwt/jwt.module';
+import { FcmTokenModule } from '../fcm-token/fcm-token.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { JwtModule } from 'src/modules/jwt/jwt.module';
         WorkspaceModule,
         PassportModule,
         EmailModule,
+        FcmTokenModule,
         NestJwtModule.register({
           secret: 'secretKey',
           signOptions: { expiresIn: '7d' },

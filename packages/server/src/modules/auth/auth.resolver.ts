@@ -12,6 +12,7 @@ import { LoginTokenService } from 'src/modules/auth/token/services/login-token.s
 import { RenewTokenService } from 'src/modules/auth/token/services/renew-token.service';
 import { WorkspaceTokenService } from 'src/modules/auth/token/services/workspace-token.service';
 import { CheckUserExistOutput } from './dto/user-exists.dto';
+import { FcmTokenService } from '../fcm-token/fcm-token.service';
 
 
 @Resolver()
@@ -24,6 +25,7 @@ export class AuthResolver {
     private loginTokenService: LoginTokenService,
     private renewTokenService: RenewTokenService,
     private workspaceTokenService: WorkspaceTokenService,
+    private fcmTokenService: FcmTokenService,
   ) { }
 
   // @UseGuards(CaptchaGuard, PublicEndpointGuard, NoPermissionGuard)
@@ -42,6 +44,7 @@ export class AuthResolver {
       email,
       password,
       workspaceInviteToken,
+      fcmToken,
     } = authInput;
     let existingUser;
     existingUser = await this.authService.validateUser(email, password);
@@ -74,6 +77,11 @@ export class AuthResolver {
     if (!workspace){
       throw new Error("User workspace does not setup.");
     }
+
+    if (fcmToken) {
+      await this.fcmTokenService.createFcmToken(fcmToken, existingUser);
+    }
+
     const loginToken = await this.loginTokenService.generateLoginToken(
       existingUser.email,
       workspace.id,
