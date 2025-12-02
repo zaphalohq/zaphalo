@@ -12,13 +12,13 @@ export class FcmTokenService {
     ) { }
 
     async createFcmToken(token: string, user: User) {
-        let existing = await this.fcmTokenRepo.findOne({ where: { userId: user.id } });
+        let existing = await this.fcmTokenRepo.findOne({ where: { token: token } });
 
         if (existing) {
             existing.token = token;
             return await this.fcmTokenRepo.save(existing);
         }
-        
+
         return await this.fcmTokenRepo.save(
             this.fcmTokenRepo.create({ token, user, userId: user.id })
         );
