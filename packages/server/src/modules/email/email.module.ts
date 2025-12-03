@@ -5,11 +5,14 @@ import { ConfigService } from '@nestjs/config';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
 import { DomainManagerModule } from 'src/modules/domain-manager/domain-manager.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Global()
 @Module({
   imports: [
     MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: async (config: ConfigService) => ({
         transport: {
           host: config.get('EMAIL_SMTP_HOST'),
@@ -31,7 +34,6 @@ import { DomainManagerModule } from 'src/modules/domain-manager/domain-manager.m
           },
         },
       }),
-      inject: [ConfigService],
     }),
     DomainManagerModule,
   ],
