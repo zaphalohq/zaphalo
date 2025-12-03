@@ -40,7 +40,6 @@ export class BroadcastSendJob {
   }
 
   async sendBroadcast(workspace: Workspace) {
-    console.log('..........brodcast send')
     const workspaceCon = await getWorkspaceConnection(workspace.id);
     const broadcastRepo = workspaceCon.getRepository(Broadcast);
     const now = new Date();
