@@ -61,6 +61,16 @@
         "command": "nx typeorm -- migration:generate src/database/typeorm/core/migrations/{args.migrationName} -d src/database/typeorm/core/core.datasource.ts"
       }
     },
+    "database:migrate:workspace": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "cwd": "packages/server",
+        "commands": [
+          "nx typeorm -- migration:run -d src/database/typeorm/workspace/workspace.datasource",
+        ]
+      }
+    },
     "database:migrate:generate:workspace": {
       "executor": "nx:run-commands",
       "options": {

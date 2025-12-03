@@ -2,13 +2,10 @@ import { UseGuards } from "@nestjs/common";
 import { Args, Context, Mutation, Query, Resolver, Parent, ResolveField } from "@nestjs/graphql";
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-
-
 import { Workspace } from "src/modules/workspace/workspace.entity";
 import { WorkspaceService } from "src/modules/workspace/workspace.service";
 import { WorkspaceResponceDTO } from "src/modules/workspace/dto/WorkspaceResponceDTO";
 import { WorkspaceUpdateInputDto } from "src/modules/workspace/dto/WorkspaceUpdateInputDto";
-import { WorkspaceDashboardOutput } from "src/modules/workspace/dto/WorkspaceDashboardOutput";
 import { GqlAuthGuard } from "src/modules/auth/guards/gql-auth.guard";
 import { FileService } from "src/modules/file/services/file.service";
 import { FileStorageService } from "src/modules/file-storage/file-storage.service";
@@ -19,6 +16,7 @@ import { AuthWorkspace } from 'src/decorators/auth-workspace.decorator';
 import { WorkspaceMember } from 'src/modules/workspace/workspaceMember.entity';
 import { User } from 'src/modules/user/user.entity';
 import { DomainManagerService } from 'src/modules/domain-manager/services/domain-manager.service';
+import { RolesGuard } from "src/modules/auth/guards/roles.guard";
 
 
 @Resolver(() => Workspace)
@@ -42,11 +40,6 @@ export class workspaceResolver {
     return this.workspaceService.generateInvitationLink(workspaceId, userId);
   }
   
-  @Query(() => WorkspaceDashboardOutput)
-  async findWorkspaceByIdForDash(@Args('workspaceId') workspaceId : string) {
-    // return this.workspaceService.findWorkspaceByIdForDash(workspaceId)
-  }
-
   @Mutation(() => WorkspaceResponceDTO)
   @UseGuards(GqlAuthGuard)
   async updateWorkspaceDetails(
@@ -84,7 +77,7 @@ export class workspaceResolver {
 
   @Roles(Role.ADMIN)
   @Query(() => Workspace)
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard,RolesGuard)
   async getWorkspaceMember(
     @AuthUser() { id: userId }: User,
     @AuthWorkspace() workspace: Workspace,

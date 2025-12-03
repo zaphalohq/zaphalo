@@ -129,6 +129,9 @@ export const UserQueryFragmentFragmentDoc = gql`
         name
       }
     }
+    currentUserWorkspace {
+      role
+    }
   }`;
 
 export const GetCurrentUserDocument = gql`

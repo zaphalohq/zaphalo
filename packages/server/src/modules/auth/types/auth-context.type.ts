@@ -1,6 +1,7 @@
 import { User } from 'src/modules/user/user.entity';
 import { Workspace } from 'src/modules/workspace/workspace.entity';
 import { AuthProviderEnum } from 'src/modules/workspace/types/workspace.type';
+import { WorkspaceMember } from 'src/modules/workspace/workspaceMember.entity';
 
 export enum JwtTokenTypeEnum {
   ACCESS = 'ACCESS',
@@ -56,4 +57,5 @@ export type AuthContext = {
   workspaceMemberId?: string;
   workspace?: Workspace;
   authProvider?: AuthProviderEnum;
+  userWorkspace?: WorkspaceMember
 };

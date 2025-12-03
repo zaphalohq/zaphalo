@@ -41,6 +41,7 @@ export class MiddlewareService {
     request.workspace = data.workspace;
     request.workspaceMemberId = data.workspaceMemberId;
     request.authProvider = data.authProvider;
+    request.userWorkspace=data.userWorkspace;
   }
 
   public async hydrateGraphqlRequest(request: Request) {

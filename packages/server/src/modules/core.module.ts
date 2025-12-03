@@ -15,6 +15,7 @@ import { QueueManagerModuleFactory } from 'src/modules/message-queue/message-que
 import { WorkspaceInvitationModule } from 'src/modules/workspace-invitation/workspace-invitation.module';
 import { ExceptionHandlerModule } from 'src/modules/exception-handler/exception-handler.module';
 import { exceptionHandlerModuleFactory } from 'src/modules/exception-handler/exception-handler.module-factory';
+import { FcmTokenModule } from './fcm-token/fcm-token.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { exceptionHandlerModuleFactory } from 'src/modules/exception-handler/exc
       useFactory: exceptionHandlerModuleFactory,
       inject: [ConfigService, HttpAdapterHost],
     }),
+    FcmTokenModule,
   ],
   exports: [
     UserModule,

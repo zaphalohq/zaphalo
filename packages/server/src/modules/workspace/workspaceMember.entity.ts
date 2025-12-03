@@ -43,7 +43,7 @@ export class WorkspaceMember {
   workspaceId: string;
 
   @Field(() => String)
-  @Column({ type: 'enum', enum: Role, default: Role.USER })
+  @Column({ type: 'enum', enum: Role, default: Role.ADMIN })
   role: Role;
 
   @Field(() => Boolean)
