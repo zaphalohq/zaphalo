@@ -10,28 +10,31 @@
     "allowSyntheticDefaultImports": true,
     "allowUnreachableCode": false,
     "esModuleInterop": true,
-    "target": "ES2023",
+    "target": "es2018",
     "sourceMap": true,
     "inlineSources": true,
     "outDir": "./dist",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
+    "alwaysStrict": false,
     "noImplicitAny": false,
-    "alwaysStrict": true,
     "strictBindCallApply": false,
-    "forceConsistentCasingInFileNames": true,
+    "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "resolveJsonModule": true,
     "types": ["jest", "node"],
     "paths": {
       "src/*": ["./src/*"],
-    },
-    "esModuleInterop": true,
+      "test/*": ["./test/*"]
+    }
   },
   "ts-node": {
     "files": true,
     "require": ["tsconfig-paths/register"]
   },
-  "exclude": ["dist"]
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
