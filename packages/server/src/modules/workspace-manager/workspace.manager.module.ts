@@ -18,6 +18,8 @@ const connectionFactory = {
       workspace = request?.req?.workspace.id
     }else if(request?.params?.workspace !== undefined){
       workspace = request.params.workspace
+    }else if(!workspace){
+      workspace=request.workspaceId
     }
     if (workspace) {
       return getWorkspaceConnection(workspace);

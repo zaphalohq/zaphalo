@@ -18,7 +18,7 @@ export class ContactsService {
         this.contactsRepository = connection.getRepository(Contacts);
     }
 
-    async findOneContact(senderId) {
+    async findOneContact(senderId): Promise<Contacts | null>{
         return await this.contactsRepository.findOne({ where: { phoneNo: senderId } })
     }
 

@@ -21,6 +21,10 @@ export class FcmToken {
   @Field(() => String) 
   userId: string;
 
+  @Column()
+  @Field(()=>String)
+  workspaceId: string;
+
   @CreateDateColumn()
   @Field(() => Date) 
   createdAt: Date;

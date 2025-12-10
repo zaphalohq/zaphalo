@@ -11,7 +11,7 @@ export class FcmTokenService {
         private fcmTokenRepo: Repository<FcmToken>,
     ) { }
 
-    async createFcmToken(token: string, user: User) {
+    async createFcmToken(token: string, user: User, workspaceId: string) {
         let existing = await this.fcmTokenRepo.findOne({ where: { token: token } });
 
         if (existing) {
@@ -20,7 +20,7 @@ export class FcmTokenService {
         }
 
         return await this.fcmTokenRepo.save(
-            this.fcmTokenRepo.create({ token, user, userId: user.id })
+            this.fcmTokenRepo.create({ token, user, userId: user.id, workspaceId })
         );
     }
 }

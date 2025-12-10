@@ -67,13 +67,13 @@ const routes = createRoutesFromElements(
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="chats" element={<Chats />} />
         <Route path="contacts" element={<Contacts />} />    
-        <Route path="template" element={<WhatsappTemplate />} />
         <Route path="mailinglist" element={<MailingList />} />
         <Route path="broadcast" element={<Broadcast />} />
         <Route path="loading" element={<LoadingPage />} />
         <Route element={<AdminProtectedRoute/>}>
           <Route path="settings" element={<WorkspaceAdmin />} />
           <Route path="whatsapp-account" element={<WhatsAppAccount />} />
+          <Route path="template" element={<WhatsappTemplate />} />
         </Route>
       </Route>
     </Route >

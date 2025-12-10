@@ -79,7 +79,7 @@ export class AuthResolver {
     }
 
     if (fcmToken) {
-      await this.fcmTokenService.createFcmToken(fcmToken, existingUser);
+      await this.fcmTokenService.createFcmToken(fcmToken, existingUser, workspace.id);
     }
 
     const loginToken = await this.loginTokenService.generateLoginToken(
