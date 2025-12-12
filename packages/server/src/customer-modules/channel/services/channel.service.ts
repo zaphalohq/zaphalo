@@ -136,6 +136,8 @@ export class ChannelService {
         channelId: channel.id.toString(),
         messageId: message.id.toString(),
         type: messageType.toString(),
+        channelName: channel.channelName.toString(),
+        textMessage: textMessage.toString()
       };
       const notificationBody =
         messageType === 'text'

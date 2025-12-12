@@ -3,7 +3,10 @@ import React, {
   useContext,
   useEffect,
   useState,
-  ChangeEvent} from 'react';
+  ChangeEvent,
+  useRef,
+  KeyboardEvent
+} from 'react';
 import { FiPaperclip } from 'react-icons/fi';
 import { RiSendPlaneFill } from "react-icons/ri";
 import { useMutation } from '@apollo/client';
@@ -26,6 +29,7 @@ const MessageArea = () => {
   const [createOneAttachment] = useMutation(CreateOneAttachmentDoc);
   const [deleteOneAttachment] = useMutation(DeleteOneAttachment);
   const { uploadAttachmentFile } = useUploadAttachmentFile();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const [sendMessage] = useMutation(SEND_MESSAGE);
   const [currentMsg, setCurrentMsg] = useState('');
@@ -41,7 +45,7 @@ const MessageArea = () => {
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     if (isDefined(e.target.files)) {
-      for(let i=0; i<=e.target.files.length;i++){
+      for (let i = 0; i <= e.target.files.length; i++) {
         onUploadFile(e.target.files[i])
       }
     }
@@ -100,7 +104,11 @@ const MessageArea = () => {
 
   const SubmitMsg = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if(!cookieStorage.getItem('waid')){
+
+    if (!currentMsg.trim() && attachments.length === 0) {
+      return;
+    }
+    if (!cookieStorage.getItem('waid')) {
       toast.warning("Please select whatsapp account!")
     }
     const variablesAttachments = attachments.map((attachment) => {
@@ -124,6 +132,11 @@ const MessageArea = () => {
     setCurrentMsg('');
     setAttachments([]);
     setIsFileUploaded(false);
+    
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+    }
+
     try {
       const response = await sendMessage({ variables });
       setMyCurrentMessage(response.data.sendMessage)
@@ -132,13 +145,32 @@ const MessageArea = () => {
     }
   };
 
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      const scrollHeight = textareaRef.current.scrollHeight;
+      const maxHeight = 200;
+      textareaRef.current.style.height = `${Math.min(scrollHeight, maxHeight)}px`;
+    }
+  }, [currentMsg]);
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      const form = e.currentTarget.form;
+      if (form) {
+        form.requestSubmit();
+      }
+    }
+  };
+
   return (
-    <div>
+    <div className='absolute bottom-0 w-full z-30'>
       <div className="mx-auto flex items-end gap-3">
         <div className="flex-1">
           {chatsDetails.channelId ?
             <form className='bg-white mx-6 mb-6 rounded-2xl' onSubmit={SubmitMsg}>
-              <div className="flex items-center justify-between p-6 px-8 relative">
+              <div className="flex items-end justify-between p-6 px-8 relative mb-2">
                 <button
                   type="button"
                   className="mt-2 px-2 py-1 rounded hover:bg-gray-100"
@@ -176,27 +208,31 @@ const MessageArea = () => {
 
                 {isFileUploaded ? (
                   <textarea
+                    ref={textareaRef}       
                     rows={1}
                     value={currentMsg}
                     onChange={(e) => setCurrentMsg(e.target.value)}
+                    onKeyDown={handleKeyDown}   
                     placeholder="Write a message..."
-                    className="w-full px-3 py-2 border rounded-md resize-none"
+                    className="w-full px-3 py-2 border rounded-md resize-none overflow-y-auto"
                   />
 
                 ) : (
                   <textarea
+                    ref={textareaRef}       
                     required
                     rows={1}
-                     value={currentMsg}
+                    value={currentMsg}
                     onChange={(e) => setCurrentMsg(e.target.value)}
+                    onKeyDown={handleKeyDown}   
                     placeholder="Write a message..."
-                    className="w-full px-3 py-2 border rounded-md resize-none"
+                    className="w-full px-3 py-2 border rounded-md resize-none overflow-y-auto"
                   />
                 )}
-                <div className="flex flex-col items-center mx-4">
+                <div className="flex flex-col items-end mx-4 mb-2">
                   <button
-                  type="submit"
-                  className="bg-green-600 text-white px-4 py-2 rounded-md hover:opacity-95">
+                    type="submit"
+                    className="bg-green-600 text-white px-4 py-2 rounded-md hover:opacity-95">
                     Send
                   </button>
                 </div>

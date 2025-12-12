@@ -32,10 +32,6 @@ export class FirebaseNotificationService {
             .messaging()
             .sendEachForMulticast(message);
 
-        response.responses.forEach((res)=>{
-            console.log(res.error)
-        })
-
         // Remove invalid tokens
         response.responses.forEach((res, idx) => {
             if (!res.success) {

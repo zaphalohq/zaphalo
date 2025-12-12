@@ -41,7 +41,7 @@ export class WaAccountResolver {
     if (!whatsAppAccountData.accountId) {
       throw Error("WhatsApp account ID not provided!")
     }
-    return await this.waAccountService.WaAccountSave(whatsAppAccountData);
+    return await this.waAccountService.WaAccountSave(req,whatsAppAccountData);
   }
   
   @UseGuards(GqlAuthGuard)
