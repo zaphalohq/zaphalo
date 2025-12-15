@@ -37,7 +37,7 @@ export class SendWhatsAppMessageJob {
         where: {id: data.messageId},
       });
 
-      // await this.waMessageService.sendWhatsappMessage(data)
+      await this.waMessageService.sendWhatsappMessage(data.messageId)
 
       this.logger.log(
         `Workspace ${data.workspaceId} whatsapp message ${data.messageId} sent to contacts`,

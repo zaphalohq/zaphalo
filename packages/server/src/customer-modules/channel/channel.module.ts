@@ -20,6 +20,7 @@ import { Message } from "src/customer-modules/channel/entities/message.entity";
 import { MessageReaction } from "src/customer-modules/channel/entities/message-reaction.entity";
 import { ChannelService } from "src/customer-modules/channel/services/channel.service";
 import { ContactUpdatedListener } from "./listner/contact.updated-listner";
+import { FirebaseModule } from "src/modules/firebase/firebase.module";
 
 @Module({
   imports: [
@@ -33,7 +34,9 @@ import { ContactUpdatedListener } from "./listner/contact.updated-listner";
         WorkspaceModule,
         JwtModule,
         AttachmentModule,
-        FileModule
+        FileModule,
+        FirebaseModule,
+        ContactsModule
       ],
     }),
     WhatsAppModule,

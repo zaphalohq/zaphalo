@@ -63,23 +63,24 @@ export class WaAccountService {
       appSecret: waAccount.appSecret,
       defaultSelected: defaultWaAccount,
     })
-    
     const waAccountSaved = await this.waAccountRepository.save(whatappInstants)
-    const waWebhookToken = this.encodeWaWebhookToken({ sub: req.user.userId, workspaceId: req.user.workspace, waAccount })
+    const waWebhookToken = this.encodeWaWebhookToken({ sub: req.user.id, workspaceId: req.workspace.id, waAccount })
     waAccountSaved.waWebhookToken = waWebhookToken
     await this.waAccountRepository.save(waAccountSaved)
-
     return waAccountSaved;
   }
 
-  async WaAccountSave(updatedInstants: WaAccountDto): Promise<WhatsAppAccount | null> {
+  async WaAccountSave(req,updatedInstants: WaAccountDto): Promise<WhatsAppAccount | null> {
     const id = updatedInstants.accountId;
     const waAccount = await this.waAccountRepository.findOne({ where: { id } });
     if (!waAccount) {
       throw new NotFoundException(`Instant with ID ${id} not found`);
     }
     Object.assign(waAccount, updatedInstants);
-    await this.waAccountRepository.save(waAccount);
+    const waAccountSaved =await this.waAccountRepository.save(waAccount);
+    const waWebhookToken = this.encodeWaWebhookToken({ sub: req.user.id, workspaceId: req.workspace.id, waAccount })
+    waAccountSaved.waWebhookToken = waWebhookToken
+    await this.waAccountRepository.save(waAccountSaved)
     return waAccount
   }
 

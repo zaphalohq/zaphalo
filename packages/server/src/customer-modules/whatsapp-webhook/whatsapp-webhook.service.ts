@@ -168,7 +168,7 @@ export class WhatsAppWebhookService {
         })
         if(whatsAppMessage){
           const emoji = messages['reaction'].emoji
-          const reaction = this.messageReactionRepository.create({
+          const reaction = await this.messageReactionRepository.create({
             content: emoji,
             channelMessage: whatsAppMessage.channelMessageId,
             contactName: "Hello",
