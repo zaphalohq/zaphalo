@@ -61,13 +61,8 @@ const AccountToggle = () => {
                 key={workspace.id}
                 onClick={async () => {
                   await handleWorkspaceChange(workspace.id)
-                  const path = window.location.pathname;
-                  const segments = path.split('/');
-                  if (segments.length > 2 && segments[1] === 'w') {
-                    segments[2] = workspace.id
-                  }
-                  navigate(segments.join('/'))
-                  window.location.reload()
+                  navigate(`/w/${workspace.id}/dashboard`, { replace: true });
+                  window.location.reload();
                 }}
                 className={`p-3 hover:bg-gray-700 cursor-pointer flex gap-3 items-center transition-colors duration-150 ${currentUserWorkspace?.id === workspace.id
                   ? 'bg-blue-900/30 text-blue-300 border-r-2 border-blue-500'

@@ -2,9 +2,12 @@
 import { Module } from '@nestjs/common';
 import { JwtModule as NestJwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { JwtWrapperService } from 'src/modules/jwt/jwt-wrapper.service';
 
 const InternalJwtModule = NestJwtModule.registerAsync({
+  imports: [ConfigModule],
+  inject: [ConfigService],
   useFactory: async (configService: ConfigService) => {
     return {
       secret: configService.get('APP_SECRET'),
@@ -13,7 +16,6 @@ const InternalJwtModule = NestJwtModule.registerAsync({
       },
     };
   },
-  inject: [ConfigService],
 });
 
 @Module({

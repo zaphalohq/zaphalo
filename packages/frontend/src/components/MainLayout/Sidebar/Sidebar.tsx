@@ -17,23 +17,34 @@ import {
   UserRoundPen,
   LayoutPanelTop
 } from 'lucide-react';
+import { currentUserState } from '@src/modules/auth/states/currentUserState'
 
 export default function Sidebar({ activeTab, setActiveTab }) {
   const [currentUserWorkspace] = useRecoilState(currentUserWorkspaceState);
+  const [currentUser] = useRecoilState(currentUserState);
   const workspaceId = currentUserWorkspace?.id;
 
   const menuItems = [
-    { name: 'Dashboard', icon: <Home size={20} />, key: 'dashboard' },
-    { name: 'Chats', icon: <MessageCircle size={20} />, key: 'chats' },
-    { name: 'Contacts', icon: <Users size={20} />, key: 'contacts' },
-    { name: 'Broadcasts', icon: <Megaphone size={20} />, key: 'Broadcast' },
-    { name: 'Contact Lists', icon: <Megaphone size={20} />, key: 'mailinglist' },
-    { name: 'Settings', icon: <Settings size={20} />, key: 'settings', subItems: [
-      { title: "General", to: `/w/${workspaceId}/settings`, Icon: <Wrench size={16}/> },
-      { title: "WhatsApp Accounts", to: `/w/${workspaceId}/whatsapp-account`, Icon: <UserRoundPen size={16}/> },
-      { title: "Templates", to: `/w/${workspaceId}/template`, Icon: <LayoutPanelTop size={16}/> }
-    ]}
-  ];
+  { name: 'Dashboard', icon: <Home size={20} />, key: 'dashboard' },
+  { name: 'Chats', icon: <MessageCircle size={20} />, key: 'chats' },
+  { name: 'Contacts', icon: <Users size={20} />, key: 'contacts' },
+  { name: 'Broadcasts', icon: <Megaphone size={20} />, key: 'Broadcast' },
+  { name: 'Contact Lists', icon: <Megaphone size={20} />, key: 'mailinglist' },
+  ...(currentUser?.currentUserWorkspace.role==="admin"
+    ? [
+        {
+          name: 'Settings',
+          icon: <Settings size={20} />,
+          key: 'settings',
+          subItems: [
+            { title: "General", to: `/w/${workspaceId}/settings`, Icon: <Wrench size={16}/> },
+            { title: "WhatsApp Accounts", to: `/w/${workspaceId}/whatsapp-account`, Icon: <UserRoundPen size={16}/> },
+            { title: "Templates", to: `/w/${workspaceId}/template`, Icon: <LayoutPanelTop size={16}/> }
+          ]
+        }
+      ]
+    : [])
+];
 
   return (
     <div className="flex flex-col bg-gray-900 text-white w-64  min-h-screen p-4">

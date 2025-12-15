@@ -8,6 +8,8 @@ export class WaWebhookGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
 
+        const urlWorkspace = request.params.workspace;
+
         const query = request.query;
 
         if (!query || !query['hub.verify_token']) {
@@ -21,6 +23,10 @@ export class WaWebhookGuard implements CanActivate {
             );
             
             if (!payload.workspaceId) {
+                return false;
+            }
+
+            if (urlWorkspace !== payload.workspaceId) {
                 return false;
             }
 

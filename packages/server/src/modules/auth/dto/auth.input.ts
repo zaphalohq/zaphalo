@@ -10,4 +10,8 @@ export class AuthInput {
 
   @Field({ nullable : true })
   workspaceInviteToken?: string;
+
+  @Field({ nullable: true })
+  fcmToken?: string;
+
 }
