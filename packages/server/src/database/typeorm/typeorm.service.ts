@@ -5,7 +5,7 @@ import { WorkspaceMember } from 'src/modules/workspace/workspaceMember.entity';
 import { DataSource, getConnectionManager, DataSourceOptions } from 'typeorm';
 import { typeORMWorkspaceModuleOptions } from 'src/database/typeorm/workspace/workspace.datasource';
 import { AppToken } from 'src/modules/app-token/app-token.entity';
-import { FcmToken } from 'src/modules/fcm-token/entity/fcm-token.entity';
+import { FcmToken } from 'src/modules/fcm-token/entities/fcm-token.entity';
 
 @Injectable()
 export class TypeORMService implements OnModuleInit, OnModuleDestroy {

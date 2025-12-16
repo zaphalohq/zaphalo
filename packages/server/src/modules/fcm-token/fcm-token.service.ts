@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FcmToken } from './entity/fcm-token.entity';
+import { FcmToken } from './entities/fcm-token.entity';
 import { Repository } from 'typeorm';
 import { User } from '../user/user.entity';
 

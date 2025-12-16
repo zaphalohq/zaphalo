@@ -16,7 +16,6 @@ import { WorkspaceInvitationModule } from 'src/modules/workspace-invitation/work
 import { ExceptionHandlerModule } from 'src/modules/exception-handler/exception-handler.module';
 import { exceptionHandlerModuleFactory } from 'src/modules/exception-handler/exception-handler.module-factory';
 import { FcmTokenModule } from './fcm-token/fcm-token.module';
-import { FirebaseModule } from './firebase/firebase.module';
 import { NotificationModule } from 'src/modules/notification/notification.module';
 
 @Module({
@@ -40,7 +39,6 @@ import { NotificationModule } from 'src/modules/notification/notification.module
       inject: [ConfigService, HttpAdapterHost],
     }),
     FcmTokenModule,
-    FirebaseModule,
     NotificationModule,
   ],
   exports: [

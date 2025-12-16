@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { FcmTokenService } from './fcm-token.service';
 import { NestjsQueryGraphQLModule } from '@ptc-org/nestjs-query-graphql';
 import { NestjsQueryTypeOrmModule } from '@ptc-org/nestjs-query-typeorm';
-import { FcmToken } from './entity/fcm-token.entity';
+import { FcmToken } from './entities/fcm-token.entity';
 import { UserModule } from '../user/user.module';
 
 @Module({
