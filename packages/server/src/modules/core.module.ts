@@ -17,6 +17,7 @@ import { ExceptionHandlerModule } from 'src/modules/exception-handler/exception-
 import { exceptionHandlerModuleFactory } from 'src/modules/exception-handler/exception-handler.module-factory';
 import { FcmTokenModule } from './fcm-token/fcm-token.module';
 import { FirebaseModule } from './firebase/firebase.module';
+import { NotificationModule } from 'src/modules/notification/notification.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { FirebaseModule } from './firebase/firebase.module';
     }),
     FcmTokenModule,
     FirebaseModule,
+    NotificationModule,
   ],
   exports: [
     UserModule,

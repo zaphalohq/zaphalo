@@ -1,0 +1,1 @@
+export const NOTIFICATION_DRIVER = Symbol('FIREBASE_DRIVER');

@@ -1,0 +1,1 @@
+export * from 'src/modules/notification/interfaces/notification.interface';
