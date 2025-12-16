@@ -95,6 +95,6 @@ export class NotificationService {
 
     const tokens = fcmTokens.map(t => t.token);
 
-    return this.sendMulticast(tokens,payload)
+    return await this.sendMulticast(tokens,payload)
   }
 } 
