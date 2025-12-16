@@ -14,10 +14,10 @@ import { NotificationService } from 'src/modules/notification/notification.servi
 
 import { NotificationDriverFactory } from 'src/modules/notification/notification.module-factory';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { FcmToken } from '../fcm-token/entities/fcm-token.entity';
-import { Workspace } from '../workspace/workspace.entity';
-import { User } from '../user/user.entity';
-import { WorkspaceMember } from '../workspace/workspaceMember.entity';
+import { FcmToken } from 'src/modules/fcm-token/entities/fcm-token.entity';
+import { Workspace } from 'src/modules/workspace/workspace.entity';
+import { User } from 'src/modules/user/user.entity';
+import { WorkspaceMember } from 'src/modules/workspace/workspaceMember.entity';
 
 @Global()
 @Module({
