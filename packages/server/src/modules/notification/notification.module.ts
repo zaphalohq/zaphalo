@@ -17,6 +17,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { FcmToken } from '../fcm-token/entities/fcm-token.entity';
 import { Workspace } from '../workspace/workspace.entity';
 import { User } from '../user/user.entity';
+import { WorkspaceMember } from '../workspace/workspaceMember.entity';
 
 @Global()
 @Module({
@@ -25,6 +26,7 @@ import { User } from '../user/user.entity';
       FcmToken,
       Workspace,
       User,
+      WorkspaceMember,
     ], 'core')],
   providers: [NotificationDriverFactory, NotificationService],
   exports: [NotificationService],

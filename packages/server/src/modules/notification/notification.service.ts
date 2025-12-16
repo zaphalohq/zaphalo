@@ -21,7 +21,7 @@ export class NotificationService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Workspace, 'core')
     private readonly workspaceRepository: Repository<Workspace>,
-    @InjectRepository(Workspace, 'core')
+    @InjectRepository(WorkspaceMember, 'core')
     private readonly workspaceMemberRepository: Repository<WorkspaceMember>,
   ) { }
 
