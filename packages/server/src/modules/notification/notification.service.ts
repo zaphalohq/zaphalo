@@ -25,7 +25,7 @@ export class NotificationService {
     private readonly workspaceMemberRepository: Repository<WorkspaceMember>,
   ) { }
 
-  async sendPush(fcmToken,payload) {
+  async sendPush(fcmToken, payload) {
     const driver = this.notificationDriverFactory.getDriver();
 
     return driver.sendPush(fcmToken, payload);
@@ -95,6 +95,6 @@ export class NotificationService {
 
     const tokens = fcmTokens.map(t => t.token);
 
-    return await this.sendMulticast(tokens,payload)
+    return await this.sendMulticast(tokens, payload)
   }
 } 
