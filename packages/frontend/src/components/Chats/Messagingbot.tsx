@@ -139,7 +139,6 @@ const MessageArea = () => {
 
     try {
       const response = await sendMessage({ variables });
-      setMyCurrentMessage(response.data.sendMessage)
     } catch (err) {
       console.error('Error sending message:', err);
     }

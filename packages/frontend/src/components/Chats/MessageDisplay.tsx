@@ -14,10 +14,10 @@ interface Message {
   createdAt: string;
 }
 
-export const TickMark = ({ unseen }: { unseen: boolean }) => {
+export const TickMark = () => {
   return (
-    <span className={`ml-1 px-2 ${unseen ? 'text-blue-700' : 'text-gray-500'}`}>
-      {unseen ? <FaCircle size={12} /> : <FaCheckDouble size={14} />}
+    <span className='ml-1 px-2 text-gray-500'>
+      <FaCheckDouble size={14} />
     </span>
   );
 };
@@ -234,7 +234,7 @@ export default function MessageDisplay() {
                       {message.textMessage && (
                         <div className={`flex justify-between items-center text-xs mt-1 text-right ${message.sender ? 'text-gray-400' : 'text-green-100'}`}>
                           {HandleCurrentDate(message.createdAt)}
-                          {!message.sender && <TickMark unseen={message.unseen} />}
+                          {!message.sender && <TickMark/>}
                         </div>
                       )}
 
@@ -257,7 +257,7 @@ export default function MessageDisplay() {
                       </div>
                       <div className={`text-xs mt-2 flex justify-between items-center ${message.sender ? 'text-gray-500' : 'text-green-100'}`}>
                         {HandleCurrentDate(message.createdAt)}
-                        {!message.sender && <TickMark unseen={message.unseen} />}
+                        {!message.sender && <TickMark/>}
                       </div>
                     </div>
                   )}
@@ -272,7 +272,7 @@ export default function MessageDisplay() {
                       <div className="break-words">{message.textMessage}</div>
                       <div className={`text-xs mt-1 flex justify-between items-center ${message.sender ? 'text-gray-500' : 'text-green-100'}`}>
                         {HandleCurrentDate(message.createdAt)}
-                        {!message.sender && <TickMark unseen={message.unseen} />}
+                        {!message.sender && <TickMark/>}
                       </div>
                     </div>
                   )}
@@ -287,7 +287,7 @@ export default function MessageDisplay() {
                       <div className="break-words">{message.textMessage}</div>
                       <div className={`text-xs mt-1 flex justify-between items-center ${message.sender ? 'text-gray-500' : 'text-green-100'}`}>
                         {HandleCurrentDate(message.createdAt)}
-                        {!message.sender && <TickMark unseen={message.unseen} />}
+                        {!message.sender && <TickMark/>}
                       </div>
                     </div>
                   )}
@@ -298,7 +298,7 @@ export default function MessageDisplay() {
                       <div className="break-words">{message.textMessage}</div>
                       <div className={`text-xs mt-1 flex justify-between items-center ${message.sender ? 'text-gray-500' : 'text-green-100'}`}>
                         {HandleCurrentDate(message.createdAt)}
-                        {!message.sender && <TickMark unseen={message.unseen} />}
+                        {!message.sender && <TickMark/>}
                       </div>
                     </div>
                   )}

@@ -360,6 +360,7 @@ export const SEND_MESSAGE = gql`
     attachment {
       originalname
     }
+    unseen
   }
 }
 `;

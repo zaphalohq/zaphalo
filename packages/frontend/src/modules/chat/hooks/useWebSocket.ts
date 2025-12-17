@@ -38,7 +38,7 @@ export function useWebSocket() {
         setNewUnseenMessage((prevMessages: any) => {
           const channelIndex = prevMessages.findIndex(
             (message: any) => message.channelId === newMsg.channelId
-            );
+          );
 
           const newMessageData = {
             id: newMsg.messages.id,
@@ -82,6 +82,15 @@ export function useWebSocket() {
       }
 
     });
+
+    socket.on("createMessage", (messageData) => {
+      try {
+        const createdMessage = JSON.parse(messageData);
+        setMyCurrentMessage(createdMessage)
+      } catch (error) {
+        console.error("Error parsing message data:", error);
+      }
+    })
 
     return () => {
       socket.off("message");
