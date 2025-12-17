@@ -18,4 +18,23 @@ export class FirebaseDriver implements NotificationDriverInterface {
 
     return getMessaging(this.app).send(message);
   }
+
+  async sendMulticast(tokens: string[], payload: any) {
+    const message = {
+      tokens,
+      notification: {
+        title: payload.title,
+        body: payload.body,
+      },
+      data: payload.data,
+    };
+
+    const response = await getMessaging(this.app).sendEachForMulticast(message);
+
+    return {
+      successCount: response.successCount,
+      failureCount: response.failureCount,
+      responses: response.responses,
+    };
+  }
 }

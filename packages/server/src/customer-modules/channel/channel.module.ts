@@ -20,7 +20,7 @@ import { Message } from "src/customer-modules/channel/entities/message.entity";
 import { MessageReaction } from "src/customer-modules/channel/entities/message-reaction.entity";
 import { ChannelService } from "src/customer-modules/channel/services/channel.service";
 import { ContactUpdatedListener } from "./listner/contact.updated-listner";
-import { FirebaseModule } from "src/modules/firebase/firebase.module";
+import { NotificationModule } from "src/modules/notification/notification.module";
 
 @Module({
   imports: [
@@ -35,8 +35,8 @@ import { FirebaseModule } from "src/modules/firebase/firebase.module";
         JwtModule,
         AttachmentModule,
         FileModule,
-        FirebaseModule,
-        ContactsModule
+        ContactsModule,
+        NotificationModule
       ],
     }),
     WhatsAppModule,
