@@ -13,10 +13,10 @@ interface Message {
   unseen: number;
 }
 
-export async function useWebSocket() {
+export function useWebSocket() {
   // const [socketVal, setSocketVal] = useState<Socket | null>(null);
   const { socket } = useSocket();
-  const { newMessage, setNewMessage, setIsNewChannelCreated }: any = useContext(ChatsContext)
+  const { newMessage, setNewMessage, setIsNewChannelCreated, setMyCurrentMessage }: any = useContext(ChatsContext)
 
   const [newUnseenMessage, setNewUnseenMessage] = useState<Message[]>(
     [])
@@ -27,6 +27,7 @@ export async function useWebSocket() {
 
   useEffect(() => {
     socket.on("message", (messageData) => {
+      console.log(messageData)
       try {
         const newMsg = JSON.parse(messageData);
         setIsNewChannelCreated(newMsg.newChannelCreated)
@@ -45,7 +46,8 @@ export async function useWebSocket() {
             textMessage: newMsg.messages.textMessage,
             messageType: newMsg.messages.messageType,
             originalname: newMsg.messages.attachmentName || "",
-            attachmentUrl: newMsg.messages?.attachmentUrl || ""
+            attachmentUrl: newMsg.messages?.attachmentUrl || "",
+            createdAt: newMsg.messages.createdAt
           };
 
           if (channelIndex !== -1) {
@@ -84,7 +86,7 @@ export async function useWebSocket() {
     return () => {
       socket.off("message");
     };
-  }, []);
+  }, [socket]);
 
   return { socket, newUnseenMessage };
 }

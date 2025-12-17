@@ -130,6 +130,7 @@ export class ChannelService {
       messageType,
       attachmentUrl: attachmentUrl,
       attachmentName: attachment ? attachment.originalname : null,
+      createdAt: message.createdAt
     }
     if (sender){
       const notificationData = {

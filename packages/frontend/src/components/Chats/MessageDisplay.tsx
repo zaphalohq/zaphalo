@@ -176,6 +176,7 @@ export default function MessageDisplay() {
           messageType: message.messageType,
           attachmentUrl: message.attachmentUrl,
           sender: message.sender,
+          createdAt: message.createdAt,
           attachment: {
             originalname: message.originalname
           },
