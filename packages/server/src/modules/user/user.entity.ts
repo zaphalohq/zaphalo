@@ -13,7 +13,7 @@ import { Role } from 'src/enums/role.enum';
 import { WorkspaceMember } from 'src/modules/workspace/workspaceMember.entity';
 import { Workspace } from 'src/modules/workspace/workspace.entity';
 import { AppToken } from 'src/modules/app-token/app-token.entity';
-import { FcmToken } from '../fcm-token/entity/fcm-token.entity';
+import { FcmToken } from 'src/modules/fcm-token/entities/fcm-token.entity';
 
 
 @Entity({ name: 'user', schema: 'core' })

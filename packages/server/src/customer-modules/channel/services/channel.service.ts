@@ -20,7 +20,7 @@ import {
   WhatsAppException,
   WhatsAppExceptionCode,
 } from 'src/customer-modules/whatsapp/whatsapp.exception';
-import { FirebaseNotificationService } from "src/modules/firebase/firebaseNotification.service";
+import { NotificationService } from "src/modules/notification/notification.service";
 
 @Injectable()
 export class ChannelService {
@@ -35,7 +35,7 @@ export class ChannelService {
     private readonly attachmentService: AttachmentService,
     private readonly webSocketService: WebSocketService,
     private fileService: FileService,
-    private readonly firebaseNotificationService: FirebaseNotificationService,
+    private readonly notificationService: NotificationService
   ) {
     this.channelRepository = connection.getRepository(Channel);
     this.messageRepository = connection.getRepository(Message);
@@ -147,7 +147,14 @@ export class ChannelService {
         : messageType === 'file'
         ? `File: ${attachment?.originalname}`
         : 'New message';
-      this.firebaseNotificationService.sendNotificationToUsersInWorkspace(workspaceId,channel.channelName,notificationBody,notificationData)
+
+       const payload = {
+        title: channel.channelName,
+        body: notificationBody,
+        data: notificationData,
+      };
+
+      this.notificationService.sendNotification(workspaceId,payload)
       this.webSocketService.sendMessageToChannel(channel, sender?.phoneNo, messageBody, false);
     }
     for (const receiver of receivers) {
