@@ -42,7 +42,6 @@ export function useWebSocket() {
         });
         
         const fetchedMsg= data.fetchMessageById
-        console.log(fetchedMsg)
 
         setIsNewChannelCreated(newMsg.newChannelCreated)
         if (!newMsg.messages) {
@@ -59,7 +58,7 @@ export function useWebSocket() {
             sender: newMsg.sender,
             textMessage: fetchedMsg.textMessage,
             messageType: fetchedMsg.messageType,
-            originalname: fetchedMsg.attachment.originalname || "",
+            originalname: fetchedMsg?.attachment?.originalname || "",
             attachmentUrl: fetchedMsg?.attachmentUrl || "",
             createdAt: fetchedMsg.createdAt
           };
