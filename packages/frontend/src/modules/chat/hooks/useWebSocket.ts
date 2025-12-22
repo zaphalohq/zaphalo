@@ -55,7 +55,7 @@ export function useWebSocket() {
 
           const newMessageData = {
             id: fetchedMsg.id,
-            sender: newMsg.sender,
+            sender: fetchedMsg?.sender.phoneNo,
             textMessage: fetchedMsg.textMessage,
             messageType: fetchedMsg.messageType,
             originalname: fetchedMsg?.attachment?.originalname || "",

@@ -1458,6 +1458,9 @@ query fetchMessageById($messageId: String!) {
       id
     }
     unseen
+    sender{
+      phoneNo
+    }
   }
 }
 `
