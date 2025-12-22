@@ -203,7 +203,7 @@ export class MessageResolver {
   async fetchMessageById(
     @Args('id') id: string,
   ): Promise<Message | null> {
-    return this.channelService.findMessageById(id);
+    return await this.channelService.findMessageById(id);
   }
 }
 
