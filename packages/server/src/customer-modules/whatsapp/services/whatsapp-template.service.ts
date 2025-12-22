@@ -278,7 +278,7 @@ export class WaTemplateService {
     return {'template': templateFind.template, 'message': 'Broadcast saved', 'status': true}
   }
 
-  async getHeaderComponent(waTemplateId, freeTextJson, templateVariablesValue, attachment){
+  async getHeaderComponent(waTemplateId, freeTextJson, templateVariablesValue, attachment, workspaceId){
     // """ Prepare header component for sending WhatsApp template message"""
     let header = {}
     const headerType = waTemplateId.headerType
@@ -293,7 +293,7 @@ export class WaTemplateService {
     if(['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerType)){
       header = {
         "type": 'header',
-        "parameters": [await this.waAccountService.prepareAttachmentVals(attachment, waTemplateId.account)]
+        "parameters": [await this.waAccountService.prepareAttachmentVals(attachment, waTemplateId.account, workspaceId)]
       }
     }
     else if(headerType == 'location'){
@@ -393,7 +393,7 @@ export class WaTemplateService {
     return components
   }
 
-  async getSendTemplateVals(waTemplateId, mobileNumber){
+  async getSendTemplateVals(waTemplateId, mobileNumber, workspaceId){
     const freeTextJson = {}
     let attachment
 
@@ -413,7 +413,7 @@ export class WaTemplateService {
 
 
     // # generate content
-    const header = await this.getHeaderComponent(waTemplateId, freeTextJson, templateVariablesValue, attachment)
+    const header = await this.getHeaderComponent(waTemplateId, freeTextJson, templateVariablesValue, attachment, workspaceId)
 
     let body = await this.getBodyComponent(waTemplateId, mobileNumber)
 
@@ -588,7 +588,7 @@ export class WaTemplateService {
     }
   }
 
-  async testTemplate(testTemplateData: WaTestTemplateInput){
+  async testTemplate(testTemplateData: WaTestTemplateInput, workspaceId){
     const template: any = await this.getTemplate(testTemplateData.dbTemplateId)
     if (!template?.template){
       throw Error("template doesn't exist")
@@ -597,7 +597,7 @@ export class WaTemplateService {
 
     const waApi = await this.waAccountService.getWhatsAppApi(template.template.account.id)
 
-    const sendVals = await this.getSendTemplateVals(template.template, testTemplateData.testPhoneNo)
+    const sendVals = await this.getSendTemplateVals(template.template, testTemplateData.testPhoneNo, workspaceId)
 
     const msgUid = await waApi.sendWhatsApp(testTemplateData.testPhoneNo, messageType, sendVals)
 

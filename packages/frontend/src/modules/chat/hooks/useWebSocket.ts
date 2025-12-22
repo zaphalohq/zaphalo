@@ -3,6 +3,8 @@ import { io, Socket } from "socket.io-client";
 import { ChatsContext } from "@components/Context/ChatsContext";
 import { VITE_WEBSOCKET_URL } from '@src/config';
 import { useSocket } from "@src/modules/socket/contexts/SocketContext";
+import { useLazyQuery } from "@apollo/client";
+import { FetchMessage } from '@src/generated/graphql'
 
 interface Message {
   sender: string,
@@ -20,16 +22,28 @@ export function useWebSocket() {
 
   const [newUnseenMessage, setNewUnseenMessage] = useState<Message[]>(
     [])
+  
+  const [ fetchMessageById ] = useLazyQuery(FetchMessage, {
+    fetchPolicy: "network-only", 
+  });
+
 
   useEffect(() => {
     setNewMessage(newUnseenMessage)
   }, [newUnseenMessage])
 
   useEffect(() => {
-    socket.on("message", (messageData) => {
-      console.log(messageData)
+    socket.on("message", async (messageData) => {
       try {
         const newMsg = JSON.parse(messageData);
+
+        const { data } = await fetchMessageById({
+          variables: { messageId: newMsg.messages.id },
+        });
+        
+        const fetchedMsg= data.fetchMessageById
+        console.log(fetchedMsg)
+
         setIsNewChannelCreated(newMsg.newChannelCreated)
         if (!newMsg.messages) {
           console.error("Message payload missing 'messages' field:", newMsg);
@@ -41,13 +55,13 @@ export function useWebSocket() {
           );
 
           const newMessageData = {
-            id: newMsg.messages.id,
+            id: fetchedMsg.id,
             sender: newMsg.sender,
-            textMessage: newMsg.messages.textMessage,
-            messageType: newMsg.messages.messageType,
-            originalname: newMsg.messages.attachmentName || "",
-            attachmentUrl: newMsg.messages?.attachmentUrl || "",
-            createdAt: newMsg.messages.createdAt
+            textMessage: fetchedMsg.textMessage,
+            messageType: fetchedMsg.messageType,
+            originalname: fetchedMsg.attachment.originalname || "",
+            attachmentUrl: fetchedMsg?.attachmentUrl || "",
+            createdAt: fetchedMsg.createdAt
           };
 
           if (channelIndex !== -1) {
@@ -83,10 +97,21 @@ export function useWebSocket() {
 
     });
 
-    socket.on("createMessage", (messageData) => {
+    socket.on("createMessage", async (messageData) => {
       try {
-        const createdMessage = JSON.parse(messageData);
-        setMyCurrentMessage(createdMessage)
+        const payload = JSON.parse(messageData);
+        const { messageId } = payload
+
+        const { data } = await fetchMessageById({
+          variables: { messageId },
+        });
+
+        const msg = data.fetchMessageById;
+
+        if(!msg) return
+
+        setMyCurrentMessage([msg]);
+
       } catch (error) {
         console.error("Error parsing message data:", error);
       }
@@ -94,6 +119,7 @@ export function useWebSocket() {
 
     return () => {
       socket.off("message");
+      socket.off("createMessage")
     };
   }, [socket]);
 

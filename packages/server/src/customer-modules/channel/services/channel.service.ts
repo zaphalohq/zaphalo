@@ -416,5 +416,12 @@ export class ChannelService {
     };
   }
 
+  async findMessageById(messageId): Promise<Message | null>{
+    return this.messageRepository.findOne({
+      where: { id:messageId},
+      relations: ['channel', 'sender', 'attachment'],
+    });
+  }
+
 
 }

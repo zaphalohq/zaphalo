@@ -99,9 +99,13 @@ export class WhatsAppTemplateResolver {
     return response
   }
 
+  @UseGuards(GqlAuthGuard)
   @Mutation(() => TestTemplateOutput)
-  async testTemplate(@Args('testTemplateData') testTemplateData: WaTestTemplateInput) {
-    return await this.templateService.testTemplate(testTemplateData)
+  async testTemplate(
+    @Args('testTemplateData') testTemplateData: WaTestTemplateInput,
+    @AuthWorkspace() workspace: Workspace,
+  ) {
+    return await this.templateService.testTemplate(testTemplateData, workspace.id)
   }
 
   @UseGuards(GqlAuthGuard)

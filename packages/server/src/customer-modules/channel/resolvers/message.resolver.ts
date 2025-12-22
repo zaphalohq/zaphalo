@@ -142,7 +142,12 @@ export class MessageResolver {
         }
       }
     }
-    await this.webSocketService.createMessageInChannel(returnMessage)
+    for (const msg of returnMessage) {
+      this.webSocketService.createMessageInChannel({
+      messageId: msg.id,
+      channelId: msg.channel?.id,
+    });
+  }
     return returnMessage
   }
 
@@ -191,6 +196,14 @@ export class MessageResolver {
     @Args('limit', { type: () => Int}) limit: number,
   ): Promise<MessageEdge> {
     return this.channelService.getMessages(channelId, cursor, limit);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => Message)
+  async fetchMessageById(
+    @Args('id') id: string,
+  ): Promise<Message | null> {
+    return this.channelService.findMessageById(id);
   }
 }
 

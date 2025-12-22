@@ -19,6 +19,8 @@ import {
   WhatsAppException,
   WhatsAppExceptionCode,
 } from 'src/customer-modules/whatsapp/whatsapp.exception';
+import { FileService } from 'src/modules/file/services/file.service';
+import { extractFolderPathAndFilename } from 'src/modules/file/utils/extract-folderpath-and-filename.utils';
 
 export const SUPPORTED_ATTACHMENT_TYPE = {
   "audio": ["audio/aac", "audio/mp4", "audio/mpeg", "audio/amr", "audio/ogg"],
@@ -43,6 +45,7 @@ export class WaAccountService {
     private readonly jwtWrapperService: JwtWrapperService,
     private readonly whatsAppApiService: WhatsAppSDKService,
     private readonly attachmentService: AttachmentService,
+    private readonly fileService: FileService,
   ) {
     this.waAccountRepository = connection.getRepository(WhatsAppAccount);
     this.templateRepository = connection.getRepository(WhatsAppTemplate);
@@ -224,7 +227,7 @@ export class WaAccountService {
     return {'waAccount': waAccountFind, 'message': 'Account found', 'status': true}
   }
 
-  async prepareAttachmentVals(attachment, waAccount){
+  async prepareAttachmentVals(attachment, waAccount, workspaceId){
     // """ Upload the attachment to WhatsApp and return prepared values to attach to the message. """
     let whatsappMediaType = ''
 
@@ -235,10 +238,14 @@ export class WaAccountService {
       }
     }
 
+    const { folderPath, filename } = extractFolderPathAndFilename(attachment.path)
+    
+    const attchmentFileStream= await this.fileService.getFileStream(folderPath, filename, workspaceId)
+
     if (!whatsappMediaType)
       throw new Error(`Attachment mimetype is not supported by WhatsApp: ${attachment.mimetype}.`)
     const waApi = await this.getWhatsAppApi(waAccount.id)
-    let whatsappMediaUid = await waApi.uploadWhatsappDocument(attachment)
+    let whatsappMediaUid = await waApi.uploadWhatsappDocument(attachment, attchmentFileStream)
 
     let vals = {
       'type': whatsappMediaType,

@@ -19,9 +19,6 @@ import { MailingListModule } from '../mailingList/mailingList.module';
   providers: [
     DashboardResolver,
     DashboardService,
-    WaMessageService,
-    ContactsService,
-    BroadcastService
   ]
 })
 export class DashboardModule {}

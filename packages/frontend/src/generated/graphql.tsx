@@ -1443,6 +1443,24 @@ mutation uploadExcel($file: Upload!, $mailingListName: String!) {
   }
 }
 `
+export const FetchMessage= gql`
+query fetchMessageById($messageId: String!) {
+  fetchMessageById(id: $messageId) {
+    id
+    textMessage
+    createdAt
+    attachmentUrl
+    messageType
+    attachment {
+      originalname
+    }
+    channel {
+      id
+    }
+    unseen
+  }
+}
+`
 
 
 export type UploadFileMutationFn = Apollo.MutationFunction<UploadFileMutation, UploadFileMutationVariables>;
