@@ -9,7 +9,7 @@ interface Props {
 }
 
 export const SocketProvider = ({ namespace = "main", children }: Props) => {
-  const [socket] = useState(() => createSocket(namespace));
+  const [socket] = useState(() => createSocket());
 
   useEffect(() => {
     console.log("🔌 Connecting socket…");

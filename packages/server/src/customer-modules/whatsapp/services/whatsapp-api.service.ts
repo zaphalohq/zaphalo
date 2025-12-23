@@ -433,7 +433,7 @@ export class WhatsAppApiService {
     return [responseData, fileResponse.data]
   }
 
-  async uploadWhatsappDocument(attachment) {
+  async uploadWhatsappDocument(attachment, attchmentFileStream) {
     // """
     //     This method is used to upload document for sending via WhatsApp
 
@@ -441,14 +441,9 @@ export class WhatsAppApiService {
     // """
     const { filename, originalname, mimetype, path, size }: any = attachment;
 
-    const filePath = join(
-      process.cwd(),
-      path
-    );
-
     const form = new FormData();
     form.append('messaging_product', 'whatsapp');
-    form.append('file', createReadStream(filePath), {
+    form.append('file', attchmentFileStream, {
       filename: originalname,
       contentType: mimetype,
     });

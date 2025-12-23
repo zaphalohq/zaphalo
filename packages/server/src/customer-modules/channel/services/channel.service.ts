@@ -130,6 +130,7 @@ export class ChannelService {
       messageType,
       attachmentUrl: attachmentUrl,
       attachmentName: attachment ? attachment.originalname : null,
+      createdAt: message.createdAt
     }
     if (sender){
       const notificationData = {
@@ -413,6 +414,13 @@ export class ChannelService {
       hasMore: slice.length === limit,
       cursor: newCursor,
     };
+  }
+
+  async findMessageById(messageId): Promise<Message | null>{
+    return await this.messageRepository.findOne({
+      where: { id:messageId},
+      relations: ['channel', 'sender', 'attachment'],
+    });
   }
 
 

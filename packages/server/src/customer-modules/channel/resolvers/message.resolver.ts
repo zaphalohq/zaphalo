@@ -24,6 +24,7 @@ import { MessageEdge } from "src/customer-modules/channel/dtos/message-response.
 import { AttachmentService } from "src/customer-modules/attachment/attachment.service";
 import { AuthWorkspace } from "src/decorators/auth-workspace.decorator";
 import { Workspace } from "src/modules/workspace/workspace.entity";
+import { WebSocketService } from 'src/customer-modules/channel/chat-socket';
 
 @Resolver(() => Message)
 export class MessageResolver {
@@ -31,6 +32,7 @@ export class MessageResolver {
     private readonly channelService: ChannelService,
     private readonly attachmentService: AttachmentService,
     private readonly waAccountService: WaAccountService,
+    private readonly webSocketService: WebSocketService,
     private fileService: FileService
   ) { }
 
@@ -140,6 +142,12 @@ export class MessageResolver {
         }
       }
     }
+    for (const msg of returnMessage) {
+      this.webSocketService.createMessageInChannel({
+      messageId: msg.id,
+      channelId: msg.channel?.id,
+    });
+  }
     return returnMessage
   }
 
@@ -188,6 +196,14 @@ export class MessageResolver {
     @Args('limit', { type: () => Int}) limit: number,
   ): Promise<MessageEdge> {
     return this.channelService.getMessages(channelId, cursor, limit);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => Message)
+  async fetchMessageById(
+    @Args('id') id: string,
+  ): Promise<Message | null> {
+    return await this.channelService.findMessageById(id);
   }
 }
 

@@ -20,6 +20,8 @@ import {
   WhatsAppException,
   WhatsAppExceptionCode,
 } from 'src/customer-modules/whatsapp/whatsapp.exception';
+import { extractFolderPathAndFilename } from "src/modules/file/utils/extract-folderpath-and-filename.utils";
+import { FileService } from 'src/modules/file/services/file.service'
 
 @Injectable()
 export class WaMessageService {
@@ -32,7 +34,8 @@ export class WaMessageService {
     @Inject(CONNECTION) connection: Connection,
     private readonly waAccountService: WaAccountService,
     private readonly waTemplateService: WaTemplateService,
-    private eventEmitter: EventEmitter2
+    private eventEmitter: EventEmitter2,
+    private readonly fileService: FileService,
   ) {
     this.waMessageRepository = connection.getRepository(WhatsAppMessage);
     this.waTemplateRepository = connection.getRepository(WhatsAppTemplate);
@@ -59,12 +62,12 @@ export class WaMessageService {
 
       this.eventEmitter.emit('whatsapp.message.created', whatsAppMessageCreatedEvent)
     }else if (!whatsappMessageVal.msgUid){
-      await this.sendWhatsappMessage(waMessage.id)
+      await this.sendWhatsappMessage(waMessage.id, workspaceId)
     }
     return waMessage
   }
 
-  async sendWhatsappMessage(messageId: string): Promise<WhatsAppMessage | null | any> {
+  async sendWhatsappMessage(messageId: string, workspaceId): Promise<WhatsAppMessage | null | any> {
     const waMessage = await this.waMessageRepository.findOne({
       where: {id: messageId},
       relations: [
@@ -108,11 +111,11 @@ export class WaMessageService {
         }
         // # generate sending values, components and attachments
         sendVals = await this.waTemplateService.getSendTemplateVals(
-          waMessage?.waTemplateId,waMessage.mobileNumber
+          waMessage?.waTemplateId, waMessage.mobileNumber, workspaceId
         )
       }
       else if (waMessage.channelMessageId.attachment){
-        let attachmentVals = await this.prepareAttachmentVals(waMessage.channelMessageId.attachment, waMessage.waAccountId)
+        let attachmentVals = await this.prepareAttachmentVals(waMessage.channelMessageId.attachment, waMessage.waAccountId, workspaceId)
         messageType = attachmentVals.type
         sendVals = attachmentVals[messageType]
         if (waMessage.body)
@@ -139,10 +142,14 @@ export class WaMessageService {
     }
   }
 
-  async prepareAttachmentVals(attachment, waAccount){
+  async prepareAttachmentVals(attachment, waAccount, workspaceId){
     // """ Upload the attachment to WhatsApp and return prepared values to attach to the message. """
 
     let whatsappMediaType = ''
+
+    const { folderPath, filename } = extractFolderPathAndFilename(attachment.path)
+
+    const attchmentFileStream= await this.fileService.getFileStream(folderPath, filename, workspaceId)
 
     for (const [key, value] of Object.entries(SUPPORTED_ATTACHMENT_TYPE)) {
       if (value.includes(attachment.mimetype)){
@@ -154,7 +161,7 @@ export class WaMessageService {
     if (!whatsappMediaType)
       throw new Error(`Attachment mimetype is not supported by WhatsApp: ${attachment.mimetype}.`)
     const waApi = await this.waAccountService.getWhatsAppApi(waAccount.id)
-    let whatsappMediaUid = await waApi.uploadWhatsappDocument(attachment)
+    let whatsappMediaUid = await waApi.uploadWhatsappDocument(attachment, attchmentFileStream)
 
     let vals = {
       'type': whatsappMediaType,

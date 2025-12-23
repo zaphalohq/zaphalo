@@ -360,6 +360,7 @@ export const SEND_MESSAGE = gql`
     attachment {
       originalname
     }
+    unseen
   }
 }
 `;
@@ -1439,6 +1440,27 @@ mutation uploadExcel($file: Upload!, $mailingListName: String!) {
   uploadExcel(file: $file, mailingListName: $mailingListName) {
     success
     message
+  }
+}
+`
+export const FetchMessage= gql`
+query fetchMessageById($messageId: String!) {
+  fetchMessageById(id: $messageId) {
+    id
+    textMessage
+    createdAt
+    attachmentUrl
+    messageType
+    attachment {
+      originalname
+    }
+    channel {
+      id
+    }
+    unseen
+    sender{
+      phoneNo
+    }
   }
 }
 `

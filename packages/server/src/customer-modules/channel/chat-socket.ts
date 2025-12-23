@@ -43,6 +43,11 @@ export class WebSocketService implements OnGatewayConnection, OnGatewayDisconnec
     this.server.emit('message', message);
   }
 
+  createMessageInChannel(payload){
+    const messagePayload=JSON.stringify(payload)
+    this.server.emit('createMessage', messagePayload)
+  }
+
   handleDisconnect(client: Socket) {
     this.userCount -= 1;
   }

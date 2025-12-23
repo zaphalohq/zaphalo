@@ -9,7 +9,9 @@ const ChannelLists = ({ searchChannel }: any) => {
   const { isNewChannelCreated,
     setIsNewChannelCreated,
     myCurrentMessage,
-    chatsDetails }: any = useContext(ChatsContext)
+    chatsDetails,
+    newMessage 
+  }: any = useContext(ChatsContext)
   const { data, refetch, loading } = useQuery(findAllChannel)
   const [allChannel, setAllChannel] = useState([{
     channelName: '',
@@ -42,20 +44,22 @@ const ChannelLists = ({ searchChannel }: any) => {
   }, [isNewChannelCreated])
 
   useEffect(() => {
-    if (!myCurrentMessage || !chatsDetails?.channelId) return;
-    const channelToMove = allChannel.find(
-      (channel) => channel.id === chatsDetails.channelId
-    );
+    // if (!myCurrentMessage || !chatsDetails?.channelId) return;
+    // const channelToMove = allChannel.find(
+    //   (channel) => channel.id === chatsDetails.channelId
+    // );
 
-    if (!channelToMove) return;
-    const reorderedChannels = [
-      channelToMove,
-      ...allChannel.filter((channel) => channel.id !== chatsDetails.channelId),
-    ];
+    // if (!channelToMove) return;
+    // const reorderedChannels = [
+    //   channelToMove,
+    //   ...allChannel.filter((channel) => channel.id !== chatsDetails.channelId),
+    // ];
 
-    setFilteredChannels(reorderedChannels.length > 0 ? reorderedChannels : allChannel);
+    // setFilteredChannels(reorderedChannels.length > 0 ? reorderedChannels : allChannel);
+    
+    FetchAllChannel()
 
-  }, [myCurrentMessage]);
+  }, [myCurrentMessage,newMessage]);
 
 
   useEffect(() => {
