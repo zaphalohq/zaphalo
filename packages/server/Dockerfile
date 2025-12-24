@@ -1,5 +1,5 @@
 # Base image for common dependencies
-FROM node:22-alpine as common-deps
+FROM node:24-alpine as common-deps
 
 WORKDIR /app
 
