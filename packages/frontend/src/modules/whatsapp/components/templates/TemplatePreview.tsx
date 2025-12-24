@@ -71,7 +71,7 @@ export const TemplatePreview = ({ templateDataPreview, attachmentDataPreview }: 
           newBodyText = newBodyText.replaceAll(variableName, matchedVariable.value);
         }
         else {
-          newBodyText = newBodyText.replaceAll(variableName, matchedVariable.sampleValue || "");
+          newBodyText = newBodyText.replaceAll(variableName, matchedVariable.sampleValue || variableName);
         }
       }
     });
@@ -117,10 +117,7 @@ export const TemplatePreview = ({ templateDataPreview, attachmentDataPreview }: 
                   />}
                 <div className="px-3 pb-1 text-sm text-gray-900">
                   <p className="mb-2 whitespace-pre-line">
-                    {Array.isArray(templatePreview?.variables) &&
-                      templatePreview.variables.some((v: any) => v.sampleValue)
-                      ? getBodyWithValues(templatePreview)
-                      : templatePreview.bodyText}
+                      {getBodyWithValues(templatePreview)}
                   </p>
                 </div>
                 <div className="px-3 pb-2 flex justify-between items-end gap-4">

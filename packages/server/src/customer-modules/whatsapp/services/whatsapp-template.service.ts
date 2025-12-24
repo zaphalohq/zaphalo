@@ -712,6 +712,7 @@ export class WaTemplateService {
       "category": templateVals["category"],
       "status": templateVals['status'],
       "quality": templateVals['quality'],
+      "buttons": templateVals['button']
     }
     if (!waTemplate.attachment && templateVals['fileHandle']){
       const newAttachment = await this.createTemplateAttachment(workspaceId, templateVals['fileHandle'])

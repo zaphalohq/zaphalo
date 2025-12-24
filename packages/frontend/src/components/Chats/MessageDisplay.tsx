@@ -203,7 +203,7 @@ export default function MessageDisplay() {
   const groupedMessages = groupMessagesByDate(messages);
 
   return (
-    <div className="flex h-[calc(100vh-20%)] p-6 bg-[#efeae2]">
+    <div className="flex h-[calc(100vh-20%)] p-6 bg-[#efeae2] scroll-smooth">
       {/* Messages */}
       <div
         ref={containerRef}
