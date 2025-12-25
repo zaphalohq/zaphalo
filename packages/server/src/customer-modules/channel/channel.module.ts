@@ -49,7 +49,7 @@ import { NotificationModule } from "src/modules/notification/notification.module
     UserService,
     ContactUpdatedListener
   ],
-  exports: [ChannelService]
+  exports: [ChannelService,WebSocketService]
 })
 
 export class ChannelModule { }

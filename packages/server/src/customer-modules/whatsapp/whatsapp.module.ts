@@ -24,12 +24,14 @@ import { MessageQueueModule } from 'src/modules/message-queue/message-queue.modu
 import { SendWhatsAppMessageJob } from './jobs/whatsapp-message.job';
 import { UpdateTemplateJob } from 'src/customer-modules/whatsapp/crons/jobs/whatsapp-template-sync.job';
 import { WhatsAppMessageCreatedListener } from './listeners/whatsapp-message-created.listener';
+import { Message } from 'src/customer-modules/channel/entities/message.entity';
+
 
 @Module({
   imports: [
     NestjsQueryGraphQLModule.forFeature({
       imports: [
-        NestjsQueryTypeOrmModule.forFeature([WhatsAppAccount, WhatsAppTemplate, WhatsAppMessage]),
+        NestjsQueryTypeOrmModule.forFeature([WhatsAppAccount, WhatsAppTemplate, WhatsAppMessage, Message]),
         TypeORMModule,
         ContactsModule,
         WorkspaceModule,

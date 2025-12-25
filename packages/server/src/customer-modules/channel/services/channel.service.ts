@@ -5,7 +5,7 @@ import fs from 'fs';
 import axios from "axios";
 
 import { Channel } from "src/customer-modules/channel/entities/channel.entity";
-import { Message } from "src/customer-modules/channel/entities/message.entity";
+import { ChannelMessageState, Message } from "src/customer-modules/channel/entities/message.entity";
 import { Contacts } from "src/customer-modules/contacts/contacts.entity";
 import { ContactsService } from "src/customer-modules/contacts/contacts.service";
 import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symbols';
@@ -423,5 +423,11 @@ export class ChannelService {
     });
   }
 
+  async updateMessageState(messageId, state: ChannelMessageState){
+    return await this.messageRepository.update(
+      { id: messageId },
+      { state: state },
+    )
+  }
 
 }
