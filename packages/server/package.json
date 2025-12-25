@@ -20,7 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "command:prod": "node dist/src/command/command",
     "database:init:prod": "yarn ts-node ./scripts/setup-db.ts && yarn database:migrate:run",
-    "database:migrate:prod": "yarn -y typeorm migration:run -d dist/database/typeorm/core/core.datasource",
+    "database:migrate:prod": "npx -y typeorm migration:run -d dist/src/database/typeorm/core/core.datasource",
     "typeorm": "../../node_modules/typeorm/.bin/typeorm"
   },
   "dependencies": {
