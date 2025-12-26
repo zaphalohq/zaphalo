@@ -40,19 +40,23 @@ export class WhatsAppTemplateResolver {
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => TemplateResponse)
-  async submitTemplate(@Args('templateId') templateId: string): Promise<TemplateResponse | undefined> {
-    return await this.templateService.submitTemplate(templateId);
+  async submitTemplate(
+    @AuthWorkspace() workspace: Workspace,
+    @Args('templateId') templateId: string): Promise<TemplateResponse | undefined> {
+    return await this.templateService.submitTemplate(templateId, workspace.id);
   }
 
   @UseGuards(GqlAuthGuard)
   @ResolveField(() => String)
-  async templateImg(@Parent() template: WhatsAppTemplate, @Context() context): Promise<string> {
-    const workspaceId = context.req.headers['x-workspace-id']
+  async templateImg(
+    @AuthWorkspace() workspace: Workspace,
+    @Parent() template: WhatsAppTemplate, 
+    @Context() context): Promise<string> {
     if (template.attachment) {
       try {
         const signPath = this.fileService.signFileUrl({
           url: template.attachment.path,
-          workspaceId: workspaceId,
+          workspaceId: workspace.id,
         });
         return signPath
       } catch (e) {

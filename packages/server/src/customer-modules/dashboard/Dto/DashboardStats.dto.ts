@@ -1,4 +1,4 @@
-import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { ObjectType, Field, Int, Float } from '@nestjs/graphql';
 import { Broadcast } from 'src/customer-modules/broadcast/entities/broadcast.entity';
 import { Contacts } from 'src/customer-modules/contacts/contacts.entity';
 
@@ -12,6 +12,9 @@ export class DashboardStatsDto {
 
   @Field(() => Int)
   failedCount: number;
+
+  @Field(()=> Float)
+  openRate: number;
 
   @Field(() => [Contacts], { nullable: true })
   contacts?: Contacts[] | null;

@@ -21,7 +21,7 @@ const Engagement = ({kpisData,engagementGraphData}) => {
                 <KpiCard title="Messages Sent" value={kpisData?.sentCount} icon={<MessageCircle size={20} />} />
                 <KpiCard title="Delivered" value={kpisData?.deliveredCount} icon={<Users size={20} />} />
                 <KpiCard title="Failed" value={kpisData?.failedCount} icon={<ChartBar size={20} />} />
-                <KpiCard title="Open Rate" value={`60%`} icon={<Send size={20} />} />
+                <KpiCard title="Open Rate" value={`${kpisData?.openRate.toFixed(2)}%`} icon={<Send size={20} />} />
             </div>
 
             <div className="bg-white p-4 rounded-md border">
