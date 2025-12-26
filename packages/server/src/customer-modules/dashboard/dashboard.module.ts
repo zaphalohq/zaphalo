@@ -8,9 +8,12 @@ import { ContactsModule } from '../contacts/contacts.module';
 import { BroadcastModule } from '../broadcast/broadcast.module';
 import { BroadcastService } from '../broadcast/services/broadcast.service';
 import { MailingListModule } from '../mailingList/mailingList.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { WhatsAppMessage } from 'src/customer-modules/whatsapp/entities/whatsapp-message.entity';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([WhatsAppMessage]),
     WhatsAppModule,
     ContactsModule,
     BroadcastModule,

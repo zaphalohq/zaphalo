@@ -188,11 +188,10 @@ export class WhatsAppApiService {
 
 
 
-  async uploadDemoDocument(attachment?: any) {
+  async uploadDemoDocument(attachmentStream, attachment?: any) {
     //API documentation https://developers.facebook.com/docs/graph-api/guides/upload
     const { filename, mimetype, path, size }: any = attachment;
-    const fileBuffer = await fs.readFile(path)
-    const fileLength = fileBuffer.length;
+    const fileLength = attachmentStream.length;
 
     // Open session
     const appId = this.waAccount.appId
@@ -228,7 +227,7 @@ export class WhatsAppApiService {
       "params": params,
       "authType": "oauth",
       "headers": { 'file_offset': '0' },
-      "data": fileBuffer
+      "data": attachmentStream
     })
 
     const uploadFileResponseJson = uploadFileResponse.data

@@ -193,7 +193,7 @@ export class WaMessageService {
     return vals
   }
 
-  async TotalMsgCount(): Promise<{ sentCount: number; deliveredCount: number; failedCount: number }> {
+  async TotalMsgCount(): Promise<{ sentCount: number; deliveredCount: number; failedCount: number; openRate: number; }> {
 
     const sentCount = await this.waMessageRepository.count({
       where: { state: In([messageStates.sent, messageStates.delivered, messageStates.read]) },
@@ -207,7 +207,16 @@ export class WaMessageService {
       where: { state: In([messageStates.error, messageStates.bounced, messageStates.cancel]) },
     });
 
-    return { sentCount, deliveredCount, failedCount };
+    const readCount = await this.waMessageRepository.count({
+      where: { state: In([messageStates.read]) },
+    });
+
+    const openRate = deliveredCount > 0
+      ? Number(((readCount / deliveredCount) * 100).toFixed(2))
+      : 0;
+
+
+    return { sentCount, deliveredCount, failedCount, openRate };
   }
 
   async getMessageBetweenDateInterval(startDate:Date, endDate:Date): Promise<WhatsAppMessage[]> {

@@ -24,6 +24,7 @@ export class DashboardService {
             sentCount: messagesCoutn.sentCount,
             deliveredCount: messagesCoutn.deliveredCount,
             failedCount: messagesCoutn.failedCount,
+            openRate : messagesCoutn.openRate,
             contacts: allContacts,
             broadcasts: allBroadcast
         };
