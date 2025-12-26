@@ -1,15 +1,16 @@
 # Base image for common dependencies
-FROM node:22-alpine as common-deps
+FROM node:24-alpine as common-deps
 
 WORKDIR /app
 
 # Copy only the necessary files for dependency resolution
-COPY ./package.json ./yarn.lock ./tsconfig.base.json ./nx.json /app/
-#COPY ./.yarn/releases /app/.yarn/releases
+COPY ./package.json ./yarn.lock ./.yarnrc.yml ./tsconfig.base.json ./nx.json /app/
+COPY ./.yarn/releases /app/.yarn/releases
 #COPY ./.yarn/patches /app/.yarn/patches
 
 COPY ./.prettierrc /app/
 COPY ./packages/server/package.json /app/packages/server/
+COPY ./packages/server/patches /app/packages/server/patches
 COPY ./packages/frontend/package.json /app/packages/frontend/
 
 # Install all dependencies

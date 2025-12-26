@@ -2,6 +2,7 @@ services:
   server:
     build:
       context: .
+      # target: frontend-build
       dockerfile: packages/server/Dockerfile
     command: ["yarn", "start:prod"]
     volumes:
@@ -15,7 +16,7 @@ services:
     environment:
       PORT: 3000
       APP_SECRET: 'asasasasa'
-      PG_DATABASE_URL: postgres://${PG_DATABASE_USER:-postgres}:${PG_DATABASE_PASSWORD:-postgres}@${PG_DATABASE_HOST:-db}:${PG_DATABASE_PORT:-5432}/yaariapi
+      PG_DATABASE_URL: postgres://${PG_DATABASE_USER:-postgres}:${PG_DATABASE_PASSWORD:-postgres}@${PG_DATABASE_HOST:-db}:${PG_DATABASE_PORT:-5432}/zaphalo
       WEBSOCKET_PORT: 4000
       FRONTEND_URL: 'http://192.168.1.246:5173'
       SERVER_URL: '192.168.1.246:3000'
