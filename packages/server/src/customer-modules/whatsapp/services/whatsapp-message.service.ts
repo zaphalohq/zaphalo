@@ -22,11 +22,13 @@ import {
 } from 'src/customer-modules/whatsapp/whatsapp.exception';
 import { extractFolderPathAndFilename } from "src/modules/file/utils/extract-folderpath-and-filename.utils";
 import { FileService } from 'src/modules/file/services/file.service'
+import { Message, ChannelMessageState } from 'src/customer-modules/channel/entities/message.entity'
 
 @Injectable()
 export class WaMessageService {
   private waMessageRepository: Repository<WhatsAppMessage>
   private waTemplateRepository: Repository<WhatsAppTemplate>
+  private channelMessageRepository: Repository<Message>
   protected readonly logger = new Logger(WaMessageService.name);
 
 
@@ -39,6 +41,7 @@ export class WaMessageService {
   ) {
     this.waMessageRepository = connection.getRepository(WhatsAppMessage);
     this.waTemplateRepository = connection.getRepository(WhatsAppTemplate);
+    this.channelMessageRepository = connection.getRepository(Message)
   }
 
 
@@ -130,13 +133,29 @@ export class WaMessageService {
       const msgUid = await waApi.sendWhatsApp(number, messageType, sendVals, parentMessageId)
       if (msgUid){
         Object.assign(waMessage, {state: messageStates['sent'], msgUid: msgUid})
+
+         if (waMessage.channelMessageId) {
+          waMessage.channelMessageId.state = ChannelMessageState.sent;
+          const res=await this.channelMessageRepository.save(waMessage.channelMessageId);
+        }
       }else{
         Object.assign(waMessage, {state: messageStates['bounced']})
+
+        if (waMessage.channelMessageId) {
+          waMessage.channelMessageId.state = ChannelMessageState.failed;
+          await this.channelMessageRepository.save(waMessage.channelMessageId);
+        }
       }
       await this.waMessageRepository.save(waMessage)
       return waMessage
     } catch (err){
       Object.assign(waMessage, {state: messageStates['error'], failureReason: err.message ? err.message : err})
+
+      if (waMessage.channelMessageId) {
+        waMessage.channelMessageId.state = ChannelMessageState.failed;
+        await this.channelMessageRepository.save(waMessage.channelMessageId);
+      }
+
       await this.waMessageRepository.save(waMessage)
       this.logger.error(`WhatsApp message send error ${err}`)
     }
@@ -177,11 +196,11 @@ export class WaMessageService {
   async TotalMsgCount(): Promise<{ sentCount: number; deliveredCount: number; failedCount: number }> {
 
     const sentCount = await this.waMessageRepository.count({
-      where: { state: In([messageStates.sent]) },
+      where: { state: In([messageStates.sent, messageStates.delivered, messageStates.read]) },
     });
 
     const deliveredCount = await this.waMessageRepository.count({
-      where: { state: In([messageStates.delivered]) },
+      where: { state: In([messageStates.delivered, messageStates.read]) },
     });
 
     const failedCount = await this.waMessageRepository.count({

@@ -64,7 +64,13 @@ export class WhatsAppWebhookController {
           if (waAccount){
             // # Process Messages and Status webhooks
             if (changes['field'] == 'messages'){
-              await this.whatsAppWebhookService.processMessages(req, waAccount, value)
+                if (value.messages) {
+                  await this.whatsAppWebhookService.processMessages(req, waAccount, value)
+                }
+
+                if (value.statuses) {
+                  await this.whatsAppWebhookService.processStatuses(req, waAccount, value.statuses)
+                }
             }
           }
           else{

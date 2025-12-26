@@ -43,9 +43,10 @@ export class DashboardService {
 
             const counts = dateMap.get(dateKey)!;
 
-            if (message.state === 'Sent') {
+            if (message.state === 'Sent' || message.state === 'Delivered' || message.state === 'Read') {
                 counts.sentCount += 1;
-            } else if (message.state === 'Delivered') {
+            }
+            if (message.state === 'Delivered' || message.state === 'Read') {
                 counts.deliveredCount += 1;
             }
 

@@ -9,7 +9,7 @@ import { dirname, join } from 'path';
 
 import { WhatsAppAccount } from 'src/customer-modules/whatsapp/entities/whatsapp-account.entity';
 import { WhatsAppTemplate } from 'src/customer-modules/whatsapp/entities/whatsapp-template.entity';
-import { WhatsAppMessage } from 'src/customer-modules/whatsapp/entities/whatsapp-message.entity';
+import { messageStates, WhatsAppMessage } from 'src/customer-modules/whatsapp/entities/whatsapp-message.entity';
 import { WaAccountDto } from 'src/customer-modules/whatsapp/dtos/whatsapp-account-update.dto';
 import { WaAccountService } from 'src/customer-modules/whatsapp/services/whatsapp-account.service';
 
@@ -22,6 +22,8 @@ import { CONNECTION } from 'src/modules/workspace-manager/workspace.manager.symb
 import { JwtWrapperService } from 'src/modules/jwt/jwt-wrapper.service';
 import { FileUploadService } from 'src/modules/file/services/file-upload.service';
 import { FileFolder } from 'src/modules/file/interfaces/file-folder.interface';
+import { ChannelMessageState, Message } from 'src/customer-modules/channel/entities/message.entity';
+import { WebSocketService } from 'src/customer-modules/channel/chat-socket';
 
 @Injectable()
 export class WhatsAppWebhookService {
@@ -30,6 +32,7 @@ export class WhatsAppWebhookService {
   private waMessageRepository: Repository<WhatsAppMessage>
   private channelRepository: Repository<Channel>
   private messageReactionRepository: Repository<MessageReaction>
+  private channelMessageRepository: Repository<Message>
 
 
   constructor(
@@ -40,12 +43,14 @@ export class WhatsAppWebhookService {
     private readonly attachmentService: AttachmentService,
     private readonly waAccountService: WaAccountService,
     private readonly channelService: ChannelService,
+    private readonly webSocketService: WebSocketService,
   ) {
     this.waAccountRepository = connection.getRepository(WhatsAppAccount);
     this.waTemplateRepository = connection.getRepository(WhatsAppTemplate);
     this.waMessageRepository = connection.getRepository(WhatsAppMessage);
     this.channelRepository = connection.getRepository(Channel);
     this.messageReactionRepository = connection.getRepository(MessageReaction);
+    this.channelMessageRepository = connection.getRepository(Message)
   }
 
   checkSignature(req, businessAccount){
@@ -71,6 +76,28 @@ export class WhatsAppWebhookService {
 
     return signature !== expectedHash;
   }
+
+  private isStateForward(
+    current: messageStates,
+    next: messageStates
+  ): boolean {
+    if (
+      current === messageStates.error ||
+      current === messageStates.bounced ||
+      current === messageStates.cancel
+    ) {
+      return false;
+    }
+    const order = [
+      messageStates.outgoing,
+      messageStates.sent,
+      messageStates.delivered,
+      messageStates.read,
+    ];
+
+    return order.indexOf(next) >= order.indexOf(current);
+  }
+
 
   async processMessages(req, waAccount, value){
     if (!value.messages && value.whatsapp_business_api_data?.messages !== undefined){
@@ -196,4 +223,89 @@ export class WhatsAppWebhookService {
     }
 
   }
+
+  async processStatuses(req, waAccount, statuses: any[]) {
+    const workspaceId = req.params.workspace;
+
+    const WA_MESSAGE_STATE: Record<string, messageStates> = {
+      sent: messageStates.sent,
+      delivered: messageStates.delivered,
+      read: messageStates.read,
+      failed: messageStates.error,
+    };
+
+    const CHANNEL_MESSAGE_STATE: Partial<Record<messageStates, ChannelMessageState>> = {
+      [messageStates.sent]: ChannelMessageState.sent,
+      [messageStates.delivered]: ChannelMessageState.delivered,
+      [messageStates.read]: ChannelMessageState.read,
+      [messageStates.error]: ChannelMessageState.failed,
+    };
+
+    const CHANNEL_STATE_TO_FRONTEND: Partial<Record<ChannelMessageState, string>> = {
+      [ChannelMessageState.outgoing]: 'outgoing',
+      [ChannelMessageState.sent]: 'sent',
+      [ChannelMessageState.delivered]: 'delivered',
+      [ChannelMessageState.read]: 'read',
+      [ChannelMessageState.failed]: 'failed',
+    };
+
+    for (const status of statuses) {
+      const waMsgUid = status.id;
+      const waStatus = status.status;
+
+      const newState = WA_MESSAGE_STATE[waStatus];
+      if (!newState) continue;
+
+      const waMessage = await this.waMessageRepository.findOne({
+        where: { msgUid: waMsgUid },
+        relations: [
+          'channelMessageId',
+          'channelMessageId.channel',
+          'channelMessageId.channel.channelMembers',
+        ],
+      });
+
+      if (!waMessage) continue;
+
+      if (!this.isStateForward(waMessage.state, newState)) {
+        continue;
+      }
+
+      await this.waMessageRepository.update(
+        { id: waMessage.id },
+        { state: newState }
+      );
+
+      const channelMessage = waMessage.channelMessageId;
+      if (!channelMessage) continue;
+
+      const channel = channelMessage.channel;
+      if (!channel) continue;
+
+      const isGroup = channel.channelMembers?.length > 1;
+
+      const channelState = CHANNEL_MESSAGE_STATE[newState];
+      if (!channelState) continue;
+
+      if (!isGroup) {
+        await this.channelService.updateMessageState(
+          channelMessage.id,
+          channelState
+        );
+
+        const frontendState = CHANNEL_STATE_TO_FRONTEND[channelState] || 'sent';
+
+        const payloadOfSocket={
+          channelId: channel.id,
+          messageId: channelMessage.id,
+          state: frontendState,
+        }
+
+        this.webSocketService.messageStateUpdate(payloadOfSocket)
+      } else {
+        // group logic should be here
+      }
+    }
+  }
+
 }

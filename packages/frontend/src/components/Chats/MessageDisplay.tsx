@@ -4,8 +4,8 @@ import { ChannelMessage, MakeUnseenMsgSeen } from "@src/generated/graphql";
 import { ChatsContext } from "@components/Context/ChatsContext"
 import { VITE_BACKEND_URL } from '@src/config';
 import { useWebSocket } from "@src/modules/chat/hooks/useWebSocket";
-import { FiDownload } from 'react-icons/fi';
-import { FaCheckDouble, FaCircle } from "react-icons/fa";
+import { FiClock, FiDownload } from 'react-icons/fi';
+import { FaCheck, FaCheckDouble, FaCircle, FaExclamationCircle } from "react-icons/fa";
 
 interface Message {
   id: string;
@@ -14,19 +14,61 @@ interface Message {
   createdAt: string;
 }
 
-export const TickMark = () => {
-  return (
-    <span className='ml-1 px-2 text-gray-500'>
-      <FaCheckDouble size={14} />
-    </span>
-  );
+interface TickMarkProps {
+  status: 'outgoing' | 'sent' | 'delivered' | 'read' | 'failed';
+}
+
+export const TickMark = ({ status }: TickMarkProps) => {
+  const base = "inline-flex items-center leading-none";
+
+  switch (status) {
+    case 'outgoing':
+      return (
+        <span className={`${base} text-white/90`}>
+          <FiClock size={13} />
+        </span>
+      );
+
+    case 'sent':
+      return (
+        <span className={`${base} text-white/90
+`}>
+          <FaCheck size={13} />
+        </span>
+      );
+
+    case 'delivered':
+      return (
+        <span className={`${base} text-white/90`}>
+          <FaCheckDouble size={13} />
+        </span>
+      );
+
+    case 'read':
+      return (
+        <span className={`${base} text-sky-400`}>
+          <FaCheckDouble size={13} />
+        </span>
+      );
+
+    case 'failed':
+      return (
+        <span className={`${base} text-red-500`}>
+          <FaExclamationCircle size={13} />
+        </span>
+      );
+
+    default:
+      return null;
+  }
 };
+
 
 export default function MessageDisplay() {
   const LIMIT = 20;
   const [messages, setMessages] = useState([]);
   const [cursor, setCursor] = useState<string | null>(null);
-  const { chatsDetails, newMessage, setNewMessage, myCurrentMessage }: any = useContext(ChatsContext)
+  const { chatsDetails, newMessage, setNewMessage, myCurrentMessage, messageStateUpdate }: any = useContext(ChatsContext)
   const containerRef = useRef<HTMLDivElement>(null);
 
 
@@ -200,10 +242,30 @@ export default function MessageDisplay() {
     }
   }, [newMessage]);
 
+  useEffect(() => {
+    if (!messageStateUpdate) return;
+    
+    const { channelId, messageId, state } = messageStateUpdate;
+    
+    if (channelId === chatsDetails.channelId) {
+      setMessages((prevMessages) => {
+        return prevMessages.map((message) => {
+          if (message.id === messageId) {
+            return {
+              ...message,
+              state: state  
+            };
+          }
+          return message;
+        });
+      });
+    }
+  }, [messageStateUpdate]);
+
   const groupedMessages = groupMessagesByDate(messages);
 
   return (
-    <div className="flex h-[calc(100vh-20%)] p-6 bg-[#efeae2]">
+    <div className="flex h-[calc(100vh-20%)] p-6 bg-[#efeae2] scroll-smooth">
       {/* Messages */}
       <div
         ref={containerRef}
@@ -232,12 +294,14 @@ export default function MessageDisplay() {
                     <div className={`border rounded-br-2xl rounded-tl-xl rounded-tr-2xl p-3 max-w-md shadow-sm ${message.sender ? 'bg-white ' : 'bg-green-600 text-white'}`}>
                       <div className="whitespace-pre-wrap">{message.textMessage}</div>
                       {message.textMessage && (
-                        <div className={`flex justify-between items-center text-xs mt-1 text-right ${message.sender ? 'text-gray-400' : 'text-green-100'}`}>
-                          {HandleCurrentDate(message.createdAt)}
-                          {!message.sender && <TickMark/>}
+                        <div
+                          className={`flex items-center justify-between gap-5 text-xs mt-2 ${message.sender ? 'text-gray-400' : 'text-green-100'
+                            }`}
+                        >
+                          <span>{HandleCurrentDate(message.createdAt)}</span>
+                          {!message.sender && <TickMark status={message.state} />}
                         </div>
                       )}
-
                     </div>
                   )}
 
@@ -255,9 +319,11 @@ export default function MessageDisplay() {
                           <FiDownload />
                         </a>
                       </div>
-                      <div className={`text-xs mt-2 flex justify-between items-center ${message.sender ? 'text-gray-500' : 'text-green-100'}`}>
-                        {HandleCurrentDate(message.createdAt)}
-                        {!message.sender && <TickMark/>}
+                      <div
+                        className={`flex items-center justify-between gap-5 text-xs mt-2 ${message.sender ? 'text-gray-400' : 'text-green-100'}`}
+                      >
+                        <span>{HandleCurrentDate(message.createdAt)}</span>
+                        {!message.sender && <TickMark status={message.state} />}
                       </div>
                     </div>
                   )}
@@ -270,9 +336,11 @@ export default function MessageDisplay() {
                         className="object-contain border-none rounded-lg"
                       />
                       <div className="break-words">{message.textMessage}</div>
-                      <div className={`text-xs mt-1 flex justify-between items-center ${message.sender ? 'text-gray-500' : 'text-green-100'}`}>
-                        {HandleCurrentDate(message.createdAt)}
-                        {!message.sender && <TickMark/>}
+                      <div
+                        className={`flex items-center justify-between gap-5 text-xs mt-2 ${message.sender ? 'text-gray-400' : 'text-green-100'}`}
+                      >
+                        <span>{HandleCurrentDate(message.createdAt)}</span>
+                        {!message.sender && <TickMark status={message.state} />}
                       </div>
                     </div>
                   )}
@@ -285,9 +353,11 @@ export default function MessageDisplay() {
                         src={`${VITE_BACKEND_URL}/files/${message.attachmentUrl}`}
                       ></video>
                       <div className="break-words">{message.textMessage}</div>
-                      <div className={`text-xs mt-1 flex justify-between items-center ${message.sender ? 'text-gray-500' : 'text-green-100'}`}>
-                        {HandleCurrentDate(message.createdAt)}
-                        {!message.sender && <TickMark/>}
+                      <div
+                        className={`flex items-center justify-between gap-5 text-xs mt-2 ${message.sender ? 'text-gray-400' : 'text-green-100'}`}
+                      >
+                        <span>{HandleCurrentDate(message.createdAt)}</span>
+                        {!message.sender && <TickMark status={message.state} />}
                       </div>
                     </div>
                   )}
@@ -296,9 +366,11 @@ export default function MessageDisplay() {
                     <div className={`flex flex-col p-2 rounded-lg gap-1 max-w-[70%] md:max-w-[40%] ${message.sender ? 'bg-white ' : 'bg-green-600 text-white'}`}>
                       <audio controls src={`${VITE_BACKEND_URL}/files/${message.attachmentUrl}`}></audio>
                       <div className="break-words">{message.textMessage}</div>
-                      <div className={`text-xs mt-1 flex justify-between items-center ${message.sender ? 'text-gray-500' : 'text-green-100'}`}>
-                        {HandleCurrentDate(message.createdAt)}
-                        {!message.sender && <TickMark/>}
+                      <div
+                        className={`flex items-center justify-between gap-5 text-xs mt-2 ${message.sender ? 'text-gray-400' : 'text-green-100'}`}
+                      >
+                        <span>{HandleCurrentDate(message.createdAt)}</span>
+                        {!message.sender && <TickMark status={message.state} />}
                       </div>
                     </div>
                   )}

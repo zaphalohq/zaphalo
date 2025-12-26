@@ -12,6 +12,8 @@ export interface ChatsContectProps {
     setIsNewChannelCreated : Function,   
     isChatOpen : any, 
     setIsChatOpen : Function,
+    messageStateUpdate: any,
+    setMessageStateUpdate: Function,
 }
 
 export const ChatsContext = createContext<ChatsContectProps | undefined>(undefined)
@@ -52,6 +54,12 @@ export const ChatsProvider = ({ children }: any) => {
 
     const [ isChatOpen, setIsChatOpen ] = useState(false)
 
+    const [ messageStateUpdate, setMessageStateUpdate ] = useState<{
+        channelId: string;
+        messageId: string;
+        state: string;
+    } | null>(null);
+
     return (
         <ChatsContext.Provider value={{
             chatsDetails,
@@ -65,7 +73,9 @@ export const ChatsProvider = ({ children }: any) => {
             isNewChannelCreated, 
             setIsNewChannelCreated, 
             isChatOpen, 
-            setIsChatOpen, 
+            setIsChatOpen,
+            messageStateUpdate,
+            setMessageStateUpdate, 
         }}>
             {children}
         </ChatsContext.Provider>

@@ -1,4 +1,4 @@
-import { Field, Float } from '@nestjs/graphql';
+import { Field, Float, registerEnumType } from '@nestjs/graphql';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -15,6 +15,18 @@ import { ObjectType } from '@nestjs/graphql';
 import { Contacts } from 'src/customer-modules/contacts/contacts.entity';
 import { UUIDScalarType } from 'src/modules/api/scalars/uuid.scalar';
 import { Attachment } from 'src/customer-modules/attachment/attachment.entity';
+
+export enum ChannelMessageState {
+  outgoing = 'In Queue',
+  sent = 'Sent',
+  delivered = 'Delivered',
+  read = 'Read',
+  failed = 'Failed',
+}
+
+registerEnumType(ChannelMessageState, {
+  name: 'ChannelMessageState',
+});
 
 @Entity({ name: 'messages' })
 @ObjectType()
@@ -61,4 +73,8 @@ export class Message {
   @OneToOne(() => Attachment, { nullable: true })
   @JoinColumn({ name: 'attachmentId' })
   attachment: Relation<Attachment>;
+
+  @Column({ type: 'enum', enum: ChannelMessageState, enumName: 'channel_message_state_enum', default: ChannelMessageState.outgoing, })
+  @Field(() => ChannelMessageState)
+  state: ChannelMessageState;
 }

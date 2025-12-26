@@ -1190,6 +1190,7 @@ query messages($channelId: String!, $cursor: String, $limit : Int!){
       attachment {
         originalname
       }
+      state
     }
     hasMore
   }
@@ -1461,6 +1462,7 @@ query fetchMessageById($messageId: String!) {
     sender{
       phoneNo
     }
+    state
   }
 }
 `

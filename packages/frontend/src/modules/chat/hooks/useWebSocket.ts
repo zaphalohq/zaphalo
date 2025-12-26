@@ -18,7 +18,7 @@ interface Message {
 export function useWebSocket() {
   // const [socketVal, setSocketVal] = useState<Socket | null>(null);
   const { socket } = useSocket();
-  const { newMessage, setNewMessage, setIsNewChannelCreated, setMyCurrentMessage }: any = useContext(ChatsContext)
+  const { newMessage, setNewMessage, setIsNewChannelCreated, setMyCurrentMessage, setMessageStateUpdate }: any = useContext(ChatsContext)
 
   const [newUnseenMessage, setNewUnseenMessage] = useState<Message[]>(
     [])
@@ -116,9 +116,25 @@ export function useWebSocket() {
       }
     })
 
+    socket.on("messageStateUpdated", async(payloadData)=>{
+      try{
+        const payload = JSON.parse(payloadData)
+        const { channelId, messageId, state } = payload;
+
+        setMessageStateUpdate({
+          channelId,
+          messageId,
+          state,
+        });
+      }catch(err){
+        console.error("Error in update state of message",err)
+      }
+    })
+
     return () => {
       socket.off("message");
-      socket.off("createMessage")
+      socket.off("createMessage");
+      socket.off("messageStateUpdated");
     };
   }, [socket]);
 
