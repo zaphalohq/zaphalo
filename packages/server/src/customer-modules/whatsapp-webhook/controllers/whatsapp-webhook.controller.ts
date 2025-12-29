@@ -49,7 +49,7 @@ export class WhatsAppWebhookController {
       var businessAccountId = entry['id']
       var waAccount = await this.waAccountService.findInstantsByAccounID(businessAccountId)
       if (!this.whatsAppWebhookService.checkSignature(req, waAccount)){
-        req.workspaceId = false;
+        req.workspaceId = '';
         throw new ForbiddenException('Access to this resource is denied.');
       }
       req.workspaceId = req.params.workspaceId;

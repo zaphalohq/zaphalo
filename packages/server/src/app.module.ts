@@ -12,6 +12,7 @@ import { GraphQLConfigService } from './modules/api/graphql-config/graphql-confi
 import { CustomerModule } from 'src/customer-modules/customer.module';
 import { CoreModule } from 'src/modules/core.module';
 import { JwtMiddleware } from 'src/middlewares/jwt.middleware';
+import { HttpMiddleware } from 'src/middlewares/http.middleware';
 import { MiddlewareModule } from 'src/middlewares/middleware.module';
 
 @Module({
@@ -57,6 +58,12 @@ export class AppModule {
       .apply(JwtMiddleware)
       .forRoutes(
         { path: '/upload', method: RequestMethod.ALL },
+      );
+
+    consumer
+      .apply(HttpMiddleware)
+      .forRoutes(
+        { path: '/whatsapp/*path', method: RequestMethod.ALL },
       );
 
     consumer
