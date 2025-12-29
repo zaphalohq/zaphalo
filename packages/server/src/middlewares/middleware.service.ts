@@ -39,6 +39,7 @@ export class MiddlewareService {
   ) {
     request.user = data.user;
     request.workspace = data.workspace;
+    request.workspaceId = data.workspace?.id;
     request.workspaceMemberId = data.workspaceMemberId;
     request.authProvider = data.authProvider;
     request.userWorkspace=data.userWorkspace;

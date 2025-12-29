@@ -44,14 +44,15 @@ export class WhatsAppWebhookController {
 
   @Post('/:workspace/webhook')
   async waWebhookPost(@Request() req: ExpressRequest): Promise<any>{
-    const workspaceId = req.params.workspace;
     const data = JSON.parse(JSON.stringify(req.body, null, 2))
     for(const entry of data['entry']) {
       var businessAccountId = entry['id']
       var waAccount = await this.waAccountService.findInstantsByAccounID(businessAccountId)
       if (!this.whatsAppWebhookService.checkSignature(req, waAccount)){
+        req.workspaceId = false;
         throw new ForbiddenException('Access to this resource is denied.');
       }
+      req.workspaceId = req.params.workspaceId;
       for(const changes of entry['changes']) {
         const value = changes['value']
 
