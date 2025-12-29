@@ -44,6 +44,7 @@ export const authGraphqlApiExceptionHandler = (exception: AuthException) => {
         subCode: exception.code,
       });
     case AuthExceptionCode.USER_NOT_FOUND:
+    case AuthExceptionCode.USER_ALREADY_EXISTS:
     case AuthExceptionCode.WORKSPACE_NOT_FOUND:
     case AuthExceptionCode.USER_WORKSPACE_NOT_FOUND:
       throw new AuthenticationError(exception);
