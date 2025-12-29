@@ -12,7 +12,7 @@ import Dashboard from '@src/pages/Dashboard';
 import MainLayout from '@src/pages/MainLayout';
 import Broadcast from '@src/pages/Broadcast';
 import MailingList from '@src/pages/MailingList';
-import Register from '@src/components/Auth/Register';
+import Register from '@src/pages/auth/Register';
 import LoadingPage from '@src/components/UI/Loadingpage';
 import WhatsAppAccount from '@src/pages/WhatsAppAccount';
 import SignUpPage from '@src/pages/auth/SignUpPage';
