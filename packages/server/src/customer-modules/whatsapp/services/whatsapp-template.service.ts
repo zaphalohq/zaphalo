@@ -32,6 +32,8 @@ import { TemplateResponse } from "../dtos/templates/template-response.dto";
 import { Broadcast } from "src/customer-modules/broadcast/entities/broadcast.entity";
 import { broadcastStates } from "src/customer-modules/broadcast/enums/broadcast.state.enum";
 import { MailingContacts } from "src/customer-modules/mailingList/mailingContacts.entity";
+import { extractFolderPathAndFilename } from "src/modules/file/utils/extract-folderpath-and-filename.utils";
+import { FileService } from "src/modules/file/services/file.service";
 const LATITUDE_LONGITUDE_REGEX = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/;
 
 function slugify(text: string): string {
@@ -60,6 +62,7 @@ export class WaTemplateService {
     private readonly waAccountService: WaAccountService,
     private readonly attachmentService: AttachmentService,
     private fileUploadService: FileUploadService,
+    private readonly fileService: FileService,
   ) {
     this.templateRepository = connection.getRepository(WhatsAppTemplate);
     this.templateButtonRepository = connection.getRepository(Button)
@@ -275,7 +278,7 @@ export class WaTemplateService {
     }
 
     await this.templateRepository.save(templateFind.template);
-    return {'template': templateFind.template, 'message': 'Broadcast saved', 'status': true}
+    return {'template': templateFind.template, 'message': 'Template saved', 'status': true}
   }
 
   async getHeaderComponent(waTemplateId, freeTextJson, templateVariablesValue, attachment, workspaceId){
@@ -510,7 +513,7 @@ export class WaTemplateService {
     return {'type': 'FOOTER', 'text': waTemplateId.footerText}
   }
 
-  async submitTemplate(templateId) {
+  async submitTemplate(templateId, workspaceId) {
 
     // """Register template to WhatsApp Business Account """
     const waTemplate = await this.templateRepository.findOne({
@@ -537,7 +540,11 @@ export class WaTemplateService {
 
     if (attachment){
       try{
-        fileHandle = await waApi.uploadDemoDocument(attachment);
+        const { folderPath, filename } = extractFolderPathAndFilename(attachment.path)
+
+        const attachementStrem = this.fileService.getFileStream(folderPath, filename, workspaceId)
+
+        fileHandle = await waApi.uploadDemoDocument(attachementStrem, attachment);
       }
       catch (error){
         throw new Error("Whats app demo document not uploaded")

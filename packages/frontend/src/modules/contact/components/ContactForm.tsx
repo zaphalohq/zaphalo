@@ -128,7 +128,7 @@ const ContactForm = ({ contactId, onBack, isNewContacts }) => {
     };
     const submitData: toSubmitData = {
       contactName: contactFormData.contactName,
-      phoneNo: contactFormData.phoneNo, // Convert to number
+      phoneNo: contactFormData.phoneNo.replace(/\+/g, ''), // Convert to number without + sign
       profileImg: contactFormData.profileImg,
       street: contactFormData.street || '',
       country: contactFormData.country || '',

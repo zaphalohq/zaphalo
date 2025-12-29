@@ -1379,6 +1379,7 @@ export const GetDashboardStats = gql`
       deliveredCount
       failedCount
       sentCount
+      openRate
       contacts {
         id
         phoneNo

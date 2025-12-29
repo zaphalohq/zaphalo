@@ -12,7 +12,9 @@ import {
   SaveWhatsappTemplate,
   GetTemplate,
   CreateOneAttachmentDoc,
-  SubmitWhatsappTemplate
+  SubmitWhatsappTemplate,
+  useUploadFileMutation,
+  FileFolder
 } from "@src/generated/graphql";
 import { toast } from 'react-toastify';
 import { isDefined } from '@src/utils/validation/isDefined';
@@ -48,6 +50,7 @@ import {
   Trash2,
   Users,
 } from "lucide-react"
+import { useApolloCoreClient } from "@src/modules/apollo/hooks/useApolloCoreClient";
 
 export default function TemplateForm({ onBack, recordId, readOnly = false }) {
   const [active, setActive] = useState("overview");
@@ -55,6 +58,7 @@ export default function TemplateForm({ onBack, recordId, readOnly = false }) {
   const [isValidated, setIsValidated] = useState(false);
   const { templateData, setTemplateData, attachment, setAttachment }: any = useContext(TemplateContext)
   const [file, setFile] = useState<File | null>(null);
+  const coreClient = useApolloCoreClient();
 
   if (isDefined(recordId)){
     const { data: templateViewData, loading: viewLoading, error: viewError } = useQuery(GetTemplate, {
@@ -110,6 +114,7 @@ export default function TemplateForm({ onBack, recordId, readOnly = false }) {
     },
   });
 
+  const [uploadFile] = useUploadFileMutation({ client: coreClient });
   const [createOneAttachment] = useMutation(CreateOneAttachmentDoc);
 
   useEffect(() => {
@@ -149,25 +154,26 @@ export default function TemplateForm({ onBack, recordId, readOnly = false }) {
       return false
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('fileFolder', 'template');
+      const response = await uploadFile({
+        variables: {
+          file,
+          fileFolder: FileFolder.Attachment,
+        },
+      });
 
-      const response = await Post(
-        `/upload`,
-        formData,
-        { headers: { 'Content-Type': 'multipart/form-data' } }
-      );
+      const signedFile = response?.data?.uploadFile;
+      const { path: attachmentPath } = signedFile;
+      
       if (response.data) {
         const attachment = await createOneAttachment({
           variables: {
-            name: response.data.file.filename,
-            originalname: response.data.file.originalname,
-            mimetype: response.data.file.mimetype,
-            size: response.data.file.size,
-            path: response.data.file.path,
-            createdAt: "",
-            updatedAt: "",
+            name: file.name,
+            originalname: file.name,
+            mimetype: file.type,
+            size: file.size,
+            path: attachmentPath,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
           }
         })
 
@@ -247,14 +253,14 @@ export default function TemplateForm({ onBack, recordId, readOnly = false }) {
     return true
   }
 
-  const handleSave = async (e, submit: boolean) => {
+  const handleSave = async (submit: boolean) => {
     const formValid = checkValidation(templateData);
     if (!formValid){
       return
     }
     let attachmentRec;
     if (file !== null) {
-      const attachmentRec = await handleFileUpload()
+      attachmentRec = await handleFileUpload()
       if(!attachmentRec){
         toast.error('File have not uploaded sucessfully.');
         return
