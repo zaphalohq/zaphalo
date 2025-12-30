@@ -241,7 +241,7 @@ export class WhatsAppWebhookService {
       [messageStates.error]: ChannelMessageState.failed,
     };
 
-    const CHANNEL_STATE_TO_FRONTEND: Partial<Record<ChannelMessageState, string>> = {
+    const CHANNEL_STATE_TO_FRONTEND: Partial<Record<ChannelMessageState, keyof typeof ChannelMessageState>> = {
       [ChannelMessageState.outgoing]: 'outgoing',
       [ChannelMessageState.sent]: 'sent',
       [ChannelMessageState.delivered]: 'delivered',
@@ -294,6 +294,7 @@ export class WhatsAppWebhookService {
         );
 
         const frontendState = CHANNEL_STATE_TO_FRONTEND[channelState] || 'sent';
+        if (!frontendState) continue;
 
         const payloadOfSocket={
           channelId: channel.id,
