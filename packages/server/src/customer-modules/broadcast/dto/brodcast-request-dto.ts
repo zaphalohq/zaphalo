@@ -1,4 +1,4 @@
-import { Field, InputType } from "@nestjs/graphql";
+import { Field, InputType, Int } from "@nestjs/graphql";
 import { broadcastStates } from "src/customer-modules/broadcast/enums/broadcast.state.enum"
 
 @InputType()
@@ -18,7 +18,7 @@ export class BroadcastRequest {
   @Field()
   contactListId: string;
 
-  @Field(() => Number, { nullable: true })
+  @Field(() => Int, { nullable: true })
   limit?: number;
 
   @Field(() => String, { nullable: true })
