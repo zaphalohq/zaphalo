@@ -1,9 +1,6 @@
 services:
   server:
-    build:
-      context: .
-      # target: frontend-build
-      dockerfile: packages/server/Dockerfile
+    image: zaphalo:latest
     command: ["yarn", "start:prod"]
     volumes:
       - server-local-data:/app/packages/server/.local-storage
@@ -14,19 +11,27 @@ services:
       db:
         condition: service_healthy
     environment:
-      PORT: 3000
-      APP_SECRET: 'asasasasa'
+      IS_MULTIWORKSPACE_ENABLED: ${IS_MULTIWORKSPACE_ENABLED}
+      NODE_PORT: 3000
       PG_DATABASE_URL: postgres://${PG_DATABASE_USER:-postgres}:${PG_DATABASE_PASSWORD:-postgres}@${PG_DATABASE_HOST:-db}:${PG_DATABASE_PORT:-5432}/zaphalo
       WEBSOCKET_PORT: 4000
-      FRONTEND_URL: 'http://192.168.1.246:5173'
-      SERVER_URL: '192.168.1.246:3000'
-      BACKEND_URL: 'http://192.168.1.246:3000'
-      IS_MULTIWORKSPACE_ENABLED: true
-      GOOGLE_AUTH_ENABLED: false
-      GOOGLE_AUTH_CLIENT_ID: false
-      GOOGLE_AUTH_CLIENT_SECRET: false
-      GOOGLE_AUTH_CALLBACK_URL: http://localhost:3000/google/auth/redirect
-      GOOGLE_AUTH_APIS_CALLBACK_URL: http://localhost:3001/auth/google-apis/get-access-token
+      SERVER_URL: ${SERVER_URL}
+      DISABLE_DB_MIGRATIONS: ${DISABLE_DB_MIGRATIONS}
+      DISABLE_CRON_JOBS_REGISTRATION: ${DISABLE_CRON_JOBS_REGISTRATION}
+
+      STORAGE_TYPE: ${STORAGE_TYPE}
+      STORAGE_S3_REGION: ${STORAGE_S3_REGION}
+      STORAGE_S3_NAME: ${STORAGE_S3_NAME}
+      STORAGE_S3_ENDPOINT: ${STORAGE_S3_ENDPOINT}
+
+      APP_SECRET: ${APP_SECRET:-replace_me_with_a_random_string}
+
+      GOOGLE_AUTH_ENABLED: ${GOOGLE_AUTH_ENABLED}
+      GOOGLE_AUTH_CLIENT_ID: ${GOOGLE_AUTH_CLIENT_ID}
+      GOOGLE_AUTH_CLIENT_SECRET: ${GOOGLE_AUTH_CLIENT_SECRET}
+      GOOGLE_AUTH_CALLBACK_URL: ${GOOGLE_AUTH_CALLBACK_URL}
+      GOOGLE_AUTH_APIS_CALLBACK_URL: ${GOOGLE_AUTH_APIS_CALLBACK_URL}
+    restart: always
   db:
     image: postgres:15
     ports:
@@ -42,7 +47,6 @@ services:
       timeout: 5s
       retries: 10
     restart: always
-
 volumes:
   db-data:
   server-local-data:

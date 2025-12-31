@@ -32,6 +32,6 @@ async function bootstrap() {
     })
   );
 
-  await app.listen(Number(configService.get('PORT') | 3000));
+  await app.listen(Number(configService.get('NODE_PORT') | 3000));
 }
 bootstrap();
