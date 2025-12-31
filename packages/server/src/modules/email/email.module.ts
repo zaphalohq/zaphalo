@@ -24,7 +24,7 @@ import { ConfigModule } from '@nestjs/config';
           },
         },
         defaults: {
-          from: `"YaariAPI" <${config.get('EMAIL_SMTP_USERNAME')}>`,
+          from: `"ZapHalo" <${config.get('EMAIL_SMTP_USERNAME')}>`,
         },
         template: {
           dir: join(__dirname, 'templates'),

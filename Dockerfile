@@ -1,5 +1,5 @@
 # Base image for common dependencies
-FROM node:24-alpine as common-deps
+FROM node:24-alpine AS common-deps
 
 WORKDIR /app
 
@@ -18,7 +18,7 @@ RUN yarn && yarn cache clean && npx nx reset
 
 
 # Build the back
-FROM common-deps as server-build
+FROM common-deps AS server-build
 
 # Copy sourcecode after installing dependences to accelerate subsequents builds
 COPY ./packages/server /app/packages/server
@@ -34,7 +34,7 @@ RUN mv /app/packages/server/build /app/packages/server/dist
 
 
 # Build the front
-FROM common-deps as frontend-build
+FROM common-deps AS frontend-build
 
 ARG VITE_BACKEND_URL
 
@@ -44,7 +44,7 @@ RUN NX_DAEMON=false npx nx build frontend
 
 
 # Final stage: Run the application
-FROM node:22-alpine as yaari
+FROM node:22-alpine AS zaphalo
 
 # Used to run healthcheck in docker
 RUN apk add --no-cache curl jq
@@ -70,7 +70,7 @@ COPY --chown=1000 --from=server-build /app/packages/server /app/packages/server
 COPY --chown=1000 --from=frontend-build /app/packages/frontend/build /app/packages/server/dist/frontend
 
 # Set metadata and labels
-LABEL org.opencontainers.image.source=https://github.com/YaariAPI/YaariAPI
+LABEL org.opencontainers.image.source=https://github.com/zaphalohq/zaphalo
 LABEL org.opencontainers.image.description="This image provides a consistent and reproducible environment for the backend and frontend, ensuring it deploys faster and runs the same way regardless of the deployment environment."
 
 RUN mkdir -p /app/.local-storage /app/packages/server/.local-storage && \

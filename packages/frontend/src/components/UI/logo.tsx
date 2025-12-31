@@ -7,7 +7,7 @@ const Logo = () => {
         <span className="text-white font-bold text-lg">Y</span>
       </div>
       <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-600">
-        YaariAPI
+        ZapHalo
       </span>
     </div>
   );
