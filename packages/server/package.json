@@ -19,7 +19,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "command:prod": "node dist/src/command/command",
-    "database:init:prod": "yarn ts-node ./scripts/setup-db.ts && yarn database:migrate:run",
+    "database:init:prod": "npx ts-node ./scripts/setup-db.ts && yarn database:migrate:prod",
     "database:migrate:prod": "npx -y typeorm migration:run -d dist/src/database/typeorm/core/core.datasource",
     "typeorm": "../../node_modules/typeorm/.bin/typeorm"
   },
