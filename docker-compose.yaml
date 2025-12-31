@@ -13,7 +13,7 @@ services:
     environment:
       IS_MULTIWORKSPACE_ENABLED: ${IS_MULTIWORKSPACE_ENABLED}
       NODE_PORT: 3000
-      PG_DATABASE_URL: postgres://${PG_DATABASE_USER:-postgres}:${PG_DATABASE_PASSWORD:-postgres}@${PG_DATABASE_HOST:-db}:${PG_DATABASE_PORT:-5432}/zaphalo
+      PG_DATABASE_URL: postgres://${PG_DATABASE_USER:-postgres}:${PG_DATABASE_PASSWORD:-postgres}@${PG_DATABASE_HOST:-db}:${PG_DATABASE_PORT:-5432}/zaphalo2
       WEBSOCKET_PORT: 4000
       SERVER_URL: ${SERVER_URL}
       DISABLE_DB_MIGRATIONS: ${DISABLE_DB_MIGRATIONS}
@@ -30,7 +30,6 @@ services:
       GOOGLE_AUTH_CLIENT_ID: ${GOOGLE_AUTH_CLIENT_ID}
       GOOGLE_AUTH_CLIENT_SECRET: ${GOOGLE_AUTH_CLIENT_SECRET}
       GOOGLE_AUTH_CALLBACK_URL: ${GOOGLE_AUTH_CALLBACK_URL}
-      GOOGLE_AUTH_APIS_CALLBACK_URL: ${GOOGLE_AUTH_APIS_CALLBACK_URL}
     restart: always
   db:
     image: postgres:15
@@ -39,6 +38,7 @@ services:
     volumes:
       - ./docker-postgres-multiple-dbs.sh:/docker-entrypoint-initdb.d/docker-postgres-multiple-dbs.sh
     environment:
+      POSTGRES_DB: ${PG_DATABASE_NAME:-default}
       POSTGRES_USER: ${PG_DATABASE_USER:-postgres}
       POSTGRES_PASSWORD: ${PG_DATABASE_PASSWORD:-postgres}
     healthcheck:
