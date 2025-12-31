@@ -11250,15 +11250,32 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@yaari-api/frontend-e2e@workspace:packages/frontend-e2e":
+"@yarnpkg/lockfile@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@yarnpkg/lockfile@npm:1.1.0"
+  checksum: 10c0/0bfa50a3d756623d1f3409bc23f225a1d069424dbc77c6fd2f14fb377390cd57ec703dc70286e081c564be9051ead9ba85d81d66a3e68eeb6eb506d4e0c0fbda
+  languageName: node
+  linkType: hard
+
+"@yarnpkg/parsers@npm:3.0.2":
+  version: 3.0.2
+  resolution: "@yarnpkg/parsers@npm:3.0.2"
+  dependencies:
+    js-yaml: "npm:^3.10.0"
+    tslib: "npm:^2.4.0"
+  checksum: 10c0/a0c340e13129643162423d7e666061c0b39b143bfad3fc5a74c7d92a30fd740f6665d41cd4e61832c20375889d793eea1d1d103cacb39ed68f7acd168add8c53
+  languageName: node
+  linkType: hard
+
+"@zaphalo/frontend-e2e@workspace:packages/frontend-e2e":
   version: 0.0.0-use.local
-  resolution: "@yaari-api/frontend-e2e@workspace:packages/frontend-e2e"
+  resolution: "@zaphalo/frontend-e2e@workspace:packages/frontend-e2e"
   languageName: unknown
   linkType: soft
 
-"@yaari-api/source@workspace:.":
+"@zaphalo/source@workspace:.":
   version: 0.0.0-use.local
-  resolution: "@yaari-api/source@workspace:."
+  resolution: "@zaphalo/source@workspace:."
   dependencies:
     "@apollo/client": "npm:^3.13.8"
     "@apollo/server": "npm:^4.12.2"
@@ -11407,23 +11424,6 @@ __metadata:
     zod: "npm:^3.25.67"
   languageName: unknown
   linkType: soft
-
-"@yarnpkg/lockfile@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "@yarnpkg/lockfile@npm:1.1.0"
-  checksum: 10c0/0bfa50a3d756623d1f3409bc23f225a1d069424dbc77c6fd2f14fb377390cd57ec703dc70286e081c564be9051ead9ba85d81d66a3e68eeb6eb506d4e0c0fbda
-  languageName: node
-  linkType: hard
-
-"@yarnpkg/parsers@npm:3.0.2":
-  version: 3.0.2
-  resolution: "@yarnpkg/parsers@npm:3.0.2"
-  dependencies:
-    js-yaml: "npm:^3.10.0"
-    tslib: "npm:^2.4.0"
-  checksum: 10c0/a0c340e13129643162423d7e666061c0b39b143bfad3fc5a74c7d92a30fd740f6665d41cd4e61832c20375889d793eea1d1d103cacb39ed68f7acd168add8c53
-  languageName: node
-  linkType: hard
 
 "@zkochan/js-yaml@npm:0.0.7":
   version: 0.0.7

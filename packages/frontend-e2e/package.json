@@ -1,5 +1,5 @@
 {
-  "name": "@yaari-api/frontend-e2e",
+  "name": "@zaphalo/frontend-e2e",
   "version": "0.0.1",
   "private": true,
   "nx": {
