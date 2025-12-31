@@ -53,24 +53,11 @@ export class AppModule {
       .forRoutes(
         { path: 'graphql', method: RequestMethod.ALL },
       );
-
-    consumer
-      .apply(JwtMiddleware)
-      .forRoutes(
-        { path: '/upload', method: RequestMethod.ALL },
-      );
-
     consumer
       .apply(HttpMiddleware)
       .forRoutes(
         { path: '/whatsapp/*path', method: RequestMethod.ALL },
       );
-
-    consumer
-      .apply(JwtMiddleware)
-      .forRoutes(
-        { path: '/uploadExcel', method: RequestMethod.ALL },
-      );  
   }
 
 }

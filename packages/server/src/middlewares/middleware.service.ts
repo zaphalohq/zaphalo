@@ -132,4 +132,14 @@ export class MiddlewareService {
 
     return 500;
   }
+
+  public async httpHydrateRestRequest(request: Request) {
+    this.httpBindDataToRequestObject(request);
+  }
+
+  private httpBindDataToRequestObject(
+    request: Request,
+  ) {
+    request.workspaceId = request.params.path[0];
+  }
 }

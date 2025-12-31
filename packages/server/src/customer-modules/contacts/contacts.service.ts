@@ -74,6 +74,7 @@ export class ContactsService {
 
         return await this.contactsRepository.find({
             order: { createdAt: 'ASC' },
+            relations: ['channel']
         });
     }
 

@@ -7,6 +7,7 @@ import {
   MessageBody
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { ChannelMessageState } from 'src/customer-modules/channel/entities/message.entity';
 
 export const WEBSOCKET_PORT =
   process.env.WEBSOCKET_PORT || 4000
@@ -51,7 +52,7 @@ export class WebSocketService implements OnGatewayConnection, OnGatewayDisconnec
   messageStateUpdate(payload:{
     channelId: string;
     messageId: string;
-    state: string;
+    state: keyof typeof ChannelMessageState;
   }) {
     const updateMsgPayload = JSON.stringify(payload)
     this.server.emit('messageStateUpdated', updateMsgPayload)

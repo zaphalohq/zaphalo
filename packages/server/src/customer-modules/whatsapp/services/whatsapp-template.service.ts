@@ -342,7 +342,14 @@ export class WaTemplateService {
       }
     )
 
-    for (const v of waTemplateId.variables) {
+    const sortedVariables = [...waTemplateId.variables].sort((a, b) => {
+      const getIndex = (name: string) =>
+      Number(name.replace(/[^\d]/g, ''));
+
+      return getIndex(a.name) - getIndex(b.name);
+    });
+
+    for (const v of sortedVariables) {
 
       // ---------- STATIC VARIABLE ----------
       if (v.type === "STATIC") {

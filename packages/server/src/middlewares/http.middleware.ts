@@ -9,9 +9,8 @@ export class HttpMiddleware implements NestMiddleware {
   constructor(private readonly middlewareService: MiddlewareService) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
-    console.log("..........................req..........", req)
     try {
-      await this.middlewareService.hydrateRestRequest(req);
+      await this.middlewareService.httpHydrateRestRequest(req);
     } catch (error) {
       this.middlewareService.writeRestResponseOnExceptionCaught(res, error);
 
