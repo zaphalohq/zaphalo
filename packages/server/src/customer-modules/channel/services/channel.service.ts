@@ -21,6 +21,7 @@ import {
   WhatsAppExceptionCode,
 } from 'src/customer-modules/whatsapp/whatsapp.exception';
 import { NotificationService } from "src/modules/notification/notification.service";
+import { send } from "process";
 
 @Injectable()
 export class ChannelService {
@@ -138,7 +139,8 @@ export class ChannelService {
         messageId: message.id.toString(),
         type: messageType.toString(),
         channelName: channel.channelName.toString(),
-        textMessage: textMessage.toString()
+        textMessage: textMessage.toString(),
+        sender: sender.phoneNo,
       };
       const notificationBody =
         messageType === 'text'
