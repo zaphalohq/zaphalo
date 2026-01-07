@@ -58,10 +58,10 @@ RUN chmod +x /app/entrypoint.sh
 WORKDIR /app/packages/server
 
 ARG VITE_BACKEND_URL
-ENV VITE_BACKEND_URL $VITE_BACKEND_URL
+ENV VITE_BACKEND_URL=$VITE_BACKEND_URL
 
 ARG APP_VERSION
-ENV APP_VERSION $APP_VERSION
+ENV APP_VERSION=$APP_VERSION
 
 
 # Copy built applications from previous stages

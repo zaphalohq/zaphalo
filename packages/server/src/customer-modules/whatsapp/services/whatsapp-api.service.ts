@@ -5,11 +5,13 @@ import { join } from 'path';
 import { WhatsAppAccount } from "src/customer-modules/whatsapp/entities/whatsapp-account.entity";
 import FormData from 'form-data';
 import { createReadStream } from "fs";
-const DEFAULT_ENDPOINT = "https://graph.facebook.com/v23.0"
 import {
   WhatsAppException,
   WhatsAppExceptionCode,
 } from 'src/customer-modules/whatsapp/whatsapp.exception';
+
+const DEFAULT_ENDPOINT = "https://graph.facebook.com/v23.0"
+
 
 @Injectable()
 export class WhatsAppSDKService {
@@ -79,22 +81,16 @@ export class WhatsAppApiService {
 
     try {
       res = await this.httpService.axiosRef(requestParams)
-    } catch (err) {
-      console.error(
-        `WhatsApp network failure: ${err?.message}`,
-      );
-      return err;
-    }
-
-    try {
-      if ('error' in res){
-        throw new Error(JSON.stringify(res.data))
+    } catch (error) {
+      if (error.response) {
+        console.error('API Error:', error.response.data);
+        return {response: error.response}
+      } else if (error.request) {
+        console.error('Network Error:', error.message);
+      } else {
+        // Axios config / code error
+        console.error('Axios Error:', error.message);
       }
-    } catch (err) {
-      console.error(
-        `WhatsApp network failure: ${err?.message}`,
-      );
-      throw err;
     }
     return res
   }
@@ -313,7 +309,10 @@ export class WhatsAppApiService {
         "error": response.error ? JSON.stringify(response.error) : undefined,
       }
     }
-    return this.prepareErrorResponse(response)
+    throw new WhatsAppException(
+      this.prepareErrorResponse(response),
+      WhatsAppExceptionCode.WA_NETWORK_ERROR,
+    );
   }
 
   async syncTemplate() {
