@@ -21,6 +21,7 @@ import { Languages, getLanguageLabelByValue } from "@src/modules/whatsapp/langua
 import { TemplateContext, initTemplateData } from '@src/modules/whatsapp/Context/TemplateContext';
 import { loaderRef } from "@src/modules/loading/loaderRef";
 import { toast } from 'react-toastify';
+import { FiEdit2, FiCheck, FiEye } from 'react-icons/fi';
 
 const statusColors: Record<string, string> = {
   Scheduled: "bg-blue-100 text-blue-800",
@@ -183,10 +184,10 @@ export default function TemplateList({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="All">All</SelectItem>
-            <SelectItem value="New">new</SelectItem>
-            <SelectItem value="PENDING">pending</SelectItem>
-            <SelectItem value="REJECTED">rejected</SelectItem>
-            <SelectItem value="APPROVED">approved</SelectItem>
+            <SelectItem value="New">New</SelectItem>
+            <SelectItem value="Pending">Pending</SelectItem>
+            <SelectItem value="Rejected">Rejected</SelectItem>
+            <SelectItem value="Approved">Approved</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -203,12 +204,11 @@ export default function TemplateList({
               <TableHead className="px-4 py-3">Category</TableHead>
               <TableHead className="px-4 py-3">Language</TableHead>
               <TableHead className="px-4 py-3">Account</TableHead>
-              <TableHead className="px-4 py-3">Create on</TableHead>
               <TableHead className="px-4 py-3">Status</TableHead>
-              <TableHead className="px-4 py-3">Sync</TableHead>
-              <TableHead className="px-4 py-3">Preview</TableHead>
-              <TableHead className="px-4 py-3">Broadcast List</TableHead>
-              <TableHead className="px-4 py-3">Test</TableHead>
+              <TableHead className="px-4 py-3">Last updated on</TableHead>
+              <TableHead className="px-1 py-1"></TableHead>
+              <TableHead className="px-1 py-1"></TableHead>
+              <TableHead className="px-1 py-1"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="text-black">
@@ -231,9 +231,6 @@ export default function TemplateList({
                   <TableCell className="px-4 py-5">{template.category}</TableCell>
                   <TableCell className="px-4 py-5">{getLanguageLabelByValue(template.language)}</TableCell>
                   <TableCell className="px-4 py-5">{template?.account?.name}</TableCell>
-                  <TableCell className="px-4 py-5">{
-                    formatLocalDate(template.createdAt)
-                  }</TableCell>
                   <TableCell className="px-4 py-5">
                     <span
                       className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${statusColors[template.status] || "bg-gray-100 text-gray-800"
@@ -242,7 +239,14 @@ export default function TemplateList({
                       {template.status}
                     </span>
                   </TableCell>
-                  <TableCell onClick={() => {
+                   {/*<TableCell className="px-4 py-5">{
+                  }</TableCell>
+                   <TableCell className="px-4 py-5">{
+                  }</TableCell>*/}
+                  <TableCell className="px-4 py-5">{
+                    formatLocalDate(template.updatedAt)
+                  }</TableCell>
+{/*                  <TableCell onClick={() => {
                     handleSync(template.id);
                     // resetContext();
                     // template.status != 'new' ? setReadOnly(true) : setReadOnly(false)
@@ -253,47 +257,49 @@ export default function TemplateList({
                     title="preview"
                   >
                     Sync
-                  </TableCell>
-{/*                  <TableCell onClick={() => {
-                    resetContext();
-                    template.status != 'new' ? setReadOnly(true) : setReadOnly(false)
-                    setRecord(template.id)
-                    showForm(true)
-                  }}
-                    className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
-                    title="preview"
-                  >
-                    Edit
                   </TableCell>*/}
-                  <TableCell
-                    className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
-                    title="preview"
+                  <TableCell 
+                    className="px-1 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
+                    
                   >
-                    <span onClick={() => {
-                      setPreview(template.id)
-                    }}>Preview</span>
+                    <button aria-label="Preview Template" onClick={(e) => {
+                          e.stopPropagation();
+                          setPreview(template.id)
+                        }}>
+                        <FiEye/>
+                    </button>
                   </TableCell>
-                  <TableCell onClick={() => {
-                    setTemplateId(template.id)
-                    setIsBroadCastVis(true)
-                  }}
-                    className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
-                    title="preview"
-                  >
-                    View
-                  </TableCell>
-                  <TableCell onClick={() => {
-                    setShowSendPopup(true);
-                    setTestTemplateData((prev) => ({
-                      ...prev,
-                      dbTemplateId: template.id,
-                      templateName: template.templateName
-                    }))
-                  }}
-                    className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
+                  <TableCell 
+                    className="px-1 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
                     title="Test Template"
                   >
-                    Test
+                    <button aria-label="Preview Template" onClick={(e) => {
+                        e.stopPropagation();
+                        setShowSendPopup(true);
+                        setTestTemplateData((prev) => ({
+                          ...prev,
+                          dbTemplateId: template.id,
+                          templateName: template.templateName
+                        }))
+                      }}>
+                        <FiCheck/>
+                    </button>
+                    
+                  </TableCell>
+                  <TableCell 
+                    className="px-1 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
+                    title="Edit"
+                  >
+                    <button aria-label="Preview Template" onClick={(e) => {
+                      e.stopPropagation();
+                      resetContext();
+                      // template.status != 'new' ? setReadOnly(true) : setReadOnly(false)
+                      setReadOnly(false)
+                      setRecord(template.id)
+                      showForm(true)
+                    }}>
+                      <FiEdit2  />
+                    </button>
                   </TableCell>
                 </TableRow>
               ))

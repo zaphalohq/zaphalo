@@ -995,6 +995,7 @@ query searchReadTemplate($page : Int!, $pageSize : Int!, $search: String, $filte
       waTemplateId
       templateImg
       createdAt
+      updatedAt
       status
       footerText
       headerText

@@ -92,9 +92,6 @@ export default function TemplateForm({ onBack, recordId, readOnly = false }) {
           name: templateView.attachment.name,
         })
       }
-      if (templateData.state != 'new'){
-        readOnly = false
-      }
     }
   }
 
@@ -355,7 +352,6 @@ export default function TemplateForm({ onBack, recordId, readOnly = false }) {
               <Button onClick={handleSave}>
                 Save
               </Button>
-              <Button onClick={() => readOnly = false}>Edit</Button>
               <Button onClick={handleSaveAndSubmit}>Submit</Button>
 
               <Button variant="outline" onClick={onBack}>Cancel</Button>
