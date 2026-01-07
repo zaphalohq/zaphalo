@@ -613,7 +613,8 @@ export function useGetSystemStatus() {
 export enum FileFolder {
   Attachment = 'Attachment',
   ProfilePicture = 'ProfilePicture',
-  WorkspaceLogo = 'WorkspaceLogo'
+  WorkspaceLogo = 'WorkspaceLogo',
+  Template = 'Template'
 }
 
 export type CreateOneAttachmentVariables = Exact<{
