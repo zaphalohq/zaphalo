@@ -584,7 +584,7 @@ export class WaTemplateService {
     })
 
     try{
-      if (0 && waTemplate.waTemplateId){
+      if (waTemplate.waTemplateId){
         await waApi.submitTemplateUpdate(jsonData, waTemplate.waTemplateId)
         Object.assign(waTemplate, {'status': TemplateStatus.pending});
         await this.templateRepository.save(waTemplate);
