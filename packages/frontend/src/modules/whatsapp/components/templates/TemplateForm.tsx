@@ -157,7 +157,7 @@ export default function TemplateForm({ onBack, recordId, readOnly = false }) {
       const response = await uploadFile({
         variables: {
           file,
-          fileFolder: FileFolder.Attachment,
+          fileFolder: FileFolder.Template,
         },
       });
 
@@ -355,6 +355,7 @@ export default function TemplateForm({ onBack, recordId, readOnly = false }) {
               <Button onClick={handleSave}>
                 Save
               </Button>
+              <Button onClick={() => readOnly = false}>Edit</Button>
               <Button onClick={handleSaveAndSubmit}>Submit</Button>
 
               <Button variant="outline" onClick={onBack}>Cancel</Button>
@@ -414,7 +415,10 @@ export default function TemplateForm({ onBack, recordId, readOnly = false }) {
                   <Label>Language</Label>
                   <Select value={templateData.language} onValueChange={(val) => setTemplateData({ ...templateData, language: val })} disabled={readOnly}>
                     <SelectTrigger><SelectValue placeholder="Select category"/></SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="max-h-80 overflow-y-auto
+      [&::-webkit-scrollbar]:w-2
+      [&::-webkit-scrollbar-thumb]:bg-gray-400
+      [&::-webkit-scrollbar-track]:bg-gray-100">
                       {Languages.map((language) =>
                         <SelectItem value={language.value}>{language.label}</SelectItem>
                       )}

@@ -71,3 +71,8 @@ export const Languages = [
   { value: "vi", label: "Vietnamese" },
   { value: "zu", label: "Zulu" },
 ];
+
+export function getLanguageLabelByValue(value: string) {
+  const lang = Languages.find((l) => l.value === value);
+  return lang ? lang.label : value; // fallback to value if not found
+}

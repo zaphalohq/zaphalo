@@ -64,7 +64,6 @@ export class LocalDriver implements StorageDriver {
       params.folderPath,
       params.filename,
     );
-
     if (!existsSync(filePath)) {
       throw new FileStorageException(
         'File not found',

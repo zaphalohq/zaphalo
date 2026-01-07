@@ -17,6 +17,7 @@ import {
 import { PageHeader } from '@src/modules/ui/layout/page/components/PageHeader';
 import { Plus } from "lucide-react";
 import { formatLocalDate } from '@src/utils/formatLocalDate';
+import { Languages, getLanguageLabelByValue } from "@src/modules/whatsapp/language-code";
 import { TemplateContext, initTemplateData } from '@src/modules/whatsapp/Context/TemplateContext';
 import { loaderRef } from "@src/modules/loading/loaderRef";
 import { toast } from 'react-toastify';
@@ -200,11 +201,11 @@ export default function TemplateList({
               <TableHead className="px-4 py-2"></TableHead>
               <TableHead className="px-4 py-3">Name</TableHead>
               <TableHead className="px-4 py-3">Category</TableHead>
+              <TableHead className="px-4 py-3">Language</TableHead>
               <TableHead className="px-4 py-3">Account</TableHead>
               <TableHead className="px-4 py-3">Create on</TableHead>
               <TableHead className="px-4 py-3">Status</TableHead>
               <TableHead className="px-4 py-3">Sync</TableHead>
-              <TableHead className="px-4 py-3"></TableHead>
               <TableHead className="px-4 py-3">Preview</TableHead>
               <TableHead className="px-4 py-3">Broadcast List</TableHead>
               <TableHead className="px-4 py-3">Test</TableHead>
@@ -213,7 +214,12 @@ export default function TemplateList({
           <TableBody className="text-black">
             {templates.length > 0 ? (
               templates.map((template) => (
-                <TableRow key={template.id} className="bg-white border-b border-stone-200">
+                <TableRow key={template.id} onClick={() => {
+                    resetContext();
+                    template.status != 'new' ? setReadOnly(true) : setReadOnly(false)
+                    setRecord(template.id)
+                    showForm(true)
+                  }} className="bg-white border-b border-stone-200 hover:cursor-pointer">
                   <TableCell className="px-4 py-5">
                     <input
                       type="checkbox"
@@ -223,6 +229,7 @@ export default function TemplateList({
                   </TableCell>
                   <TableCell className="px-4 py-5">{template.name}</TableCell>
                   <TableCell className="px-4 py-5">{template.category}</TableCell>
+                  <TableCell className="px-4 py-5">{getLanguageLabelByValue(template.language)}</TableCell>
                   <TableCell className="px-4 py-5">{template?.account?.name}</TableCell>
                   <TableCell className="px-4 py-5">{
                     formatLocalDate(template.createdAt)
@@ -247,7 +254,7 @@ export default function TemplateList({
                   >
                     Sync
                   </TableCell>
-                  <TableCell onClick={() => {
+{/*                  <TableCell onClick={() => {
                     resetContext();
                     template.status != 'new' ? setReadOnly(true) : setReadOnly(false)
                     setRecord(template.id)
@@ -257,7 +264,7 @@ export default function TemplateList({
                     title="preview"
                   >
                     Edit
-                  </TableCell>
+                  </TableCell>*/}
                   <TableCell
                     className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
                     title="preview"

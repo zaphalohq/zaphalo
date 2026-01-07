@@ -553,8 +553,7 @@ export class WaTemplateService {
     if (attachment){
       try{
         const { folderPath, filename } = extractFolderPathAndFilename(attachment.path)
-
-        const attachementStrem = this.fileService.getFileStream(folderPath, filename, workspaceId)
+        const attachementStrem = await this.fileService.getFileStream(folderPath, filename, workspaceId)
 
         fileHandle = await waApi.uploadDemoDocument(attachementStrem, attachment);
       }
@@ -585,7 +584,7 @@ export class WaTemplateService {
     })
 
     try{
-      if (waTemplate.waTemplateId){
+      if (0 && waTemplate.waTemplateId){
         await waApi.submitTemplateUpdate(jsonData, waTemplate.waTemplateId)
         Object.assign(waTemplate, {'status': TemplateStatus.pending});
         await this.templateRepository.save(waTemplate);
