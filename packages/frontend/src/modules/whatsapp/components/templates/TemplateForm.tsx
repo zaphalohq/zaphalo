@@ -295,7 +295,7 @@ export default function TemplateForm({ onBack, recordId, readOnly = false }) {
         templateId: templateData['templateId'],
       }
     });
-    if (response.data?.submitTemplate?.success) {
+    if (response.data?.submitTemplate?.status) {
       toast.success(`${response.data?.submitTemplate?.message}`);
       onBack();
     }

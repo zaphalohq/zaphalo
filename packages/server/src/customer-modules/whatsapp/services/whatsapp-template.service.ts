@@ -34,6 +34,11 @@ import { broadcastStates } from "src/customer-modules/broadcast/enums/broadcast.
 import { MailingContacts } from "src/customer-modules/mailingList/mailingContacts.entity";
 import { extractFolderPathAndFilename } from "src/modules/file/utils/extract-folderpath-and-filename.utils";
 import { FileService } from "src/modules/file/services/file.service";
+import {
+  WhatsAppException,
+  WhatsAppExceptionCode,
+} from 'src/customer-modules/whatsapp/whatsapp.exception';
+
 const LATITUDE_LONGITUDE_REGEX = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/;
 
 function slugify(text: string): string {
@@ -578,9 +583,10 @@ export class WaTemplateService {
       'category': waTemplate.category,
       'components': components,
     })
+
     try{
       if (waTemplate.waTemplateId){
-        waApi.submitTemplateUpdate(jsonData, waTemplate.waTemplateId)
+        await waApi.submitTemplateUpdate(jsonData, waTemplate.waTemplateId)
         Object.assign(waTemplate, {'status': TemplateStatus.pending});
         await this.templateRepository.save(waTemplate);
       }
@@ -919,7 +925,10 @@ export class WaTemplateService {
       return {'waAccount': waAccount.waAccount, 'message': 'WhatsApp account templates sync done.', 'status': true}
     }
     catch (error){
-      return {'waAccount': waAccount.waAccount, 'message': 'WhatsApp account templates sync not done.', 'status': false}
+      throw new WhatsAppException(
+        error,
+        WhatsAppExceptionCode.TEMPLATE_NOT_SYNC,
+      );
     }
   }
 
