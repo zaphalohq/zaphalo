@@ -139,7 +139,7 @@ export class WhatsAppTemplateResolver {
   async deleteTemplate(
     @Args('templateIds', { type: () => [String] }) templateIds: string[],
   ): Promise<TemplateResponse>{
-    return this.templateService.deleteTemplate(templateIds)
+    return await this.templateService.deleteTemplate(templateIds)
   }
 
 }

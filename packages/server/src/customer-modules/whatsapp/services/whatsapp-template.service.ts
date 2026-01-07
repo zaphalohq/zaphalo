@@ -948,7 +948,10 @@ export class WaTemplateService {
     const hasWaTemplate = templates.some(t => t.waTemplateId !== null);
 
     if (hasWaTemplate) {
-      throw new Error('Cannot delete templates that are linked with WhatsApp Account.');
+      throw new WhatsAppException(
+        "Cannot delete templates that are linked with WhatsApp Account.",
+        WhatsAppExceptionCode.TEMPLATE_NOT_DELETED,
+      );
     }
 
     await this.templateRepository.remove(templates);

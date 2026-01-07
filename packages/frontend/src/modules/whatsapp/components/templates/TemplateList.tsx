@@ -75,13 +75,18 @@ export default function TemplateList({
     );
   };
 
-  const [deleteTemplate, { error: deleteError }] = useMutation(DeleteTemplate);
+  const [deleteTemplate, { error: deleteError }] = useMutation(DeleteTemplate, {
+    onCompleted: (data) => {
+    },
+    onError: (err) => {
+    },
+  });
   const deleteSelected = async () => {
     if (!selected.length) return;
     const response = await deleteTemplate({ variables: { templateIds: selected } });
 
-    if (response.data.deleteTemplate.status === false) {
-      toast.error(response.data.deleteTemplate.message);
+    if (response.errors.message) {
+      toast.error(response.errors.message);
     }
     else {
       toast.success(response.data.deleteTemplate.message);
@@ -225,6 +230,7 @@ export default function TemplateList({
                       type="checkbox"
                       checked={selected.includes(template.id)}
                       onChange={() => toggleSelect(template.id)}
+                      onClick={(e) => e.stopPropagation()}
                     />
                   </TableCell>
                   <TableCell className="px-4 py-5">{template.name}</TableCell>
@@ -239,34 +245,18 @@ export default function TemplateList({
                       {template.status}
                     </span>
                   </TableCell>
-                   {/*<TableCell className="px-4 py-5">{
-                  }</TableCell>
-                   <TableCell className="px-4 py-5">{
-                  }</TableCell>*/}
                   <TableCell className="px-4 py-5">{
                     formatLocalDate(template.updatedAt)
                   }</TableCell>
-{/*                  <TableCell onClick={() => {
-                    handleSync(template.id);
-                    // resetContext();
-                    // template.status != 'new' ? setReadOnly(true) : setReadOnly(false)
-                    // setRecord(template.id)
-                    // showForm(true)
-                  }}
-                    className="px-6 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
-                    title="preview"
-                  >
-                    Sync
-                  </TableCell>*/}
                   <TableCell 
                     className="px-1 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
                     
                   >
                     <button aria-label="Preview Template" onClick={(e) => {
-                          e.stopPropagation();
-                          setPreview(template.id)
-                        }}>
-                        <FiEye/>
+                        e.stopPropagation();
+                        setPreview(template.id)
+                      }}>
+                      <FiEye/>
                     </button>
                   </TableCell>
                   <TableCell 
@@ -284,7 +274,6 @@ export default function TemplateList({
                       }}>
                         <FiCheck/>
                     </button>
-                    
                   </TableCell>
                   <TableCell 
                     className="px-1 py-4 text-left truncate max-w-[150px] underline text-blue-500 hover:text-blue-700 cursor-pointer"
